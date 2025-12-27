@@ -194,6 +194,8 @@ OPENROUTER_API_KEY=your_api_key_here
 - The `.gitignore` file is configured to exclude `.env` files
 - Use environment variables for API keys in production
 - Rotate your API keys regularly
+- In production environments, consider using a secrets management service (e.g., AWS Secrets Manager, HashiCorp Vault) instead of plain environment variables
+- API keys are stored in memory during runtime; ensure your environment is secure
 
 ## Requirements
 

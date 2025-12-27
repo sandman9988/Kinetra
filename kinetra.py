@@ -17,12 +17,13 @@ load_dotenv()
 class OpenRouterClient:
     """Client for interacting with OpenRouter API"""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, timeout: int = 30):
         """
         Initialize the OpenRouter client.
         
         Args:
             api_key: OpenRouter API key. If not provided, will try to load from OPENROUTER_API_KEY env var.
+            timeout: Request timeout in seconds (default: 30)
         """
         self.api_key = api_key or os.getenv('OPENROUTER_API_KEY')
         if not self.api_key:
@@ -32,6 +33,7 @@ class OpenRouterClient:
             )
         
         self.base_url = "https://openrouter.ai/api/v1"
+        self.timeout = timeout
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
@@ -76,8 +78,20 @@ class OpenRouterClient:
         if max_tokens:
             payload["max_tokens"] = max_tokens
         
-        response = requests.post(endpoint, json=payload, headers=self.headers)
-        response.raise_for_status()
+        try:
+            response = requests.post(endpoint, json=payload, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+        except requests.exceptions.Timeout:
+            raise TimeoutError(f"Request timed out after {self.timeout} seconds")
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 401:
+                raise ValueError("Invalid API key. Please check your OpenRouter API key.")
+            elif response.status_code == 429:
+                raise RuntimeError("Rate limit exceeded. Please try again later.")
+            elif response.status_code == 400:
+                raise ValueError(f"Invalid request: {response.text}")
+            else:
+                raise RuntimeError(f"API request failed: {e}")
         
         return response.json()
     
@@ -90,8 +104,16 @@ class OpenRouterClient:
         """
         endpoint = f"{self.base_url}/models"
         
-        response = requests.get(endpoint, headers=self.headers)
-        response.raise_for_status()
+        try:
+            response = requests.get(endpoint, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+        except requests.exceptions.Timeout:
+            raise TimeoutError(f"Request timed out after {self.timeout} seconds")
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 401:
+                raise ValueError("Invalid API key. Please check your OpenRouter API key.")
+            else:
+                raise RuntimeError(f"API request failed: {e}")
         
         return response.json()
 
