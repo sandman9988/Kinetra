@@ -77,12 +77,13 @@ python examples.py
 
 ### OpenRouterClient
 
-#### `__init__(api_key: Optional[str] = None)`
+#### `__init__(api_key: Optional[str] = None, timeout: int = 30)`
 
 Initialize the OpenRouter client.
 
 **Parameters:**
 - `api_key` (optional): Your OpenRouter API key. If not provided, it will be read from the `OPENROUTER_API_KEY` environment variable.
+- `timeout` (int): Request timeout in seconds (default: 30)
 
 #### `chat_completion(messages, model, max_tokens, temperature, **kwargs)`
 

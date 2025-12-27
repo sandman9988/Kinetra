@@ -84,6 +84,7 @@ class OpenRouterClient:
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Request timed out after {self.timeout} seconds")
         except requests.exceptions.HTTPError as e:
+            # response is guaranteed to exist here since HTTPError is raised by raise_for_status()
             if response.status_code == 401:
                 raise ValueError("Invalid API key. Please check your OpenRouter API key.")
             elif response.status_code == 429:
@@ -92,6 +93,9 @@ class OpenRouterClient:
                 raise ValueError(f"Invalid request: {response.text}")
             else:
                 raise RuntimeError(f"API request failed: {e}")
+        except requests.exceptions.RequestException as e:
+            # Catch any other request exceptions
+            raise RuntimeError(f"API request failed: {e}")
         
         return response.json()
     
@@ -110,10 +114,14 @@ class OpenRouterClient:
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Request timed out after {self.timeout} seconds")
         except requests.exceptions.HTTPError as e:
+            # response is guaranteed to exist here since HTTPError is raised by raise_for_status()
             if response.status_code == 401:
                 raise ValueError("Invalid API key. Please check your OpenRouter API key.")
             else:
                 raise RuntimeError(f"API request failed: {e}")
+        except requests.exceptions.RequestException as e:
+            # Catch any other request exceptions
+            raise RuntimeError(f"API request failed: {e}")
         
         return response.json()
 
