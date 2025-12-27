@@ -1,0 +1,2 @@
+# Data directory for market data files
+# Place your CSV/Parquet files here (they will be gitignored)
