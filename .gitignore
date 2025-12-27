@@ -2,6 +2,8 @@
 .env
 .env.local
 config.json
+*.key
+*.pem
 
 # Python
 __pycache__/
@@ -40,3 +42,32 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Trading System Artifacts
+results/
+*.pkl
+*.joblib
+*.h5
+*.onnx
+models/
+checkpoints/
+logs/
+*.log
+
+# Data files (too large for git)
+data/*.csv
+data/*.parquet
+data/*.feather
+!data/.gitkeep
+
+# Backtest outputs
+backtest_reports/
+performance_metrics/
+*.html
+*.json
+!.github/workflows/*.json
+
+# ML artifacts
+mlruns/
+wandb/
+.neptune/
