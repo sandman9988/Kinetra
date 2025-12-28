@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kinetra RL Training Dashboard</title>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+        h1 { color: #00ff88; margin-bottom: 20px; text-align: center; }
+        h2 { color: #00aaff; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #0f3460;
+        }
+        .metric:last-child { border-bottom: none; }
+        .metric-name { color: #aaa; }
+        .metric-value { font-weight: bold; font-size: 1.1em; }
+        .positive { color: #00ff88; }
+        .negative { color: #ff4444; }
+        .neutral { color: #ffaa00; }
+        .bar-container { width: 100%; height: 20px; background: #0f3460; border-radius: 5px; margin-top: 5px; }
+        .bar { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+        .bar-energy { background: linear-gradient(90deg, #ff4444, #ffaa00, #00ff88); }
+        .bar-damping { background: linear-gradient(90deg, #00ff88, #ffaa00, #ff4444); }
+        .bar-reynolds { background: linear-gradient(90deg, #00aaff, #aa00ff); }
+        .feature-importance { margin-top: 10px; }
+        .feature-bar { display: flex; align-items: center; margin: 5px 0; }
+        .feature-name { width: 120px; font-size: 0.9em; color: #aaa; }
+        .feature-fill { height: 15px; background: #00aaff; border-radius: 3px; transition: width 0.5s; }
+        .status { text-align: center; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+        .status.connected { background: #003d00; color: #00ff88; }
+        .status.disconnected { background: #3d0000; color: #ff4444; }
+        .last-update { text-align: center; color: #666; font-size: 0.9em; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔥 KINETRA RL TRAINING</h1>
+
+    <div id="status" class="status disconnected">Connecting to metrics server...</div>
+
+    <div class="grid">
+        <!-- Training Stats -->
+        <div class="card">
+            <h2>📊 Training Progress</h2>
+            <div class="metric">
+                <span class="metric-name">Episode</span>
+                <span id="episode" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Total Trades</span>
+                <span id="trades" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Win Rate</span>
+                <span id="winrate" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Total P&L</span>
+                <span id="pnl" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Epsilon (exploration)</span>
+                <span id="epsilon" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Loss</span>
+                <span id="loss" class="metric-value">-</span>
+            </div>
+        </div>
+
+        <!-- MFE/MAE Analysis -->
+        <div class="card">
+            <h2>📈 Trade Quality (MFE/MAE)</h2>
+            <div class="metric">
+                <span class="metric-name">Avg MFE</span>
+                <span id="mfe" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Avg MAE</span>
+                <span id="mae" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">MFE/MAE Ratio</span>
+                <span id="mfe_mae_ratio" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">MFE Captured</span>
+                <span id="mfe_captured" class="metric-value">-</span>
+            </div>
+        </div>
+
+        <!-- Physics State -->
+        <div class="card">
+            <h2>⚡ Physics State</h2>
+            <div class="metric">
+                <span class="metric-name">Energy %ile</span>
+                <span id="energy_pct" class="metric-value">-</span>
+            </div>
+            <div class="bar-container"><div id="energy_bar" class="bar bar-energy" style="width: 50%"></div></div>
+
+            <div class="metric" style="margin-top: 10px;">
+                <span class="metric-name">Damping %ile</span>
+                <span id="damping_pct" class="metric-value">-</span>
+            </div>
+            <div class="bar-container"><div id="damping_bar" class="bar bar-damping" style="width: 50%"></div></div>
+
+            <div class="metric" style="margin-top: 10px;">
+                <span class="metric-name">Reynolds %ile</span>
+                <span id="reynolds_pct" class="metric-value">-</span>
+            </div>
+            <div class="bar-container"><div id="reynolds_bar" class="bar bar-reynolds" style="width: 50%"></div></div>
+
+            <div class="metric" style="margin-top: 10px;">
+                <span class="metric-name">Buying Pressure</span>
+                <span id="buying_pressure" class="metric-value">-</span>
+            </div>
+        </div>
+
+        <!-- Feature Importance -->
+        <div class="card">
+            <h2>🧠 Feature Importance (RL Learned)</h2>
+            <div id="feature_importance" class="feature-importance">
+                <p style="color: #666;">Waiting for data...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="last_update" class="last-update">-</div>
+
+    <script>
+        const METRICS_URL = 'http://localhost:8000/metrics';
+
+        function parsePrometheusMetrics(text) {
+            const metrics = {};
+            const lines = text.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('#') || !line.trim()) continue;
+                // Handle labeled metrics like feature_importance{feature="energy"}
+                const labelMatch = line.match(/^(\w+)\{([^}]+)\}\s+([\d.eE+-]+)/);
+                if (labelMatch) {
+                    const [, name, labels, value] = labelMatch;
+                    if (!metrics[name]) metrics[name] = {};
+                    const labelParts = labels.match(/(\w+)="([^"]+)"/);
+                    if (labelParts) {
+                        metrics[name][labelParts[2]] = parseFloat(value);
+                    }
+                } else {
+                    const match = line.match(/^(\w+)\s+([\d.eE+-]+)/);
+                    if (match) {
+                        metrics[match[1]] = parseFloat(match[2]);
+                    }
+                }
+            }
+            return metrics;
+        }
+
+        function formatValue(val, type) {
+            if (val === undefined || isNaN(val)) return '-';
+            switch(type) {
+                case 'pct': return val.toFixed(1) + '%';
+                case 'pnl': return (val >= 0 ? '+' : '') + val.toFixed(2) + '%';
+                case 'ratio': return val.toFixed(2);
+                case 'int': return Math.round(val).toString();
+                case 'eps': return val.toFixed(3);
+                default: return val.toFixed(4);
+            }
+        }
+
+        function updateUI(metrics) {
+            // Training stats
+            document.getElementById('episode').textContent = formatValue(metrics.kinetra_rl_episode, 'int');
+            document.getElementById('trades').textContent = formatValue(metrics.kinetra_rl_total_trades, 'int');
+
+            const winrate = metrics.kinetra_rl_win_rate;
+            const winrateEl = document.getElementById('winrate');
+            winrateEl.textContent = formatValue(winrate, 'pct');
+            winrateEl.className = 'metric-value ' + (winrate > 50 ? 'positive' : winrate < 50 ? 'negative' : 'neutral');
+
+            const pnl = metrics.kinetra_rl_total_pnl;
+            const pnlEl = document.getElementById('pnl');
+            pnlEl.textContent = formatValue(pnl, 'pnl');
+            pnlEl.className = 'metric-value ' + (pnl > 0 ? 'positive' : pnl < 0 ? 'negative' : 'neutral');
+
+            document.getElementById('epsilon').textContent = formatValue(metrics.kinetra_rl_epsilon, 'eps');
+            document.getElementById('loss').textContent = formatValue(metrics.kinetra_rl_loss, 'default');
+
+            // MFE/MAE
+            document.getElementById('mfe').textContent = formatValue(metrics.kinetra_rl_avg_mfe, 'pct');
+            document.getElementById('mae').textContent = formatValue(metrics.kinetra_rl_avg_mae, 'pct');
+
+            const ratio = metrics.kinetra_rl_mfe_mae_ratio;
+            const ratioEl = document.getElementById('mfe_mae_ratio');
+            ratioEl.textContent = formatValue(ratio, 'ratio');
+            ratioEl.className = 'metric-value ' + (ratio > 1.5 ? 'positive' : ratio < 1 ? 'negative' : 'neutral');
+
+            document.getElementById('mfe_captured').textContent = formatValue(metrics.kinetra_rl_mfe_captured, 'pct');
+
+            // Physics state
+            const energy = metrics.kinetra_physics_energy_pct || 0.5;
+            document.getElementById('energy_pct').textContent = (energy * 100).toFixed(0) + '%';
+            document.getElementById('energy_bar').style.width = (energy * 100) + '%';
+
+            const damping = metrics.kinetra_physics_damping_pct || 0.5;
+            document.getElementById('damping_pct').textContent = (damping * 100).toFixed(0) + '%';
+            document.getElementById('damping_bar').style.width = (damping * 100) + '%';
+
+            const reynolds = metrics.kinetra_physics_reynolds_pct || 0.5;
+            document.getElementById('reynolds_pct').textContent = (reynolds * 100).toFixed(0) + '%';
+            document.getElementById('reynolds_bar').style.width = (reynolds * 100) + '%';
+
+            document.getElementById('buying_pressure').textContent = formatValue(metrics.kinetra_physics_buying_pressure, 'ratio');
+
+            // Feature importance
+            const featureImportance = metrics.kinetra_rl_feature_importance;
+            if (featureImportance && Object.keys(featureImportance).length > 0) {
+                const container = document.getElementById('feature_importance');
+                const sorted = Object.entries(featureImportance).sort((a, b) => b[1] - a[1]);
+                const maxVal = Math.max(...sorted.map(x => x[1]));
+
+                container.innerHTML = sorted.slice(0, 10).map(([name, val]) => `
+                    <div class="feature-bar">
+                        <span class="feature-name">${name}</span>
+                        <div class="bar-container" style="flex: 1; height: 15px;">
+                            <div class="feature-fill" style="width: ${(val / maxVal * 100).toFixed(0)}%"></div>
+                        </div>
+                        <span style="width: 50px; text-align: right; font-size: 0.9em;">${(val * 100).toFixed(1)}%</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function fetchMetrics() {
+            try {
+                const response = await fetch(METRICS_URL);
+                if (!response.ok) throw new Error('Failed to fetch');
+
+                const text = await response.text();
+                const metrics = parsePrometheusMetrics(text);
+
+                updateUI(metrics);
+
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('status').textContent = '✓ Connected to metrics server';
+                document.getElementById('last_update').textContent = 'Last update: ' + new Date().toLocaleTimeString();
+            } catch (err) {
+                document.getElementById('status').className = 'status disconnected';
+                document.getElementById('status').textContent = '✗ Cannot connect to http://localhost:8000/metrics - Start the training script first!';
+            }
+        }
+
+        // Fetch every second
+        fetchMetrics();
+        setInterval(fetchMetrics, 1000);
+    </script>
+</body>
+</html>
