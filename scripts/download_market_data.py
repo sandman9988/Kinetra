@@ -103,12 +103,13 @@ class SymbolInfo:
         volume_ratio = self.volume_min / max(self.volume_max, 1)
         volume_friction = min(1.0, volume_ratio * 100)
 
-        # Weighted combination
-        friction = (
-            0.6 * spread_friction +
-            0.3 * swap_friction +
-            0.1 * volume_friction
-        )
+        # Dimensionless aggregate: root-mean-square of component frictions
+        friction_squared_mean = (
+            spread_friction ** 2 +
+            swap_friction ** 2 +
+            volume_friction ** 2
+        ) / 3.0
+        friction = min(1.0, friction_squared_mean ** 0.5)
 
         return round(friction, 4)
 
