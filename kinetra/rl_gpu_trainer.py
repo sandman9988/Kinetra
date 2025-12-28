@@ -235,7 +235,43 @@ class PhysicsFeatureComputer:
             ).fillna(0.5)
         else:
             # Estimate spread from bar range during low-volume periods
-            result['spread_pct'] = 0.5
+            # High range / low volume = wide effective spread
+            vol_low = df['volume'] < df['volume'].rolling(self.lookback).quantile(0.3)
+            result['spread_pct'] = vol_low.astype(float).rolling(5).mean().fillna(0.5)
+
+        # === FRAGILE REGIME DETECTION ===
+        # High spread + low liquidity + low volume = don't trade
+        # This is the friction-based filter replacing time-of-day
+
+        # Liquidity score (inverse of friction)
+        # Low volume percentile = low liquidity
+        vol_pct = df['volume'].rolling(window, min_periods=self.lookback).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # Low liquidity (volume) detection
+        low_liquidity = vol_pct < 0.3
+
+        # High friction (spread) detection
+        high_spread = result['spread_pct'] > 0.7
+
+        # Low participation (declining volume trend)
+        declining_volume = result['volume_trend'] < 0.8
+
+        # Fragile regime = any 2 of 3 conditions
+        fragile_score = (low_liquidity.astype(float) +
+                        high_spread.astype(float) +
+                        declining_volume.astype(float))
+
+        result['fragile_regime'] = (fragile_score >= 2).astype(float)
+
+        # Inverse: favorable regime for trading
+        result['favorable_regime'] = (1 - result['fragile_regime'])
+
+        # Add as features (agent learns when NOT to trade)
+        result['fragile_regime_pct'] = result['fragile_regime']
+        result['favorable_regime_pct'] = result['favorable_regime']
+        result['liquidity_pct'] = vol_pct
 
         return result.fillna(0.5)
 
