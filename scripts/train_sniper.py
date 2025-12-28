@@ -146,9 +146,20 @@ class SniperFeatureComputer(PhysicsFeatureComputer):
         window = min(500, len(df))
 
         for col in new_features:
-            result[f'{col}_pct'] = result[col].rolling(window, min_periods=20).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-            ).fillna(0.5)
+            # Use optimized rolling percentile implementation if available
+            if hasattr(self, "_fast_rolling_percentile"):
+                pct_values = self._fast_rolling_percentile(
+                    result[col].astype(float),
+                    window=window,
+                    min_periods=20,
+                )
+                result[f'{col}_pct'] = pd.Series(pct_values, index=result.index).fillna(0.5)
+            else:
+                # Fallback to original lambda-based rolling implementation
+                result[f'{col}_pct'] = result[col].rolling(window, min_periods=20).apply(
+                    lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
+                    raw=False,
+                ).fillna(0.5)
 
         # Keep raw values for some
         result['trend_direction_raw'] = result['trend_direction']
