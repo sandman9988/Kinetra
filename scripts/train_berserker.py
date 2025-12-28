@@ -219,22 +219,23 @@ def train_berserker(
     state_dim = envs[0][1].state_dim
     action_dim = envs[0][1].action_dim
 
-    # Training config
+    # Training config - OPTIMIZED FOR GPU
     config = TrainingConfig(
         learning_rate=3e-4,
-        batch_size=256,           # Larger batches for GPU
+        batch_size=1024,          # MAX GPU: Large batches = better GPU utilization
         gamma=0.95,
         epsilon_start=0.8,
         epsilon_end=0.05,
         epsilon_decay=0.995,
-        buffer_size=50000,
-        target_update_freq=100,
+        buffer_size=100000,       # Larger buffer for more diverse sampling
+        target_update_freq=50,    # More frequent target updates
         n_episodes=n_episodes,
     )
 
-    # Initialize networks
-    q_net = DQN(state_dim, action_dim).to(device)
-    target_net = DQN(state_dim, action_dim).to(device)
+    # Initialize networks - WIDER for GPU parallelism
+    hidden_sizes = (512, 256, 128, 64)  # Deeper & wider = more GPU work
+    q_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
+    target_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
     target_net.load_state_dict(q_net.state_dict())
 
     optimizer = torch.optim.Adam(q_net.parameters(), lr=config.learning_rate)

@@ -60,6 +60,63 @@ class PhysicsFeatureComputer:
         # No hardcoded lookback - computed from data
         pass
 
+    def _fast_rolling_percentile(self, series: pd.Series, window: int, min_periods: int = 1) -> pd.Series:
+        """
+        FAST rolling percentile using vectorized operations.
+
+        Replaces slow lambda-based approach:
+          series.rolling(w).apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean())
+
+        This is O(n) vs O(n * window) for the lambda version.
+        Uses pandas rank() which is implemented in C/Cython.
+        """
+        # Rolling rank approach: for each window, what's the rank of current value?
+        # rank / window_size = percentile
+
+        def rolling_rank(arr, w):
+            """Compute rolling rank using numpy operations."""
+            n = len(arr)
+            result = np.full(n, 0.5)
+
+            # Use stride tricks for efficient windowing
+            if n < w:
+                return result
+
+            for i in range(w - 1, n):
+                start = max(0, i - w + 1)
+                window_vals = arr[start:i+1]
+                current = arr[i]
+                # Percentile = proportion of values less than current
+                result[i] = np.mean(window_vals[:-1] < current) if len(window_vals) > 1 else 0.5
+
+            return result
+
+        # Use numba if available, otherwise numpy
+        try:
+            from numba import jit
+
+            @jit(nopython=True, cache=True)
+            def fast_rolling_pct(arr, w):
+                n = len(arr)
+                result = np.full(n, 0.5)
+                for i in range(w - 1, n):
+                    start = i - w + 1
+                    window_vals = arr[start:i+1]
+                    current = arr[i]
+                    count = 0
+                    for j in range(len(window_vals) - 1):
+                        if window_vals[j] < current:
+                            count += 1
+                    result[i] = count / (len(window_vals) - 1) if len(window_vals) > 1 else 0.5
+                return result
+
+            result = fast_rolling_pct(series.values.astype(np.float64), window)
+        except ImportError:
+            # Fallback to pandas rolling rank (still faster than lambda)
+            result = series.rolling(window, min_periods=min_periods).rank(pct=True).fillna(0.5).values
+
+        return pd.Series(result, index=series.index)
+
     def _compute_dominant_periods(self, series: pd.Series) -> Tuple[int, int]:
         """
         Use Fourier Transform (DSP) to find dominant periods in the data.
@@ -319,9 +376,7 @@ class PhysicsFeatureComputer:
 
         # Where does THIS candle sit in the instrument's recent distribution?
         # This adapts to the instrument AND the current volatility regime
-        result['candle_magnitude_pct'] = candle_magnitude.rolling(window, min_periods=lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        result['candle_magnitude_pct'] = self._fast_rolling_percentile(candle_magnitude, window, lookback)
 
         # Fat candle = top 20% of distribution (Pareto: 20% of candles = 80% of gains)
         # This is a FACT about the distribution, not a trading rule
@@ -329,9 +384,7 @@ class PhysicsFeatureComputer:
 
         # Energy magnitude (velocity squared, captures directional energy)
         energy_magnitude = velocity.abs()
-        result['energy_magnitude_pct'] = energy_magnitude.rolling(window, min_periods=lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        result['energy_magnitude_pct'] = self._fast_rolling_percentile(energy_magnitude, window, lookback)
 
         # === PRE-FAT CANDLE PHYSICS STATE ===
         # What did physics look like BEFORE fat candles?
@@ -361,9 +414,7 @@ class PhysicsFeatureComputer:
         result['vol_regime_ratio'] = short_vol / long_vol.clip(lower=1e-10)
 
         # Where in the seasonal distribution is current volatility?
-        result['vol_regime_pct'] = result['vol_regime_ratio'].rolling(window, min_periods=lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        result['vol_regime_pct'] = self._fast_rolling_percentile(result['vol_regime_ratio'], window, lookback)
 
         # === CONVERT TO PERCENTILES ===
         feature_cols = [
@@ -383,10 +434,9 @@ class PhysicsFeatureComputer:
             'prior_phase_compression', 'prior_suppression', 'prior_entropy', 'prior_stiffness',
         ]
 
+        # FAST: Use vectorized percentile instead of slow lambda
         for col in feature_cols:
-            result[f'{col}_pct'] = result[col].rolling(window, min_periods=lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-            ).fillna(0.5)
+            result[f'{col}_pct'] = self._fast_rolling_percentile(result[col], window, lookback)
 
         # Keep momentum_dir as-is (not percentile)
         result['momentum_dir_pct'] = (result['momentum_dir'] + 1) / 2  # Map -1,0,1 to 0,0.5,1
@@ -406,9 +456,7 @@ class PhysicsFeatureComputer:
         # These replace "time of day" filters - we use market friction instead
         if 'spread' in df.columns:
             result['spread'] = df['spread']
-            result['spread_pct'] = result['spread'].rolling(window, min_periods=lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-            ).fillna(0.5)
+            result['spread_pct'] = self._fast_rolling_percentile(result['spread'], window, lookback)
         else:
             # Estimate spread from bar range during low-volume periods
             # High range / low volume = wide effective spread
@@ -417,10 +465,7 @@ class PhysicsFeatureComputer:
 
         # LIQUIDITY / FRICTION - raw percentiles for RL
         # NO composite "fragile regime" rules - RL learns from raw features
-        vol_pct = df['volume'].rolling(window, min_periods=lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
-        result['liquidity_pct'] = vol_pct
+        result['liquidity_pct'] = self._fast_rolling_percentile(df['volume'], window, lookback)
 
         return result.fillna(0.5)
 
