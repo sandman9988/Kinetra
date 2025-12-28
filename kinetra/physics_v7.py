@@ -524,24 +524,68 @@ def compute_acceleration(force, mass):
     return acceleration.fillna(0.0).values
 
 
-def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
+def compute_symc_ratio(high, low, close, volume, lookback: int = 20):
     """
-    Compute full Damped Harmonic Oscillator state.
+    Compute SymC Ratio (χ) - The governing metric for market stability.
 
-    Returns dict with:
-    - mass: Liquidity-based market inertia
-    - force: Order flow pressure
-    - acceleration: F/m (breakout potential)
-    - velocity: Rate of price change
-    - displacement: Distance from equilibrium (rolling mean)
-    - regime: 'breakout' (low mass) or 'range' (high mass)
+    χ = γ / (2ω) ≈ Liquidity Replenishment Rate / Order Arrival Frequency
+
+    Regimes:
+    - Underdamped (χ < 0.8): Volatile, overshooting - MOMENTUM works
+    - Overdamped (χ > 1.2): Sluggish, mean-reverting - MOMENTUM fails
+    - Critical (χ ≈ 1.0): Efficient, random walk - Hard to trade
+
+    Proxy calculation:
+    - γ (damping) ≈ volume absorption rate (how fast liquidity absorbs orders)
+    - ω (natural frequency) ≈ volatility (how fast price oscillates)
     """
     high = pd.Series(high)
     low = pd.Series(low)
     close = pd.Series(close)
     volume = pd.Series(volume)
 
-    # Core components
+    # Natural frequency proxy: volatility (price oscillation rate)
+    returns = close.pct_change()
+    omega = returns.rolling(lookback, min_periods=1).std().abs() + 1e-10
+
+    # Damping proxy: volume absorption (volume / price_change)
+    price_change = close.diff().abs() + 1e-10
+    gamma = volume / price_change
+    gamma_norm = gamma / gamma.rolling(lookback * 2, min_periods=1).mean()
+
+    # SymC ratio: γ / (2ω) - normalized
+    symc = gamma_norm / (2 * omega * 100)  # Scaled for interpretability
+
+    # Clip to reasonable range
+    symc = symc.fillna(1.0).clip(0.1, 5.0)
+
+    return symc.values
+
+
+def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
+    """
+    Compute full Damped Harmonic Oscillator state with SymC regime.
+
+    PHYSICS CORRECTION: Mass ≠ Volume!
+    - Mass = Liquidity Depth (resistance to price change) via Kyle's Lambda
+    - Force = Order Flow (buy/sell pressure)
+    - Volume is the RESULT of force, not the mass
+
+    Returns dict with:
+    - mass: Liquidity-based market inertia (NOT volume)
+    - force: Order flow pressure
+    - acceleration: F/m (breakout potential)
+    - velocity: Rate of price change
+    - displacement: Distance from equilibrium
+    - symc: SymC ratio for regime classification
+    - regime: 'underdamped' (momentum), 'overdamped' (mean-revert), 'critical'
+    """
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    # Core components - CORRECT PHYSICS
     mass = compute_liquidity_mass(high, low, close, volume, lookback)
     force = compute_order_flow_force(high.values, high.values, low.values, close.values, volume.values)
     acceleration = compute_acceleration(force, mass)
@@ -553,10 +597,18 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
     equilibrium = close.rolling(lookback, min_periods=1).mean()
     displacement = ((close - equilibrium) / equilibrium).fillna(0.0).values
 
-    # Regime classification based on mass
-    mass_series = pd.Series(mass)
-    mass_median = mass_series.rolling(lookback * 2, min_periods=lookback).median()
-    regime = np.where(mass_series < mass_median, 'breakout', 'range')
+    # SymC ratio for proper regime classification
+    symc = compute_symc_ratio(high.values, low.values, close.values, volume.values, lookback)
+    symc_series = pd.Series(symc)
+
+    # Regime classification based on SymC ratio
+    # Underdamped (χ < 0.8): Momentum works - BERSERKER
+    # Overdamped (χ > 1.2): Mean reversion - SNIPER (range)
+    # Critical (χ ≈ 1.0): Random walk - stay flat
+    regime = np.where(
+        symc_series < 0.8, 'underdamped',
+        np.where(symc_series > 1.2, 'overdamped', 'critical')
+    )
 
     return {
         'mass': mass,
@@ -564,6 +616,7 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
         'acceleration': acceleration,
         'velocity': velocity,
         'displacement': displacement,
+        'symc': symc,
         'regime': regime
     }
 
@@ -804,36 +857,45 @@ def compute_composite_probability(close, energy, damping):
     return composite, p_direction, p_energy
 
 
-def compute_agent_signal(energy, damping, close):
+def compute_agent_signal(energy, damping, close, high=None, low=None, volume=None):
     """
-    Compute agent activation signal - VERY SELECTIVE for BIG energy releases.
+    Compute agent activation signal using MICROSTRUCTURE REGIME.
 
-    FULLY ADAPTIVE - MEDIAN-BASED THRESHOLDS:
-    - Rolling dominant period computed per bar
-    - ALL thresholds derived from rolling MEDIAN values
-    - Structure for RL updates to refine thresholds over time
-    - No fixed values anywhere
+    DAMPED HARMONIC OSCILLATOR MODEL:
+    - Mass = Liquidity Depth (resistance to price change)
+    - Force = Order Flow (buy/sell pressure)
+    - Acceleration = F/m (breakout potential)
 
-    BERSERKER = EXPLOSIVE ENERGY RELEASE:
-    - Energy above rolling median of upper half (high energy)
-    - Direction above rolling median of upper half (strong flow)
-    - Damping below rolling median of lower half (underdamped)
+    BERSERKER = BREAKOUT REGIME (Low Mass):
+    - Thin market (low liquidity) → easy to move
+    - High energy + high acceleration
+    - Explosive momentum capture
 
-    SNIPER = LAMINAR FLOW:
-    - Energy above rolling median (above average)
-    - Direction above rolling median (consistent flow)
-    - Damping around rolling median (critical zone)
+    SNIPER = RANGE REGIME (High Mass):
+    - Thick market (high liquidity) → absorbs force
+    - High direction consistency (laminar flow)
+    - Precision mean-reversion or continuation
 
     Returns:
         Array with values:
-        - 2: Berserker (explosive energy release)
-        - 1: Sniper (laminar flow)
+        - 2: Berserker (breakout regime, high acceleration)
+        - 1: Sniper (range regime, laminar flow)
         - 0: No agent (stay flat)
     """
     energy = pd.Series(energy).reset_index(drop=True)
     damping = pd.Series(damping).reset_index(drop=True)
     close = pd.Series(close).reset_index(drop=True)
     n = len(energy)
+
+    # Compute oscillator state if OHLCV provided (microstructure regime)
+    use_oscillator = high is not None and low is not None and volume is not None
+    if use_oscillator:
+        high = pd.Series(high).reset_index(drop=True)
+        low = pd.Series(low).reset_index(drop=True)
+        volume = pd.Series(volume).reset_index(drop=True)
+        oscillator = compute_oscillator_state(high.values, low.values, close.values, volume.values)
+        mass = pd.Series(oscillator['mass'])
+        acceleration = pd.Series(oscillator['acceleration'])
 
     # Compute ROLLING dominant period - adapts per bar
     rolling_periods = compute_rolling_dominant_period(close)
@@ -919,22 +981,52 @@ def compute_agent_signal(energy, damping, close):
         energy_upper = energy_mean + k_energy * energy_std
         damping_lower = damping_mean - k_damping * damping_std
         direction_upper = direction_mean + k_direction * direction_std
-
-        # Berserker: high energy, high direction, low damping (Gaussian-based)
-        berserker_cond = (
-            curr_energy > energy_upper and
-            curr_direction > direction_upper and
-            curr_damping < damping_lower
-        )
-
-        # Sniper: above mean for energy/direction, around mean for damping
         damping_upper = damping_mean + k_damping * damping_std
 
-        sniper_cond = (
-            curr_energy > energy_mean and
-            curr_direction > direction_mean and
-            damping_lower < curr_damping < damping_upper
-        )
+        # MICROSTRUCTURE REGIME CONDITIONS (if oscillator available)
+        if use_oscillator:
+            local_mass = mass.iloc[start_idx:i + 1]
+            local_accel = acceleration.iloc[start_idx:i + 1]
+            curr_mass = mass.iloc[i]
+            curr_accel = acceleration.iloc[i]
+
+            mass_mean = local_mass.mean()
+            accel_mean = local_accel.mean()
+            accel_std = local_accel.std()
+
+            # Low mass = breakout regime, High mass = range regime
+            is_breakout_regime = curr_mass < mass_mean
+            is_range_regime = curr_mass >= mass_mean
+
+            # High acceleration = strong force in thin market
+            high_acceleration = curr_accel > accel_mean + accel_std
+
+            # Berserker: BREAKOUT regime + high energy + high acceleration
+            berserker_cond = (
+                is_breakout_regime and
+                curr_energy > energy_upper and
+                high_acceleration
+            )
+
+            # Sniper: RANGE regime + laminar flow (high direction consistency)
+            sniper_cond = (
+                is_range_regime and
+                curr_direction > direction_upper and
+                curr_energy > energy_mean
+            )
+        else:
+            # Fallback: original Gaussian-based conditions
+            berserker_cond = (
+                curr_energy > energy_upper and
+                curr_direction > direction_upper and
+                curr_damping < damping_lower
+            )
+
+            sniper_cond = (
+                curr_energy > energy_mean and
+                curr_direction > direction_mean and
+                damping_lower < curr_damping < damping_upper
+            )
 
         if berserker_cond:
             signals[i] = 2
@@ -942,6 +1034,124 @@ def compute_agent_signal(energy, damping, close):
             signals[i] = 1
 
     return signals
+
+
+# =============================================================================
+# ASYMMETRICAL REWARD FUNCTION - PHYSICS-BASED
+# =============================================================================
+#
+# R_t = (PnL_net × α) - (σ_price × λ) - (Duration × δ)
+#
+# Where:
+#   - PnL_net: Includes Spread + Commission + Slippage (true cost)
+#   - α (Asymmetry): Losses punished 3x harder than gains
+#   - λ (Volatility penalty): High σ = high friction = lower reward
+#   - δ (Time decay): Stagnating trades penalized
+# =============================================================================
+
+
+def compute_asymmetric_reward(
+    pnl_gross: float,
+    spread_cost: float,
+    commission: float,
+    slippage: float,
+    volatility: float,
+    duration_bars: int,
+    alpha_loss: float = 3.0,
+    alpha_gain: float = 1.0,
+    lambda_vol: float = 0.1,
+    delta_time: float = 0.01
+) -> float:
+    """
+    Asymmetrical Reward Function for RL training.
+
+    Forces agent to seek "High Quality, Low Drag" trades.
+    Cures the Commission Death Spiral.
+
+    R = (PnL_net × α) - (σ × λ) - (Duration × δ)
+
+    Args:
+        pnl_gross: Raw PnL before costs
+        spread_cost: Spread cost (entry + exit)
+        commission: Commission cost
+        slippage: Estimated slippage
+        volatility: Current price volatility (σ)
+        duration_bars: How long trade was held
+        alpha_loss: Asymmetry multiplier for losses (default 3.0)
+        alpha_gain: Asymmetry multiplier for gains (default 1.0)
+        lambda_vol: Volatility penalty weight
+        delta_time: Time decay penalty weight
+
+    Returns:
+        Asymmetric reward value
+    """
+    # Net PnL = Gross - ALL friction costs
+    pnl_net = pnl_gross - spread_cost - commission - slippage
+
+    # Asymmetry: punish losses 3x harder than rewarding gains
+    if pnl_net < 0:
+        alpha = alpha_loss
+    else:
+        alpha = alpha_gain
+
+    # Base reward (asymmetric)
+    reward = pnl_net * alpha
+
+    # Volatility penalty (high friction environment)
+    vol_penalty = volatility * lambda_vol
+
+    # Time decay (stagnating trades penalized)
+    time_penalty = duration_bars * delta_time
+
+    # Final reward
+    return reward - vol_penalty - time_penalty
+
+
+def detect_frozen_market(symc_history: pd.Series, threshold: float = 2.0, lookback: int = 10) -> bool:
+    """
+    Detect "Frozen" market condition - extreme overdamping before shock.
+
+    When χ >> 1.2 (extreme overdamping), the market is "Silent before the Storm."
+    This precedes volatility explosions and regime shifts.
+
+    Returns True if market is in "frozen" danger zone.
+    """
+    if len(symc_history) < lookback:
+        return False
+
+    recent = symc_history.iloc[-lookback:]
+    avg_symc = recent.mean()
+    increasing = (recent.diff().dropna() > 0).sum() / len(recent.diff().dropna())
+
+    # Frozen = high SymC AND increasing (liquidity flooding in, volatility suppressed)
+    return avg_symc > threshold and increasing > 0.6
+
+
+def compute_trade_quality_score(
+    pnl_net: float,
+    spread_pips: float,
+    safety_margin: float = 2.0
+) -> float:
+    """
+    Quality score for Shadow Trading validation.
+
+    A Shadow trade only counts as a "Win" if it clears the spread
+    by a safety margin (e.g., 2.0 pips).
+
+    Returns:
+        Quality score [0, 1] where 1 = high quality trade
+    """
+    if pnl_net <= 0:
+        return 0.0
+
+    # How many pips above the safety threshold?
+    excess = pnl_net - (spread_pips * safety_margin)
+
+    if excess <= 0:
+        return 0.0  # Didn't clear safety margin
+
+    # Score based on excess over threshold
+    return min(1.0, excess / (spread_pips * 5))  # Max score at 5x safety margin
 
 
 # =============================================================================
