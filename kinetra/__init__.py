@@ -81,6 +81,7 @@ from .health_score import (
 from .market_microstructure import (
     SymbolSpec,
     AssetClass,
+    TradingMode,
     FrictionModel,
     AdaptiveFrictionTracker,
     get_symbol_spec,
@@ -156,6 +157,7 @@ __all__ = [
     # Market Microstructure & Friction
     "SymbolSpec",
     "AssetClass",
+    "TradingMode",
     "FrictionModel",
     "AdaptiveFrictionTracker",
     "get_symbol_spec",

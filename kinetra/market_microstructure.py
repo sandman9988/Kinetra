@@ -243,6 +243,12 @@ def get_symbol_spec(symbol: str) -> SymbolSpec:
     )
 
 
+class TradingMode(Enum):
+    """Trading mode determines whether gates are enforced."""
+    VIRTUAL = "virtual"    # Exploration - NO gates, learn freely
+    LIVE = "live"          # Execution - Dynamic conditional locks
+
+
 class FrictionModel:
     """
     Dynamic friction model based on market microstructure.
@@ -250,10 +256,14 @@ class FrictionModel:
     Total Friction = Spread Cost + Commission + Slippage + Swap (if holding)
 
     All normalized to price percentage for comparability across assets.
+
+    IMPORTANT: Friction is always CALCULATED for reward shaping.
+    Gates are only ENFORCED in LIVE mode, not during VIRTUAL exploration.
     """
 
-    def __init__(self, symbol_spec: SymbolSpec):
+    def __init__(self, symbol_spec: SymbolSpec, mode: TradingMode = TradingMode.VIRTUAL):
         self.spec = symbol_spec
+        self.mode = mode  # Virtual = explore freely, Live = enforce gates
 
         # Adaptive spread model parameters (learned from data)
         self.spread_volatility_sensitivity = 2.0  # How much spread widens with vol
@@ -556,26 +566,32 @@ class FrictionModel:
         self,
         expected_return_pct: float,
         friction: Dict[str, float],
-        min_edge_ratio: float = 1.5
+        min_edge_ratio: float = 1.5,
+        force_mode: Optional[TradingMode] = None
     ) -> Tuple[bool, str]:
         """
         Check if trade makes sense given friction - PHYSICS BASED.
 
-        Natural gate: Only trade if expected_return > friction * min_edge_ratio
-
-        No clock-based checks. Uses physics stress indicators:
-        - Spread stress: spread explosion relative to normal
-        - Liquidity stress: volume drying up
-        - Volatility stress: extreme volatility
+        VIRTUAL MODE: Always returns True - let it explore and learn!
+        LIVE MODE: Enforces dynamic conditional locks based on physics.
 
         Args:
             expected_return_pct: Expected return as percentage
             friction: Friction dict from calculate_friction()
             min_edge_ratio: Minimum ratio of return to friction (default 1.5x)
+            force_mode: Override the model's mode for this check
 
         Returns:
             (is_tradeable, reason)
         """
+        mode = force_mode or self.mode
+
+        # VIRTUAL MODE: No gates! Explore freely to find alpha.
+        # The friction is still calculated for reward shaping, but we don't block.
+        if mode == TradingMode.VIRTUAL:
+            return True, "Virtual mode - exploring freely"
+
+        # LIVE MODE: Dynamic conditional locks based on physics
         total_friction = friction['total_friction_pct']
 
         # PRIMARY GATE: expected return must exceed friction with margin
