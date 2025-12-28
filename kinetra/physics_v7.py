@@ -165,7 +165,8 @@ class PhysicsEngineV7:
 
         damping = current_range / prev_range
 
-        return damping.fillna(1.0).clip(lower=0.01)
+        # Clip to reasonable range to avoid extreme outliers
+        return damping.fillna(1.0).clip(lower=0.01, upper=10.0)
 
     def calculate_entropy(
         self,

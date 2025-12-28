@@ -138,8 +138,9 @@ class BerserkerStrategy(BaseV7Strategy):
 
     def init(self):
         super().init()
-        # Track entry energy for exit calculations
+        # Track entry state for exit calculations
         self.entry_energy_value = 0.0
+        self.entry_price = 0.0
         self.cumulative_score = 0.0
         self.max_score = 0.0
         self.bars_in_trade = 0
@@ -160,6 +161,7 @@ class BerserkerStrategy(BaseV7Strategy):
             if price_change > 0:
                 self.buy()
                 self.entry_energy_value = self.energy[-1]
+                self.entry_price = self.data.Close[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
                 self.bars_in_trade = 0
@@ -167,6 +169,7 @@ class BerserkerStrategy(BaseV7Strategy):
             elif price_change < 0:
                 self.sell()
                 self.entry_energy_value = self.energy[-1]
+                self.entry_price = self.data.Close[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
                 self.bars_in_trade = 0
@@ -180,11 +183,11 @@ class BerserkerStrategy(BaseV7Strategy):
                 delta_c = abs(self.data.Close[-1] - self.data.Close[-2])
                 bar_score = delta_c * self.energy[-1] / (self.entry_energy_value + 1e-10)
 
-                # Direction check
+                # Direction check using tracked entry price
                 if self.position.is_long:
-                    pnl_dir = 1 if self.data.Close[-1] > self.position.entry_price else -1
+                    pnl_dir = 1 if self.data.Close[-1] > self.entry_price else -1
                 else:
-                    pnl_dir = 1 if self.data.Close[-1] < self.position.entry_price else -1
+                    pnl_dir = 1 if self.data.Close[-1] < self.entry_price else -1
 
                 if pnl_dir > 0:
                     self.cumulative_score += bar_score
@@ -233,6 +236,7 @@ class SniperStrategy(BaseV7Strategy):
         super().init()
         self.signal_count = 0
         self.entry_energy_value = 0.0
+        self.entry_price = 0.0
         self.cumulative_score = 0.0
         self.max_score = 0.0
         self.bars_in_trade = 0
@@ -257,6 +261,7 @@ class SniperStrategy(BaseV7Strategy):
             if price_change > 0:
                 self.buy()
                 self.entry_energy_value = self.energy[-1]
+                self.entry_price = self.data.Close[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
                 self.bars_in_trade = 0
@@ -264,6 +269,7 @@ class SniperStrategy(BaseV7Strategy):
             elif price_change < 0:
                 self.sell()
                 self.entry_energy_value = self.energy[-1]
+                self.entry_price = self.data.Close[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
                 self.bars_in_trade = 0
@@ -278,9 +284,9 @@ class SniperStrategy(BaseV7Strategy):
                 bar_score = delta_c * self.energy[-1] / (self.entry_energy_value + 1e-10)
 
                 if self.position.is_long:
-                    pnl_dir = 1 if self.data.Close[-1] > self.position.entry_price else -1
+                    pnl_dir = 1 if self.data.Close[-1] > self.entry_price else -1
                 else:
-                    pnl_dir = 1 if self.data.Close[-1] < self.position.entry_price else -1
+                    pnl_dir = 1 if self.data.Close[-1] < self.entry_price else -1
 
                 if pnl_dir > 0:
                     self.cumulative_score += bar_score
@@ -326,12 +332,13 @@ class MultiAgentV7Strategy(BaseV7Strategy):
         self.current_agent = 0  # 0=None, 1=Sniper, 2=Berserker
         self.signal_count = 0
         self.entry_energy_value = 0.0
+        self.entry_price = 0.0
         self.cumulative_score = 0.0
         self.max_score = 0.0
         self.bars_in_trade = 0
 
     def next(self):
-        if len(self.energy) < self.min_history:
+        if len(self.data.Close) < self.min_history:
             return
 
         agent = self.agent_signal[-1]
@@ -345,27 +352,25 @@ class MultiAgentV7Strategy(BaseV7Strategy):
 
         # No position - look for entries
         if not self.position:
-            velocity = self.velocity[-1]
+            price_change = self.data.Close[-1] - self.data.Close[-2]
 
             # Berserker activation (immediate)
             if agent == 2:
-                if velocity > 0:
-                    self.buy(size=min(self.risk_per_trade * self.berserker_position_mult, 0.99))
+                if price_change > 0:
+                    self.buy()
                     self._record_entry()
-                elif velocity < 0:
-                    self.sell(size=min(self.risk_per_trade * self.berserker_position_mult, 0.99))
+                elif price_change < 0:
+                    self.sell()
                     self._record_entry()
 
             # Sniper activation (requires confirmation)
             elif agent == 1 and self.signal_count >= self.confirmation_bars:
-                trend = self.trend_strength[-1]
-                if trend > 0.3:
-                    if velocity > 0:
-                        self.buy(size=min(self.risk_per_trade * self.sniper_position_mult, 0.99))
-                        self._record_entry()
-                    elif velocity < 0:
-                        self.sell(size=min(self.risk_per_trade * self.sniper_position_mult, 0.99))
-                        self._record_entry()
+                if price_change > 0:
+                    self.buy()
+                    self._record_entry()
+                elif price_change < 0:
+                    self.sell()
+                    self._record_entry()
 
         # Manage position
         else:
@@ -388,6 +393,7 @@ class MultiAgentV7Strategy(BaseV7Strategy):
     def _record_entry(self):
         """Record entry metrics."""
         self.entry_energy_value = self.energy[-1]
+        self.entry_price = self.data.Close[-1]
         self.cumulative_score = 0.0
         self.max_score = 0.0
         self.bars_in_trade = 0
@@ -401,9 +407,9 @@ class MultiAgentV7Strategy(BaseV7Strategy):
         bar_score = delta_c * self.energy[-1] / (self.entry_energy_value + 1e-10)
 
         if self.position.is_long:
-            pnl_dir = 1 if self.data.Close[-1] > self.position.entry_price else -1
+            pnl_dir = 1 if self.data.Close[-1] > self.entry_price else -1
         else:
-            pnl_dir = 1 if self.data.Close[-1] < self.position.entry_price else -1
+            pnl_dir = 1 if self.data.Close[-1] < self.entry_price else -1
 
         if pnl_dir > 0:
             self.cumulative_score += bar_score
