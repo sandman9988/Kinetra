@@ -792,22 +792,125 @@ def compute_agent_signal(energy, damping, close):
 
 
 # =============================================================================
-# PERFORMANCE METRICS
+# PERFORMANCE METRICS - PHYSICS-BASED
 # =============================================================================
 
 def calculate_omega_ratio(returns: pd.Series, threshold: float = 0.0) -> float:
     """
-    Calculate Omega ratio: Σ(gains above threshold) / Σ(losses below threshold)
+    OMEGA RATIO - The "Thermodynamic/State-Space" Choice.
 
-    Target: > 2.7
+    Partitions the state space of returns:
+    - Area above threshold = Positive Energy/Work
+    - Area below threshold = Negative Energy/Waste
+
+    Captures all higher moments (skew, kurtosis) without assuming distribution.
+    Ideal for RL reward functions - produces stable agents.
+
+    Formula: Ω(L) = ∫[L,∞](1-F(x))dx / ∫[-∞,L]F(x)dx
     """
+    returns = pd.Series(returns).dropna()
+    if len(returns) < 2:
+        return 1.0
+
     gains = returns[returns > threshold].sum()
     losses = abs(returns[returns < threshold].sum())
 
     if losses == 0:
-        return float('inf') if gains > 0 else 0.0
+        return float('inf') if gains > 0 else 1.0
 
     return gains / losses
+
+
+def calculate_stutzer_index(returns: pd.Series, benchmark: float = 0.0, max_iter: int = 100) -> float:
+    """
+    STUTZER INDEX - The "Statistical Mechanics" Choice.
+
+    Based on Large Deviation Theory from statistical physics.
+    Treats equity curve as a particle trajectory.
+    Calculates exponential decay rate of probability of underperformance.
+
+    Maximizes "probability current" away from ruin state.
+    Naturally penalizes skewness and kurtosis (fat tails).
+
+    Formula: I_p = max_θ>0 (-log(1/T * Σ exp(-θ(R_p - R_b))))
+    """
+    returns = pd.Series(returns).dropna()
+    if len(returns) < 2:
+        return 0.0
+
+    excess = returns - benchmark
+    T = len(excess)
+
+    # Optimize θ to maximize the decay rate
+    best_stutzer = 0.0
+    best_theta = 0.0
+
+    # Grid search for optimal theta (Lagrange multiplier)
+    for theta in np.linspace(0.01, 10.0, max_iter):
+        try:
+            # Compute moment generating function
+            mgf = np.mean(np.exp(-theta * excess))
+            if mgf > 0:
+                stutzer = -np.log(mgf)
+                if stutzer > best_stutzer:
+                    best_stutzer = stutzer
+                    best_theta = theta
+        except (OverflowError, RuntimeWarning):
+            continue
+
+    return best_stutzer
+
+
+def calculate_rachev_ratio(returns: pd.Series, alpha: float = 0.05, beta: float = 0.05) -> float:
+    """
+    RACHEV RATIO - The "Econophysics/Power Law" Choice.
+
+    Designed for Lévy Stable / Power Law distributions (fat tails).
+    Abandons standard deviation (meaningless in power-law distributions).
+    Measures ratio of Right Tail (extreme gains) to Left Tail (extreme losses).
+
+    Handles Black Swan events that Kelly ignores.
+    Ideal for breakout trading, volatility shocks, Hurst Exponent systems.
+
+    Formula: CVaR_α(Gains) / CVaR_β(Losses)
+    Where CVaR = Conditional Value at Risk (Expected Tail Loss/Gain)
+    """
+    returns = pd.Series(returns).dropna()
+    if len(returns) < 10:
+        return 1.0
+
+    # CVaR for gains (right tail) - expected value of top α percentile
+    gain_threshold = returns.quantile(1 - alpha)
+    gains_tail = returns[returns >= gain_threshold]
+    cvar_gains = gains_tail.mean() if len(gains_tail) > 0 else 0
+
+    # CVaR for losses (left tail) - expected value of bottom β percentile
+    loss_threshold = returns.quantile(beta)
+    losses_tail = returns[returns <= loss_threshold]
+    cvar_losses = abs(losses_tail.mean()) if len(losses_tail) > 0 else 0
+
+    if cvar_losses == 0:
+        return float('inf') if cvar_gains > 0 else 1.0
+
+    return cvar_gains / cvar_losses
+
+
+def calculate_all_physics_metrics(returns: pd.Series) -> dict:
+    """
+    Calculate all physics-based performance metrics.
+
+    Returns dict with:
+    - omega: Thermodynamic state-space ratio
+    - stutzer: Statistical mechanics path stability
+    - rachev: Power law tail ratio
+    """
+    returns = pd.Series(returns).dropna()
+
+    return {
+        'omega': calculate_omega_ratio(returns),
+        'stutzer': calculate_stutzer_index(returns),
+        'rachev': calculate_rachev_ratio(returns),
+    }
 
 
 def calculate_z_factor(returns: pd.Series, benchmark: float = 0.0) -> float:
