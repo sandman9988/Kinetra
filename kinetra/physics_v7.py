@@ -468,7 +468,7 @@ def compute_entropy_v7(volume, lookback: int = 20, epsilon: float = 1e-10):
 
 def compute_agent_signal(energy, damping, lookback: int = 50):
     """
-    Compute agent activation signal.
+    Compute agent activation signal using rolling quantiles.
 
     Returns:
         Array with values:
@@ -479,26 +479,22 @@ def compute_agent_signal(energy, damping, lookback: int = 50):
     energy = pd.Series(energy)
     damping = pd.Series(damping)
 
+    # Use rolling quantiles for efficiency (O(n) instead of O(n²))
+    e_q60 = energy.rolling(lookback, min_periods=lookback).quantile(0.60)
+    e_q75 = energy.rolling(lookback, min_periods=lookback).quantile(0.75)
+    d_q25 = damping.rolling(lookback, min_periods=lookback).quantile(0.25)
+    d_q75 = damping.rolling(lookback, min_periods=lookback).quantile(0.75)
+
+    # Berserker: energy > Q75 AND damping < Q25 (Underdamped, High Energy)
+    berserker = (energy > e_q75) & (damping < d_q25)
+
+    # Sniper: Q25 < damping < Q75 AND energy > Q60 (Critical, Moderate-High Energy)
+    sniper = (damping > d_q25) & (damping < d_q75) & (energy > e_q60)
+
+    # Combine signals (Berserker takes priority)
     signals = np.zeros(len(energy))
-
-    for i in range(lookback, len(energy)):
-        energy_hist = energy.iloc[:i]
-        damping_hist = damping.iloc[:i]
-
-        e = energy.iloc[i]
-        d = damping.iloc[i]
-
-        e_q60 = energy_hist.quantile(0.60)
-        e_q75 = energy_hist.quantile(0.75)
-        d_q25 = damping_hist.quantile(0.25)
-        d_q75 = damping_hist.quantile(0.75)
-
-        # Berserker
-        if e > e_q75 and d < d_q25:
-            signals[i] = 2
-        # Sniper
-        elif d_q25 < d < d_q75 and e > e_q60:
-            signals[i] = 1
+    signals[sniper] = 1
+    signals[berserker] = 2
 
     return signals
 
