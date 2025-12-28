@@ -140,12 +140,6 @@ class PhysicsFeatureComputer:
 
         # === ENERGY RELEASE DETECTION (Entry Timing) ===
 
-        # 1. COMPRESSION METRICS (Energy Stored)
-        # Bollinger Band Width - low = compression
-        bb_std = df['close'].rolling(self.lookback).std()
-        bb_mean = df['close'].rolling(self.lookback).mean()
-        result['bb_width'] = (2 * bb_std) / bb_mean  # Normalized band width
-
         # ATR for volatility compression
         tr = pd.concat([
             df['high'] - df['low'],
@@ -156,6 +150,52 @@ class PhysicsFeatureComputer:
 
         # Volume compression (declining volume = coiling)
         result['volume_trend'] = df['volume'].rolling(5).mean() / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+
+        # === TRUE PHYSICS COMPRESSION (not just Bollinger Bands) ===
+
+        # 1. PHASE SPACE CONFINEMENT
+        # Compression = both price AND momentum confined to small region
+        price_norm = (df['close'] - df['close'].rolling(50).mean()) / df['close'].rolling(50).std().clip(lower=1e-10)
+        mom_norm = (velocity - velocity.rolling(50).mean()) / velocity.rolling(50).std().clip(lower=1e-10)
+
+        # Bounding box area in phase space
+        price_range = price_norm.rolling(self.lookback).max() - price_norm.rolling(self.lookback).min()
+        mom_range = mom_norm.rolling(self.lookback).max() - mom_norm.rolling(self.lookback).min()
+        phase_area = (price_range * mom_range).clip(lower=1e-10)
+        result['phase_compression'] = 1 / (1 + phase_area)  # Higher = more compressed
+
+        # 2. SUPPRESSION RATIO (Hidden Force Imbalance)
+        # High volume + low price move = energy being absorbed, not expressed
+        result['suppression_ratio'] = df['volume'] / (result['atr'].clip(lower=1e-10) * df['close'])
+        # Normalize: high ratio = lots of volume, little movement = compressed
+
+        # 3. APPROXIMATE ENTROPY (Entropy Collapse)
+        # Low entropy = price path is predictable, repetitive, confined
+        # Using simplified rolling entropy approximation
+        returns_abs = velocity.abs()
+        returns_std = returns_abs.rolling(self.lookback).std().clip(lower=1e-10)
+        returns_mean = returns_abs.rolling(self.lookback).mean().clip(lower=1e-10)
+        # Coefficient of variation as entropy proxy (lower = more uniform = compressed)
+        result['entropy_proxy'] = returns_std / returns_mean
+
+        # 4. SPRING STIFFNESS (k = Force / Displacement)
+        # High k = deep book, price doesn't move easily
+        # k = volume / price_change → high = stiff market
+        result['spring_stiffness'] = df['volume'] / (velocity.abs().clip(lower=1e-10) * df['close'])
+
+        # 5. COMPRESSION COMPOSITE (Physics-based)
+        # True compression = phase confined + high suppression + low entropy + high stiffness
+        phase_compressed = result['phase_compression'] > result['phase_compression'].rolling(window).quantile(0.8)
+        high_suppression = result['suppression_ratio'] > result['suppression_ratio'].rolling(window).quantile(0.7)
+        low_entropy = result['entropy_proxy'] < result['entropy_proxy'].rolling(window).quantile(0.3)
+        high_stiffness = result['spring_stiffness'] > result['spring_stiffness'].rolling(window).quantile(0.7)
+
+        compression_score = (phase_compressed.astype(float) +
+                            high_suppression.astype(float) +
+                            low_entropy.astype(float) +
+                            high_stiffness.astype(float))
+
+        result['physics_compression'] = (compression_score >= 3).astype(float)  # 3 of 4 conditions
 
         # 2. TRIGGER METRICS (Release Begins)
         # Range breakout - close beyond N-day high/low
@@ -182,9 +222,9 @@ class PhysicsFeatureComputer:
         # Volume-weighted ROC (move has fuel)
         result['vol_weighted_roc'] = roc_5 * volume_norm
 
-        # 4. ENERGY RELEASE COMPOSITE (All signals combined)
-        # Compression detected in recent past
-        bb_compressed = result['bb_width'].rolling(5).min() < result['bb_width'].rolling(window, min_periods=20).quantile(0.2)
+        # 4. ENERGY RELEASE COMPOSITE (Physics-based)
+        # Compression detected in recent past (using TRUE physics compression)
+        was_compressed = result['physics_compression'].rolling(5).max() == 1  # Was compressed recently
 
         # Trigger: breakout with volume
         trigger_long = (result['at_range_high'] == 1) & (result['volume_spike'] > 1.5)
@@ -195,8 +235,9 @@ class PhysicsFeatureComputer:
         accel_down = result['roc_accel'] < 0
 
         # Energy release signal (composite)
-        result['energy_release_long'] = (bb_compressed & trigger_long & accel_up).astype(float)
-        result['energy_release_short'] = (bb_compressed & trigger_short & accel_down).astype(float)
+        # Physics: compressed spring + trigger + acceleration = energy release
+        result['energy_release_long'] = (was_compressed & trigger_long & accel_up).astype(float)
+        result['energy_release_short'] = (was_compressed & trigger_short & accel_down).astype(float)
 
         # === CONVERT TO PERCENTILES ===
         feature_cols = [
@@ -205,8 +246,10 @@ class PhysicsFeatureComputer:
             'liquidity', 'buying_pressure', 'reynolds', 'viscosity',
             'angular_momentum', 'potential_energy', 'torque', 'market_reynolds',
             'range_position', 'flow_consistency', 'roc',
+            # TRUE physics compression (replaces Bollinger Bands)
+            'phase_compression', 'suppression_ratio', 'entropy_proxy', 'spring_stiffness',
             # Energy release detection
-            'bb_width', 'atr', 'volume_trend', 'volume_spike', 'body_ratio',
+            'atr', 'volume_trend', 'volume_spike', 'body_ratio',
             'roc_5', 'roc_accel', 'vol_weighted_roc',
         ]
 
@@ -219,6 +262,7 @@ class PhysicsFeatureComputer:
         result['momentum_dir_pct'] = (result['momentum_dir'] + 1) / 2  # Map -1,0,1 to 0,0.5,1
 
         # Binary triggers - keep as 0/1 (don't percentile)
+        result['physics_compression_pct'] = result['physics_compression']  # Coiled spring
         result['at_range_high_pct'] = result['at_range_high']
         result['at_range_low_pct'] = result['at_range_low']
         result['swept_high_pct'] = result['swept_high']
