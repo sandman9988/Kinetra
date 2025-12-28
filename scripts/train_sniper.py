@@ -22,7 +22,6 @@ import json
 import argparse
 import logging
 from pathlib import Path
-from datetime import datetime
 from typing import Dict, Tuple
 from dataclasses import dataclass
 
