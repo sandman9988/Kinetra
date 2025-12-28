@@ -1355,3 +1355,1044 @@ def validate_theorem_targets(
         'mfe_captured_passed': mfe_pct > 60.0,
         'all_passed': omega > 2.7 and z_factor > 2.5 and energy_pct > 65.0 and mfe_pct > 60.0
     }
+
+
+# =============================================================================
+# PRACTICAL PHYSICS MEASURES - REPLACING HURST EXPONENT
+# =============================================================================
+#
+# Hurst Exponent requires 500+ bars for stability → impractical for trading.
+# These measures work on 30-200 bars and provide actionable regime info:
+#
+# 1. FRACTAL DIMENSION (FD): The "Roughness" Gauge
+#    - FD < 1.25 = Trend (smooth path, momentum works)
+#    - FD > 1.50 = Chop (rough path, mean-reversion works)
+#    - FD ≈ 1.50 = Random Walk
+#
+# 2. SAMPLE ENTROPY: The "Disorder" Monitor
+#    - Falling = Market organizing → Breakout coming
+#    - Spiking = Shock in progress
+#    - Stable = Status quo
+#
+# 3. CENTER OF MASS: The "Balance" Point
+#    - Volume-weighted price = TRUE conviction level
+#    - Fake moves have CoM lagging price
+#    - Genuine moves have CoM leading price
+#
+# 4. FTLE (Finite Time Lyapunov Exponent): The "Chaos" Detector
+#    - High FTLE = Chaos/Bifurcation (regime about to flip)
+#    - Low FTLE = Stable dynamics
+#    - Works on 50-100 bar windows
+# =============================================================================
+
+
+def compute_fractal_dimension_katz(close, window: int = 50):
+    """
+    Katz Fractal Dimension - measures path complexity.
+
+    FD = log10(n) / (log10(n) + log10(d/L))
+
+    Where:
+    - n = number of points
+    - L = total path length (sum of |price changes|)
+    - d = diameter (max distance from first point)
+
+    Interpretation:
+    - FD < 1.25: Trending (smooth path) → MOMENTUM works
+    - FD > 1.50: Choppy (rough path) → MEAN REVERSION works
+    - FD ≈ 1.50: Random walk
+
+    Works on 30-100 bars (much better than Hurst's 500+).
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window:
+        return np.full(n, 1.5)  # Neutral
+
+    fd = np.full(n, 1.5)
+
+    for i in range(window, n):
+        local = close.iloc[i - window:i].values
+        num_points = len(local)
+
+        # Total path length L = sum of absolute price changes
+        path_length = np.sum(np.abs(np.diff(local)))
+
+        if path_length == 0:
+            fd[i] = 1.5
+            continue
+
+        # Diameter d = max distance from first point
+        diameter = np.max(np.abs(local - local[0]))
+
+        if diameter == 0:
+            fd[i] = 1.5
+            continue
+
+        # Katz FD formula
+        log_n = np.log10(num_points - 1)
+        log_d_L = np.log10(diameter / path_length)
+
+        if log_n + log_d_L != 0:
+            fd[i] = log_n / (log_n + log_d_L)
+        else:
+            fd[i] = 1.5
+
+        # Clip to valid range [1.0, 2.0]
+        fd[i] = np.clip(fd[i], 1.0, 2.0)
+
+    return fd
+
+
+def compute_fractal_dimension_higuchi(close, k_max: int = 10, window: int = 100):
+    """
+    Higuchi Fractal Dimension - more robust than Katz.
+
+    Measures self-similarity at different scales.
+    Uses the slope of log(L(k)) vs log(1/k) where L(k) is curve length at scale k.
+
+    Interpretation:
+    - FD < 1.25: Strong trend (low complexity)
+    - FD > 1.50: Choppy/mean-reverting (high complexity)
+    - FD ≈ 1.50: Random walk
+
+    Works on 50-200 bars. More stable than Katz.
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window:
+        return np.full(n, 1.5)
+
+    fd = np.full(n, 1.5)
+
+    for i in range(window, n):
+        local = close.iloc[i - window:i].values
+        N = len(local)
+
+        # Ensure k_max is valid
+        k_max_valid = min(k_max, N // 4)
+        if k_max_valid < 2:
+            fd[i] = 1.5
+            continue
+
+        # Compute L(k) for different k values
+        lk = []
+        ks = []
+
+        for k in range(1, k_max_valid + 1):
+            Lm_values = []
+
+            for m in range(1, k + 1):
+                # Indices for this subsequence
+                indices = np.arange(m - 1, N, k)
+                if len(indices) < 2:
+                    continue
+
+                # Subsequence values
+                subseq = local[indices]
+
+                # Length of this subseries
+                a = len(indices) - 1
+                if a == 0:
+                    continue
+
+                norm_factor = (N - 1) / (a * k)
+                Lm = np.sum(np.abs(np.diff(subseq))) * norm_factor
+                Lm_values.append(Lm)
+
+            if len(Lm_values) > 0:
+                lk.append(np.mean(Lm_values))
+                ks.append(k)
+
+        if len(ks) < 3:
+            fd[i] = 1.5
+            continue
+
+        # Linear regression of log(L(k)) vs log(1/k)
+        log_k = np.log(1.0 / np.array(ks))
+        log_lk = np.log(np.array(lk) + 1e-10)
+
+        # Slope = Fractal Dimension
+        try:
+            slope, _ = np.polyfit(log_k, log_lk, 1)
+            fd[i] = np.clip(slope, 1.0, 2.0)
+        except:
+            fd[i] = 1.5
+
+    return fd
+
+
+def compute_sample_entropy(close, m: int = 2, r_mult: float = 0.2, window: int = 100):
+    """
+    Sample Entropy - measures predictability/regularity.
+
+    SampEn = -log(A/B)
+
+    Where:
+    - B = number of template matches for patterns of length m
+    - A = number of template matches for patterns of length m+1
+    - r = tolerance (typically 0.2 * std)
+
+    Interpretation:
+    - FALLING entropy = Market organizing → Breakout imminent
+    - SPIKING entropy = Shock in progress → Chaos
+    - STABLE entropy = Status quo → Range-bound
+
+    Works on 50-200 bars. Great for detecting pre-breakout compression.
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window:
+        return np.full(n, 0.0)
+
+    sampen = np.full(n, 0.0)
+
+    for i in range(window, n):
+        local = close.iloc[i - window:i].values
+        N = len(local)
+
+        # Tolerance based on local std
+        std = np.std(local)
+        if std == 0:
+            sampen[i] = 0.0
+            continue
+
+        r = r_mult * std
+
+        # Count template matches
+        def count_matches(template_len):
+            count = 0
+            for j in range(N - template_len):
+                for k in range(j + 1, N - template_len):
+                    # Check if templates match within tolerance
+                    template_j = local[j:j + template_len]
+                    template_k = local[k:k + template_len]
+                    if np.max(np.abs(template_j - template_k)) < r:
+                        count += 1
+            return count
+
+        B = count_matches(m)
+        A = count_matches(m + 1)
+
+        if B == 0 or A == 0:
+            sampen[i] = 0.0
+        else:
+            sampen[i] = -np.log(A / B)
+
+    return sampen
+
+
+def compute_sample_entropy_fast(close, m: int = 2, r_mult: float = 0.2, window: int = 100):
+    """
+    Fast Sample Entropy - vectorized approximation.
+
+    Uses correlation integral approximation for speed.
+    Suitable for real-time trading applications.
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window:
+        return np.full(n, 0.0)
+
+    sampen = np.full(n, 0.0)
+
+    for i in range(window, n):
+        local = close.iloc[i - window:i].values
+        N = len(local)
+
+        std = np.std(local)
+        if std == 0:
+            continue
+
+        r = r_mult * std
+
+        # Create embedded vectors
+        def embed(x, m):
+            return np.array([x[j:j + m] for j in range(len(x) - m + 1)])
+
+        # Embedded sequences
+        X_m = embed(local, m)
+        X_m1 = embed(local, m + 1)
+
+        # Count matches using vectorized distance
+        def count_matches_fast(X):
+            n_templates = len(X)
+            count = 0
+            for j in range(n_templates):
+                # Chebyshev distance to all other templates
+                distances = np.max(np.abs(X - X[j]), axis=1)
+                # Count matches (excluding self)
+                matches = np.sum(distances < r) - 1
+                count += matches
+            return count / 2  # Divide by 2 to avoid double counting
+
+        B = count_matches_fast(X_m)
+        A = count_matches_fast(X_m1)
+
+        if B > 0 and A > 0:
+            sampen[i] = -np.log(A / B)
+        elif B > 0:
+            sampen[i] = np.log(B)  # Maximum entropy estimate
+        else:
+            sampen[i] = 0.0
+
+    return sampen
+
+
+def compute_center_of_mass(close, volume, window: int = 20):
+    """
+    Volume-Weighted Center of Mass - true conviction level.
+
+    CoM = Σ(price × volume) / Σ(volume)
+
+    This is the volume-weighted average price (VWAP-like) over a window.
+    Reveals where the REAL money is positioned.
+
+    Interpretation:
+    - Price > CoM + threshold: Overextended UP (potential reversal)
+    - Price < CoM - threshold: Overextended DOWN (potential reversal)
+    - Price ≈ CoM: Fair value, genuine move in progress
+
+    Works on 10-50 bars. Essential for detecting fake breakouts.
+    """
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+    n = len(close)
+
+    # Handle zero volume
+    volume = volume.replace(0, np.nan).fillna(volume.mean())
+
+    # Rolling center of mass
+    pv = close * volume
+    com = pv.rolling(window, min_periods=1).sum() / volume.rolling(window, min_periods=1).sum()
+
+    return com.fillna(close).values
+
+
+def compute_com_divergence(close, volume, window: int = 20):
+    """
+    Center of Mass Divergence - distance from conviction level.
+
+    Measures how far price has deviated from volume-weighted center.
+    Normalized by rolling volatility for comparability.
+
+    Interpretation:
+    - Positive: Price above CoM (bullish conviction or overextended)
+    - Negative: Price below CoM (bearish conviction or oversold)
+    - Near zero: Price at fair value
+
+    Use with trend direction to detect genuine vs fake moves.
+    """
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    com = compute_center_of_mass(close.values, volume.values, window)
+    com = pd.Series(com, index=close.index)
+
+    # Raw divergence
+    divergence = close - com
+
+    # Normalize by rolling volatility
+    volatility = close.rolling(window, min_periods=1).std() + 1e-10
+    normalized = divergence / volatility
+
+    return normalized.fillna(0.0).values
+
+
+def compute_ftle(close, window: int = 50, tau: int = 1):
+    """
+    Finite Time Lyapunov Exponent - chaos/stability detector.
+
+    FTLE measures exponential divergence of nearby trajectories.
+    High FTLE = chaotic dynamics, regime about to flip.
+    Low FTLE = stable dynamics, current regime persists.
+
+    Uses return space reconstruction for practical calculation.
+
+    Interpretation:
+    - FTLE > 0.1: Chaos/Bifurcation → Be cautious, regime shift likely
+    - FTLE < 0.05: Stable → Current trend/range likely to continue
+    - FTLE spiking: Transition in progress
+
+    Works on 50-100 bars. Superior to Hurst for detecting regime changes.
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window + tau:
+        return np.full(n, 0.0)
+
+    ftle = np.full(n, 0.0)
+
+    for i in range(window, n):
+        local = close.iloc[i - window:i].values
+
+        # Create phase space embedding
+        returns = np.diff(local)
+        if len(returns) < 2:
+            continue
+
+        # Find nearest neighbors and compute divergence
+        divergences = []
+
+        for j in range(len(returns) - tau):
+            # Current point
+            x_j = returns[j]
+
+            # Find nearest neighbor (excluding self and immediate neighbors)
+            distances = np.abs(returns - x_j)
+            distances[max(0, j - 2):min(len(returns), j + 3)] = np.inf
+
+            if np.all(np.isinf(distances)):
+                continue
+
+            k = np.argmin(distances)
+            d0 = distances[k]
+
+            if d0 == 0:
+                continue
+
+            # Compute divergence after tau steps
+            if j + tau < len(returns) and k + tau < len(returns):
+                dt = np.abs(returns[j + tau] - returns[k + tau])
+                if dt > 0 and d0 > 0:
+                    # Lyapunov exponent = (1/tau) * log(dt/d0)
+                    divergences.append(np.log(dt / d0) / tau)
+
+        if len(divergences) > 0:
+            ftle[i] = np.mean(divergences)
+            # Clip to reasonable range
+            ftle[i] = np.clip(ftle[i], -1.0, 1.0)
+
+    return ftle
+
+
+def compute_ftle_fast(close, window: int = 50):
+    """
+    Fast FTLE approximation using variance ratios.
+
+    Uses the ratio of short-term to long-term variance as a proxy.
+    Much faster than full FTLE calculation.
+    """
+    close = pd.Series(close)
+    n = len(close)
+
+    if n < window:
+        return np.full(n, 0.0)
+
+    returns = close.pct_change().fillna(0.0)
+
+    # Short-term variance
+    short_var = returns.rolling(window // 4, min_periods=1).var()
+
+    # Long-term variance
+    long_var = returns.rolling(window, min_periods=1).var()
+
+    # FTLE proxy = log ratio of variances
+    # High ratio = short-term volatility spiking = regime change
+    ratio = short_var / (long_var + 1e-10)
+    ftle_proxy = np.log(ratio + 1e-10)
+
+    return ftle_proxy.fillna(0.0).clip(-2.0, 2.0).values
+
+
+def compute_market_state_features(high, low, close, volume, window: int = 50):
+    """
+    Compute all practical physics measures as a feature vector.
+
+    Returns dict with:
+    - fractal_dim: Fractal Dimension (trend vs chop)
+    - sample_entropy: Sample Entropy (order vs chaos)
+    - center_of_mass: Volume-weighted price level
+    - com_divergence: Distance from CoM (normalized)
+    - ftle: Chaos/stability indicator
+
+    These replace Hurst Exponent for short-timeframe trading.
+    """
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    return {
+        'fractal_dim': compute_fractal_dimension_katz(close.values, window),
+        'sample_entropy': compute_sample_entropy_fast(close.values, window=window),
+        'center_of_mass': compute_center_of_mass(close.values, volume.values, window // 2),
+        'com_divergence': compute_com_divergence(close.values, volume.values, window // 2),
+        'ftle': compute_ftle_fast(close.values, window),
+    }
+
+
+def classify_market_regime_physics(fractal_dim, sample_entropy, ftle, symc):
+    """
+    Classify market regime using physics measures.
+
+    Combines:
+    - Fractal Dimension (trend purity)
+    - Sample Entropy (predictability)
+    - FTLE (stability)
+    - SymC Ratio (damping)
+
+    Returns regime label and confidence score.
+    """
+    fd = pd.Series(fractal_dim)
+    se = pd.Series(sample_entropy)
+    ftle_s = pd.Series(ftle)
+    symc_s = pd.Series(symc)
+    n = len(fd)
+
+    regimes = []
+    confidences = []
+
+    for i in range(n):
+        fd_val = fd.iloc[i]
+        se_val = se.iloc[i]
+        ftle_val = ftle_s.iloc[i]
+        symc_val = symc_s.iloc[i]
+
+        # Trend regime: Low FD + Low FTLE + Underdamped
+        trend_score = (1.5 - fd_val) + (0.1 - abs(ftle_val)) + (1.0 - symc_val)
+
+        # Range regime: High FD + Low FTLE + Overdamped
+        range_score = (fd_val - 1.5) + (0.1 - abs(ftle_val)) + (symc_val - 1.0)
+
+        # Chaos regime: High FTLE + High Entropy
+        chaos_score = abs(ftle_val) + se_val
+
+        scores = {'trend': trend_score, 'range': range_score, 'chaos': chaos_score}
+        best = max(scores, key=scores.get)
+        confidence = scores[best] / (sum(abs(v) for v in scores.values()) + 1e-10)
+
+        regimes.append(best)
+        confidences.append(min(1.0, max(0.0, confidence)))
+
+    return regimes, confidences
+
+
+# =============================================================================
+# RL FEATURE EXTRACTION - REGIME-AWARE STATE SPACE
+# =============================================================================
+#
+# For Distributional RL (QR-DQN) or PPO:
+# - Context Vector: HMM regime states (one-hot)
+# - Risk Vector: Kurtosis, VPIN proxy, Entropy
+# - Momentum Vector: Fractal Dimension, FTLE
+# - Flow Vector: Order flow, CoM divergence
+# =============================================================================
+
+
+def compute_kurtosis_rolling(returns, window: int = 50):
+    """
+    Rolling excess kurtosis for tail risk measurement.
+
+    High kurtosis = fat tails = standard risk measures fail.
+    Feed this to QR-DQN to learn distribution-aware policies.
+    """
+    returns = pd.Series(returns)
+    kurt = returns.rolling(window, min_periods=window // 2).apply(
+        lambda x: pd.Series(x).kurtosis(), raw=False
+    )
+    return kurt.fillna(0.0).clip(-10, 10).values
+
+
+def compute_vpin_proxy(close, volume, window: int = 50):
+    """
+    VPIN (Volume-Synchronized Probability of Informed Trading) proxy.
+
+    Without tick data, estimate toxicity from:
+    - Volume imbalance in directional buckets
+    - Higher VPIN = more informed trading = crash risk
+
+    Returns [0, 1] where 1 = maximum toxicity.
+    """
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    # Classify volume as buy/sell
+    direction = np.sign(close.diff())
+
+    # Rolling buy/sell volume
+    buy_vol = (volume * (direction > 0).astype(float)).rolling(window, min_periods=1).sum()
+    sell_vol = (volume * (direction < 0).astype(float)).rolling(window, min_periods=1).sum()
+    total_vol = buy_vol + sell_vol + 1e-10
+
+    # VPIN proxy = |buy - sell| / total
+    vpin = np.abs(buy_vol - sell_vol) / total_vol
+
+    return vpin.fillna(0.0).clip(0, 1).values
+
+
+def compute_rl_state_vector(
+    high, low, close, volume,
+    window: int = 50
+) -> Dict[str, np.ndarray]:
+    """
+    Compute complete RL state vector for Regime-Conditioned Network.
+
+    Returns dict with feature groups:
+    - context: HMM-like regime indicators
+    - risk: Kurtosis, VPIN, Entropy (for QR-DQN distribution learning)
+    - momentum: Fractal Dimension, FTLE (for trend detection)
+    - flow: Order flow, CoM divergence (for conviction)
+    - oscillator: Mass, Force, Acceleration, SymC (for microstructure)
+
+    Architecture should use multi-head design:
+    - Head A (Range Logic): Active when FD > 1.5
+    - Head B (Trend Logic): Active when FD < 1.25
+    - Head C (Crisis Logic): Active when FTLE > 0.1 or VPIN > 0.7
+    """
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    returns = close.pct_change().fillna(0.0)
+
+    # Physics measures
+    fd = compute_fractal_dimension_katz(close.values, window)
+    se = compute_sample_entropy_fast(close.values, window=window)
+    com = compute_center_of_mass(close.values, volume.values, window // 2)
+    com_div = compute_com_divergence(close.values, volume.values, window // 2)
+    ftle = compute_ftle_fast(close.values, window)
+
+    # Oscillator state
+    oscillator = compute_oscillator_state(
+        high.values, low.values, close.values, volume.values, window // 2
+    )
+
+    # Risk measures
+    kurtosis = compute_kurtosis_rolling(returns.values, window)
+    vpin = compute_vpin_proxy(close.values, volume.values, window)
+
+    # SymC for regime
+    symc = oscillator['symc']
+
+    # Regime classification (one-hot encoding)
+    regimes, confidences = classify_market_regime_physics(fd, se, ftle, symc)
+
+    regime_onehot = np.zeros((len(close), 3))
+    for i, regime in enumerate(regimes):
+        if regime == 'trend':
+            regime_onehot[i, 0] = 1
+        elif regime == 'range':
+            regime_onehot[i, 1] = 1
+        else:  # chaos
+            regime_onehot[i, 2] = 1
+
+    return {
+        # Context (for gating)
+        'regime_trend': regime_onehot[:, 0],
+        'regime_range': regime_onehot[:, 1],
+        'regime_chaos': regime_onehot[:, 2],
+        'regime_confidence': np.array(confidences),
+
+        # Risk (for distribution learning)
+        'kurtosis': kurtosis,
+        'vpin': vpin,
+        'entropy': se,
+
+        # Momentum (for trend detection)
+        'fractal_dim': fd,
+        'ftle': ftle,
+
+        # Flow (for conviction)
+        'order_flow': oscillator['force'],
+        'com_divergence': com_div,
+
+        # Oscillator (for microstructure)
+        'mass': oscillator['mass'],
+        'acceleration': oscillator['acceleration'],
+        'velocity': oscillator['velocity'],
+        'symc': symc,
+    }
+
+
+def compute_action_mask(state_vector: Dict[str, np.ndarray], idx: int) -> Dict[str, bool]:
+    """
+    Compute action mask based on regime state.
+
+    Critical for speeding up RL training:
+    - If regime = chaos/crisis: Mask "Open New Trade"
+    - If regime = trend + short position: Mask "Buy"
+    - If VPIN > threshold: Mask aggressive actions
+
+    Returns dict of allowed actions.
+    """
+    regime_chaos = state_vector['regime_chaos'][idx]
+    vpin = state_vector['vpin'][idx]
+    ftle = state_vector['ftle'][idx]
+    symc = state_vector['symc'][idx]
+
+    # Default: all actions allowed
+    mask = {
+        'buy': True,
+        'sell': True,
+        'hold': True,
+        'close': True,
+    }
+
+    # Crisis/Chaos: No new positions
+    if regime_chaos > 0.5 or ftle > 0.1:
+        mask['buy'] = False
+        mask['sell'] = False
+
+    # High toxicity: No new positions
+    if vpin > 0.7:
+        mask['buy'] = False
+        mask['sell'] = False
+
+    # Frozen market: Force close existing positions
+    if symc > 2.0:
+        mask['buy'] = False
+        mask['sell'] = False
+
+    return mask
+
+
+# =============================================================================
+# WELFORD'S ONLINE ALGORITHM - INCREMENTAL STATISTICS
+# =============================================================================
+#
+# For real-time trading, recalculating statistics from scratch is too slow.
+# Welford's algorithm computes mean, variance, and higher moments incrementally.
+#
+# Live metrics:
+# - Sortino Ratio: Tracks running sum of squared negative returns
+# - Ulcer Index: Tracks running sum of squared drawdowns from peak
+# - Standard Deviation: Welford's classic algorithm
+# - Downside Deviation: Welford's applied to negative returns only
+# =============================================================================
+
+
+@dataclass
+class WelfordState:
+    """State for Welford's online algorithm."""
+    count: int = 0
+    mean: float = 0.0
+    M2: float = 0.0  # Sum of squared deviations
+    min_val: float = float('inf')
+    max_val: float = float('-inf')
+
+    def update(self, x: float):
+        """Update statistics with new value using Welford's algorithm."""
+        self.count += 1
+        delta = x - self.mean
+        self.mean += delta / self.count
+        delta2 = x - self.mean
+        self.M2 += delta * delta2
+        self.min_val = min(self.min_val, x)
+        self.max_val = max(self.max_val, x)
+
+    @property
+    def variance(self) -> float:
+        """Population variance."""
+        if self.count < 2:
+            return 0.0
+        return self.M2 / self.count
+
+    @property
+    def sample_variance(self) -> float:
+        """Sample variance (Bessel's correction)."""
+        if self.count < 2:
+            return 0.0
+        return self.M2 / (self.count - 1)
+
+    @property
+    def std(self) -> float:
+        """Population standard deviation."""
+        return np.sqrt(self.variance)
+
+    @property
+    def sample_std(self) -> float:
+        """Sample standard deviation."""
+        return np.sqrt(self.sample_variance)
+
+
+@dataclass
+class OnlineDownsideState:
+    """State for online downside deviation calculation."""
+    count: int = 0
+    negative_count: int = 0
+    sum_sq_negative: float = 0.0
+    threshold: float = 0.0
+
+    def update(self, ret: float):
+        """Update with new return value."""
+        self.count += 1
+        if ret < self.threshold:
+            self.negative_count += 1
+            self.sum_sq_negative += (ret - self.threshold) ** 2
+
+    @property
+    def downside_deviation(self) -> float:
+        """Downside deviation (target = threshold)."""
+        if self.count < 2:
+            return 0.0
+        return np.sqrt(self.sum_sq_negative / self.count)
+
+
+@dataclass
+class OnlineUlcerState:
+    """State for online Ulcer Index calculation."""
+    count: int = 0
+    peak_equity: float = 0.0
+    sum_sq_drawdown: float = 0.0
+
+    def update(self, equity: float):
+        """Update with new equity value."""
+        self.count += 1
+        self.peak_equity = max(self.peak_equity, equity)
+
+        if self.peak_equity > 0:
+            drawdown_pct = (self.peak_equity - equity) / self.peak_equity * 100
+            self.sum_sq_drawdown += drawdown_pct ** 2
+
+    @property
+    def ulcer_index(self) -> float:
+        """Ulcer Index = RMS of percentage drawdowns."""
+        if self.count < 2:
+            return 0.0
+        return np.sqrt(self.sum_sq_drawdown / self.count)
+
+
+@dataclass
+class OnlineSortinoState:
+    """State for online Sortino Ratio calculation."""
+    return_state: WelfordState = None
+    downside_state: OnlineDownsideState = None
+    risk_free_rate: float = 0.0
+
+    def __post_init__(self):
+        if self.return_state is None:
+            self.return_state = WelfordState()
+        if self.downside_state is None:
+            self.downside_state = OnlineDownsideState(threshold=self.risk_free_rate)
+
+    def update(self, ret: float):
+        """Update with new return value."""
+        self.return_state.update(ret)
+        self.downside_state.update(ret)
+
+    @property
+    def sortino_ratio(self) -> float:
+        """Sortino Ratio = (mean - rf) / downside_deviation."""
+        dd = self.downside_state.downside_deviation
+        if dd == 0:
+            return 0.0 if self.return_state.mean <= self.risk_free_rate else float('inf')
+        return (self.return_state.mean - self.risk_free_rate) / dd
+
+
+@dataclass
+class OnlineOmegaState:
+    """State for online Omega Ratio calculation."""
+    sum_gains: float = 0.0
+    sum_losses: float = 0.0
+    count: int = 0
+    threshold: float = 0.0
+
+    def update(self, ret: float):
+        """Update with new return value."""
+        self.count += 1
+        if ret > self.threshold:
+            self.sum_gains += ret - self.threshold
+        elif ret < self.threshold:
+            self.sum_losses += self.threshold - ret
+
+    @property
+    def omega_ratio(self) -> float:
+        """Omega Ratio = sum(gains) / sum(losses)."""
+        if self.sum_losses == 0:
+            return float('inf') if self.sum_gains > 0 else 1.0
+        return self.sum_gains / self.sum_losses
+
+
+class OnlineMetricsTracker:
+    """
+    Complete online metrics tracker for live trading.
+
+    Tracks all performance metrics incrementally using Welford's algorithm.
+    No need to recalculate from scratch on every bar.
+    """
+
+    def __init__(self, risk_free_rate: float = 0.0, initial_equity: float = 100000.0):
+        """
+        Initialize online metrics tracker.
+
+        Args:
+            risk_free_rate: Risk-free rate for Sortino/Sharpe
+            initial_equity: Starting equity value
+        """
+        self.initial_equity = initial_equity
+        self.current_equity = initial_equity
+        self.risk_free_rate = risk_free_rate
+
+        # Online states
+        self.return_state = WelfordState()
+        self.sortino_state = OnlineSortinoState(risk_free_rate=risk_free_rate)
+        self.ulcer_state = OnlineUlcerState()
+        self.omega_state = OnlineOmegaState()
+
+        # Trade tracking
+        self.trade_count = 0
+        self.winning_trades = 0
+        self.total_pnl = 0.0
+        self.max_drawdown = 0.0
+        self.peak_equity = initial_equity
+
+    def update_return(self, ret: float):
+        """Update with a new return value (percentage or decimal)."""
+        self.return_state.update(ret)
+        self.sortino_state.update(ret)
+        self.omega_state.update(ret)
+
+    def update_equity(self, equity: float):
+        """Update with new equity value."""
+        self.current_equity = equity
+        self.ulcer_state.update(equity)
+
+        # Update peak and drawdown
+        self.peak_equity = max(self.peak_equity, equity)
+        if self.peak_equity > 0:
+            current_dd = (self.peak_equity - equity) / self.peak_equity
+            self.max_drawdown = max(self.max_drawdown, current_dd)
+
+    def record_trade(self, pnl: float):
+        """Record a completed trade."""
+        self.trade_count += 1
+        self.total_pnl += pnl
+        if pnl > 0:
+            self.winning_trades += 1
+
+        # Update equity
+        self.current_equity += pnl
+        self.update_equity(self.current_equity)
+
+        # Update return (as percentage of equity before trade)
+        if self.current_equity - pnl != 0:
+            ret = pnl / (self.current_equity - pnl)
+            self.update_return(ret)
+
+    @property
+    def sharpe_ratio(self) -> float:
+        """Sharpe Ratio = (mean - rf) / std."""
+        std = self.return_state.sample_std
+        if std == 0:
+            return 0.0 if self.return_state.mean <= self.risk_free_rate else float('inf')
+        return (self.return_state.mean - self.risk_free_rate) / std
+
+    @property
+    def sortino_ratio(self) -> float:
+        """Sortino Ratio from online state."""
+        return self.sortino_state.sortino_ratio
+
+    @property
+    def omega_ratio(self) -> float:
+        """Omega Ratio from online state."""
+        return self.omega_state.omega_ratio
+
+    @property
+    def ulcer_index(self) -> float:
+        """Ulcer Index from online state."""
+        return self.ulcer_state.ulcer_index
+
+    @property
+    def ulcer_performance_index(self) -> float:
+        """UPI = (total_return - rf) / ulcer_index."""
+        ui = self.ulcer_index
+        if ui == 0:
+            return 0.0
+
+        total_return = (self.current_equity / self.initial_equity - 1) * 100
+        return (total_return - self.risk_free_rate * 100) / ui
+
+    @property
+    def win_rate(self) -> float:
+        """Win rate as percentage."""
+        if self.trade_count == 0:
+            return 0.0
+        return self.winning_trades / self.trade_count * 100
+
+    @property
+    def max_drawdown_pct(self) -> float:
+        """Maximum drawdown as percentage."""
+        return self.max_drawdown * 100
+
+    @property
+    def total_return_pct(self) -> float:
+        """Total return as percentage."""
+        return (self.current_equity / self.initial_equity - 1) * 100
+
+    def get_metrics(self) -> Dict[str, float]:
+        """Get all current metrics as a dict."""
+        return {
+            'total_return_pct': self.total_return_pct,
+            'sharpe_ratio': self.sharpe_ratio,
+            'sortino_ratio': self.sortino_ratio,
+            'omega_ratio': self.omega_ratio,
+            'ulcer_index': self.ulcer_index,
+            'ulcer_performance_index': self.ulcer_performance_index,
+            'max_drawdown_pct': self.max_drawdown_pct,
+            'win_rate': self.win_rate,
+            'trade_count': self.trade_count,
+            'total_pnl': self.total_pnl,
+            'current_equity': self.current_equity,
+            'mean_return': self.return_state.mean,
+            'return_std': self.return_state.sample_std,
+        }
+
+    def reset(self, initial_equity: float = None):
+        """Reset all states."""
+        if initial_equity is not None:
+            self.initial_equity = initial_equity
+
+        self.current_equity = self.initial_equity
+        self.return_state = WelfordState()
+        self.sortino_state = OnlineSortinoState(risk_free_rate=self.risk_free_rate)
+        self.ulcer_state = OnlineUlcerState()
+        self.omega_state = OnlineOmegaState()
+        self.trade_count = 0
+        self.winning_trades = 0
+        self.total_pnl = 0.0
+        self.max_drawdown = 0.0
+        self.peak_equity = self.initial_equity
+
+
+def compute_online_sortino(returns: List[float], risk_free_rate: float = 0.0) -> float:
+    """
+    Compute Sortino Ratio using online algorithm.
+
+    This is a convenience function that processes a list of returns
+    using the online algorithm. For true real-time use, use OnlineSortinoState.
+    """
+    state = OnlineSortinoState(risk_free_rate=risk_free_rate)
+    for ret in returns:
+        state.update(ret)
+    return state.sortino_ratio
+
+
+def compute_online_ulcer(equity_curve: List[float]) -> float:
+    """
+    Compute Ulcer Index using online algorithm.
+
+    This is a convenience function that processes an equity curve
+    using the online algorithm. For true real-time use, use OnlineUlcerState.
+    """
+    state = OnlineUlcerState()
+    for equity in equity_curve:
+        state.update(equity)
+    return state.ulcer_index
+
+
+def compute_online_omega(returns: List[float], threshold: float = 0.0) -> float:
+    """
+    Compute Omega Ratio using online algorithm.
+
+    This is a convenience function that processes a list of returns
+    using the online algorithm. For true real-time use, use OnlineOmegaState.
+    """
+    state = OnlineOmegaState(threshold=threshold)
+    for ret in returns:
+        state.update(ret)
+    return state.omega_ratio
