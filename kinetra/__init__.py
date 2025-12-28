@@ -15,6 +15,11 @@ from .reward_shaping import AdaptiveRewardShaper
 from .backtest_engine import BacktestEngine
 from .health_monitor import HealthMonitor
 from .mt5_connector import MT5Connector, MT5Session, load_csv_data
+from .symbol_spec import (
+    SymbolSpec, SwapSpec, CommissionSpec, SwapType, CommissionType,
+    get_symbol_spec, fetch_mt5_symbol_spec, DEFAULT_SPECS
+)
+from .backtest_engine import Trade, TradeDirection, BacktestResult
 
 __all__ = [
     "PhysicsEngine",
@@ -31,4 +36,17 @@ __all__ = [
     "MT5Connector",
     "MT5Session",
     "load_csv_data",
+    # Symbol specifications
+    "SymbolSpec",
+    "SwapSpec",
+    "CommissionSpec",
+    "SwapType",
+    "CommissionType",
+    "get_symbol_spec",
+    "fetch_mt5_symbol_spec",
+    "DEFAULT_SPECS",
+    # Backtest types
+    "Trade",
+    "TradeDirection",
+    "BacktestResult",
 ]
