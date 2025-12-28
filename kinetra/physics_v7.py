@@ -894,7 +894,6 @@ def compute_composite_probability(close, energy, damping):
     """
     close = pd.Series(close)
     energy = pd.Series(energy)
-    damping = pd.Series(damping)
 
     # Compute dominant period from price (fully adaptive)
     dominant_period = compute_dominant_period(close)
