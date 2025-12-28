@@ -14,29 +14,40 @@ from datetime import datetime
 
 def load_mt5_csv(
     filepath: str,
-    date_column: str = 'time',
-    date_format: str = '%Y.%m.%d %H:%M:%S'
+    date_column: str = None,
+    date_format: str = None
 ) -> pd.DataFrame:
     """
     Load OHLCV data from MT5 CSV export.
 
-    MT5 exports data in format:
-    time,open,high,low,close,tick_volume,spread,real_volume
+    Auto-detects:
+    - Separator (tab, comma, semicolon)
+    - Column names (various MT5 export formats)
+    - Date format
 
     Args:
         filepath: Path to MT5 exported CSV file
-        date_column: Name of datetime column (default: 'time')
-        date_format: Datetime format string (MT5 default: '%Y.%m.%d %H:%M:%S')
+        date_column: Name of datetime column (auto-detected if None)
+        date_format: Datetime format string (auto-detected if None)
 
     Returns:
         Validated OHLCV DataFrame
     """
-    df = pd.read_csv(filepath, sep='\t')
+    # Try different separators
+    df = None
+    for sep in ['\t', ',', ';']:
+        try:
+            df = pd.read_csv(filepath, sep=sep)
+            if len(df.columns) >= 4:  # At least OHLC
+                break
+        except Exception:
+            continue
 
-    # Handle different MT5 export formats
-    if date_column in df.columns:
-        df[date_column] = pd.to_datetime(df[date_column], format=date_format)
-        df = df.set_index(date_column)
+    if df is None or len(df.columns) < 4:
+        raise ValueError(f"Could not parse CSV file: {filepath}")
+
+    # Clean column names
+    df.columns = [str(c).strip().lower() for c in df.columns]
 
     # Standardize column names to Backtesting.py format
     column_map = {
@@ -45,8 +56,10 @@ def load_mt5_csv(
         'low': 'Low',
         'close': 'Close',
         'tick_volume': 'Volume',
+        'tickvol': 'Volume',
         'real_volume': 'Volume',
         'volume': 'Volume',
+        'vol': 'Volume',
         '<open>': 'Open',
         '<high>': 'High',
         '<low>': 'Low',
@@ -55,15 +68,85 @@ def load_mt5_csv(
         '<vol>': 'Volume',
         '<date>': 'Date',
         '<time>': 'Time',
+        'date': 'Date',
+        'time': 'Time',
+        'datetime': 'DateTime',
     }
 
-    df.columns = [column_map.get(c.lower().strip(), c) for c in df.columns]
+    df.columns = [column_map.get(c, c) for c in df.columns]
+
+    # Try to find and parse datetime index
+    datetime_cols = ['DateTime', 'Date', 'Time']
+    date_col = None
+    time_col = None
+
+    for col in datetime_cols:
+        if col in df.columns:
+            if col == 'DateTime':
+                date_col = col
+                break
+            elif col == 'Date':
+                date_col = col
+            elif col == 'Time' and date_col:
+                time_col = col
+
+    # Combine Date and Time if both exist
+    if date_col and time_col and time_col in df.columns:
+        df['DateTime'] = df[date_col].astype(str) + ' ' + df[time_col].astype(str)
+        date_col = 'DateTime'
+
+    # Parse datetime with multiple format attempts
+    if date_col and date_col in df.columns:
+        date_formats = [
+            '%Y.%m.%d %H:%M:%S',
+            '%Y.%m.%d %H:%M',
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%d %H:%M',
+            '%d.%m.%Y %H:%M:%S',
+            '%d.%m.%Y %H:%M',
+            '%Y/%m/%d %H:%M:%S',
+            '%Y/%m/%d %H:%M',
+            None,  # Let pandas infer
+        ]
+
+        for fmt in date_formats:
+            try:
+                if fmt:
+                    df[date_col] = pd.to_datetime(df[date_col], format=fmt)
+                else:
+                    df[date_col] = pd.to_datetime(df[date_col])
+                df = df.set_index(date_col)
+                break
+            except Exception:
+                continue
+
+    # If no datetime index, use numeric index
+    if not isinstance(df.index, pd.DatetimeIndex):
+        df = df.reset_index(drop=True)
 
     # Ensure required columns exist
     required = ['Open', 'High', 'Low', 'Close']
     missing = [c for c in required if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        # Try to find columns by position if names don't match
+        # Standard order: Date, Time, Open, High, Low, Close, Volume
+        if len(df.columns) >= 6:
+            # Assume positional columns after date/time
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            if len(numeric_cols) >= 4:
+                df = df.rename(columns={
+                    numeric_cols[0]: 'Open',
+                    numeric_cols[1]: 'High',
+                    numeric_cols[2]: 'Low',
+                    numeric_cols[3]: 'Close',
+                })
+                if len(numeric_cols) >= 5:
+                    df = df.rename(columns={numeric_cols[4]: 'Volume'})
+
+        # Check again
+        missing = [c for c in required if c not in df.columns]
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}. Found: {list(df.columns)}")
 
     # Add Volume if not present
     if 'Volume' not in df.columns:
@@ -71,6 +154,13 @@ def load_mt5_csv(
 
     # Select only needed columns
     df = df[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+
+    # Convert to numeric (in case of string data)
+    for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    # Drop rows with NaN
+    df = df.dropna()
 
     # Validate data integrity
     is_valid, message = validate_ohlcv(df)
