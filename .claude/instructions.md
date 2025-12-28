@@ -149,6 +149,42 @@ NOT from:
 - Calendar events
 - Session boundaries
 
+## PARETO ANALYSIS: FAT CANDLES
+
+"Fat candle" is RELATIVE to the instrument's distribution:
+- What's fat for crypto differs from gold differs from forex
+- Summer volatility differs from winter
+- Use rolling percentile, NOT static threshold
+
+```python
+# "Fat" = top 20% of THIS instrument's recent distribution
+candle_magnitude_pct = magnitude.rolling(500).apply(
+    lambda x: (x.iloc[-1] > x.iloc[:-1]).mean()
+)
+is_fat_candle = candle_magnitude_pct >= 0.8  # Pareto: 20% → 80% of gains
+```
+
+Track physics state BEFORE fat candles:
+- prior_phase_compression
+- prior_suppression
+- prior_entropy
+- compression_buildup
+
+RL learns: "When physics looks like X, fat candle probability increases"
+
+## SEASONALITY / REGIME ADAPTATION
+
+Use multiple rolling windows:
+- Short window (20 bars): Current regime
+- Long window (500 bars): Seasonal baseline
+
+```python
+vol_regime_ratio = short_vol / long_vol
+# >1 = high vol regime (summer?), <1 = low vol regime (winter?)
+```
+
+This lets RL learn regime-dependent patterns WITHOUT hardcoded dates.
+
 ## SUMMARY
 
 > "We don't trade rules. We provide physics state. RL discovers edges."

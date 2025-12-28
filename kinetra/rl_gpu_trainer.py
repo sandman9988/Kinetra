@@ -209,6 +209,64 @@ class PhysicsFeatureComputer:
         # RL learns from: compression percentiles + trigger features + acceleration
         # Combinations are discovered, not prescribed
 
+        # === PARETO ANALYSIS: FAT CANDLE DETECTION ===
+        # "Fat" is RELATIVE to this instrument's distribution at this time
+        # What's fat for crypto is different from gold is different from forex
+        # Summer volatility differs from winter
+        # Solution: Rolling percentile of candle magnitude
+
+        # Candle magnitude (absolute move size)
+        candle_magnitude = bar_range / df['close']  # Normalized by price
+        result['candle_magnitude'] = candle_magnitude
+
+        # Where does THIS candle sit in the instrument's recent distribution?
+        # This adapts to the instrument AND the current volatility regime
+        result['candle_magnitude_pct'] = candle_magnitude.rolling(window, min_periods=self.lookback).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # Fat candle = top 20% of distribution (Pareto: 20% of candles = 80% of gains)
+        # This is a FACT about the distribution, not a trading rule
+        result['is_fat_candle'] = (result['candle_magnitude_pct'] >= 0.8).astype(float)
+
+        # Energy magnitude (velocity squared, captures directional energy)
+        energy_magnitude = velocity.abs()
+        result['energy_magnitude_pct'] = energy_magnitude.rolling(window, min_periods=self.lookback).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # === PRE-FAT CANDLE PHYSICS STATE ===
+        # What did physics look like BEFORE fat candles?
+        # Shift compression metrics forward to align with fat candle occurrence
+
+        # Was there compression before this bar?
+        result['prior_phase_compression'] = result['phase_compression'].shift(1)
+        result['prior_suppression'] = result['suppression_ratio'].shift(1)
+        result['prior_entropy'] = result['entropy_proxy'].shift(1)
+        result['prior_stiffness'] = result['spring_stiffness'].shift(1)
+
+        # Rolling compression buildup (was compression increasing over last N bars?)
+        result['compression_buildup'] = result['phase_compression'].rolling(5).apply(
+            lambda x: (x.iloc[-1] > x.iloc[0]) if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # === SEASONALITY / REGIME ADAPTATION ===
+        # Use multiple rolling windows to capture different time scales
+        # Short window = recent regime, Long window = seasonal baseline
+
+        # Short-term volatility regime (recent 20 bars)
+        short_vol = velocity.abs().rolling(self.lookback).mean()
+        # Long-term volatility baseline (500 bars ~ captures seasonality)
+        long_vol = velocity.abs().rolling(window).mean()
+
+        # Volatility regime ratio: is current vol above/below seasonal baseline?
+        result['vol_regime_ratio'] = short_vol / long_vol.clip(lower=1e-10)
+
+        # Where in the seasonal distribution is current volatility?
+        result['vol_regime_pct'] = result['vol_regime_ratio'].rolling(window, min_periods=self.lookback).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
         # === CONVERT TO PERCENTILES ===
         feature_cols = [
             # Core physics
@@ -221,6 +279,10 @@ class PhysicsFeatureComputer:
             # Energy release detection
             'volume_trend', 'volume_spike', 'body_ratio',
             'roc_5', 'roc_accel', 'vol_weighted_roc',
+            # Pareto / Fat candle analysis
+            'candle_magnitude', 'vol_regime_ratio',
+            # Prior state (for learning pre-fat patterns)
+            'prior_phase_compression', 'prior_suppression', 'prior_entropy', 'prior_stiffness',
         ]
 
         for col in feature_cols:
@@ -236,6 +298,11 @@ class PhysicsFeatureComputer:
         result['at_range_low_pct'] = result['at_range_low']    # Fact: at N-day low
         result['swept_high_pct'] = result['swept_high']        # Fact: wick swept high
         result['swept_low_pct'] = result['swept_low']          # Fact: wick swept low
+
+        # Pareto/fat candle features (already computed as percentiles)
+        result['is_fat_candle_pct'] = result['is_fat_candle']  # Binary: top 20% of distribution
+        result['compression_buildup_pct'] = result['compression_buildup']  # Was compression increasing?
+        # candle_magnitude_pct, energy_magnitude_pct, vol_regime_pct already computed above
 
         # FRICTION/LIQUIDITY METRICS (from symbol_info if available, else estimate)
         # These replace "time of day" filters - we use market friction instead
