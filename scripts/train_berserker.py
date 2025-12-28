@@ -38,6 +38,7 @@ from collections import defaultdict
 import argparse
 import logging
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add project root to path
@@ -285,6 +286,8 @@ def train_timeframe(
     epsilon = config.epsilon_start
     best_pnl = float('-inf')
     total_steps = 0
+    episode_start_time = None
+    heartbeat_interval = 1000  # Log every N steps
 
     all_episode_metrics = []
 
@@ -295,6 +298,8 @@ def train_timeframe(
             'entry_energy': [], 'move_capture': [], 'mfe_first': [],
         }
         losses = []
+        episode_steps = 0
+        episode_start_time = time.time()
 
         state = env.reset()
         done = False
@@ -364,6 +369,17 @@ def train_timeframe(
 
             state = next_state
             total_steps += 1
+            episode_steps += 1
+
+            # Heartbeat - show progress during long episodes
+            if episode_steps % heartbeat_interval == 0:
+                elapsed = time.time() - episode_start_time
+                steps_per_sec = episode_steps / elapsed if elapsed > 0 else 0
+                with log_lock:
+                    print(f"    [{thread_id}] ♥ Step {episode_steps:,} | {steps_per_sec:.0f} steps/s | Trades: {episode_stats['trades']}        ", end='\r', flush=True)
+
+        # Clear heartbeat line
+        print(" " * 80, end='\r', flush=True)
 
         # Epsilon decay
         epsilon = max(config.epsilon_end, epsilon * config.epsilon_decay)

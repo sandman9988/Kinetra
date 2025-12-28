@@ -85,16 +85,44 @@ class MetricsServer:
         # === INFO ===
         self.training_info = Info('kinetra_training', 'Training session info')
 
-    def start(self):
-        """Start the Prometheus HTTP server."""
-        if not self.started:
-            start_http_server(self.port)
-            self.started = True
-            print(f"Prometheus metrics server started on port {self.port}")
-            print(f"Access metrics at: http://localhost:{self.port}/metrics")
+    def start(self, max_retries: int = 5):
+        """Start the Prometheus HTTP server with automatic port fallback.
+
+        If the port is in use, tries subsequent ports up to max_retries times.
+        If all ports fail, continues without metrics server.
+        """
+        if self.started:
+            return True
+
+        original_port = self.port
+
+        for attempt in range(max_retries):
+            try:
+                start_http_server(self.port)
+                self.started = True
+                if self.port != original_port:
+                    print(f"Prometheus metrics server started on port {self.port} (original {original_port} was in use)")
+                else:
+                    print(f"Prometheus metrics server started on port {self.port}")
+                print(f"Access metrics at: http://localhost:{self.port}/metrics")
+                return True
+            except OSError as e:
+                if "Address already in use" in str(e):
+                    self.port += 1
+                else:
+                    print(f"Failed to start metrics server: {e}")
+                    break
+
+        # All ports failed - continue without metrics
+        print(f"WARNING: Could not start metrics server (ports {original_port}-{self.port} in use)")
+        print("Training will continue without Prometheus metrics.")
+        self.started = False
+        return False
 
     def update_rl_metrics(self, metrics: RLMetrics):
         """Update RL training metrics."""
+        if not self.started:
+            return
         self.episode.set(metrics.episode)
         self.total_trades.set(metrics.total_trades)
         self.win_rate.set(metrics.win_rate)
@@ -118,6 +146,8 @@ class MetricsServer:
         buying_pressure: float,
     ):
         """Update physics state metrics."""
+        if not self.started:
+            return
         self.energy_pct.set(energy_pct)
         self.damping_pct.set(damping_pct)
         self.entropy_pct.set(entropy_pct)
@@ -127,6 +157,8 @@ class MetricsServer:
 
     def update_feature_importance(self, importance: Dict[str, float]):
         """Update feature importance from RL."""
+        if not self.started:
+            return
         for feature, value in importance.items():
             self.feature_importance.labels(feature=feature).set(value)
 
@@ -138,6 +170,8 @@ class MetricsServer:
         magnitude_probability: float,
     ):
         """Update signal metrics."""
+        if not self.started:
+            return
         self.is_berserker.set(1 if is_berserker else 0)
         self.flow_regime.set(flow_regime)
         self.direction_confidence.set(direction_confidence)
@@ -145,6 +179,8 @@ class MetricsServer:
 
     def record_trade(self, pnl: float):
         """Record a trade execution."""
+        if not self.started:
+            return
         self.trades_executed.inc()
         if pnl > 0:
             self.wins.inc()
@@ -153,10 +189,14 @@ class MetricsServer:
 
     def complete_episode(self):
         """Mark episode as completed."""
+        if not self.started:
+            return
         self.episodes_completed.inc()
 
     def set_training_info(self, **kwargs):
         """Set training session info."""
+        if not self.started:
+            return
         self.training_info.info(kwargs)
 
 
