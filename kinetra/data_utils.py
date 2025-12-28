@@ -46,8 +46,15 @@ def load_mt5_csv(
     if df is None or len(df.columns) < 4:
         raise ValueError(f"Could not parse CSV file: {filepath}")
 
-    # Clean column names
-    df.columns = [str(c).strip().lower() for c in df.columns]
+    # Clean column names - remove angle brackets and lowercase
+    def clean_col(c):
+        c = str(c).strip().lower()
+        # Remove angle brackets: <date> -> date
+        if c.startswith('<') and c.endswith('>'):
+            c = c[1:-1]
+        return c
+
+    df.columns = [clean_col(c) for c in df.columns]
 
     # Standardize column names to Backtesting.py format
     column_map = {
@@ -60,14 +67,6 @@ def load_mt5_csv(
         'real_volume': 'Volume',
         'volume': 'Volume',
         'vol': 'Volume',
-        '<open>': 'Open',
-        '<high>': 'High',
-        '<low>': 'Low',
-        '<close>': 'Close',
-        '<tickvol>': 'Volume',
-        '<vol>': 'Volume',
-        '<date>': 'Date',
-        '<time>': 'Time',
         'date': 'Date',
         'time': 'Time',
         'datetime': 'DateTime',
