@@ -148,9 +148,16 @@ class PhysicsFeatureComputer:
 
         # Only look at positive frequencies, skip DC component (index 0)
         # and very high frequencies (noise)
-        min_period = 5  # Minimum meaningful period
-        max_period = n // 3  # Maximum meaningful period
+        # Heuristic bounds for detectable periods (in samples):
+        # - MIN_MEANINGFUL_PERIOD_SAMPLES: require several samples per cycle
+        #   (>= 2 per Nyquist; we use 5 to reduce very high-frequency noise).
+        # - MAX_PERIOD_FRACTION_OF_WINDOW: require that a cycle repeats
+        #   multiple times within the analysis window (here ~3 times).
+        MIN_MEANINGFUL_PERIOD_SAMPLES = 5
+        MAX_PERIOD_FRACTION_OF_WINDOW = 1.0 / 3.0
 
+        min_period = MIN_MEANINGFUL_PERIOD_SAMPLES
+        max_period = max(int(n * MAX_PERIOD_FRACTION_OF_WINDOW), min_period + 1)
         # Convert frequency to period, find peaks
         periods = []
         powers = []
