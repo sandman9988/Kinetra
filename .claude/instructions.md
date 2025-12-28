@@ -240,3 +240,32 @@ Every feature should be:
 2. Expressed as a percentile (adaptive)
 3. Instrument-agnostic (works everywhere)
 4. Fed to RL for pattern discovery (not rules)
+
+## GPU REQUIREMENTS
+
+Training REQUIRES GPU acceleration. CPU training is 100x slower.
+
+**Check GPU availability:**
+```python
+import torch
+print(f"CUDA: {torch.cuda.is_available()}")
+print(f"Devices: {torch.cuda.device_count()}")
+```
+
+**For AMD GPUs (ROCm):**
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
+```
+
+**For NVIDIA GPUs (CUDA):**
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+```
+
+**Environment variables for ROCm:**
+```bash
+export HSA_OVERRIDE_GFX_VERSION=10.3.0  # For some AMD GPUs
+export HIP_VISIBLE_DEVICES=0
+```
+
+If no GPU detected, DO NOT proceed with long training runs. Fix GPU first.
