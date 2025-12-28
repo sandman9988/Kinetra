@@ -138,12 +138,76 @@ class PhysicsFeatureComputer:
         # Momentum direction (let RL learn what to do with it)
         result['momentum_dir'] = np.sign(df['close'].pct_change(5))
 
+        # === ENERGY RELEASE DETECTION (Entry Timing) ===
+
+        # 1. COMPRESSION METRICS (Energy Stored)
+        # Bollinger Band Width - low = compression
+        bb_std = df['close'].rolling(self.lookback).std()
+        bb_mean = df['close'].rolling(self.lookback).mean()
+        result['bb_width'] = (2 * bb_std) / bb_mean  # Normalized band width
+
+        # ATR for volatility compression
+        tr = pd.concat([
+            df['high'] - df['low'],
+            (df['high'] - df['close'].shift()).abs(),
+            (df['low'] - df['close'].shift()).abs()
+        ], axis=1).max(axis=1)
+        result['atr'] = tr.rolling(14).mean()
+
+        # Volume compression (declining volume = coiling)
+        result['volume_trend'] = df['volume'].rolling(5).mean() / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+
+        # 2. TRIGGER METRICS (Release Begins)
+        # Range breakout - close beyond N-day high/low
+        result['at_range_high'] = (df['close'] >= rolling_high.shift(1)).astype(float)
+        result['at_range_low'] = (df['close'] <= rolling_low.shift(1)).astype(float)
+
+        # Volume spike - current vs average
+        result['volume_spike'] = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+
+        # Candle body ratio (strong candle = body > 70% of range)
+        body = (df['close'] - df['open']).abs()
+        result['body_ratio'] = body / bar_range.clip(lower=1e-10)
+
+        # Liquidity sweep (wick beyond range then close inside or beyond)
+        result['swept_high'] = ((df['high'] > rolling_high.shift(1)) & (df['close'] > df['open'])).astype(float)
+        result['swept_low'] = ((df['low'] < rolling_low.shift(1)) & (df['close'] < df['open'])).astype(float)
+
+        # 3. ACCELERATION METRICS (Momentum is Real)
+        # ROC acceleration - is momentum increasing?
+        roc_5 = df['close'].pct_change(5)
+        result['roc_5'] = roc_5
+        result['roc_accel'] = roc_5 - roc_5.shift(1)  # Positive = accelerating
+
+        # Volume-weighted ROC (move has fuel)
+        result['vol_weighted_roc'] = roc_5 * volume_norm
+
+        # 4. ENERGY RELEASE COMPOSITE (All signals combined)
+        # Compression detected in recent past
+        bb_compressed = result['bb_width'].rolling(5).min() < result['bb_width'].rolling(window, min_periods=20).quantile(0.2)
+
+        # Trigger: breakout with volume
+        trigger_long = (result['at_range_high'] == 1) & (result['volume_spike'] > 1.5)
+        trigger_short = (result['at_range_low'] == 1) & (result['volume_spike'] > 1.5)
+
+        # Acceleration confirmation
+        accel_up = result['roc_accel'] > 0
+        accel_down = result['roc_accel'] < 0
+
+        # Energy release signal (composite)
+        result['energy_release_long'] = (bb_compressed & trigger_long & accel_up).astype(float)
+        result['energy_release_short'] = (bb_compressed & trigger_short & accel_down).astype(float)
+
         # === CONVERT TO PERCENTILES ===
         feature_cols = [
+            # Core physics
             'energy', 'damping', 'entropy', 'acceleration', 'jerk', 'impulse',
             'liquidity', 'buying_pressure', 'reynolds', 'viscosity',
             'angular_momentum', 'potential_energy', 'torque', 'market_reynolds',
-            'range_position', 'flow_consistency', 'roc'
+            'range_position', 'flow_consistency', 'roc',
+            # Energy release detection
+            'bb_width', 'atr', 'volume_trend', 'volume_spike', 'body_ratio',
+            'roc_5', 'roc_accel', 'vol_weighted_roc',
         ]
 
         for col in feature_cols:
@@ -153,6 +217,25 @@ class PhysicsFeatureComputer:
 
         # Keep momentum_dir as-is (not percentile)
         result['momentum_dir_pct'] = (result['momentum_dir'] + 1) / 2  # Map -1,0,1 to 0,0.5,1
+
+        # Binary triggers - keep as 0/1 (don't percentile)
+        result['at_range_high_pct'] = result['at_range_high']
+        result['at_range_low_pct'] = result['at_range_low']
+        result['swept_high_pct'] = result['swept_high']
+        result['swept_low_pct'] = result['swept_low']
+        result['energy_release_long_pct'] = result['energy_release_long']
+        result['energy_release_short_pct'] = result['energy_release_short']
+
+        # FRICTION/LIQUIDITY METRICS (from symbol_info if available, else estimate)
+        # These replace "time of day" filters - we use market friction instead
+        if 'spread' in df.columns:
+            result['spread'] = df['spread']
+            result['spread_pct'] = result['spread'].rolling(window, min_periods=self.lookback).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+            ).fillna(0.5)
+        else:
+            # Estimate spread from bar range during low-volume periods
+            result['spread_pct'] = 0.5
 
         return result.fillna(0.5)
 
