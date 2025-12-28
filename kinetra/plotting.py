@@ -13,7 +13,7 @@ Generates publication-quality plots for:
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
 
 # Import plotting libraries with fallback
@@ -23,6 +23,9 @@ try:
     from matplotlib.ticker import FuncFormatter
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
+    plt = None  # Placeholder for type hints
+    mdates = None
+    FuncFormatter = None
     MATPLOTLIB_AVAILABLE = False
     print("Warning: matplotlib not available. Install with: pip install matplotlib")
 
@@ -69,7 +72,7 @@ def plot_equity_curve(
     initial_capital: float = None,
     save_path: Optional[Path] = None,
     show: bool = True
-) -> Optional[plt.Figure]:
+) -> Optional[Any]:
     """
     Plot equity curve with drawdown overlay.
 
@@ -143,7 +146,7 @@ def plot_trade_distribution(
     title: str = "Trade P&L Distribution",
     save_path: Optional[Path] = None,
     show: bool = True
-) -> Optional[plt.Figure]:
+) -> Optional[Any]:
     """
     Plot distribution of trade P&L.
 
@@ -228,7 +231,7 @@ def plot_cost_breakdown(
     title: str = "Trading Costs Breakdown",
     save_path: Optional[Path] = None,
     show: bool = True
-) -> Optional[plt.Figure]:
+) -> Optional[Any]:
     """
     Plot breakdown of trading costs.
 
@@ -298,7 +301,7 @@ def plot_regime_analysis(
     title: str = "Performance by Market Regime",
     save_path: Optional[Path] = None,
     show: bool = True
-) -> Optional[plt.Figure]:
+) -> Optional[Any]:
     """
     Plot performance breakdown by market regime.
 
@@ -370,7 +373,7 @@ def plot_monte_carlo_results(
     title: str = "Monte Carlo Distribution",
     save_path: Optional[Path] = None,
     show: bool = True
-) -> Optional[plt.Figure]:
+) -> Optional[Any]:
     """
     Plot Monte Carlo simulation results.
 

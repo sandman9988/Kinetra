@@ -358,19 +358,40 @@ def load_csv_data(filepath: str) -> pd.DataFrame:
     """
     Load OHLCV data from CSV file.
 
-    Fallback when MT5 is not available.
+    Handles multiple CSV formats:
+    - MT5 export format: <DATE>, <TIME>, <OPEN>, <HIGH>, <LOW>, <CLOSE>, <TICKVOL>, <VOL>, <SPREAD>
+    - Standard format: Time, Open, High, Low, Close, Volume
 
     Args:
         filepath: Path to CSV file
 
     Returns:
-        DataFrame with OHLCV data
+        DataFrame with columns: time, open, high, low, close, volume
     """
-    df = pd.read_csv(filepath)
+    # Try tab-separated first (MT5 export), then comma
+    try:
+        df = pd.read_csv(filepath, sep='\t')
+        if len(df.columns) == 1:
+            # Tab didn't work, try comma
+            df = pd.read_csv(filepath)
+    except Exception:
+        df = pd.read_csv(filepath)
 
-    # Standardize column names
+    # Standardize column names - handle multiple formats
     col_map = {
+        # MT5 export format with angle brackets
+        "<DATE>": "date",
+        "<TIME>": "time_str",
+        "<OPEN>": "open",
+        "<HIGH>": "high",
+        "<LOW>": "low",
+        "<CLOSE>": "close",
+        "<TICKVOL>": "volume",  # Prefer tick volume
+        "<VOL>": "real_volume",
+        "<SPREAD>": "spread",
+        # Standard format
         "Time": "time",
+        "Date": "date",
         "Open": "open",
         "High": "high",
         "Low": "low",
@@ -380,9 +401,32 @@ def load_csv_data(filepath: str) -> pd.DataFrame:
     }
     df = df.rename(columns=col_map)
 
-    # Parse datetime
-    if "time" in df.columns:
+    # Combine date and time if separate columns (MT5 format)
+    if "date" in df.columns and "time_str" in df.columns:
+        # Format: 2024.07.01 00:00:00
+        df["time"] = pd.to_datetime(df["date"] + " " + df["time_str"], format="%Y.%m.%d %H:%M:%S")
+        df = df.drop(columns=["date", "time_str"])
+    elif "date" in df.columns:
+        df["time"] = pd.to_datetime(df["date"])
+        df = df.drop(columns=["date"])
+    elif "time" in df.columns:
         df["time"] = pd.to_datetime(df["time"])
+
+    # Ensure we have required columns
+    required = ["open", "high", "low", "close"]
+    for col in required:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+
+    # Default volume if missing
+    if "volume" not in df.columns:
+        df["volume"] = 0
+
+    # Reorder columns, keeping extras
+    base_cols = ["time", "open", "high", "low", "close", "volume"]
+    extra_cols = [c for c in df.columns if c not in base_cols]
+    available_base = [c for c in base_cols if c in df.columns]
+    df = df[available_base + extra_cols]
 
     return df
 

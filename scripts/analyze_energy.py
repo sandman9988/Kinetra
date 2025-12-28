@@ -104,6 +104,100 @@ def identify_top_energy_periods(
     return high_energy.sort_values(col, ascending=False)
 
 
+def compute_distribution_stats(values: np.ndarray, name: str) -> dict:
+    """
+    Compute full distribution statistics for a set of values.
+    """
+    if len(values) == 0:
+        return {"name": name, "count": 0}
+
+    return {
+        "name": name,
+        "count": len(values),
+        "mean": float(np.mean(values)),
+        "std": float(np.std(values)),
+        "min": float(np.min(values)),
+        "max": float(np.max(values)),
+        "median": float(np.median(values)),
+        "skewness": float(pd.Series(values).skew()),
+        "kurtosis": float(pd.Series(values).kurtosis()),
+        "percentiles": {
+            "p5": float(np.percentile(values, 5)),
+            "p10": float(np.percentile(values, 10)),
+            "p25": float(np.percentile(values, 25)),
+            "p33": float(np.percentile(values, 33.33)),
+            "p50": float(np.percentile(values, 50)),
+            "p66": float(np.percentile(values, 66.67)),
+            "p75": float(np.percentile(values, 75)),
+            "p90": float(np.percentile(values, 90)),
+            "p95": float(np.percentile(values, 95)),
+        },
+    }
+
+
+def compute_pareto_analysis(values: np.ndarray) -> dict:
+    """
+    Find the Pareto point: what % of observations give 80% of total energy?
+
+    Returns:
+        Dict with pareto analysis results
+    """
+    if len(values) == 0:
+        return {}
+
+    # Sort descending
+    sorted_vals = np.sort(values)[::-1]
+    total = np.sum(sorted_vals)
+
+    if total == 0:
+        return {}
+
+    # Cumulative sum
+    cumsum = np.cumsum(sorted_vals)
+
+    # Find how many observations to get 80% of energy
+    target_80 = total * 0.80
+    n_for_80 = np.searchsorted(cumsum, target_80) + 1
+    pct_for_80 = n_for_80 / len(values) * 100
+
+    # Also find 50%, 90%, 95% thresholds
+    target_50 = total * 0.50
+    target_90 = total * 0.90
+    target_95 = total * 0.95
+
+    n_for_50 = np.searchsorted(cumsum, target_50) + 1
+    n_for_90 = np.searchsorted(cumsum, target_90) + 1
+    n_for_95 = np.searchsorted(cumsum, target_95) + 1
+
+    # Energy contribution by percentile bands
+    # Top 1%, 5%, 10%, 20% of observations
+    top_1_idx = max(1, int(len(values) * 0.01))
+    top_5_idx = max(1, int(len(values) * 0.05))
+    top_10_idx = max(1, int(len(values) * 0.10))
+    top_20_idx = max(1, int(len(values) * 0.20))
+
+    return {
+        "total_energy": float(total),
+        "pareto_80": {
+            "pct_observations": float(pct_for_80),
+            "n_observations": int(n_for_80),
+            "threshold_value": float(sorted_vals[n_for_80 - 1]) if n_for_80 <= len(sorted_vals) else 0,
+        },
+        "energy_by_observation_pct": {
+            "top_1_pct": float(np.sum(sorted_vals[:top_1_idx]) / total * 100),
+            "top_5_pct": float(np.sum(sorted_vals[:top_5_idx]) / total * 100),
+            "top_10_pct": float(np.sum(sorted_vals[:top_10_idx]) / total * 100),
+            "top_20_pct": float(np.sum(sorted_vals[:top_20_idx]) / total * 100),
+        },
+        "observations_for_cumulative": {
+            "pct_for_50_energy": float(n_for_50 / len(values) * 100),
+            "pct_for_80_energy": float(pct_for_80),
+            "pct_for_90_energy": float(n_for_90 / len(values) * 100),
+            "pct_for_95_energy": float(n_for_95 / len(values) * 100),
+        },
+    }
+
+
 def summarize_energy_opportunities(
     df: pd.DataFrame,
     high_long: pd.DataFrame,
@@ -132,6 +226,11 @@ def summarize_energy_opportunities(
     # Energy by regime
     energy_by_regime = df.groupby('regime')['energy'].agg(['mean', 'sum', 'count'])
 
+    # Full distribution stats
+    all_energy = df['energy'].values
+    long_energy = df[df['energy_long'] > 0]['energy_long'].values
+    short_energy = df[df['energy_short'] > 0]['energy_short'].values
+
     return {
         "period": {
             "total_bars": total_bars,
@@ -154,6 +253,16 @@ def summarize_energy_opportunities(
         },
         "regime_distribution": regime_dist.to_dict() if hasattr(regime_dist, 'to_dict') else {},
         "energy_by_regime": energy_by_regime.to_dict() if hasattr(energy_by_regime, 'to_dict') else {},
+        "distributions": {
+            "all_energy": compute_distribution_stats(all_energy, "All Energy"),
+            "long_energy": compute_distribution_stats(long_energy, "Long Energy"),
+            "short_energy": compute_distribution_stats(short_energy, "Short Energy"),
+        },
+        "pareto": {
+            "all_energy": compute_pareto_analysis(all_energy),
+            "long_energy": compute_pareto_analysis(long_energy),
+            "short_energy": compute_pareto_analysis(short_energy),
+        },
     }
 
 
@@ -325,6 +434,64 @@ def main():
     print(f"\n🎯 Regime Distribution:")
     for regime, pct in summary['regime_distribution'].items():
         print(f"  {regime}: {pct:.1f}%")
+
+    # Print full distribution statistics
+    print("\n" + "=" * 60)
+    print("ENERGY DISTRIBUTION (Bell Curve Stats)")
+    print("=" * 60)
+
+    for dist_name, dist in summary['distributions'].items():
+        if dist['count'] == 0:
+            continue
+
+        print(f"\n{dist['name']}:")
+        print(f"  Count:    {dist['count']}")
+        print(f"  Mean:     {dist['mean']:.6f}")
+        print(f"  Std Dev:  {dist['std']:.6f}")
+        print(f"  Skewness: {dist['skewness']:.3f} {'(right-tailed)' if dist['skewness'] > 0 else '(left-tailed)'}")
+        print(f"  Kurtosis: {dist['kurtosis']:.3f} {'(heavy tails)' if dist['kurtosis'] > 0 else '(light tails)'}")
+
+        print(f"  Percentiles:")
+        p = dist['percentiles']
+        print(f"    5%:   {p['p5']:.6f}")
+        print(f"    25%:  {p['p25']:.6f}")
+        print(f"    33%:  {p['p33']:.6f}  <-- Lower third threshold")
+        print(f"    50%:  {p['p50']:.6f}  (median)")
+        print(f"    66%:  {p['p66']:.6f}  <-- Upper third threshold")
+        print(f"    75%:  {p['p75']:.6f}")
+        print(f"    95%:  {p['p95']:.6f}")
+        print(f"  Range:    [{dist['min']:.6f}, {dist['max']:.6f}]")
+
+    # Pareto Analysis
+    print("\n" + "=" * 60)
+    print("PARETO ANALYSIS (Energy Concentration)")
+    print("=" * 60)
+
+    for name, pareto in summary['pareto'].items():
+        if not pareto:
+            continue
+
+        print(f"\n{name.replace('_', ' ').title()}:")
+        print(f"  Total Energy: {pareto['total_energy']:,.2f}")
+
+        p80 = pareto['pareto_80']
+        print(f"\n  80% of energy captured by:")
+        print(f"    {p80['pct_observations']:.1f}% of observations ({p80['n_observations']:,} bars)")
+        print(f"    Threshold: energy >= {p80['threshold_value']:,.2f}")
+
+        e_pct = pareto['energy_by_observation_pct']
+        print(f"\n  Energy contribution by top bars:")
+        print(f"    Top  1% of bars: {e_pct['top_1_pct']:5.1f}% of energy")
+        print(f"    Top  5% of bars: {e_pct['top_5_pct']:5.1f}% of energy")
+        print(f"    Top 10% of bars: {e_pct['top_10_pct']:5.1f}% of energy")
+        print(f"    Top 20% of bars: {e_pct['top_20_pct']:5.1f}% of energy")
+
+        obs = pareto['observations_for_cumulative']
+        print(f"\n  Observations needed for cumulative energy:")
+        print(f"    50% energy: {obs['pct_for_50_energy']:5.1f}% of bars")
+        print(f"    80% energy: {obs['pct_for_80_energy']:5.1f}% of bars")
+        print(f"    90% energy: {obs['pct_for_90_energy']:5.1f}% of bars")
+        print(f"    95% energy: {obs['pct_for_95_energy']:5.1f}% of bars")
 
     print("\n" + "=" * 60)
 
