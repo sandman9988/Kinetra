@@ -15,6 +15,9 @@ from .physics_v7 import (
     compute_damping_v7,
     compute_entropy_v7,
     compute_agent_signal,
+    compute_vpin_proxy,
+    compute_fractal_dimension_katz,
+    compute_symc_ratio,
     EnergyWeightedExitManager,
 )
 
@@ -108,6 +111,24 @@ class BaseV7Strategy(Strategy):
             self.data.Close, self.lookback
         )
 
+        # VPIN: toxicity indicator (0 = safe, 1 = toxic)
+        self.vpin = self.I(
+            compute_vpin_proxy,
+            self.data.Close, self.data.Volume, self.lookback * 2
+        )
+
+        # Fractal Dimension: trend purity (< 1.3 = trending, > 1.5 = choppy)
+        self.fractal_dim = self.I(
+            compute_fractal_dimension_katz,
+            self.data.Close, self.lookback * 2
+        )
+
+        # SymC Ratio: damping regime (< 0.8 = momentum, > 1.2 = mean revert)
+        self.symc = self.I(
+            compute_symc_ratio,
+            self.data.High, self.data.Low, self.data.Close, self.data.Volume, self.lookback
+        )
+
     def get_position_size(self) -> float:
         """Calculate position size based on risk parameters."""
         return self.risk_per_trade
@@ -158,7 +179,7 @@ class BerserkerStrategy(BaseV7Strategy):
 
         # Check for Berserker activation (signal = 2)
         if agent == 2 and not self.position:
-            # Use price change for direction instead of velocity indicator
+            # Use price change for direction
             price_change = self.data.Close[-1] - self.data.Close[-2]
 
             # Enter in direction of momentum
