@@ -145,7 +145,7 @@ class BerserkerStrategy(BaseV7Strategy):
         self.bars_in_trade = 0
 
     def next(self):
-        if len(self.energy) < self.min_history:
+        if len(self.data.Close) < self.min_history:
             return
 
         # Current agent signal
@@ -153,20 +153,19 @@ class BerserkerStrategy(BaseV7Strategy):
 
         # Check for Berserker activation (signal = 2)
         if agent == 2 and not self.position:
-            velocity = self.velocity[-1]
+            # Use price change for direction instead of velocity indicator
+            price_change = self.data.Close[-1] - self.data.Close[-2]
 
             # Enter in direction of momentum
-            if velocity > 0:
-                size = self.get_position_size() * self.position_multiplier
-                self.buy(size=min(size, 0.99))
+            if price_change > 0:
+                self.buy()
                 self.entry_energy_value = self.energy[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
                 self.bars_in_trade = 0
 
-            elif velocity < 0:
-                size = self.get_position_size() * self.position_multiplier
-                self.sell(size=min(size, 0.99))
+            elif price_change < 0:
+                self.sell()
                 self.entry_energy_value = self.energy[-1]
                 self.cumulative_score = 0.0
                 self.max_score = 0.0
@@ -239,7 +238,7 @@ class SniperStrategy(BaseV7Strategy):
         self.bars_in_trade = 0
 
     def next(self):
-        if len(self.energy) < self.min_history:
+        if len(self.data.Close) < self.min_history:
             return
 
         agent = self.agent_signal[-1]
@@ -252,26 +251,22 @@ class SniperStrategy(BaseV7Strategy):
 
         # Enter only after confirmation
         if agent == 1 and self.signal_count >= self.confirmation_bars and not self.position:
-            velocity = self.velocity[-1]
-            trend = self.trend_strength[-1]
+            # Use price change for direction
+            price_change = self.data.Close[-1] - self.data.Close[-2]
 
-            # Need trend confirmation
-            if trend > 0.5:  # Some directional bias
-                if velocity > 0:
-                    size = self.get_position_size() * self.position_multiplier
-                    self.buy(size=min(size, 0.99))
-                    self.entry_energy_value = self.energy[-1]
-                    self.cumulative_score = 0.0
-                    self.max_score = 0.0
-                    self.bars_in_trade = 0
+            if price_change > 0:
+                self.buy()
+                self.entry_energy_value = self.energy[-1]
+                self.cumulative_score = 0.0
+                self.max_score = 0.0
+                self.bars_in_trade = 0
 
-                elif velocity < 0:
-                    size = self.get_position_size() * self.position_multiplier
-                    self.sell(size=min(size, 0.99))
-                    self.entry_energy_value = self.energy[-1]
-                    self.cumulative_score = 0.0
-                    self.max_score = 0.0
-                    self.bars_in_trade = 0
+            elif price_change < 0:
+                self.sell()
+                self.entry_energy_value = self.energy[-1]
+                self.cumulative_score = 0.0
+                self.max_score = 0.0
+                self.bars_in_trade = 0
 
         # Manage open position
         elif self.position:

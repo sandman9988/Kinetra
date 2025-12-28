@@ -452,7 +452,8 @@ def compute_damping_v7(high, low, epsilon: float = 1e-10):
     prev_range = current_range.shift(1) + epsilon
 
     damping = current_range / prev_range
-    return damping.fillna(1.0).clip(lower=0.01).values
+    # Clip to reasonable range [0.01, 10] to avoid extreme outliers
+    return damping.fillna(1.0).clip(lower=0.01, upper=10.0).values
 
 
 def compute_entropy_v7(volume, lookback: int = 20, epsilon: float = 1e-10):
