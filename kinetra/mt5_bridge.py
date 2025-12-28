@@ -331,7 +331,93 @@ class MT5Bridge:
                 spec = self.get_symbol_spec(symbol)
                 point = spec.point if spec else 0.00001
                 return (tick.ask - tick.bid) / point
+
+        elif self.mode == "bridge":
+            data = self._bridge_request("tick", symbol=symbol)
+            if data and "bid" in data and "ask" in data:
+                spec = self.get_symbol_spec(symbol)
+                point = spec.point if spec else 0.00001
+                return (data["ask"] - data["bid"]) / point
+
         return None
+
+    def get_live_friction(
+        self,
+        symbol: str,
+        lots: float = 0.1,
+        is_long: bool = True,
+        holding_hours: float = 1.0
+    ) -> Optional[Dict]:
+        """
+        Get REAL-TIME friction data from MT5.
+
+        This is the key function for physics-based cost modeling.
+        Returns actual spread, estimated slippage, swap, commission.
+
+        Args:
+            symbol: Symbol name
+            lots: Position size in lots
+            is_long: Long or short position
+            holding_hours: Expected holding period in hours
+
+        Returns:
+            Dict with real friction components
+        """
+        spec = self.get_symbol_spec(symbol)
+        if not spec:
+            return None
+
+        # Get live spread
+        live_spread_points = self.get_live_spread(symbol)
+        if live_spread_points is None:
+            live_spread_points = spec.spread_typical
+
+        # Convert to price
+        spread_price = live_spread_points * spec.point
+
+        # Get current price for percentage calculation
+        tick_data = self.get_current_tick(symbol)
+        if tick_data:
+            current_price = (tick_data['bid'] + tick_data['ask']) / 2
+        else:
+            current_price = 1.0  # Fallback
+
+        # Calculate costs as percentages
+        spread_pct = (spread_price / current_price) * 100 * 2  # Entry + exit
+
+        # Commission
+        position_value = current_price * spec.contract_size * lots
+        commission_total = spec.commission_per_lot * lots * 2  # Both sides
+        commission_pct = (commission_total / position_value) * 100 if position_value > 0 else 0
+
+        # Swap (if holding)
+        holding_days = holding_hours / 24
+        swap_points = spec.swap_long if is_long else spec.swap_short
+        swap_price = swap_points * spec.point
+        swap_pct = (swap_price / current_price) * 100 * holding_days
+
+        # Slippage estimate (based on spread width)
+        # Wide spread = likely higher slippage
+        spread_stress = live_spread_points / spec.spread_typical if spec.spread_typical > 0 else 1.0
+        slippage_base = 0.01  # 0.01% base slippage
+        slippage_pct = slippage_base * spread_stress * 2  # Entry + exit
+
+        # Total
+        total_friction = spread_pct + commission_pct + slippage_pct + abs(swap_pct)
+
+        return {
+            'symbol': symbol,
+            'spread_points': live_spread_points,
+            'spread_price': spread_price,
+            'spread_pct': spread_pct,
+            'commission_pct': commission_pct,
+            'slippage_pct': slippage_pct,
+            'swap_pct': swap_pct,
+            'total_friction_pct': total_friction,
+            'spread_stress': spread_stress,
+            'current_price': current_price,
+            'is_live': self.mode in ["direct", "bridge"],
+        }
 
     def get_swap_cost(self, symbol: str, lots: float, is_long: bool, days: int = 1) -> float:
         """
@@ -472,12 +558,59 @@ class MT5Bridge:
 
     def _connect_bridge(self) -> bool:
         """Connect via socket bridge to Windows MT5."""
-        # This would connect to a bridge server running on Windows
-        # For now, return False and use offline mode
-        print(f"Bridge mode: Attempting connection to {self.host}:{self.port}")
-        print("Bridge server not implemented yet - falling back to offline mode")
-        self.mode = "offline"
-        return self._load_offline_config()
+        import socket
+
+        print(f"Bridge mode: Connecting to {self.host}:{self.port}...")
+
+        try:
+            # Test connection
+            self.bridge_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.bridge_socket.settimeout(5)
+            self.bridge_socket.connect((self.host, self.port))
+
+            # Test with account request
+            self.bridge_socket.sendall(json.dumps({"cmd": "account"}).encode())
+            response = self.bridge_socket.recv(4096)
+            data = json.loads(response.decode())
+
+            if "error" in data:
+                print(f"Bridge error: {data['error']}")
+                self.bridge_socket.close()
+                self.mode = "offline"
+                return self._load_offline_config()
+
+            print(f"Connected via bridge: Balance={data.get('balance')}, Equity={data.get('equity')}")
+            self.connected = True
+            return True
+
+        except socket.timeout:
+            print(f"Bridge connection timed out - is the server running on Windows?")
+            print("Run: python mt5_bridge_server.py on Windows")
+            self.mode = "offline"
+            return self._load_offline_config()
+        except ConnectionRefusedError:
+            print(f"Bridge connection refused - server not running on {self.host}:{self.port}")
+            print("Run: python mt5_bridge_server.py on Windows")
+            self.mode = "offline"
+            return self._load_offline_config()
+        except Exception as e:
+            print(f"Bridge connection error: {e}")
+            self.mode = "offline"
+            return self._load_offline_config()
+
+    def _bridge_request(self, cmd: str, **kwargs) -> Optional[Dict]:
+        """Send request to bridge server."""
+        if not hasattr(self, 'bridge_socket') or self.bridge_socket is None:
+            return None
+
+        try:
+            request = {"cmd": cmd, **kwargs}
+            self.bridge_socket.sendall(json.dumps(request).encode())
+            response = self.bridge_socket.recv(8192)
+            return json.loads(response.decode())
+        except Exception as e:
+            print(f"Bridge request error: {e}")
+            return None
 
     def _load_offline_config(self) -> bool:
         """Load symbol specs from config file."""
@@ -521,18 +654,61 @@ class MT5Bridge:
         if symbol in self.cached_specs:
             return self.cached_specs[symbol]
 
-        # Try to get from MT5
+        # Try to get from MT5 (direct mode)
         if self.mode == "direct" and self.mt5 and self.connected:
             spec = self._get_mt5_symbol_spec(symbol)
             if spec:
                 self.cached_specs[symbol] = spec
                 return spec
 
+        # Try bridge mode
+        if self.mode == "bridge" and self.connected:
+            data = self._bridge_request("symbol_info", symbol=symbol)
+            if data and "error" not in data:
+                spec = self._bridge_data_to_spec(data)
+                if spec:
+                    self.cached_specs[symbol] = spec
+                    return spec
+
         # Fall back to built-in or generate generic
         if symbol in SYMBOL_SPECS:
             return SYMBOL_SPECS[symbol]
 
         return None
+
+    def _bridge_data_to_spec(self, data: Dict) -> Optional[SymbolSpec]:
+        """Convert bridge response to SymbolSpec."""
+        try:
+            symbol = data.get('symbol', 'UNKNOWN')
+
+            # Detect asset class
+            if 'btc' in symbol.lower() or 'eth' in symbol.lower():
+                asset_class = AssetClass.CRYPTO
+            elif 'xau' in symbol.lower() or 'xag' in symbol.lower():
+                asset_class = AssetClass.COMMODITY
+            elif symbol.endswith('500') or symbol.endswith('30') or 'index' in symbol.lower():
+                asset_class = AssetClass.INDEX
+            else:
+                asset_class = AssetClass.FOREX
+
+            return SymbolSpec(
+                symbol=symbol,
+                asset_class=asset_class,
+                digits=data.get('digits', 5),
+                point=data.get('point', 0.00001),
+                contract_size=data.get('contract_size', 100000),
+                volume_min=data.get('volume_min', 0.01),
+                volume_max=data.get('volume_max', 100),
+                volume_step=data.get('volume_step', 0.01),
+                spread_typical=data.get('spread_current', 2.0),
+                spread_min=data.get('spread_current', 2.0) * 0.5,
+                spread_max=data.get('spread_current', 2.0) * 10,
+                swap_long=data.get('swap_long', 0),
+                swap_short=data.get('swap_short', 0),
+            )
+        except Exception as e:
+            print(f"Error converting bridge data to spec: {e}")
+            return None
 
     def _get_mt5_symbol_spec(self, symbol: str) -> Optional[SymbolSpec]:
         """Get symbol spec directly from MT5 terminal."""
@@ -589,25 +765,38 @@ class MT5Bridge:
         Returns:
             Dict with tick data or None
         """
-        if self.mode != "direct" or not self.mt5:
-            return None
-
-        tick = self.mt5.symbol_info_tick(symbol)
-        if tick is None:
-            return None
-
         spec = self.get_symbol_spec(symbol)
         point = spec.point if spec else 0.00001
 
-        return {
-            'bid': tick.bid,
-            'ask': tick.ask,
-            'spread': (tick.ask - tick.bid) / point,
-            'spread_price': tick.ask - tick.bid,
-            'time': datetime.fromtimestamp(tick.time),
-            'volume': tick.volume,
-            'last': tick.last,
-        }
+        if self.mode == "direct" and self.mt5:
+            tick = self.mt5.symbol_info_tick(symbol)
+            if tick is None:
+                return None
+
+            return {
+                'bid': tick.bid,
+                'ask': tick.ask,
+                'spread': (tick.ask - tick.bid) / point,
+                'spread_price': tick.ask - tick.bid,
+                'time': datetime.fromtimestamp(tick.time),
+                'volume': tick.volume,
+                'last': tick.last,
+            }
+
+        elif self.mode == "bridge":
+            data = self._bridge_request("tick", symbol=symbol)
+            if data and "bid" in data and "ask" in data:
+                return {
+                    'bid': data['bid'],
+                    'ask': data['ask'],
+                    'spread': (data['ask'] - data['bid']) / point,
+                    'spread_price': data['ask'] - data['bid'],
+                    'time': datetime.now(),  # Bridge doesn't send time
+                    'volume': data.get('volume', 0),
+                    'last': data.get('last', 0),
+                }
+
+        return None
 
     def get_account_info(self) -> Optional[Dict]:
         """Get account information."""
