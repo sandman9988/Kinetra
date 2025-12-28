@@ -10,6 +10,7 @@ Models markets as kinetic energy systems with:
 - Impulse: Momentum change over time window
 - Liquidity: Volume per price movement
 - Buying Pressure: Directional order flow proxy
+- Reynolds Number: Turbulent vs laminar flow indicator
 """
 
 import numpy as np
@@ -263,7 +264,85 @@ class PhysicsEngine:
         bar_range = (high - low).clip(lower=1e-10)
         bp = (close - low) / bar_range
         return bp.rolling(lookback).mean().fillna(0.5)
-    
+
+    def calculate_reynolds(
+        self,
+        prices: pd.Series,
+        volume: pd.Series,
+        high: pd.Series,
+        low: pd.Series
+    ) -> pd.Series:
+        """
+        Calculate Reynolds number (turbulent vs laminar flow indicator).
+
+        In fluid dynamics: Re = ρvL/μ = inertial forces / viscous forces
+        - High Re = turbulent (chaotic, unpredictable)
+        - Low Re = laminar (smooth, predictable trends)
+
+        Market analog:
+        Re = (momentum * characteristic_length) / (viscosity * density)
+           = (velocity * range) / (volatility * 1/volume)
+           = (velocity * range * volume) / volatility
+           = kinetic_energy / damping (simplified)
+
+        Low Re (<2000 in fluids) = laminar = trending
+        High Re (>4000 in fluids) = turbulent = ranging/chaotic
+
+        Returns:
+            Series of Reynolds numbers (higher = more turbulent)
+        """
+        # Velocity (momentum)
+        velocity = prices.pct_change()
+
+        # Characteristic length (price range)
+        bar_range = (high - low) / prices
+
+        # Viscosity proxy (volatility)
+        volatility = velocity.rolling(self.lookback).std().clip(lower=1e-10)
+
+        # Density proxy (inverse of volume normalized)
+        volume_norm = volume / volume.rolling(self.lookback).mean().clip(lower=1e-10)
+
+        # Reynolds number: (velocity * length * density) / viscosity
+        # = (abs(velocity) * range * volume_norm) / volatility
+        reynolds = (velocity.abs() * bar_range * volume_norm) / volatility
+
+        # Smooth it
+        reynolds = reynolds.rolling(self.lookback).mean()
+
+        return reynolds.fillna(1.0)
+
+    def calculate_reynolds_regime(
+        self,
+        reynolds: pd.Series
+    ) -> pd.Series:
+        """
+        Classify flow regime based on Reynolds number percentile.
+
+        Returns:
+            Series with values:
+            - 'laminar' (Re < 25th percentile) - smooth trending
+            - 'transitional' (25-75th percentile) - mixed
+            - 'turbulent' (Re > 75th percentile) - chaotic
+        """
+        window = min(500, len(reynolds))
+
+        # Adaptive percentile thresholds
+        re_pct = reynolds.rolling(window, min_periods=self.lookback).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
+            raw=False
+        ).fillna(0.5)
+
+        def classify(pct):
+            if pct < 0.25:
+                return 'laminar'
+            elif pct > 0.75:
+                return 'turbulent'
+            else:
+                return 'transitional'
+
+        return re_pct.apply(classify)
+
     def classify_regime(
         self, 
         energy: float, 
