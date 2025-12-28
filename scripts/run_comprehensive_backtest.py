@@ -76,7 +76,7 @@ def compute_physics_features(df: pd.DataFrame, window: int = 50) -> pd.DataFrame
     features['vpin'] = compute_vpin_proxy(close, volume, window)
 
     # SymC Ratio (damping)
-    features['symc'] = compute_symc_ratio(high, low, close, volume, window // 2)
+    features['symc'] = compute_symc_ratio(close, volume, window // 2)
 
     # FTLE (chaos)
     features['ftle'] = compute_ftle_fast(close, window)
