@@ -53,6 +53,27 @@ class MT5BridgeServer:
             "ask": tick.ask if tick else 0,
         }
 
+    def get_rates(self, symbol: str, timeframe: str, count: int) -> list:
+        tf_map = {
+            "M1": mt5.TIMEFRAME_M1, "M5": mt5.TIMEFRAME_M5, "M15": mt5.TIMEFRAME_M15,
+            "M30": mt5.TIMEFRAME_M30, "H1": mt5.TIMEFRAME_H1, "H4": mt5.TIMEFRAME_H4,
+            "D1": mt5.TIMEFRAME_D1, "W1": mt5.TIMEFRAME_W1, "MN1": mt5.TIMEFRAME_MN1,
+        }
+        tf = tf_map.get(timeframe, mt5.TIMEFRAME_H1)
+        rates = mt5.copy_rates_from_pos(symbol, tf, 0, count)
+        if rates is None:
+            return {"error": f"No rates for {symbol}"}
+        return [{
+            "time": int(r[0]),
+            "open": float(r[1]),
+            "high": float(r[2]),
+            "low": float(r[3]),
+            "close": float(r[4]),
+            "tick_volume": int(r[5]),
+            "spread": int(r[6]),
+            "real_volume": int(r[7]),
+        } for r in rates]
+
     def handle_client(self, conn, addr):
         print(f"Client connected: {addr}")
         try:
@@ -73,6 +94,17 @@ class MT5BridgeServer:
                     elif cmd == "account":
                         info = mt5.account_info()
                         response = {"balance": info.balance, "equity": info.equity} if info else {"error": "No account"}
+                    elif cmd == "rates":
+                        response = self.get_rates(
+                            request.get("symbol", "EURUSD"),
+                            request.get("timeframe", "H1"),
+                            request.get("count", 100)
+                        )
+                    elif cmd == "symbols":
+                        symbols = mt5.symbols_get()
+                        response = [s.name for s in symbols] if symbols else []
+                    elif cmd == "ping":
+                        response = {"status": "ok", "time": datetime.now().isoformat()}
                     else:
                         response = {"error": f"Unknown command: {cmd}"}
 
