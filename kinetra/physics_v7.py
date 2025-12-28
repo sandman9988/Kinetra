@@ -456,7 +456,6 @@ def compute_liquidity_mass(high, low, close, volume, lookback: int = 20):
     volume = pd.Series(volume)
 
     # Price change magnitude
-    price_range = high - low
     price_change = close.diff().abs()
 
     # Kyle's Lambda: price impact per unit volume
