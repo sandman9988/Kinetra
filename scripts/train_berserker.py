@@ -22,6 +22,12 @@ Usage:
 
 import sys
 import os
+
+# Configure ROCm BEFORE importing torch - must be set before any CUDA/HIP initialization
+# This avoids hipBLASLt warnings on RDNA3 GPUs (RX 7600, etc.)
+os.environ.setdefault('TORCH_BLAS_PREFER_HIPBLASLT', '0')
+os.environ.setdefault('HSA_OVERRIDE_GFX_VERSION', '11.0.0')
+
 import json
 import tempfile
 import shutil
@@ -160,6 +166,15 @@ class RunLogger:
             json.dump(summary, f, indent=2)
 
 
+def configure_rocm_backend():
+    """Configure ROCm to use hipBLAS instead of hipBLASLt for unsupported architectures."""
+    import os
+    # Force hipBLAS backend for RDNA3 (gfx1100/gfx1102) - avoids hipBLASLt warnings
+    os.environ.setdefault('TORCH_BLAS_PREFER_HIPBLASLT', '0')
+    # Ensure GFX version override is set for RX 7600 (gfx1102 -> gfx1100)
+    os.environ.setdefault('HSA_OVERRIDE_GFX_VERSION', '11.0.0')
+
+
 def detect_device() -> torch.device:
     """Detect best available device - AMD ROCm or NVIDIA CUDA."""
     if torch.cuda.is_available():
@@ -168,7 +183,9 @@ def detect_device() -> torch.device:
         is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
 
         if is_rocm:
+            configure_rocm_backend()
             logger.info(f"Using AMD GPU (ROCm): {gpu_name}")
+            logger.info(f"  hipBLAS backend configured (TORCH_BLAS_PREFER_HIPBLASLT=0)")
         else:
             logger.info(f"Using NVIDIA GPU (CUDA): {gpu_name}")
 
