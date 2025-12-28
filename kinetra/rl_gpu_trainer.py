@@ -176,19 +176,9 @@ class PhysicsFeatureComputer:
         # k = volume / price_change → high = stiff market
         result['spring_stiffness'] = df['volume'] / (velocity.abs().clip(lower=1e-10) * df['close'])
 
-        # 5. COMPRESSION COMPOSITE (Physics-based)
-        # True compression = phase confined + high suppression + low entropy + high stiffness
-        phase_compressed = result['phase_compression'] > result['phase_compression'].rolling(window).quantile(0.8)
-        high_suppression = result['suppression_ratio'] > result['suppression_ratio'].rolling(window).quantile(0.7)
-        low_entropy = result['entropy_proxy'] < result['entropy_proxy'].rolling(window).quantile(0.3)
-        high_stiffness = result['spring_stiffness'] > result['spring_stiffness'].rolling(window).quantile(0.7)
-
-        compression_score = (phase_compressed.astype(float) +
-                            high_suppression.astype(float) +
-                            low_entropy.astype(float) +
-                            high_stiffness.astype(float))
-
-        result['physics_compression'] = (compression_score >= 3).astype(float)  # 3 of 4 conditions
+        # NO COMPOSITE RULES - RL discovers patterns from raw percentiles
+        # All physics compression metrics are provided as percentiles
+        # Neural network learns what combinations matter
 
         # 2. TRIGGER METRICS (Release Begins)
         # Range breakout - close beyond N-day high/low
@@ -215,22 +205,9 @@ class PhysicsFeatureComputer:
         # Volume-weighted ROC (move has fuel)
         result['vol_weighted_roc'] = roc_5 * volume_norm
 
-        # 4. ENERGY RELEASE COMPOSITE (Physics-based)
-        # Compression detected in recent past (using TRUE physics compression)
-        was_compressed = result['physics_compression'].rolling(5).max() == 1  # Was compressed recently
-
-        # Trigger: breakout with volume
-        trigger_long = (result['at_range_high'] == 1) & (result['volume_spike'] > 1.5)
-        trigger_short = (result['at_range_low'] == 1) & (result['volume_spike'] > 1.5)
-
-        # Acceleration confirmation
-        accel_up = result['roc_accel'] > 0
-        accel_down = result['roc_accel'] < 0
-
-        # Energy release signal (composite)
-        # Physics: compressed spring + trigger + acceleration = energy release
-        result['energy_release_long'] = (was_compressed & trigger_long & accel_up).astype(float)
-        result['energy_release_short'] = (was_compressed & trigger_short & accel_down).astype(float)
+        # NO STATIC ENERGY RELEASE RULES
+        # RL learns from: compression percentiles + trigger features + acceleration
+        # Combinations are discovered, not prescribed
 
         # === CONVERT TO PERCENTILES ===
         feature_cols = [
@@ -254,14 +231,11 @@ class PhysicsFeatureComputer:
         # Keep momentum_dir as-is (not percentile)
         result['momentum_dir_pct'] = (result['momentum_dir'] + 1) / 2  # Map -1,0,1 to 0,0.5,1
 
-        # Binary triggers - keep as 0/1 (don't percentile)
-        result['physics_compression_pct'] = result['physics_compression']  # Coiled spring
-        result['at_range_high_pct'] = result['at_range_high']
-        result['at_range_low_pct'] = result['at_range_low']
-        result['swept_high_pct'] = result['swept_high']
-        result['swept_low_pct'] = result['swept_low']
-        result['energy_release_long_pct'] = result['energy_release_long']
-        result['energy_release_short_pct'] = result['energy_release_short']
+        # Binary observations - keep as 0/1 (factual, not thresholds)
+        result['at_range_high_pct'] = result['at_range_high']  # Fact: at N-day high
+        result['at_range_low_pct'] = result['at_range_low']    # Fact: at N-day low
+        result['swept_high_pct'] = result['swept_high']        # Fact: wick swept high
+        result['swept_low_pct'] = result['swept_low']          # Fact: wick swept low
 
         # FRICTION/LIQUIDITY METRICS (from symbol_info if available, else estimate)
         # These replace "time of day" filters - we use market friction instead
@@ -276,38 +250,11 @@ class PhysicsFeatureComputer:
             vol_low = df['volume'] < df['volume'].rolling(self.lookback).quantile(0.3)
             result['spread_pct'] = vol_low.astype(float).rolling(5).mean().fillna(0.5)
 
-        # === FRAGILE REGIME DETECTION ===
-        # High spread + low liquidity + low volume = don't trade
-        # This is the friction-based filter replacing time-of-day
-
-        # Liquidity score (inverse of friction)
-        # Low volume percentile = low liquidity
+        # LIQUIDITY / FRICTION - raw percentiles for RL
+        # NO composite "fragile regime" rules - RL learns from raw features
         vol_pct = df['volume'].rolling(window, min_periods=self.lookback).apply(
             lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
         ).fillna(0.5)
-
-        # Low liquidity (volume) detection
-        low_liquidity = vol_pct < 0.3
-
-        # High friction (spread) detection
-        high_spread = result['spread_pct'] > 0.7
-
-        # Low participation (declining volume trend)
-        declining_volume = result['volume_trend'] < 0.8
-
-        # Fragile regime = any 2 of 3 conditions
-        fragile_score = (low_liquidity.astype(float) +
-                        high_spread.astype(float) +
-                        declining_volume.astype(float))
-
-        result['fragile_regime'] = (fragile_score >= 2).astype(float)
-
-        # Inverse: favorable regime for trading
-        result['favorable_regime'] = (1 - result['fragile_regime'])
-
-        # Add as features (agent learns when NOT to trade)
-        result['fragile_regime_pct'] = result['fragile_regime']
-        result['favorable_regime_pct'] = result['favorable_regime']
         result['liquidity_pct'] = vol_pct
 
         return result.fillna(0.5)
