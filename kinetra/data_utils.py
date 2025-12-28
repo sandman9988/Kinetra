@@ -33,11 +33,12 @@ def load_mt5_csv(
     Returns:
         Validated OHLCV DataFrame
     """
-    # Try different separators
+    # Try different separators (handle Windows line endings)
     df = None
     for sep in ['\t', ',', ';']:
         try:
-            df = pd.read_csv(filepath, sep=sep)
+            df = pd.read_csv(filepath, sep=sep, encoding='utf-8-sig',
+                           lineterminator=None, engine='python')
             if len(df.columns) >= 4:  # At least OHLC
                 break
         except Exception:
@@ -46,9 +47,14 @@ def load_mt5_csv(
     if df is None or len(df.columns) < 4:
         raise ValueError(f"Could not parse CSV file: {filepath}")
 
-    # Clean column names - remove angle brackets and lowercase
+    # Clean any \r characters from string columns
+    for col in df.columns:
+        if df[col].dtype == object:
+            df[col] = df[col].str.replace('\r', '', regex=False)
+
+    # Clean column names - remove angle brackets, \r, and lowercase
     def clean_col(c):
-        c = str(c).strip().lower()
+        c = str(c).strip().lower().replace('\r', '')
         # Remove angle brackets: <date> -> date
         if c.startswith('<') and c.endswith('>'):
             c = c[1:-1]
