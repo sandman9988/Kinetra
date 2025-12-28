@@ -126,7 +126,6 @@ class PhysicsFeatureComputer:
 
         Returns (short_period, long_period) - the two most significant cycles.
         """
-        from scipy import fft as scipy_fft
 
         # Clean series
         clean = series.dropna().values
