@@ -288,49 +288,114 @@ class FrictionModel:
         """
         return self.spec.liquidity_profile.get(hour_utc, 0.5)
 
-    def estimate_spread(
+    def estimate_spread_from_bar(
         self,
-        hour_utc: int,
+        high: float,
+        low: float,
+        close: float,
+        volume: float,
+        volume_baseline: float,
         volatility: float,
         volatility_baseline: float = 0.01,
-        minutes_to_rollover: Optional[int] = None
     ) -> float:
         """
-        Estimate current spread based on conditions.
+        Estimate spread from OBSERVED bar data - no clock assumptions.
+
+        Physics-based: spread is a function of volatility and liquidity,
+        both of which we can OBSERVE from the bar data.
+
+        Wide bars + low volume = wide spread (low liquidity, high volatility)
+        Narrow bars + high volume = tight spread (high liquidity, low volatility)
+
+        Works regardless of DST, timezone, or rollover schedule.
 
         Args:
-            hour_utc: Current hour in UTC
-            volatility: Current volatility (e.g., ATR/price)
-            volatility_baseline: Normal volatility level
-            minutes_to_rollover: Minutes until daily rollover
+            high: Bar high price
+            low: Bar low price
+            close: Bar close price
+            volume: Bar volume (tick count or actual volume)
+            volume_baseline: Rolling average volume
+            volatility: Current volatility (ATR/price or similar)
+            volatility_baseline: Rolling average volatility
 
         Returns:
             Estimated spread in price units
         """
         base_spread = self.spec.spread_typical * self.spec.point
 
-        # Liquidity adjustment
-        liquidity = self.get_liquidity_factor(hour_utc)
-        liquidity_multiplier = 1.0 + self.spread_liquidity_sensitivity * (1.0 - liquidity)
+        # PHYSICS-BASED LIQUIDITY from observed volume
+        # Low volume relative to baseline = low liquidity = wide spread
+        if volume_baseline > 0 and volume > 0:
+            liquidity_ratio = volume / volume_baseline
+            # liquidity_ratio < 1 means low liquidity, spread widens
+            # Inverse relationship: 0.5x volume = 2x spread multiplier
+            liquidity_multiplier = 1.0 / max(0.1, min(2.0, liquidity_ratio))
+        else:
+            liquidity_multiplier = 1.0
+
+        # PHYSICS-BASED VOLATILITY from observed bar range
+        # High volatility = market makers widen spreads
+        vol_ratio = volatility / volatility_baseline if volatility_baseline > 0 else 1.0
+        vol_multiplier = 1.0 + self.spread_volatility_sensitivity * max(0, vol_ratio - 1.0)
+
+        # Bar range as additional spread indicator
+        # Wide bar relative to normal = stressed market = wider spread
+        bar_range = (high - low) / close if close > 0 else 0
+        range_baseline = volatility_baseline * 2  # Approximate normal bar range
+        if range_baseline > 0:
+            range_ratio = bar_range / range_baseline
+            range_multiplier = 1.0 + 0.5 * max(0, range_ratio - 1.5)  # Only penalize extreme ranges
+        else:
+            range_multiplier = 1.0
+
+        estimated_spread = base_spread * liquidity_multiplier * vol_multiplier * range_multiplier
+
+        # Clamp to min/max
+        min_spread = self.spec.spread_min * self.spec.point
+        max_spread = self.spec.spread_max * self.spec.point
+
+        return np.clip(estimated_spread, min_spread, max_spread)
+
+    def estimate_spread(
+        self,
+        hour_utc: int,
+        volatility: float,
+        volatility_baseline: float = 0.01,
+        volume: Optional[float] = None,
+        volume_baseline: Optional[float] = None,
+    ) -> float:
+        """
+        Estimate spread - prefers physics-based if volume available.
+
+        Falls back to hour-based liquidity profile only if no volume data.
+        This handles DST gracefully because physics don't change with clocks.
+
+        Args:
+            hour_utc: Current hour in UTC (fallback only)
+            volatility: Current volatility (e.g., ATR/price)
+            volatility_baseline: Normal volatility level
+            volume: Current bar volume (optional, for physics-based)
+            volume_baseline: Rolling average volume (optional)
+
+        Returns:
+            Estimated spread in price units
+        """
+        base_spread = self.spec.spread_typical * self.spec.point
+
+        # PREFER physics-based liquidity from volume if available
+        if volume is not None and volume_baseline is not None and volume_baseline > 0:
+            liquidity_ratio = volume / volume_baseline
+            liquidity_multiplier = 1.0 / max(0.1, min(2.0, liquidity_ratio))
+        else:
+            # Fallback to hour-based profile (less accurate due to DST)
+            liquidity = self.get_liquidity_factor(hour_utc)
+            liquidity_multiplier = 1.0 + self.spread_liquidity_sensitivity * (1.0 - liquidity)
 
         # Volatility adjustment
         vol_ratio = volatility / volatility_baseline if volatility_baseline > 0 else 1.0
         vol_multiplier = 1.0 + self.spread_volatility_sensitivity * max(0, vol_ratio - 1.0)
 
-        # Rollover penalty - spreads widen significantly near rollover
-        rollover_multiplier = 1.0
-        if minutes_to_rollover is not None:
-            if minutes_to_rollover <= 10:
-                # Within 10 minutes of rollover: spreads can be 5-10x normal
-                rollover_multiplier = 5.0 + 5.0 * (1.0 - minutes_to_rollover / 10.0)
-            elif minutes_to_rollover <= 30:
-                # 10-30 minutes: spreads 2-5x
-                rollover_multiplier = 2.0 + 3.0 * (1.0 - (minutes_to_rollover - 10) / 20.0)
-            elif minutes_to_rollover <= 60:
-                # 30-60 minutes: spreads 1-2x
-                rollover_multiplier = 1.0 + (1.0 - (minutes_to_rollover - 30) / 30.0)
-
-        estimated_spread = base_spread * liquidity_multiplier * vol_multiplier * rollover_multiplier
+        estimated_spread = base_spread * liquidity_multiplier * vol_multiplier
 
         # Clamp to min/max
         min_spread = self.spec.spread_min * self.spec.point
@@ -374,50 +439,101 @@ class FrictionModel:
         self,
         price: float,
         position_size_lots: float,
-        hour_utc: int,
         volatility: float,
         volatility_baseline: float = 0.01,
+        volume: Optional[float] = None,
+        volume_baseline: Optional[float] = None,
+        high: Optional[float] = None,
+        low: Optional[float] = None,
         holding_days: float = 0.0,
         is_long: bool = True,
-        minutes_to_rollover: Optional[int] = None
+        hour_utc: int = 12,  # Only used as fallback if no volume
     ) -> Dict[str, float]:
         """
-        Calculate total friction for a trade.
+        Calculate total friction for a trade - PHYSICS BASED.
+
+        No clock-based assumptions. Friction is derived from:
+        - Observed volatility vs baseline (spread explosion)
+        - Observed volume vs baseline (liquidity drying up)
+        - Observed bar range (market stress)
 
         Returns breakdown of all costs as price percentages.
 
         Args:
             price: Current price
             position_size_lots: Position size in lots
-            hour_utc: Current hour UTC
-            volatility: Current volatility
-            volatility_baseline: Normal volatility
+            volatility: Current volatility (observed)
+            volatility_baseline: Rolling average volatility
+            volume: Current bar volume (observed)
+            volume_baseline: Rolling average volume
+            high: Current bar high (for range-based spread)
+            low: Current bar low
             holding_days: Expected holding period in days
             is_long: Long or short position
-            minutes_to_rollover: Minutes until rollover
+            hour_utc: Fallback hour if no volume data
 
         Returns:
             Dict with friction components and total
         """
-        # 1. Spread cost (entry + exit)
-        spread = self.estimate_spread(hour_utc, volatility, volatility_baseline, minutes_to_rollover)
+        # 1. SPREAD COST - physics-based
+        if high is not None and low is not None and volume is not None and volume_baseline is not None:
+            # Full physics-based spread estimation
+            spread = self.estimate_spread_from_bar(
+                high=high,
+                low=low,
+                close=price,
+                volume=volume,
+                volume_baseline=volume_baseline,
+                volatility=volatility,
+                volatility_baseline=volatility_baseline,
+            )
+        else:
+            # Fallback with optional volume
+            spread = self.estimate_spread(
+                hour_utc=hour_utc,
+                volatility=volatility,
+                volatility_baseline=volatility_baseline,
+                volume=volume,
+                volume_baseline=volume_baseline,
+            )
+
         spread_pct = (spread / price) * 100  # As percentage
         spread_cost = spread_pct * 2  # Entry and exit
 
-        # 2. Commission
+        # 2. COMMISSION
         commission_total = self.spec.commission_per_lot * position_size_lots * 2  # Both sides
         position_value = price * self.spec.contract_size * position_size_lots
         commission_pct = (commission_total / position_value) * 100 if position_value > 0 else 0
 
-        # 3. Slippage
-        liquidity = self.get_liquidity_factor(hour_utc)
-        slippage_pct = self.estimate_slippage(position_size_lots, liquidity) * 100
+        # 3. SLIPPAGE - physics-based from volume
+        if volume is not None and volume_baseline is not None and volume_baseline > 0:
+            # Liquidity from observed volume
+            liquidity_factor = min(1.0, volume / volume_baseline)
+        else:
+            # Fallback to hour profile
+            liquidity_factor = self.get_liquidity_factor(hour_utc)
+
+        slippage_pct = self.estimate_slippage(position_size_lots, liquidity_factor) * 100
         slippage_cost = slippage_pct * 2  # Entry and exit
 
-        # 4. Swap cost (if holding overnight)
+        # 4. SWAP COST (if holding overnight)
         swap_points = self.spec.swap_long if is_long else self.spec.swap_short
         swap_price = swap_points * self.spec.point
         swap_pct = (swap_price / price) * 100 * holding_days
+
+        # 5. PHYSICS STRESS INDICATORS
+        # Volatility stress: how much higher than normal?
+        vol_stress = volatility / volatility_baseline if volatility_baseline > 0 else 1.0
+
+        # Liquidity stress: how much lower than normal?
+        if volume is not None and volume_baseline is not None and volume_baseline > 0:
+            liq_stress = volume_baseline / max(volume, 1e-10)  # Inverse: low vol = high stress
+        else:
+            liq_stress = 1.0
+
+        # Spread stress: how much wider than typical?
+        typical_spread = self.spec.spread_typical * self.spec.point
+        spread_stress = spread / typical_spread if typical_spread > 0 else 1.0
 
         # Total friction
         total_friction = spread_cost + commission_pct + slippage_cost + abs(swap_pct)
@@ -429,8 +545,11 @@ class FrictionModel:
             'swap_pct': swap_pct,
             'total_friction_pct': total_friction,
             'spread_price': spread,
-            'liquidity_factor': liquidity,
-            'minutes_to_rollover': minutes_to_rollover,
+            'liquidity_factor': liquidity_factor,
+            # Physics stress indicators (for diagnostics/learning)
+            'volatility_stress': vol_stress,
+            'liquidity_stress': liq_stress,
+            'spread_stress': spread_stress,
         }
 
     def is_tradeable(
@@ -440,9 +559,14 @@ class FrictionModel:
         min_edge_ratio: float = 1.5
     ) -> Tuple[bool, str]:
         """
-        Check if trade makes sense given friction.
+        Check if trade makes sense given friction - PHYSICS BASED.
 
         Natural gate: Only trade if expected_return > friction * min_edge_ratio
+
+        No clock-based checks. Uses physics stress indicators:
+        - Spread stress: spread explosion relative to normal
+        - Liquidity stress: volume drying up
+        - Volatility stress: extreme volatility
 
         Args:
             expected_return_pct: Expected return as percentage
@@ -454,19 +578,36 @@ class FrictionModel:
         """
         total_friction = friction['total_friction_pct']
 
-        # Required edge
+        # PRIMARY GATE: expected return must exceed friction with margin
         required_return = total_friction * min_edge_ratio
 
         if expected_return_pct < required_return:
             return False, f"Expected {expected_return_pct:.3f}% < required {required_return:.3f}% (friction={total_friction:.3f}%)"
 
-        # Check specific conditions
-        if friction.get('minutes_to_rollover', 60) < 15:
-            return False, f"Too close to rollover ({friction['minutes_to_rollover']} min)"
+        # PHYSICS-BASED STRESS CHECKS
+        # These detect rollover, news, or any other stress event from the DATA
 
-        if friction['liquidity_factor'] < 0.3:
-            return False, f"Low liquidity ({friction['liquidity_factor']:.2f})"
+        # Spread explosion: spread > 3x normal = something is wrong
+        spread_stress = friction.get('spread_stress', 1.0)
+        if spread_stress > 3.0:
+            return False, f"Spread explosion ({spread_stress:.1f}x normal)"
 
+        # Liquidity crisis: volume < 20% of normal
+        liquidity_stress = friction.get('liquidity_stress', 1.0)
+        if liquidity_stress > 5.0:  # 5x stress = 20% of normal volume
+            return False, f"Liquidity dried up ({1/liquidity_stress:.0%} of normal)"
+
+        # Extreme volatility: 5x normal vol = unstable for entry
+        vol_stress = friction.get('volatility_stress', 1.0)
+        if vol_stress > 5.0:
+            return False, f"Volatility explosion ({vol_stress:.1f}x normal)"
+
+        # Combined stress: if multiple stresses compound, be cautious
+        combined_stress = spread_stress * liquidity_stress * vol_stress
+        if combined_stress > 10.0:
+            return False, f"Combined market stress too high ({combined_stress:.1f})"
+
+        # Spread eating too much of expected return
         if friction['spread_pct'] > expected_return_pct * 0.5:
             return False, f"Spread too wide ({friction['spread_pct']:.3f}% > 50% of expected return)"
 
@@ -478,6 +619,7 @@ class AdaptiveFrictionTracker:
     Online tracker that learns friction dynamics from actual fills.
 
     Updates spread/slippage models based on observed vs expected.
+    PHYSICS-BASED: learns from observed conditions, not clock time.
     """
 
     def __init__(self, symbol_spec: SymbolSpec, window: int = 100):
@@ -485,9 +627,11 @@ class AdaptiveFrictionTracker:
         self.model = FrictionModel(symbol_spec)
         self.window = window
 
-        # Observed data
-        self.observed_spreads: List[Tuple[int, float, float]] = []  # (hour, volatility, spread)
-        self.observed_slippage: List[Tuple[float, float, float]] = []  # (size, liquidity, slippage)
+        # Observed data - physics-based
+        # (volatility, volume_ratio, spread_observed)
+        self.observed_spreads: List[Tuple[float, float, float]] = []
+        # (size, liquidity_factor, slippage)
+        self.observed_slippage: List[Tuple[float, float, float]] = []
 
         # Adaptive parameters
         self.spread_adjustment = 1.0
@@ -495,20 +639,29 @@ class AdaptiveFrictionTracker:
 
     def record_fill(
         self,
-        hour_utc: int,
         volatility: float,
+        volatility_baseline: float,
+        volume: float,
+        volume_baseline: float,
         position_size_lots: float,
         expected_price: float,
         fill_price: float,
         spread_observed: float
     ):
-        """Record an actual trade fill to update models."""
+        """
+        Record an actual trade fill to update models - PHYSICS BASED.
+
+        Uses observed volatility and volume, not clock time.
+        """
         # Calculate observed slippage
         slippage = abs(fill_price - expected_price) / expected_price
-        liquidity = self.model.get_liquidity_factor(hour_utc)
 
-        self.observed_spreads.append((hour_utc, volatility, spread_observed))
-        self.observed_slippage.append((position_size_lots, liquidity, slippage))
+        # Volume-based liquidity
+        vol_ratio = volatility / volatility_baseline if volatility_baseline > 0 else 1.0
+        liquidity_factor = volume / volume_baseline if volume_baseline > 0 else 1.0
+
+        self.observed_spreads.append((vol_ratio, liquidity_factor, spread_observed))
+        self.observed_slippage.append((position_size_lots, liquidity_factor, slippage))
 
         # Keep window size
         if len(self.observed_spreads) > self.window:
@@ -525,11 +678,17 @@ class AdaptiveFrictionTracker:
             return
 
         # Compare predicted vs observed spreads
+        # For each observation, estimate what spread we would have predicted
+        # given the vol_ratio and liquidity_factor
         predicted_spreads = []
         actual_spreads = []
+        base_spread = self.spec.spread_typical * self.spec.point
 
-        for hour, vol, actual in self.observed_spreads:
-            predicted = self.model.estimate_spread(hour, vol)
+        for vol_ratio, liq_factor, actual in self.observed_spreads:
+            # Replicate physics-based estimation
+            liq_mult = 1.0 / max(0.1, min(2.0, liq_factor))
+            vol_mult = 1.0 + self.model.spread_volatility_sensitivity * max(0, vol_ratio - 1.0)
+            predicted = base_spread * liq_mult * vol_mult
             predicted_spreads.append(predicted)
             actual_spreads.append(actual)
 
@@ -579,9 +738,10 @@ def compute_friction_series(
     holding_bars: int = 1
 ) -> pd.DataFrame:
     """
-    Compute friction for each bar in a dataset.
+    Compute friction for each bar in a dataset - PHYSICS BASED.
 
-    Useful for backtesting with realistic costs.
+    Uses observed volume and volatility to estimate friction.
+    No clock-based assumptions - works for any timezone/DST.
 
     Args:
         df: OHLCV DataFrame with DatetimeIndex
@@ -595,37 +755,61 @@ def compute_friction_series(
     spec = get_symbol_spec(symbol)
     model = FrictionModel(spec)
 
-    # Calculate volatility (ATR-based)
+    # Extract OHLCV
     high = df['High'].values
     low = df['Low'].values
     close = df['Close'].values
 
+    # Volume (if available)
+    has_volume = 'Volume' in df.columns
+    if has_volume:
+        volume = df['Volume'].values
+        # Rolling volume baseline (20-bar average)
+        volume_baseline_series = pd.Series(volume).rolling(20, min_periods=1).mean().values
+    else:
+        volume = None
+        volume_baseline_series = None
+
+    # Calculate volatility (ATR-based)
     tr = np.maximum(high - low, np.maximum(
         np.abs(high - np.roll(close, 1)),
         np.abs(low - np.roll(close, 1))
     ))
-    atr = pd.Series(tr).rolling(20).mean().values
+    atr = pd.Series(tr).rolling(20, min_periods=1).mean().values
     volatility = atr / close
-    volatility_baseline = np.nanmean(volatility)
+    volatility_baseline_series = pd.Series(volatility).rolling(100, min_periods=20).mean().values
+    volatility_baseline_fallback = np.nanmean(volatility)
 
-    # Determine hours (if datetime index)
+    # Fallback hours (only used if no volume data)
     if isinstance(df.index, pd.DatetimeIndex):
         hours = df.index.hour.values
     else:
-        hours = np.zeros(len(df), dtype=int)
+        hours = np.full(len(df), 12, dtype=int)  # Noon as neutral fallback
 
     # Compute friction for each bar
     frictions = []
     for i in range(len(df)):
-        friction = model.calculate_friction(
-            price=close[i],
-            position_size_lots=position_size_lots,
-            hour_utc=int(hours[i]),
-            volatility=volatility[i] if not np.isnan(volatility[i]) else volatility_baseline,
-            volatility_baseline=volatility_baseline,
-            holding_days=holding_bars / 24,  # Assuming hourly bars
-            is_long=True
-        )
+        vol = volatility[i] if not np.isnan(volatility[i]) else volatility_baseline_fallback
+        vol_baseline = volatility_baseline_series[i] if not np.isnan(volatility_baseline_series[i]) else volatility_baseline_fallback
+
+        kwargs = {
+            'price': close[i],
+            'position_size_lots': position_size_lots,
+            'volatility': vol,
+            'volatility_baseline': vol_baseline,
+            'high': high[i],
+            'low': low[i],
+            'holding_days': holding_bars / 24,  # Assuming hourly bars
+            'is_long': True,
+            'hour_utc': int(hours[i]),  # Fallback only
+        }
+
+        # Add volume if available (enables full physics-based estimation)
+        if has_volume and volume_baseline_series is not None:
+            kwargs['volume'] = volume[i]
+            kwargs['volume_baseline'] = volume_baseline_series[i]
+
+        friction = model.calculate_friction(**kwargs)
         frictions.append(friction)
 
     friction_df = pd.DataFrame(frictions, index=df.index)
