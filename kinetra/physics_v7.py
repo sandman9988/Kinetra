@@ -468,35 +468,280 @@ def compute_entropy_v7(volume, lookback: int = 20, epsilon: float = 1e-10):
     return entropy.fillna(0.0).clip(lower=0.0).values
 
 
-def compute_agent_signal(energy, damping, lookback: int = 50):
+def compute_dominant_period_single(returns_window):
     """
-    Compute agent activation signal using rolling quantiles.
+    Compute dominant period for a single window using autocorrelation.
+    Helper function for rolling application.
+    """
+    n = len(returns_window)
+    if n < 10:
+        return max(5, n // 4)
+
+    # Search range: 2 bars to half the window length
+    max_lag = min(n // 2, n - 2)
+    if max_lag < 3:
+        return max(5, n // 4)
+
+    # Find lag with highest absolute autocorrelation
+    best_lag = 2
+    best_corr = 0
+
+    returns_arr = np.array(returns_window)
+    for lag in range(2, max_lag):
+        if lag >= len(returns_arr):
+            break
+        # Manual autocorrelation calculation
+        x1 = returns_arr[:-lag]
+        x2 = returns_arr[lag:]
+        if len(x1) < 3 or np.std(x1) == 0 or np.std(x2) == 0:
+            continue
+        corr = np.corrcoef(x1, x2)[0, 1]
+        if not np.isnan(corr) and abs(corr) > best_corr:
+            best_corr = abs(corr)
+            best_lag = lag
+
+    return best_lag
+
+
+def compute_dominant_period(close):
+    """
+    Compute dominant period using autocorrelation - fully adaptive.
+    Returns a single dominant period for the entire series.
+    Used for initial lookback window sizing.
+    """
+    close = pd.Series(close)
+    returns = close.pct_change().dropna()
+    n = len(returns)
+
+    if n < 20:
+        return max(5, n // 4)
+
+    # Search range: 2 bars to half the data length
+    max_lag = n // 2
+
+    # Find lag with highest absolute autocorrelation
+    best_lag = 2
+    best_corr = 0
+
+    for lag in range(2, max_lag):
+        corr = returns.autocorr(lag=lag)
+        if not np.isnan(corr) and abs(corr) > best_corr:
+            best_corr = abs(corr)
+            best_lag = lag
+
+    return best_lag
+
+
+def compute_rolling_dominant_period(close, base_window: int = None):
+    """
+    Compute ROLLING dominant period - adapts per bar.
+
+    Computes local dominant period at each point in time using
+    a rolling window of returns. This adapts to:
+    - Different instruments
+    - Different timeframes
+    - Changing market regimes
+
+    Returns array of dominant periods (one per bar).
+    """
+    close = pd.Series(close)
+    returns = close.pct_change()
+    n = len(close)
+
+    # Use initial dominant period estimate for base window if not provided
+    if base_window is None:
+        base_window = compute_dominant_period(close)
+        base_window = max(20, min(base_window * 2, n // 4))  # Scale up for stability
+
+    periods = np.full(n, base_window, dtype=float)
+
+    # Compute rolling dominant period
+    for i in range(base_window, n):
+        window_returns = returns.iloc[max(0, i - base_window):i].dropna()
+        if len(window_returns) >= 10:
+            periods[i] = compute_dominant_period_single(window_returns.values)
+
+    return periods
+
+
+def compute_direction_probability(close, lookback: int):
+    """
+    Compute probability of direction continuation - fully adaptive.
+
+    Uses the consistency of price movement direction over the rolling period.
+    P(direction) = (bars moving in current direction) / lookback
+
+    Returns values [0, 1] where:
+    - 1.0 = all bars moved in same direction (strong trend)
+    - 0.5 = random walk
+    - 0.0 = all bars moved opposite (reversal pattern)
+    """
+    close = pd.Series(close)
+    price_change = close.diff()
+
+    # Current direction: +1 if last move was up, -1 if down
+    current_dir = np.sign(price_change)
+
+    # Rolling count of bars moving in same direction as current
+    same_dir = (current_dir == current_dir.shift(1)).astype(float)
+
+    # Direction consistency probability
+    p_direction = same_dir.rolling(lookback, min_periods=lookback).mean()
+
+    return p_direction.fillna(0.5).values
+
+
+def compute_energy_probability(energy, lookback: int):
+    """
+    Compute probability of significant energy release - fully adaptive.
+
+    Uses percentile rank of current energy in rolling distribution.
+    P(energy) = percentile_rank(current_energy) in rolling window
+
+    Returns values [0, 1] where:
+    - 1.0 = energy at maximum of rolling period
+    - 0.5 = energy at median
+    - 0.0 = energy at minimum
+    """
+    energy = pd.Series(energy)
+
+    # Rolling percentile rank
+    def percentile_rank(x):
+        if len(x) < 2:
+            return 0.5
+        rank = (x.iloc[:-1] < x.iloc[-1]).sum()
+        return rank / (len(x) - 1)
+
+    p_energy = energy.rolling(lookback, min_periods=lookback).apply(
+        percentile_rank, raw=False
+    )
+
+    return p_energy.fillna(0.5).values
+
+
+def compute_composite_probability(close, energy, damping):
+    """
+    Compute composite probability of direction AND potential energy release.
+
+    Composite_P = P(direction) × P(energy)
+
+    This is fully adaptive - uses dominant period computed from price data.
+    No fixed values anywhere.
 
     Returns:
-        Array with values:
-        - 2: Berserker active
-        - 1: Sniper active
-        - 0: No agent
+        Tuple of (composite_prob, direction_prob, energy_prob)
+        All values in [0, 1]
     """
+    close = pd.Series(close)
     energy = pd.Series(energy)
     damping = pd.Series(damping)
 
-    # Use rolling quantiles for efficiency (O(n) instead of O(n²))
-    e_q60 = energy.rolling(lookback, min_periods=lookback).quantile(0.60)
-    e_q75 = energy.rolling(lookback, min_periods=lookback).quantile(0.75)
-    d_q25 = damping.rolling(lookback, min_periods=lookback).quantile(0.25)
-    d_q75 = damping.rolling(lookback, min_periods=lookback).quantile(0.75)
+    # Compute dominant period from price (fully adaptive)
+    dominant_period = compute_dominant_period(close)
 
-    # Berserker: energy > Q75 AND damping < Q25 (Underdamped, High Energy)
-    berserker = (energy > e_q75) & (damping < d_q25)
+    # Direction probability over dominant period
+    p_direction = compute_direction_probability(close, dominant_period)
 
-    # Sniper: Q25 < damping < Q75 AND energy > Q60 (Critical, Moderate-High Energy)
-    sniper = (damping > d_q25) & (damping < d_q75) & (energy > e_q60)
+    # Energy probability over dominant period
+    p_energy = compute_energy_probability(energy, dominant_period)
 
-    # Combine signals (Berserker takes priority)
-    signals = np.zeros(len(energy))
-    signals[sniper] = 1
-    signals[berserker] = 2
+    # Composite probability (joint probability)
+    composite = p_direction * p_energy
+
+    return composite, p_direction, p_energy
+
+
+def compute_agent_signal(energy, damping, close):
+    """
+    Compute agent activation signal - VERY SELECTIVE for BIG energy releases.
+
+    FULLY ADAPTIVE - NO FIXED VALUES:
+    - Rolling dominant period computed per bar (adapts to instrument/timeframe)
+    - All thresholds derived from that bar's local dominant period
+    - A "big release" for crypto is NOT the same as for GBP
+    - Everything is normalized to THIS instrument's OWN distribution
+
+    BERSERKER = EXPLOSIVE ENERGY RELEASE:
+    - Top 1/T of energy AND direction (very selective)
+    - Underdamped regime (bottom 1/3 of damping)
+    - Captures sudden potential → kinetic energy conversion
+    - High Reynolds = turbulent but directional
+
+    SNIPER = LAMINAR FLOW:
+    - Top 2/T of energy AND direction
+    - Critical damping regime (middle 1/3 of damping)
+    - Smooth, ordered flow in consistent direction
+    - All bars moving same way = precision entry
+
+    Returns:
+        Array with values:
+        - 2: Berserker (explosive energy release)
+        - 1: Sniper (laminar flow)
+        - 0: No agent (stay flat)
+    """
+    energy = pd.Series(energy).reset_index(drop=True)
+    damping = pd.Series(damping).reset_index(drop=True)
+    close = pd.Series(close).reset_index(drop=True)
+    n = len(energy)
+
+    # Compute ROLLING dominant period - adapts per bar
+    rolling_periods = compute_rolling_dominant_period(close)
+
+    # Initialize signals
+    signals = np.zeros(n)
+
+    # Compute signals bar-by-bar with local context
+    for i in range(n):
+        T = int(rolling_periods[i])
+        if T < 5 or i < T:
+            continue
+
+        # Local window for this bar
+        start_idx = max(0, i - T)
+
+        local_energy = energy.iloc[start_idx:i + 1]
+        local_damping = damping.iloc[start_idx:i + 1]
+        local_close = close.iloc[start_idx:i + 1]
+
+        if len(local_energy) < 5:
+            continue
+
+        # Current values
+        curr_energy = energy.iloc[i]
+        curr_damping = damping.iloc[i]
+
+        # Direction: count consecutive same-direction moves
+        price_changes = local_close.diff().dropna()
+        if len(price_changes) < 2:
+            continue
+        curr_dir = np.sign(price_changes.iloc[-1])
+        same_dir_count = 0
+        for j in range(len(price_changes) - 1, -1, -1):
+            if np.sign(price_changes.iloc[j]) == curr_dir:
+                same_dir_count += 1
+            else:
+                break
+        p_direction = same_dir_count / len(price_changes)
+
+        # Energy percentile rank within local window
+        p_energy = (local_energy < curr_energy).sum() / len(local_energy)
+
+        # ADAPTIVE THRESHOLDS - derived from local dominant period T
+        # Berserker: top 1/T (very selective)
+        berserker_threshold = 1.0 - (1.0 / T)
+        # Sniper: top 2/T
+        sniper_threshold = 1.0 - (2.0 / T)
+
+        # Damping percentiles within local window
+        damping_pct = (local_damping < curr_damping).sum() / len(local_damping)
+
+        # Agent activation with fully adaptive thresholds
+        # Berserker: big energy + strong direction + underdamped (bottom 1/3)
+        if p_energy > berserker_threshold and p_direction > berserker_threshold and damping_pct < (1.0 / 3.0):
+            signals[i] = 2
+        # Sniper: high energy + good direction + critical damping (middle 1/3)
+        elif p_energy > sniper_threshold and p_direction > sniper_threshold and (1.0 / 3.0) < damping_pct < (2.0 / 3.0):
+            signals[i] = 1
 
     return signals
 

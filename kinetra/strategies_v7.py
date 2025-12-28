@@ -96,9 +96,10 @@ class BaseV7Strategy(Strategy):
         self.velocity = self.I(compute_velocity_v7, self.data.Close)
 
         # Agent signal: 0=None, 1=Sniper, 2=Berserker
+        # Uses adaptive dominant period computed from close prices
         self.agent_signal = self.I(
             compute_agent_signal,
-            self.energy, self.damping, self.min_history
+            self.energy, self.damping, self.data.Close
         )
 
         # Trend strength for confirmation
@@ -118,18 +119,21 @@ class BaseV7Strategy(Strategy):
 
 class BerserkerStrategy(BaseV7Strategy):
     """
-    Berserker Agent Strategy.
+    Berserker Agent Strategy = EXPLOSIVE ENERGY RELEASE.
 
-    Activation: energy > Q75 AND damping < Q25 (Underdamped, High Energy)
+    Activation: Underdamped + BIG energy + Strong directional conviction
+
+    Physics Principle: EXPLOSIVE ENERGY TRANSFER
+    - Potential energy converts to kinetic in sudden release
+    - Underdamped = low friction allows momentum propagation
+    - High Reynolds number = turbulent but directional
+    - Energy cascades through the system
 
     Behavior:
-    - Aggressive trend following
-    - Enters on strong momentum with conviction
-    - Larger position sizes
-    - Trails aggressively
-
-    Physics Principle: Underdamped systems oscillate with increasing amplitude.
-    In markets, this means momentum builds and trends extend.
+    - Aggressive entries on big energy release events
+    - Captures explosive momentum moves
+    - Larger position sizes for conviction
+    - Rides the energy wave until dissipation
     """
     # Berserker-specific parameters
     entry_energy_threshold = 75  # Percentile
@@ -214,18 +218,21 @@ class BerserkerStrategy(BaseV7Strategy):
 
 class SniperStrategy(BaseV7Strategy):
     """
-    Sniper Agent Strategy.
+    Sniper Agent Strategy = LAMINAR FLOW.
 
-    Activation: Q25 < damping < Q75 AND energy > Q60 (Critical, Moderate-High Energy)
+    Activation: Critical damping + High energy + Consistent direction
+
+    Physics Principle: LAMINAR FLOW
+    - Smooth, ordered flow in one direction (low turbulence)
+    - All "particles" (bars) moving in same direction
+    - High Reynolds efficiency = critical damping regime
+    - Predictable, precise movement patterns
 
     Behavior:
-    - Precision entries at optimal points
-    - Waits for confirmation
-    - Smaller position sizes, tighter risk
-    - More selective
-
-    Physics Principle: Critical damping reaches equilibrium fastest.
-    In markets, this means efficient mean reversion or trend continuation.
+    - Precision entries during smooth directional flow
+    - Waits for confirmation of laminar pattern
+    - Rides the clean, consistent moves
+    - Exits when flow becomes turbulent
     """
     # Sniper-specific parameters
     entry_energy_threshold = 60   # Percentile
