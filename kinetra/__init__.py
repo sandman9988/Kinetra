@@ -94,6 +94,14 @@ from .mt5_bridge import (
     save_bridge_server_script,
 )
 
+# Atomic Persistence (crash-safe checkpointing)
+from .persistence import (
+    AtomicCheckpointer,
+    StreamingDataPersister,
+    CheckpointType,
+    create_checkpointer,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -165,4 +173,9 @@ __all__ = [
     # MT5 Bridge
     "MT5Bridge",
     "save_bridge_server_script",
+    # Atomic Persistence
+    "AtomicCheckpointer",
+    "StreamingDataPersister",
+    "CheckpointType",
+    "create_checkpointer",
 ]
