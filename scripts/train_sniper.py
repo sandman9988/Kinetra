@@ -23,7 +23,7 @@ import argparse
 import logging
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 from dataclasses import dataclass
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
