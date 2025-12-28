@@ -1570,7 +1570,7 @@ def compute_fractal_dimension_higuchi(close, k_max: int = 10, window: int = 100)
         try:
             slope, _ = np.polyfit(log_k, log_lk, 1)
             fd[i] = np.clip(slope, 1.0, 2.0)
-        except:
+        except Exception:
             fd[i] = 1.5
 
     return fd
