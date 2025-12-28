@@ -416,6 +416,159 @@ class EnergyWeightedExitManager:
 
 
 # =============================================================================
+# DAMPED HARMONIC OSCILLATOR MODEL - MICROSTRUCTURE REGIME
+# =============================================================================
+#
+# Market as a Damped Harmonic Oscillator:
+#   m*x'' + c*x' + k*x = F(t)
+#
+# Where:
+#   m = "Mass" = Liquidity Depth (resistance to price change)
+#   c = "Damping" = Friction/Viscosity (energy dissipation rate)
+#   k = "Spring constant" = Mean reversion strength
+#   F = "Force" = Order Flow (buy/sell pressure)
+#
+# Regimes:
+#   - Thin market (Low Mass): Little force → big acceleration → BREAKOUT
+#   - Thick market (High Mass): Force absorbed → MEAN REVERSION
+#
+# Level 2 (DOM) tells us what RESISTS future moves.
+# Volume tells us what already HAPPENED.
+# =============================================================================
+
+
+def compute_liquidity_mass(high, low, close, volume, lookback: int = 20):
+    """
+    Compute "Mass" from liquidity depth proxy.
+
+    Without DOM data, estimate liquidity from:
+    - Price impact = |ΔPrice| / Volume (Kyle's Lambda)
+    - Higher lambda = thinner market = lower mass
+
+    Mass = inverse of price impact (thick = high mass, thin = low mass)
+
+    Returns:
+        Array of mass values (higher = more liquidity = harder to move)
+    """
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    # Price change magnitude
+    price_range = high - low
+    price_change = close.diff().abs()
+
+    # Kyle's Lambda: price impact per unit volume
+    # Lower volume with same price move = thinner market
+    volume_safe = volume.replace(0, np.nan).fillna(volume.mean())
+    lambda_kyle = price_change / (volume_safe + 1e-10)
+
+    # Smooth with rolling window
+    lambda_smooth = lambda_kyle.rolling(lookback, min_periods=1).mean()
+
+    # Mass = inverse of lambda (thick market = high mass)
+    # Normalize by rolling mean to make adaptive
+    lambda_mean = lambda_smooth.rolling(lookback * 2, min_periods=1).mean()
+    mass = lambda_mean / (lambda_smooth + 1e-10)
+
+    return mass.fillna(1.0).clip(0.1, 10.0).values
+
+
+def compute_order_flow_force(open_, high, low, close, volume):
+    """
+    Compute "Force" from order flow imbalance.
+
+    Without tick data, estimate from:
+    - Buying pressure = (Close - Low) / (High - Low) * Volume
+    - Selling pressure = (High - Close) / (High - Low) * Volume
+    - Net Force = Buy pressure - Sell pressure
+
+    Returns:
+        Array of force values (positive = buy pressure, negative = sell pressure)
+    """
+    open_ = pd.Series(open_)
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    # Range
+    range_ = high - low + 1e-10
+
+    # Buy/Sell pressure (money flow approximation)
+    buy_pressure = ((close - low) / range_) * volume
+    sell_pressure = ((high - close) / range_) * volume
+
+    # Net force
+    force = buy_pressure - sell_pressure
+
+    return force.fillna(0.0).values
+
+
+def compute_acceleration(force, mass):
+    """
+    Newton's Second Law: F = ma → a = F/m
+
+    Low mass + high force = high acceleration (breakout potential)
+    High mass + same force = low acceleration (absorption/range)
+
+    Returns:
+        Array of acceleration values
+    """
+    force = pd.Series(force)
+    mass = pd.Series(mass)
+
+    acceleration = force / (mass + 1e-10)
+
+    return acceleration.fillna(0.0).values
+
+
+def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
+    """
+    Compute full Damped Harmonic Oscillator state.
+
+    Returns dict with:
+    - mass: Liquidity-based market inertia
+    - force: Order flow pressure
+    - acceleration: F/m (breakout potential)
+    - velocity: Rate of price change
+    - displacement: Distance from equilibrium (rolling mean)
+    - regime: 'breakout' (low mass) or 'range' (high mass)
+    """
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+    volume = pd.Series(volume)
+
+    # Core components
+    mass = compute_liquidity_mass(high, low, close, volume, lookback)
+    force = compute_order_flow_force(high.values, high.values, low.values, close.values, volume.values)
+    acceleration = compute_acceleration(force, mass)
+
+    # Velocity = rate of price change
+    velocity = close.pct_change().fillna(0.0).values
+
+    # Displacement = distance from equilibrium (rolling mean)
+    equilibrium = close.rolling(lookback, min_periods=1).mean()
+    displacement = ((close - equilibrium) / equilibrium).fillna(0.0).values
+
+    # Regime classification based on mass
+    mass_series = pd.Series(mass)
+    mass_median = mass_series.rolling(lookback * 2, min_periods=lookback).median()
+    regime = np.where(mass_series < mass_median, 'breakout', 'range')
+
+    return {
+        'mass': mass,
+        'force': force,
+        'acceleration': acceleration,
+        'velocity': velocity,
+        'displacement': displacement,
+        'regime': regime
+    }
+
+
+# =============================================================================
 # BACKTESTING.PY INTEGRATION
 # =============================================================================
 
