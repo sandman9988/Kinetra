@@ -31,7 +31,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 from kinetra.rl_gpu_trainer import DQN, ReplayBuffer, PhysicsFeatureComputer
