@@ -262,10 +262,18 @@ pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 ```
 
-**Environment variables for ROCm:**
+**Environment variables for ROCm (AMD GPUs):**
 ```bash
-export HSA_OVERRIDE_GFX_VERSION=10.3.0  # For some AMD GPUs
+# For RX 7600 / RDNA3:
+export HSA_OVERRIDE_GFX_VERSION=11.0.0
+export HIP_VISIBLE_DEVICES=0
+
+# For RX 6000 series / RDNA2:
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
 export HIP_VISIBLE_DEVICES=0
 ```
 
-If no GPU detected, DO NOT proceed with long training runs. Fix GPU first.
+**CRITICAL**: If no GPU detected, DO NOT proceed with training. Fix GPU first.
+
+The code will detect AMD ROCm automatically via `torch.version.hip`.
+Default behavior: ROCm for AMD, CUDA for NVIDIA - no manual config needed.

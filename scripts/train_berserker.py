@@ -152,14 +152,38 @@ class RunLogger:
 
 
 def detect_device() -> torch.device:
-    """Detect best available device (GPU or CPU)."""
+    """Detect best available device - AMD ROCm or NVIDIA CUDA."""
+    # Check for CUDA/ROCm availability
+    # Note: PyTorch ROCm uses the same torch.cuda API
     if torch.cuda.is_available():
         device = torch.device('cuda')
         gpu_name = torch.cuda.get_device_name(0)
-        logger.info(f"Using GPU: {gpu_name}")
+
+        # Detect if this is AMD (ROCm/HIP) or NVIDIA
+        is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
+
+        if is_rocm:
+            logger.info(f"Using AMD GPU (ROCm): {gpu_name}")
+            logger.info(f"  HIP version: {torch.version.hip}")
+        else:
+            logger.info(f"Using NVIDIA GPU (CUDA): {gpu_name}")
+            logger.info(f"  CUDA version: {torch.version.cuda}")
+
         return device
     else:
-        logger.warning("No GPU detected. Using CPU (training will be slow)")
+        # No GPU - provide helpful message
+        logger.error("=" * 60)
+        logger.error("NO GPU DETECTED - Training will be 100x slower!")
+        logger.error("=" * 60)
+        logger.error("")
+        logger.error("For AMD GPUs (like RX 7600), install ROCm PyTorch:")
+        logger.error("  pip install torch --index-url https://download.pytorch.org/whl/rocm6.0")
+        logger.error("")
+        logger.error("Environment variables for AMD:")
+        logger.error("  export HSA_OVERRIDE_GFX_VERSION=11.0.0  # For RDNA3 (7600)")
+        logger.error("  export HIP_VISIBLE_DEVICES=0")
+        logger.error("=" * 60)
+
         return torch.device('cpu')
 
 
