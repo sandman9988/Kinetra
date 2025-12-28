@@ -524,16 +524,76 @@ def compute_acceleration(force, mass):
     return acceleration.fillna(0.0).values
 
 
+def classify_regime_adaptive(
+    symc_series: pd.Series,
+    underdamped_pct: float = 33.0,
+    overdamped_pct: float = 67.0,
+    lookback: int = 100
+) -> np.ndarray:
+    """
+    ADAPTIVE regime classification - NO FIXED THRESHOLDS.
+
+    Uses rolling percentiles of the SymC distribution to classify regimes.
+    Each third of the distribution gets equal representation.
+
+    This is critical because:
+    - Fixed thresholds (0.8, 1.2) cause 52%+ to fall in "critical"
+    - Different instruments have different SymC distributions
+    - Market conditions shift the distribution over time
+
+    VIRTUAL MODE: This is for logging/analysis only, NOT for gating entries.
+    The system explores freely - regime is used for reward shaping.
+
+    Args:
+        symc_series: SymC ratio series
+        underdamped_pct: Percentile below which = underdamped (default 33rd)
+        overdamped_pct: Percentile above which = overdamped (default 67th)
+        lookback: Rolling window for percentile calculation
+
+    Returns:
+        Array of regime labels
+    """
+    symc = symc_series.values
+    n = len(symc)
+    regimes = np.full(n, 'critical', dtype=object)
+
+    for i in range(n):
+        # Use available history up to lookback
+        start = max(0, i - lookback + 1)
+        window = symc[start:i+1]
+
+        if len(window) < 5:
+            # Not enough data - use current value relative to 1.0
+            if symc[i] < 0.9:
+                regimes[i] = 'underdamped'
+            elif symc[i] > 1.1:
+                regimes[i] = 'overdamped'
+            continue
+
+        # Adaptive thresholds from data distribution
+        low_thresh = np.percentile(window, underdamped_pct)
+        high_thresh = np.percentile(window, overdamped_pct)
+
+        # Classify based on where current value falls
+        if symc[i] < low_thresh:
+            regimes[i] = 'underdamped'
+        elif symc[i] > high_thresh:
+            regimes[i] = 'overdamped'
+        # else: 'critical' (middle third)
+
+    return regimes
+
+
 def compute_symc_ratio(high, low, close, volume, lookback: int = 20):
     """
     Compute SymC Ratio (χ) - The governing metric for market stability.
 
     χ = γ / (2ω) ≈ Liquidity Replenishment Rate / Order Arrival Frequency
 
-    Regimes:
-    - Underdamped (χ < 0.8): Volatile, overshooting - MOMENTUM works
-    - Overdamped (χ > 1.2): Sluggish, mean-reverting - MOMENTUM fails
-    - Critical (χ ≈ 1.0): Efficient, random walk - Hard to trade
+    Regimes (ADAPTIVE, not fixed):
+    - Underdamped (bottom 33%): Volatile, overshooting - MOMENTUM works
+    - Overdamped (top 33%): Sluggish, mean-reverting - SNIPER works
+    - Critical (middle 33%): Transitional - both can work
 
     Proxy calculation:
     - γ (damping) ≈ volume absorption rate (how fast liquidity absorbs orders)
@@ -601,14 +661,10 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
     symc = compute_symc_ratio(high.values, low.values, close.values, volume.values, lookback)
     symc_series = pd.Series(symc)
 
-    # Regime classification based on SymC ratio
-    # Underdamped (χ < 0.8): Momentum works - BERSERKER
-    # Overdamped (χ > 1.2): Mean reversion - SNIPER (range)
-    # Critical (χ ≈ 1.0): Random walk - stay flat
-    regime = np.where(
-        symc_series < 0.8, 'underdamped',
-        np.where(symc_series > 1.2, 'overdamped', 'critical')
-    )
+    # ADAPTIVE regime classification - NO FIXED THRESHOLDS
+    # Uses percentiles of the actual data distribution
+    # This adapts to different instruments and market conditions
+    regime = classify_regime_adaptive(symc_series)
 
     return {
         'mass': mass,
@@ -2009,22 +2065,27 @@ def compute_rl_state_vector(
     }
 
 
-def compute_action_mask(state_vector: Dict[str, np.ndarray], idx: int) -> Dict[str, bool]:
+def compute_action_mask(
+    state_vector: Dict[str, np.ndarray],
+    idx: int,
+    mode: str = "virtual"
+) -> Dict[str, bool]:
     """
     Compute action mask based on regime state.
 
-    Critical for speeding up RL training:
-    - If regime = chaos/crisis: Mask "Open New Trade"
-    - If regime = trend + short position: Mask "Buy"
-    - If VPIN > threshold: Mask aggressive actions
+    VIRTUAL MODE: All actions allowed - explore freely to find alpha!
+    LIVE MODE: Dynamic conditional locks based on physics.
+
+    The mask is NEVER used to gate entries during exploration.
+    In live trading, it protects capital during extreme conditions.
+
+    Args:
+        state_vector: Physics state vectors
+        idx: Current bar index
+        mode: "virtual" (no gates) or "live" (gates enforced)
 
     Returns dict of allowed actions.
     """
-    regime_chaos = state_vector['regime_chaos'][idx]
-    vpin = state_vector['vpin'][idx]
-    ftle = state_vector['ftle'][idx]
-    symc = state_vector['symc'][idx]
-
     # Default: all actions allowed
     mask = {
         'buy': True,
@@ -2033,18 +2094,47 @@ def compute_action_mask(state_vector: Dict[str, np.ndarray], idx: int) -> Dict[s
         'close': True,
     }
 
-    # Crisis/Chaos: No new positions
-    if regime_chaos > 0.5 or ftle > 0.1:
+    # VIRTUAL MODE: No gates! Explore freely.
+    if mode == "virtual":
+        return mask
+
+    # LIVE MODE: Dynamic conditional locks
+    # These use ADAPTIVE thresholds based on recent distribution
+
+    regime_chaos = state_vector['regime_chaos'][idx]
+    vpin = state_vector['vpin'][idx]
+    ftle = state_vector['ftle'][idx]
+    symc = state_vector['symc'][idx]
+
+    # Get adaptive thresholds from recent data
+    lookback = min(idx + 1, 100)
+    if lookback > 10:
+        ftle_recent = state_vector['ftle'][max(0, idx-lookback):idx+1]
+        vpin_recent = state_vector['vpin'][max(0, idx-lookback):idx+1]
+        symc_recent = state_vector['symc'][max(0, idx-lookback):idx+1]
+
+        # Adaptive: extreme = top 5% of recent distribution
+        ftle_extreme = np.percentile(np.abs(ftle_recent), 95)
+        vpin_extreme = np.percentile(vpin_recent, 95)
+        symc_extreme = np.percentile(symc_recent, 95)
+    else:
+        # Fallback for insufficient data
+        ftle_extreme = 0.1
+        vpin_extreme = 0.7
+        symc_extreme = 2.0
+
+    # Crisis/Chaos: No new positions (only in extreme conditions)
+    if regime_chaos > 0.7 or abs(ftle) > ftle_extreme:
         mask['buy'] = False
         mask['sell'] = False
 
     # High toxicity: No new positions
-    if vpin > 0.7:
+    if vpin > vpin_extreme:
         mask['buy'] = False
         mask['sell'] = False
 
     # Frozen market: Force close existing positions
-    if symc > 2.0:
+    if symc > symc_extreme:
         mask['buy'] = False
         mask['sell'] = False
 
