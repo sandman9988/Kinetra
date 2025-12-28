@@ -227,8 +227,11 @@ def plot_equity_curves(df: pd.DataFrame, results_df: pd.DataFrame, title: str = 
                 stats = row['bt'].run()
                 equity = stats._equity_curve['Equity']
                 ax.plot(equity.index, equity.values, label=row['strategy'], alpha=0.8)
-            except:
-                pass
+            except Exception as exc:
+                warnings.warn(
+                    f"Failed to plot equity curve for strategy {row.get('strategy', 'unknown')}: {exc}",
+                    RuntimeWarning
+                )
 
     # Buy and hold
     buy_hold = 100000 * (df['Close'] / df['Close'].iloc[0])
