@@ -14,6 +14,25 @@ from .rl_agent import KinetraAgent
 from .reward_shaping import AdaptiveRewardShaper
 from .backtest_engine import BacktestEngine
 from .health_monitor import HealthMonitor
+from .mt5_connector import MT5Connector, MT5Session, load_csv_data
+from .symbol_spec import (
+    SymbolSpec, SwapSpec, CommissionSpec, SwapType, CommissionType,
+    get_symbol_spec, fetch_mt5_symbol_spec, DEFAULT_SPECS
+)
+from .backtest_engine import Trade, TradeDirection, BacktestResult
+from .trigger_predictor import TriggerPredictor, TriggerPrediction, Direction
+
+# RL components require PyTorch
+try:
+    from .rl_agent import KinetraAgent
+    from .trading_env import TradingEnv, Action, Position
+    _RL_AVAILABLE = True
+except ImportError:
+    KinetraAgent = None
+    TradingEnv = None
+    Action = None
+    Position = None
+    _RL_AVAILABLE = False
 
 __all__ = [
     "PhysicsEngine",
@@ -27,4 +46,28 @@ __all__ = [
     "AdaptiveRewardShaper",
     "BacktestEngine",
     "HealthMonitor",
+    "MT5Connector",
+    "MT5Session",
+    "load_csv_data",
+    # Symbol specifications
+    "SymbolSpec",
+    "SwapSpec",
+    "CommissionSpec",
+    "SwapType",
+    "CommissionType",
+    "get_symbol_spec",
+    "fetch_mt5_symbol_spec",
+    "DEFAULT_SPECS",
+    # Backtest types
+    "Trade",
+    "TradeDirection",
+    "BacktestResult",
+    # Trigger prediction
+    "TriggerPredictor",
+    "TriggerPrediction",
+    "Direction",
+    # RL environment
+    "TradingEnv",
+    "Action",
+    "Position",
 ]
