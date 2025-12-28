@@ -46,7 +46,7 @@ from kinetra.physics_v7 import (
     calculate_z_factor,
     validate_theorem_targets
 )
-from kinetra.data_utils import validate_ohlcv, get_data_summary
+from kinetra.data_utils import load_mt5_csv, validate_ohlcv, get_data_summary
 
 
 # All strategies to test
@@ -64,55 +64,11 @@ ALL_STRATEGIES = {
 
 
 def load_csv_flexible(filepath: str) -> pd.DataFrame:
-    """Load CSV with flexible format detection."""
-    # Try different separators
-    for sep in [',', '\t', ';']:
-        try:
-            df = pd.read_csv(filepath, sep=sep)
-            if len(df.columns) >= 4:
-                break
-        except:
-            continue
+    """Load CSV with flexible format detection using data_utils."""
+    # Use the robust MT5 loader from data_utils
+    df = load_mt5_csv(filepath)
 
-    # Standardize column names
-    column_map = {
-        'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close',
-        'volume': 'Volume', 'vol': 'Volume', 'tick_volume': 'Volume',
-        '<open>': 'Open', '<high>': 'High', '<low>': 'Low', '<close>': 'Close',
-        '<tickvol>': 'Volume', '<vol>': 'Volume',
-        'time': 'Date', '<time>': 'Date', '<date>': 'Date', 'datetime': 'Date',
-    }
-
-    df.columns = [column_map.get(c.lower().strip(), c) for c in df.columns]
-
-    # Parse date if present
-    if 'Date' in df.columns:
-        try:
-            df['Date'] = pd.to_datetime(df['Date'])
-            df = df.set_index('Date')
-        except:
-            pass
-
-    # Ensure required columns
-    required = ['Open', 'High', 'Low', 'Close']
-    for col in required:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-
-    # Add Volume if missing
-    if 'Volume' not in df.columns:
-        df['Volume'] = 1000000
-
-    # Select columns
-    df = df[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
-
-    # Ensure numeric
-    for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    df = df.dropna()
-
-    # Create datetime index if not present
+    # Ensure datetime index for backtesting.py
     if not isinstance(df.index, pd.DatetimeIndex):
         df.index = pd.date_range(start='2020-01-01', periods=len(df), freq='h')
 
