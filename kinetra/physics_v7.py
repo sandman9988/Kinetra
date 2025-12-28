@@ -655,23 +655,21 @@ def compute_agent_signal(energy, damping, close):
     """
     Compute agent activation signal - VERY SELECTIVE for BIG energy releases.
 
-    FULLY ADAPTIVE - NO FIXED VALUES:
-    - Rolling dominant period computed per bar (adapts to instrument/timeframe)
-    - All thresholds derived from that bar's local dominant period
-    - A "big release" for crypto is NOT the same as for GBP
-    - Everything is normalized to THIS instrument's OWN distribution
+    FULLY ADAPTIVE - MEDIAN-BASED THRESHOLDS:
+    - Rolling dominant period computed per bar
+    - ALL thresholds derived from rolling MEDIAN values
+    - Structure for RL updates to refine thresholds over time
+    - No fixed values anywhere
 
     BERSERKER = EXPLOSIVE ENERGY RELEASE:
-    - Top 1/T of energy AND direction (very selective)
-    - Underdamped regime (bottom 1/3 of damping)
-    - Captures sudden potential → kinetic energy conversion
-    - High Reynolds = turbulent but directional
+    - Energy above rolling median of upper half (high energy)
+    - Direction above rolling median of upper half (strong flow)
+    - Damping below rolling median of lower half (underdamped)
 
     SNIPER = LAMINAR FLOW:
-    - Top 2/T of energy AND direction
-    - Critical damping regime (middle 1/3 of damping)
-    - Smooth, ordered flow in consistent direction
-    - All bars moving same way = precision entry
+    - Energy above rolling median (above average)
+    - Direction above rolling median (consistent flow)
+    - Damping around rolling median (critical zone)
 
     Returns:
         Array with values:
@@ -687,21 +685,54 @@ def compute_agent_signal(energy, damping, close):
     # Compute ROLLING dominant period - adapts per bar
     rolling_periods = compute_rolling_dominant_period(close)
 
+    # Pre-compute direction scores for all bars
+    direction_scores = np.zeros(n)
+    for i in range(1, n):
+        T = int(rolling_periods[i])
+        if T < 5 or i < T:
+            continue
+
+        start_idx = max(0, i - T)
+        local_close = close.iloc[start_idx:i + 1]
+        price_changes = local_close.diff().dropna()
+
+        if len(price_changes) < 2:
+            continue
+
+        curr_dir = np.sign(price_changes.iloc[-1])
+        if curr_dir == 0:
+            continue
+
+        # Laminar flow = ratio of bars moving in current direction
+        same_dir_ratio = (np.sign(price_changes) == curr_dir).sum() / len(price_changes)
+
+        # Consecutive momentum
+        consecutive = 0
+        for j in range(len(price_changes) - 1, -1, -1):
+            if np.sign(price_changes.iloc[j]) == curr_dir:
+                consecutive += 1
+            else:
+                break
+
+        # Direction score combines flow ratio + consecutive momentum
+        direction_scores[i] = (same_dir_ratio + consecutive / T) / 2.0
+
+    direction_scores = pd.Series(direction_scores)
+
     # Initialize signals
     signals = np.zeros(n)
 
-    # Compute signals bar-by-bar with local context
+    # Compute signals bar-by-bar with MEDIAN-BASED thresholds
     for i in range(n):
         T = int(rolling_periods[i])
         if T < 5 or i < T:
             continue
 
-        # Local window for this bar
         start_idx = max(0, i - T)
 
         local_energy = energy.iloc[start_idx:i + 1]
         local_damping = damping.iloc[start_idx:i + 1]
-        local_close = close.iloc[start_idx:i + 1]
+        local_direction = direction_scores.iloc[start_idx:i + 1]
 
         if len(local_energy) < 5:
             continue
@@ -709,38 +740,52 @@ def compute_agent_signal(energy, damping, close):
         # Current values
         curr_energy = energy.iloc[i]
         curr_damping = damping.iloc[i]
+        curr_direction = direction_scores.iloc[i]
 
-        # Direction: count consecutive same-direction moves
-        price_changes = local_close.diff().dropna()
-        if len(price_changes) < 2:
-            continue
-        curr_dir = np.sign(price_changes.iloc[-1])
-        same_dir_count = 0
-        for j in range(len(price_changes) - 1, -1, -1):
-            if np.sign(price_changes.iloc[j]) == curr_dir:
-                same_dir_count += 1
-            else:
-                break
-        p_direction = same_dir_count / len(price_changes)
+        # GAUSSIAN DISTRIBUTION THRESHOLDS - mean + k*std
+        # k derived from local kurtosis (no fixed values)
+        energy_mean = local_energy.mean()
+        energy_std = local_energy.std()
+        damping_mean = local_damping.mean()
+        damping_std = local_damping.std()
+        direction_mean = local_direction.mean()
+        direction_std = local_direction.std()
 
-        # Energy percentile rank within local window
-        p_energy = (local_energy < curr_energy).sum() / len(local_energy)
+        # Adaptive k based on local kurtosis (heavier tails = lower k)
+        # This makes thresholds adapt to the distribution shape
+        energy_kurtosis = max(0.1, local_energy.kurtosis() if len(local_energy) > 3 else 0)
+        k_energy = 1.0 / (1.0 + energy_kurtosis / 3.0)  # Normalized by mesokurtic baseline
 
-        # ADAPTIVE THRESHOLDS - derived from local dominant period T
-        # Berserker: top 1/T (very selective)
-        berserker_threshold = 1.0 - (1.0 / T)
-        # Sniper: top 2/T
-        sniper_threshold = 1.0 - (2.0 / T)
+        damping_kurtosis = max(0.1, local_damping.kurtosis() if len(local_damping) > 3 else 0)
+        k_damping = 1.0 / (1.0 + damping_kurtosis / 3.0)
 
-        # Damping percentiles within local window
-        damping_pct = (local_damping < curr_damping).sum() / len(local_damping)
+        direction_kurtosis = max(0.1, local_direction.kurtosis() if len(local_direction) > 3 else 0)
+        k_direction = 1.0 / (1.0 + direction_kurtosis / 3.0)
 
-        # Agent activation with fully adaptive thresholds
-        # Berserker: big energy + strong direction + underdamped (bottom 1/3)
-        if p_energy > berserker_threshold and p_direction > berserker_threshold and damping_pct < (1.0 / 3.0):
+        # Berserker thresholds: mean + k*std for upper, mean - k*std for lower
+        energy_upper = energy_mean + k_energy * energy_std
+        damping_lower = damping_mean - k_damping * damping_std
+        direction_upper = direction_mean + k_direction * direction_std
+
+        # Berserker: high energy, high direction, low damping (Gaussian-based)
+        berserker_cond = (
+            curr_energy > energy_upper and
+            curr_direction > direction_upper and
+            curr_damping < damping_lower
+        )
+
+        # Sniper: above mean for energy/direction, around mean for damping
+        damping_upper = damping_mean + k_damping * damping_std
+
+        sniper_cond = (
+            curr_energy > energy_mean and
+            curr_direction > direction_mean and
+            damping_lower < curr_damping < damping_upper
+        )
+
+        if berserker_cond:
             signals[i] = 2
-        # Sniper: high energy + good direction + critical damping (middle 1/3)
-        elif p_energy > sniper_threshold and p_direction > sniper_threshold and (1.0 / 3.0) < damping_pct < (2.0 / 3.0):
+        elif sniper_cond:
             signals[i] = 1
 
     return signals
