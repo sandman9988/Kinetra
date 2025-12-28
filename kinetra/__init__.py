@@ -45,6 +45,28 @@ from .data_utils import (
     create_walk_forward_windows,
 )
 
+# Physics v7.0 (Energy-Transfer Theorem)
+from .physics_v7 import (
+    PhysicsEngineV7,
+    PhysicsState,
+    AgentType,
+    RegimeState,
+    EnergyWeightedExitManager,
+    calculate_omega_ratio,
+    calculate_z_factor,
+    calculate_energy_captured,
+    validate_theorem_targets,
+)
+
+# v7.0 Strategies (Berserker, Sniper)
+from .strategies_v7 import (
+    BerserkerStrategy,
+    SniperStrategy,
+    MultiAgentV7Strategy,
+    list_v7_strategies,
+    get_v7_strategy,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -82,4 +104,20 @@ __all__ = [
     "get_data_summary",
     "split_data",
     "create_walk_forward_windows",
+    # Physics v7.0
+    "PhysicsEngineV7",
+    "PhysicsState",
+    "AgentType",
+    "RegimeState",
+    "EnergyWeightedExitManager",
+    "calculate_omega_ratio",
+    "calculate_z_factor",
+    "calculate_energy_captured",
+    "validate_theorem_targets",
+    # v7.0 Strategies
+    "BerserkerStrategy",
+    "SniperStrategy",
+    "MultiAgentV7Strategy",
+    "list_v7_strategies",
+    "get_v7_strategy",
 ]
