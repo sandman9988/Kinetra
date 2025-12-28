@@ -114,7 +114,8 @@ void ExportSymbolInfo(string symbol, int handle)
    // Calculate friction score
    double spreadFriction = MathMin(1.0, spreadPct / 0.1);
    double swapFriction = MathMin(1.0, MathMax(MathAbs(swapLong), MathAbs(swapShort)) / 50);
-   double frictionScore = 0.7 * spreadFriction + 0.3 * swapFriction;
+   const int frictionComponents = 2;
+   double frictionScore = (spreadFriction + swapFriction) / frictionComponents;
 
    FileWrite(handle,
       symbol,
