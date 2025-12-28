@@ -63,6 +63,7 @@ def load_mt5_csv(
     df.columns = [clean_col(c) for c in df.columns]
 
     # Standardize column names to Backtesting.py format
+    # Use tickvol as Volume (vol is usually 0 in MT5 exports)
     column_map = {
         'open': 'Open',
         'high': 'High',
@@ -70,15 +71,18 @@ def load_mt5_csv(
         'close': 'Close',
         'tick_volume': 'Volume',
         'tickvol': 'Volume',
-        'real_volume': 'Volume',
+        'real_volume': 'RealVolume',  # Keep separate to avoid duplicates
         'volume': 'Volume',
-        'vol': 'Volume',
+        'vol': 'Vol',  # Keep separate to avoid duplicates with tickvol
         'date': 'Date',
         'time': 'Time',
         'datetime': 'DateTime',
     }
 
     df.columns = [column_map.get(c, c) for c in df.columns]
+
+    # Remove duplicate columns (keep first)
+    df = df.loc[:, ~df.columns.duplicated()]
 
     # Try to find and parse datetime index
     datetime_cols = ['DateTime', 'Date', 'Time']
