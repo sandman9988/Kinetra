@@ -426,10 +426,6 @@ if TORCH_AVAILABLE:
             elif action == self.EXIT and self.position != 0:
                 pnl = (close - self.entry_price) / self.entry_price * 100 * self.position
 
-                # Reward based on P&L, MFE capture, MAE
-                mfe_capture = pnl / self.mfe if self.mfe > 0.01 else 0
-                efficiency = self.mfe / (self.mae + 0.01)
-
                 # DIAGNOSTIC: Calculate move capture %
                 total_move = self.move_high - self.move_low
                 if self.position == 1:
@@ -440,12 +436,40 @@ if TORCH_AVAILABLE:
                     potential_move = self.entry_price - self.move_low
                 move_capture_pct = (captured_move / potential_move * 100) if potential_move > 0 else 0
 
+                # MFE/MAE efficiency (dimensionless ratio)
+                mfe_capture = pnl / self.mfe if self.mfe > 0.01 else 0
+                efficiency = self.mfe / (self.mae + 1e-6)
+
                 # DIAGNOSTIC: MFE came first or MAE came first?
-                # This is approximated - in reality we'd need bar-by-bar tracking
                 mfe_first = self.mfe > self.mae
 
-                # Composite reward: P&L + bonus for efficiency
-                reward = pnl + 0.5 * mfe_capture - 0.3 * self.mae
+                # === OMEGA REWARD (Pythagorean Path Efficiency) ===
+                #
+                # Goal: Maximum displacement from entry via shortest path
+                #
+                # Physics: The agent traveled through (MFE, MAE) space.
+                # Total excursion = sqrt(MFE² + MAE²) [Pythagorean hypotenuse]
+                # Final displacement = |PnL|
+                #
+                # Path efficiency = displacement / total_excursion
+                #
+                # ω = PnL × (|PnL| / sqrt(MFE² + MAE²))
+                #   = PnL² / sqrt(MFE² + MAE²)  [preserving sign via PnL]
+                #
+                # Interpretation:
+                # - Clean move (MFE only): omega = pnl² / MFE ≈ MFE (high reward)
+                # - Whipsaw (high MAE): omega = pnl² / large → small reward
+                # - Loss with excursion: omega = negative / large → penalty
+                #
+                # No static weights - pure geometry
+
+                total_excursion = np.sqrt(self.mfe**2 + self.mae**2 + 1e-12)
+                path_efficiency = abs(pnl) / total_excursion
+
+                # Signed omega: PnL determines direction, efficiency scales magnitude
+                omega = pnl * path_efficiency
+
+                reward = omega
 
                 trade_info = {
                     'pnl': pnl,
@@ -474,8 +498,11 @@ if TORCH_AVAILABLE:
                 self.position = 0
 
             elif action == self.HOLD and self.position != 0:
-                # Small time penalty
-                reward = -0.001
+                # No static hold penalty - Omega reward handles exit timing:
+                # - Holding too long after MFE → lower PnL, higher MAE → worse omega
+                # - Exiting at optimal time → high PnL, low MAE → better omega
+                # The Pythagorean path efficiency naturally penalizes yo-yo moves
+                reward = 0.0
 
             # Move to next bar
             self.idx += 1

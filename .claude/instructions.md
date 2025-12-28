@@ -83,6 +83,32 @@ The neural network learns:
 
 We provide FEATURES. RL finds PATTERNS.
 
+## OMEGA REWARD (Pythagorean Path Efficiency)
+
+The reward function must have NO static coefficients. We use Pythagorean geometry:
+
+```python
+# Goal: Maximum displacement from entry via shortest path
+# Agent should exit as FAR from entry as possible (in right direction)
+# but via the SHORTEST path (no yo-yo whipsaw)
+
+# Total excursion = Pythagorean distance in MFE/MAE space
+total_excursion = sqrt(MFE² + MAE²)
+
+# Path efficiency = how direct was the path?
+path_efficiency = |PnL| / total_excursion
+
+# Omega = signed reward (direction matters)
+omega = PnL × path_efficiency
+```
+
+Why this works:
+- Clean move (MFE only): high omega (large PnL, small excursion)
+- Whipsaw (high MFE + high MAE): low omega (excursion dominates)
+- Loss with excursion: negative omega (penalty)
+
+NO static weights, NO arbitrary coefficients - pure geometry.
+
 ## PROBABILITY PREDICTORS
 
 Instead of rules, we compute probabilities:
