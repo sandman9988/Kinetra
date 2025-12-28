@@ -543,6 +543,126 @@ def main():
             seq_str = ' -> '.join(seq['sequence'])
             print(f"  {i}. {seq_str} ({seq['pct']:.1f}%)")
 
+    # Physics state profile before release
+    print("\n" + "=" * 70)
+    print("PHYSICS STATE BEFORE RELEASE (trajectory leading to release)")
+    print("=" * 70)
+
+    profile = compute_prerelease_profile(df, high_energy.index, args.pre_bars)
+    print_prerelease_profile(profile, df)
+
+
+def compute_prerelease_profile(df: pd.DataFrame, high_energy_idx: pd.Index, lookback: int = 5) -> dict:
+    """
+    Compute the average physics state profile before high-energy releases.
+    This is what the RL agent needs to learn to recognize.
+    """
+    profiles = {
+        'energy': [],
+        'damping': [],
+        'entropy': [],
+        'regime_code': [],
+    }
+
+    regime_map = {'underdamped': 0, 'critical': 1, 'overdamped': 2}
+
+    for idx in high_energy_idx:
+        try:
+            pos = df.index.get_loc(idx)
+        except KeyError:
+            continue
+
+        if pos < lookback + 2:
+            continue
+
+        pre = df.iloc[pos - lookback:pos]
+        profiles['energy'].append(pre['energy'].values)
+        profiles['damping'].append(pre['damping'].values)
+        profiles['entropy'].append(pre['entropy'].values)
+        regime_codes = [regime_map.get(r, 1) for r in pre['regime'].values]
+        profiles['regime_code'].append(regime_codes)
+
+    result = {}
+    for key in profiles:
+        if profiles[key]:
+            arr = np.array(profiles[key])
+            result[f'{key}_mean'] = np.mean(arr, axis=0)
+            result[f'{key}_std'] = np.std(arr, axis=0)
+
+    # Energy dynamics
+    if profiles['energy']:
+        energies = np.array(profiles['energy'])
+        velocities = np.diff(energies, axis=1)
+        result['velocity_mean'] = np.mean(velocities, axis=0)
+        result['velocity_std'] = np.std(velocities, axis=0)
+        if velocities.shape[1] >= 2:
+            accels = np.diff(velocities, axis=1)
+            result['accel_mean'] = np.mean(accels, axis=0)
+            result['accel_std'] = np.std(accels, axis=0)
+
+    return result
+
+
+def print_prerelease_profile(profile: dict, df: pd.DataFrame):
+    """Print the pre-release physics state profile."""
+    if not profile or 'energy_mean' not in profile:
+        print("  No profile computed")
+        return
+
+    n_bars = len(profile['energy_mean'])
+    overall_energy = df['energy'].mean()
+    overall_damping = df['damping'].mean()
+
+    print(f"\n  Position: [-{n_bars} ... -1 -> RELEASE]")
+
+    print(f"\n  ENERGY trajectory (avg: {overall_energy:.2f}):")
+    for i, (e, s) in enumerate(zip(profile['energy_mean'], profile['energy_std'])):
+        ratio = e / overall_energy
+        bar = f"-{n_bars - i}"
+        print(f"    {bar:>3}: {e:12.2f}  ({ratio:.2f}x avg)")
+
+    if 'velocity_mean' in profile:
+        print(f"\n  ENERGY VELOCITY (dE/dt):")
+        for i, v in enumerate(profile['velocity_mean']):
+            bar = f"-{n_bars - i - 1}→-{n_bars - i - 2}"
+            direction = "↑ RISING" if v > 0 else "↓ falling"
+            print(f"    {bar:>8}: {v:+12.2f}  {direction}")
+
+    if 'accel_mean' in profile:
+        print(f"\n  ENERGY ACCELERATION (d²E/dt²):")
+        for i, a in enumerate(profile['accel_mean']):
+            bar = f"-{n_bars - i - 2}"
+            accel = "⚡ ACCELERATING" if a > 0 else "slowing"
+            print(f"    {bar:>3}: {a:+12.2f}  {accel}")
+
+    print(f"\n  DAMPING trajectory (avg: {overall_damping:.4f}):")
+    for i, (d, s) in enumerate(zip(profile['damping_mean'], profile['damping_std'])):
+        ratio = d / overall_damping
+        bar = f"-{n_bars - i}"
+        status = "ELEVATED" if ratio > 1.02 else "normal"
+        print(f"    {bar:>3}: {d:.4f}  ({ratio:.2f}x avg, {status})")
+
+    # The signature
+    print("\n  " + "=" * 60)
+    print("  PRE-RELEASE SIGNATURE (state to recognize)")
+    print("  " + "=" * 60)
+
+    # Final bar stats
+    final_energy = profile['energy_mean'][-1]
+    final_damping = profile['damping_mean'][-1]
+
+    print(f"\n  At bar -1 (just before release):")
+    print(f"    Energy:  {final_energy:.2f} ({final_energy/overall_energy:.2f}x avg)")
+    print(f"    Damping: {final_damping:.4f} ({final_damping/overall_damping:.2f}x avg)")
+
+    if 'velocity_mean' in profile and len(profile['velocity_mean']) > 0:
+        final_v = profile['velocity_mean'][-1]
+        print(f"    Velocity: {final_v:+.2f} ({'RISING' if final_v > 0 else 'falling'})")
+
+    if 'accel_mean' in profile and len(profile['accel_mean']) > 0:
+        final_a = profile['accel_mean'][-1]
+        print(f"    Accel:    {final_a:+.2f} ({'BUILDING' if final_a > 0 else 'slowing'})")
+
 
 if __name__ == "__main__":
     main()
