@@ -2396,3 +2396,419 @@ def compute_online_omega(returns: List[float], threshold: float = 0.0) -> float:
     for ret in returns:
         state.update(ret)
     return state.omega_ratio
+
+
+# =============================================================================
+# WASSERSTEIN DISTANCE - OPTIMAL TRANSPORT FOR DISTRIBUTION COMPARISON
+# =============================================================================
+#
+# The "Earth Mover's Distance" measures how much "work" is needed to transform
+# one distribution into another. Superior to KL-divergence because:
+#
+# 1. Works with non-overlapping supports (KL = infinity in that case)
+# 2. Captures geometry of distributions, not just overlap
+# 3. Stable gradients for RL training (used in QR-DQN, WGAN)
+# 4. Natural metric for regime shift detection
+#
+# Uses:
+# - Regime Shift Detection: W(current_returns, historical_returns)
+# - QR-DQN Training: Compare predicted vs actual return distributions
+# - Risk Measurement: Distribution distance from benchmark
+# =============================================================================
+
+
+def wasserstein_distance_1d(p: np.ndarray, q: np.ndarray) -> float:
+    """
+    1D Wasserstein Distance (Earth Mover's Distance) between two samples.
+
+    For 1D distributions, W_1 = integral of |F_p(x) - F_q(x)| dx
+    which equals the L1 distance between sorted samples.
+
+    This is the "work" needed to transform distribution p into q.
+
+    Args:
+        p: First sample array
+        q: Second sample array
+
+    Returns:
+        Wasserstein-1 distance (always >= 0)
+    """
+    p = np.asarray(p).flatten()
+    q = np.asarray(q).flatten()
+
+    if len(p) == 0 or len(q) == 0:
+        return 0.0
+
+    # Sort both samples
+    p_sorted = np.sort(p)
+    q_sorted = np.sort(q)
+
+    # If different lengths, interpolate to common grid
+    n = max(len(p), len(q))
+
+    if len(p) != n:
+        p_sorted = np.interp(
+            np.linspace(0, 1, n),
+            np.linspace(0, 1, len(p)),
+            p_sorted
+        )
+    if len(q) != n:
+        q_sorted = np.interp(
+            np.linspace(0, 1, n),
+            np.linspace(0, 1, len(q)),
+            q_sorted
+        )
+
+    # W_1 distance = mean of absolute differences of sorted values
+    return np.mean(np.abs(p_sorted - q_sorted))
+
+
+def wasserstein_distance_cdf(p: np.ndarray, q: np.ndarray, n_points: int = 100) -> float:
+    """
+    Wasserstein Distance via CDF comparison.
+
+    More accurate for continuous distributions.
+    Computes W_1 = integral |F_p(x) - F_q(x)| dx over common support.
+
+    Args:
+        p: First sample array
+        q: Second sample array
+        n_points: Number of points for CDF evaluation
+
+    Returns:
+        Wasserstein-1 distance
+    """
+    p = np.asarray(p).flatten()
+    q = np.asarray(q).flatten()
+
+    if len(p) == 0 or len(q) == 0:
+        return 0.0
+
+    # Common support
+    x_min = min(p.min(), q.min())
+    x_max = max(p.max(), q.max())
+
+    if x_max == x_min:
+        return 0.0
+
+    x = np.linspace(x_min, x_max, n_points)
+
+    # Empirical CDFs
+    cdf_p = np.searchsorted(np.sort(p), x, side='right') / len(p)
+    cdf_q = np.searchsorted(np.sort(q), x, side='right') / len(q)
+
+    # Integrate |F_p - F_q|
+    dx = (x_max - x_min) / (n_points - 1)
+    return np.sum(np.abs(cdf_p - cdf_q)) * dx
+
+
+def compute_regime_shift_wasserstein(
+    returns: np.ndarray,
+    window: int = 50,
+    reference_window: int = 200
+) -> np.ndarray:
+    """
+    Detect regime shifts using Wasserstein Distance.
+
+    Compares recent return distribution (window) to historical (reference_window).
+    High distance = regime has changed significantly.
+
+    Interpretation:
+    - W < 0.001: Same regime, stable
+    - W in [0.001, 0.005]: Minor shift, monitor
+    - W > 0.005: Major regime change, adapt strategy
+
+    Args:
+        returns: Array of returns
+        window: Recent window for current distribution
+        reference_window: Historical window for reference distribution
+
+    Returns:
+        Array of Wasserstein distances (one per bar after warmup)
+    """
+    returns = np.asarray(returns).flatten()
+    n = len(returns)
+
+    if n < window + reference_window:
+        return np.zeros(n)
+
+    distances = np.zeros(n)
+
+    for i in range(window + reference_window, n):
+        # Recent distribution
+        recent = returns[i - window:i]
+
+        # Historical distribution (before recent)
+        historical = returns[i - window - reference_window:i - window]
+
+        # Wasserstein distance
+        distances[i] = wasserstein_distance_1d(recent, historical)
+
+    return distances
+
+
+def compute_distribution_stability(
+    returns: np.ndarray,
+    window: int = 50,
+    lag: int = 10
+) -> np.ndarray:
+    """
+    Measure distribution stability over time.
+
+    Compares distribution at time t vs t-lag.
+    Low stability = distribution is changing rapidly (regime transition).
+
+    Returns stability score [0, 1] where 1 = perfectly stable.
+    """
+    returns = np.asarray(returns).flatten()
+    n = len(returns)
+
+    if n < window + lag:
+        return np.ones(n)  # Assume stable if not enough data
+
+    stability = np.ones(n)
+
+    for i in range(window + lag, n):
+        current = returns[i - window:i]
+        lagged = returns[i - window - lag:i - lag]
+
+        w_dist = wasserstein_distance_1d(current, lagged)
+
+        # Convert to stability score (inverse, normalized)
+        # Typical W for returns is 0.001-0.01
+        stability[i] = 1.0 / (1.0 + w_dist * 100)
+
+    return stability
+
+
+def quantile_wasserstein(
+    predicted_quantiles: np.ndarray,
+    actual: float,
+    tau: np.ndarray = None
+) -> float:
+    """
+    Wasserstein Distance for QR-DQN evaluation.
+
+    Compares predicted quantile distribution to actual return.
+    Used to evaluate how well the quantile network predicted the distribution.
+
+    Args:
+        predicted_quantiles: Array of predicted quantile values
+        actual: Actual realized return
+        tau: Quantile levels (default: uniform from 0 to 1)
+
+    Returns:
+        Wasserstein distance from predicted distribution to actual
+    """
+    predicted_quantiles = np.asarray(predicted_quantiles).flatten()
+    n = len(predicted_quantiles)
+
+    if n == 0:
+        return 0.0
+
+    if tau is None:
+        tau = np.linspace(0.5 / n, 1 - 0.5 / n, n)
+
+    # Predicted CDF is step function at predicted quantiles
+    # Actual is a point mass at 'actual'
+
+    # Distance is weighted sum of |predicted_q - actual|
+    # Weight by quantile spacing
+    weights = np.diff(np.concatenate([[0], tau, [1]]))
+    weights = (weights[:-1] + weights[1:]) / 2
+
+    return np.sum(weights * np.abs(predicted_quantiles - actual))
+
+
+def compute_tail_wasserstein(
+    p: np.ndarray,
+    q: np.ndarray,
+    tail_percentile: float = 0.05
+) -> Tuple[float, float]:
+    """
+    Wasserstein Distance focused on distribution tails.
+
+    For fat-tailed distributions, the tails matter most.
+    This computes W distance separately for left and right tails.
+
+    Args:
+        p: First sample
+        q: Second sample
+        tail_percentile: Percentile defining tail (default 5%)
+
+    Returns:
+        Tuple of (left_tail_W, right_tail_W)
+    """
+    p = np.asarray(p).flatten()
+    q = np.asarray(q).flatten()
+
+    if len(p) < 20 or len(q) < 20:
+        return 0.0, 0.0
+
+    # Left tail (worst returns)
+    p_left_threshold = np.percentile(p, tail_percentile * 100)
+    q_left_threshold = np.percentile(q, tail_percentile * 100)
+
+    p_left = p[p <= p_left_threshold]
+    q_left = q[q <= q_left_threshold]
+
+    left_W = wasserstein_distance_1d(p_left, q_left) if len(p_left) > 0 and len(q_left) > 0 else 0.0
+
+    # Right tail (best returns)
+    p_right_threshold = np.percentile(p, (1 - tail_percentile) * 100)
+    q_right_threshold = np.percentile(q, (1 - tail_percentile) * 100)
+
+    p_right = p[p >= p_right_threshold]
+    q_right = q[q >= q_right_threshold]
+
+    right_W = wasserstein_distance_1d(p_right, q_right) if len(p_right) > 0 and len(q_right) > 0 else 0.0
+
+    return left_W, right_W
+
+
+class OnlineWassersteinTracker:
+    """
+    Online Wasserstein Distance tracker using reservoir sampling.
+
+    Maintains two reservoirs (current and historical) and computes
+    Wasserstein distance between them incrementally.
+
+    Useful for real-time regime shift detection.
+    """
+
+    def __init__(
+        self,
+        current_size: int = 50,
+        historical_size: int = 200,
+        update_freq: int = 10
+    ):
+        """
+        Initialize tracker.
+
+        Args:
+            current_size: Size of current distribution reservoir
+            historical_size: Size of historical distribution reservoir
+            update_freq: How often to update W distance
+        """
+        self.current_size = current_size
+        self.historical_size = historical_size
+        self.update_freq = update_freq
+
+        self.current_reservoir: List[float] = []
+        self.historical_reservoir: List[float] = []
+        self.count = 0
+        self.last_distance = 0.0
+
+    def update(self, value: float) -> float:
+        """
+        Add new value and return current Wasserstein distance.
+
+        Args:
+            value: New return value
+
+        Returns:
+            Current Wasserstein distance (updated every update_freq)
+        """
+        self.count += 1
+
+        # Update current reservoir (sliding window)
+        self.current_reservoir.append(value)
+        if len(self.current_reservoir) > self.current_size:
+            # Move oldest to historical
+            oldest = self.current_reservoir.pop(0)
+            self._add_to_historical(oldest)
+
+        # Compute distance periodically
+        if self.count % self.update_freq == 0:
+            if len(self.current_reservoir) >= self.current_size // 2 and \
+               len(self.historical_reservoir) >= self.historical_size // 2:
+                self.last_distance = wasserstein_distance_1d(
+                    np.array(self.current_reservoir),
+                    np.array(self.historical_reservoir)
+                )
+
+        return self.last_distance
+
+    def _add_to_historical(self, value: float):
+        """Add value to historical reservoir using reservoir sampling."""
+        if len(self.historical_reservoir) < self.historical_size:
+            self.historical_reservoir.append(value)
+        else:
+            # Reservoir sampling: replace random element with decreasing probability
+            j = np.random.randint(0, self.count)
+            if j < self.historical_size:
+                self.historical_reservoir[j] = value
+
+    @property
+    def distance(self) -> float:
+        """Current Wasserstein distance."""
+        return self.last_distance
+
+    @property
+    def is_regime_shift(self) -> bool:
+        """Check if current distance indicates regime shift."""
+        return self.last_distance > 0.005  # Threshold for significant shift
+
+    def reset(self):
+        """Reset tracker."""
+        self.current_reservoir = []
+        self.historical_reservoir = []
+        self.count = 0
+        self.last_distance = 0.0
+
+
+def compute_rl_distribution_features(
+    returns: np.ndarray,
+    window: int = 50,
+    n_quantiles: int = 10
+) -> Dict[str, np.ndarray]:
+    """
+    Compute distribution-aware features for QR-DQN.
+
+    Returns features that capture the full return distribution,
+    not just mean/variance. Essential for Distributional RL.
+
+    Features:
+    - quantiles: Return quantiles (for QR-DQN targets)
+    - wasserstein: Regime shift indicator
+    - tail_left_w: Left tail change (crash risk)
+    - tail_right_w: Right tail change (opportunity)
+    - stability: Distribution stability score
+    """
+    returns = np.asarray(returns).flatten()
+    n = len(returns)
+
+    # Initialize outputs
+    quantiles = np.zeros((n, n_quantiles))
+    wasserstein = np.zeros(n)
+    tail_left = np.zeros(n)
+    tail_right = np.zeros(n)
+    stability = np.ones(n)
+
+    tau = np.linspace(0.5 / n_quantiles, 1 - 0.5 / n_quantiles, n_quantiles)
+
+    for i in range(window, n):
+        local = returns[i - window:i]
+
+        # Quantiles of current window
+        quantiles[i] = np.percentile(local, tau * 100)
+
+        # Wasserstein vs historical
+        if i >= 2 * window:
+            historical = returns[i - 2 * window:i - window]
+            wasserstein[i] = wasserstein_distance_1d(local, historical)
+            tail_left[i], tail_right[i] = compute_tail_wasserstein(local, historical)
+
+        # Stability vs lagged
+        if i >= window + 10:
+            lagged = returns[i - window - 10:i - 10]
+            w = wasserstein_distance_1d(local, lagged)
+            stability[i] = 1.0 / (1.0 + w * 100)
+
+    return {
+        'quantiles': quantiles,
+        'wasserstein': wasserstein,
+        'tail_left_w': tail_left,
+        'tail_right_w': tail_right,
+        'stability': stability,
+    }
