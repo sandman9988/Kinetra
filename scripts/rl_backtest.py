@@ -50,7 +50,7 @@ from kinetra import (
 )
 
 from kinetra.physics_v7 import (
-    compute_damped_oscillator_state,
+    compute_oscillator_state,
     compute_fractal_dimension_katz,
     compute_sample_entropy,
     compute_ftle_fast,
@@ -214,9 +214,8 @@ def compute_state_vector(
     volume = window['Volume'].values
 
     # Damped oscillator state
-    osc = compute_damped_oscillator_state(
-        pd.Series(high), pd.Series(low),
-        pd.Series(close), pd.Series(volume),
+    osc = compute_oscillator_state(
+        high, low, close, volume,
         lookback=min(20, len(window))
     )
 
