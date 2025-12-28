@@ -56,30 +56,128 @@ class TrainingConfig:
 class PhysicsFeatureComputer:
     """Compute ALL physics features for RL - no hardcoded rules."""
 
-    def __init__(self, lookback: int = 20):
-        self.lookback = lookback
+    def __init__(self):
+        # No hardcoded lookback - computed from data
+        pass
+
+    def _compute_dominant_periods(self, series: pd.Series) -> Tuple[int, int]:
+        """
+        Use Fourier Transform (DSP) to find dominant periods in the data.
+
+        Physics: FFT decomposes the signal into frequency components.
+        The dominant frequencies tell us the natural cycles/windows.
+
+        Returns (short_period, long_period) - the two most significant cycles.
+        """
+        from scipy import fft as scipy_fft
+
+        # Clean series
+        clean = series.dropna().values
+        n = len(clean)
+
+        if n < 50:
+            # Not enough data
+            return (max(5, n // 10), max(20, n // 3))
+
+        # Remove trend (detrend) - we want cycles, not drift
+        detrended = clean - np.linspace(clean[0], clean[-1], n)
+
+        # Apply FFT
+        fft_vals = np.fft.fft(detrended)
+        freqs = np.fft.fftfreq(n)
+
+        # Power spectrum (magnitude squared)
+        power = np.abs(fft_vals) ** 2
+
+        # Only look at positive frequencies, skip DC component (index 0)
+        # and very high frequencies (noise)
+        min_period = 5  # Minimum meaningful period
+        max_period = n // 3  # Maximum meaningful period
+
+        # Convert frequency to period, find peaks
+        periods = []
+        powers = []
+
+        for i in range(1, n // 2):
+            freq = abs(freqs[i])
+            if freq > 0:
+                period = int(1 / freq)
+                if min_period <= period <= max_period:
+                    periods.append(period)
+                    powers.append(power[i])
+
+        if not periods:
+            return (max(5, n // 20), max(50, n // 5))
+
+        # Find top 2 dominant periods
+        sorted_idx = np.argsort(powers)[::-1]
+
+        # Get unique periods (avoid duplicates from harmonics)
+        seen_periods = set()
+        dominant = []
+
+        for idx in sorted_idx:
+            p = periods[idx]
+            # Skip if too close to already seen period (harmonic)
+            if not any(abs(p - sp) < p * 0.3 for sp in seen_periods):
+                dominant.append(p)
+                seen_periods.add(p)
+            if len(dominant) >= 2:
+                break
+
+        # Ensure we have two periods
+        if len(dominant) == 0:
+            dominant = [max(5, n // 20), max(50, n // 5)]
+        elif len(dominant) == 1:
+            dominant.append(dominant[0] * 5)
+
+        # Sort: short first, long second
+        dominant.sort()
+
+        return (dominant[0], dominant[1])
 
     def compute(self, df: pd.DataFrame) -> pd.DataFrame:
         """Compute all physics features as percentiles."""
         result = df.copy()
-        window = min(500, len(df))
+
+        # === ADAPTIVE WINDOW SIZES VIA DSP ===
+        # Use Fourier Transform to find dominant cycles in the data
+        # No hardcoded windows - derived from spectral analysis
+
+        velocity = df['close'].pct_change()
+
+        # FFT-based dominant period detection
+        short_period, long_period = self._compute_dominant_periods(velocity)
+
+        # Store for reference
+        self.short_period = short_period
+        self.long_period = long_period
+
+        # Use DSP-derived windows
+        lookback = short_period
+        window = long_period
+
+        # === SPECTRAL FEATURES (DSP) ===
+        # Add the dominant periods as features - let RL know the current cycle structure
+        result['dominant_short_period'] = float(short_period)
+        result['dominant_long_period'] = float(long_period)
+        result['period_ratio'] = float(long_period) / float(short_period)  # Dimensionless
 
         # === CORE PHYSICS ===
-        velocity = df['close'].pct_change()
         result['energy'] = 0.5 * (velocity ** 2)
 
-        vol = velocity.rolling(self.lookback).std()
-        mean_abs = velocity.abs().rolling(self.lookback).mean()
+        vol = velocity.rolling(lookback).std()
+        mean_abs = velocity.abs().rolling(lookback).mean()
         result['damping'] = vol / (mean_abs + 1e-10)
 
         # Entropy (return dispersion)
-        result['entropy'] = velocity.rolling(self.lookback).std() / (velocity.rolling(self.lookback).mean().abs() + 1e-10)
+        result['entropy'] = velocity.rolling(lookback).std() / (velocity.rolling(lookback).mean().abs() + 1e-10)
 
         # === DERIVATIVES ===
         result['acceleration'] = velocity.diff()
         result['jerk'] = result['acceleration'].diff()
 
-        momentum = df['close'].pct_change(self.lookback)
+        momentum = df['close'].pct_change(lookback)
         result['impulse'] = momentum.diff(5)
 
         # === ORDER FLOW ===
@@ -91,24 +189,24 @@ class PhysicsFeatureComputer:
 
         # === FLOW DYNAMICS ===
         bar_range_pct = bar_range / df['close']
-        volatility = velocity.rolling(self.lookback).std().clip(lower=1e-10)
-        volume_norm = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        volatility = velocity.rolling(lookback).std().clip(lower=1e-10)
+        volume_norm = df['volume'] / df['volume'].rolling(lookback).mean().clip(lower=1e-10)
 
         # Reynolds number
-        result['reynolds'] = ((velocity.abs() * bar_range_pct * volume_norm) / volatility).rolling(self.lookback).mean()
+        result['reynolds'] = ((velocity.abs() * bar_range_pct * volume_norm) / volatility).rolling(lookback).mean()
 
         # Viscosity
-        result['viscosity'] = (bar_range_pct / volume_norm.clip(lower=1e-10)).rolling(self.lookback).mean()
+        result['viscosity'] = (bar_range_pct / volume_norm.clip(lower=1e-10)).rolling(lookback).mean()
 
         # === ROTATIONAL/CYCLICAL ===
-        price_mean = df['close'].rolling(self.lookback).mean()
-        price_std = df['close'].rolling(self.lookback).std().clip(lower=1e-10)
+        price_mean = df['close'].rolling(lookback).mean()
+        price_std = df['close'].rolling(lookback).std().clip(lower=1e-10)
         angular_pos = (df['close'] - price_mean) / price_std
         angular_vel = angular_pos.diff()
         result['angular_momentum'] = angular_pos * angular_vel
 
         # === POTENTIAL ENERGY ===
-        avg_range = bar_range.rolling(self.lookback).mean()
+        avg_range = bar_range.rolling(lookback).mean()
         range_compression = (1 - bar_range / avg_range.clip(lower=1e-10)).clip(lower=0)
         result['potential_energy'] = range_compression * volatility
 
@@ -124,8 +222,8 @@ class PhysicsFeatureComputer:
         result['market_reynolds'] = result['energy'] / (result['viscosity'] * result['damping'] + 1e-10)
 
         # === CONTEXT ===
-        rolling_high = df['high'].rolling(self.lookback).max()
-        rolling_low = df['low'].rolling(self.lookback).min()
+        rolling_high = df['high'].rolling(lookback).max()
+        rolling_low = df['low'].rolling(lookback).min()
         result['range_position'] = (df['close'] - rolling_low) / (rolling_high - rolling_low + 1e-10)
 
         return_sign = np.sign(velocity)
@@ -133,7 +231,7 @@ class PhysicsFeatureComputer:
             lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False
         )
 
-        result['roc'] = df['close'].pct_change(self.lookback)
+        result['roc'] = df['close'].pct_change(lookback)
 
         # Momentum direction (let RL learn what to do with it)
         result['momentum_dir'] = np.sign(df['close'].pct_change(5))
@@ -141,7 +239,7 @@ class PhysicsFeatureComputer:
         # === ENERGY RELEASE DETECTION (Entry Timing) ===
 
         # Volume compression (declining volume = coiling)
-        result['volume_trend'] = df['volume'].rolling(5).mean() / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        result['volume_trend'] = df['volume'].rolling(5).mean() / df['volume'].rolling(lookback).mean().clip(lower=1e-10)
 
         # === TRUE PHYSICS COMPRESSION (not just Bollinger Bands) ===
 
@@ -151,8 +249,8 @@ class PhysicsFeatureComputer:
         mom_norm = (velocity - velocity.rolling(50).mean()) / velocity.rolling(50).std().clip(lower=1e-10)
 
         # Bounding box area in phase space
-        price_range = price_norm.rolling(self.lookback).max() - price_norm.rolling(self.lookback).min()
-        mom_range = mom_norm.rolling(self.lookback).max() - mom_norm.rolling(self.lookback).min()
+        price_range = price_norm.rolling(lookback).max() - price_norm.rolling(lookback).min()
+        mom_range = mom_norm.rolling(lookback).max() - mom_norm.rolling(lookback).min()
         phase_area = (price_range * mom_range).clip(lower=1e-10)
         result['phase_compression'] = 1 / (1 + phase_area)  # Higher = more compressed
 
@@ -166,8 +264,8 @@ class PhysicsFeatureComputer:
         # Low entropy = price path is predictable, repetitive, confined
         # Using simplified rolling entropy approximation
         returns_abs = velocity.abs()
-        returns_std = returns_abs.rolling(self.lookback).std().clip(lower=1e-10)
-        returns_mean = returns_abs.rolling(self.lookback).mean().clip(lower=1e-10)
+        returns_std = returns_abs.rolling(lookback).std().clip(lower=1e-10)
+        returns_mean = returns_abs.rolling(lookback).mean().clip(lower=1e-10)
         # Coefficient of variation as entropy proxy (lower = more uniform = compressed)
         result['entropy_proxy'] = returns_std / returns_mean
 
@@ -186,7 +284,7 @@ class PhysicsFeatureComputer:
         result['at_range_low'] = (df['close'] <= rolling_low.shift(1)).astype(float)
 
         # Volume spike - current vs average
-        result['volume_spike'] = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        result['volume_spike'] = df['volume'] / df['volume'].rolling(lookback).mean().clip(lower=1e-10)
 
         # Candle body ratio (strong candle = body > 70% of range)
         body = (df['close'] - df['open']).abs()
@@ -221,7 +319,7 @@ class PhysicsFeatureComputer:
 
         # Where does THIS candle sit in the instrument's recent distribution?
         # This adapts to the instrument AND the current volatility regime
-        result['candle_magnitude_pct'] = candle_magnitude.rolling(window, min_periods=self.lookback).apply(
+        result['candle_magnitude_pct'] = candle_magnitude.rolling(window, min_periods=lookback).apply(
             lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
         ).fillna(0.5)
 
@@ -231,7 +329,7 @@ class PhysicsFeatureComputer:
 
         # Energy magnitude (velocity squared, captures directional energy)
         energy_magnitude = velocity.abs()
-        result['energy_magnitude_pct'] = energy_magnitude.rolling(window, min_periods=self.lookback).apply(
+        result['energy_magnitude_pct'] = energy_magnitude.rolling(window, min_periods=lookback).apply(
             lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
         ).fillna(0.5)
 
@@ -255,7 +353,7 @@ class PhysicsFeatureComputer:
         # Short window = recent regime, Long window = seasonal baseline
 
         # Short-term volatility regime (recent 20 bars)
-        short_vol = velocity.abs().rolling(self.lookback).mean()
+        short_vol = velocity.abs().rolling(lookback).mean()
         # Long-term volatility baseline (500 bars ~ captures seasonality)
         long_vol = velocity.abs().rolling(window).mean()
 
@@ -263,7 +361,7 @@ class PhysicsFeatureComputer:
         result['vol_regime_ratio'] = short_vol / long_vol.clip(lower=1e-10)
 
         # Where in the seasonal distribution is current volatility?
-        result['vol_regime_pct'] = result['vol_regime_ratio'].rolling(window, min_periods=self.lookback).apply(
+        result['vol_regime_pct'] = result['vol_regime_ratio'].rolling(window, min_periods=lookback).apply(
             lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
         ).fillna(0.5)
 
@@ -286,7 +384,7 @@ class PhysicsFeatureComputer:
         ]
 
         for col in feature_cols:
-            result[f'{col}_pct'] = result[col].rolling(window, min_periods=self.lookback).apply(
+            result[f'{col}_pct'] = result[col].rolling(window, min_periods=lookback).apply(
                 lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
             ).fillna(0.5)
 
@@ -308,18 +406,18 @@ class PhysicsFeatureComputer:
         # These replace "time of day" filters - we use market friction instead
         if 'spread' in df.columns:
             result['spread'] = df['spread']
-            result['spread_pct'] = result['spread'].rolling(window, min_periods=self.lookback).apply(
+            result['spread_pct'] = result['spread'].rolling(window, min_periods=lookback).apply(
                 lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
             ).fillna(0.5)
         else:
             # Estimate spread from bar range during low-volume periods
             # High range / low volume = wide effective spread
-            vol_low = df['volume'] < df['volume'].rolling(self.lookback).quantile(0.3)
+            vol_low = df['volume'] < df['volume'].rolling(lookback).quantile(0.3)
             result['spread_pct'] = vol_low.astype(float).rolling(5).mean().fillna(0.5)
 
         # LIQUIDITY / FRICTION - raw percentiles for RL
         # NO composite "fragile regime" rules - RL learns from raw features
-        vol_pct = df['volume'].rolling(window, min_periods=self.lookback).apply(
+        vol_pct = df['volume'].rolling(window, min_periods=lookback).apply(
             lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
         ).fillna(0.5)
         result['liquidity_pct'] = vol_pct

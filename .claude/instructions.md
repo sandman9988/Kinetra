@@ -172,18 +172,43 @@ Track physics state BEFORE fat candles:
 
 RL learns: "When physics looks like X, fat candle probability increases"
 
+## DSP: ADAPTIVE WINDOWS VIA FOURIER TRANSFORM
+
+NO hardcoded window sizes (no "20 bars", no "500 bars").
+Use Digital Signal Processing to find the data's natural cycles:
+
+```python
+# FFT decomposes signal into frequency components
+fft_vals = np.fft.fft(detrended_velocity)
+power = np.abs(fft_vals) ** 2
+
+# Find dominant periods (where power peaks)
+# These are the natural cycles in THIS instrument's data
+short_period = first_dominant_period   # Fast cycle
+long_period = second_dominant_period   # Slow cycle
+
+# Use these as windows - derived from data, not hardcoded
+lookback = short_period
+window = long_period
+```
+
+Why this works:
+- Gold has different cycles than BTC than EURUSD
+- Summer has different cycles than winter
+- FFT finds the ACTUAL cycles in the data
+- No magic numbers
+
 ## SEASONALITY / REGIME ADAPTATION
 
-Use multiple rolling windows:
-- Short window (20 bars): Current regime
-- Long window (500 bars): Seasonal baseline
+Use DSP-derived windows for regime detection:
 
 ```python
 vol_regime_ratio = short_vol / long_vol
-# >1 = high vol regime (summer?), <1 = low vol regime (winter?)
+# >1 = high vol regime, <1 = low vol regime
+# Windows are FFT-derived, not hardcoded
 ```
 
-This lets RL learn regime-dependent patterns WITHOUT hardcoded dates.
+This lets RL learn regime-dependent patterns WITHOUT hardcoded anything.
 
 ## SUMMARY
 
