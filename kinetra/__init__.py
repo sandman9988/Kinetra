@@ -20,6 +20,8 @@ from .symbol_spec import (
     get_symbol_spec, fetch_mt5_symbol_spec, DEFAULT_SPECS
 )
 from .backtest_engine import Trade, TradeDirection, BacktestResult
+from .trigger_predictor import TriggerPredictor, TriggerPrediction, Direction
+from .trading_env import TradingEnv, Action, Position
 
 __all__ = [
     "PhysicsEngine",
@@ -49,4 +51,12 @@ __all__ = [
     "Trade",
     "TradeDirection",
     "BacktestResult",
+    # Trigger prediction
+    "TriggerPredictor",
+    "TriggerPrediction",
+    "Direction",
+    # RL environment
+    "TradingEnv",
+    "Action",
+    "Position",
 ]
