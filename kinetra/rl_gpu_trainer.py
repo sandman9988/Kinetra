@@ -140,14 +140,6 @@ class PhysicsFeatureComputer:
 
         # === ENERGY RELEASE DETECTION (Entry Timing) ===
 
-        # ATR for volatility compression
-        tr = pd.concat([
-            df['high'] - df['low'],
-            (df['high'] - df['close'].shift()).abs(),
-            (df['low'] - df['close'].shift()).abs()
-        ], axis=1).max(axis=1)
-        result['atr'] = tr.rolling(14).mean()
-
         # Volume compression (declining volume = coiling)
         result['volume_trend'] = df['volume'].rolling(5).mean() / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
 
@@ -165,8 +157,9 @@ class PhysicsFeatureComputer:
         result['phase_compression'] = 1 / (1 + phase_area)  # Higher = more compressed
 
         # 2. SUPPRESSION RATIO (Hidden Force Imbalance)
-        # High volume + low price move = energy being absorbed, not expressed
-        result['suppression_ratio'] = df['volume'] / (result['atr'].clip(lower=1e-10) * df['close'])
+        # High volume + low energy = energy being absorbed, not expressed
+        # Using physics energy instead of ATR
+        result['suppression_ratio'] = df['volume'] / (result['energy'].clip(lower=1e-10) * df['close'] * 10000)
         # Normalize: high ratio = lots of volume, little movement = compressed
 
         # 3. APPROXIMATE ENTROPY (Entropy Collapse)
@@ -246,10 +239,10 @@ class PhysicsFeatureComputer:
             'liquidity', 'buying_pressure', 'reynolds', 'viscosity',
             'angular_momentum', 'potential_energy', 'torque', 'market_reynolds',
             'range_position', 'flow_consistency', 'roc',
-            # TRUE physics compression (replaces Bollinger Bands)
+            # TRUE physics compression
             'phase_compression', 'suppression_ratio', 'entropy_proxy', 'spring_stiffness',
             # Energy release detection
-            'atr', 'volume_trend', 'volume_spike', 'body_ratio',
+            'volume_trend', 'volume_spike', 'body_ratio',
             'roc_5', 'roc_accel', 'vol_weighted_roc',
         ]
 
