@@ -11,6 +11,7 @@ Models markets as kinetic energy systems with:
 - Liquidity: Volume per price movement
 - Buying Pressure: Directional order flow proxy
 - Reynolds Number: Turbulent vs laminar flow indicator
+- Viscosity: Internal friction / resistance to flow
 """
 
 import numpy as np
@@ -342,6 +343,50 @@ class PhysicsEngine:
                 return 'transitional'
 
         return re_pct.apply(classify)
+
+    def calculate_viscosity(
+        self,
+        high: pd.Series,
+        low: pd.Series,
+        close: pd.Series,
+        volume: pd.Series
+    ) -> pd.Series:
+        """
+        Calculate viscosity (internal friction / resistance to flow).
+
+        In fluid dynamics: μ = shear stress / velocity gradient
+        Higher viscosity = more resistance to flow
+
+        Market analog:
+        μ = spread_proxy / volume_normalized
+          = (range / close) / (volume / avg_volume)
+          = range * avg_volume / (close * volume)
+
+        Higher viscosity = harder to move price (thick, resistant)
+        Lower viscosity = easier to move price (thin, fluid)
+
+        Combined with Reynolds: Re = ρvL/μ
+        - High viscosity → Low Re → Laminar (smooth trends)
+        - Low viscosity → High Re → Turbulent (chaotic)
+
+        Returns:
+            Series of viscosity values (higher = more resistance)
+        """
+        # Spread proxy (range as % of price)
+        bar_range_pct = (high - low) / close.clip(lower=1e-10)
+
+        # Volume normalized
+        avg_volume = volume.rolling(self.lookback).mean().clip(lower=1e-10)
+        volume_norm = volume / avg_volume
+
+        # Viscosity = spread / volume_flow
+        # High spread + low volume = high viscosity
+        viscosity = bar_range_pct / volume_norm.clip(lower=1e-10)
+
+        # Smooth it
+        viscosity = viscosity.rolling(self.lookback).mean()
+
+        return viscosity.fillna(1.0)
 
     def classify_regime(
         self, 
