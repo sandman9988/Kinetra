@@ -1,0 +1,279 @@
+# Kinetra AI Development Instructions
+
+## CORE PHILOSOPHY
+
+**EVERYTHING is derived from first principles. NO static rules.**
+
+### What We DON'T Use
+- NO traditional TA indicators (ATR, BB, RSI, MACD, etc.)
+- NO hardcoded thresholds (no "if energy > 0.8")
+- NO static values (no "volume spike > 1.5x")
+- NO time-based filters
+- NO magic numbers
+- NO rules - only features for RL to discover patterns
+
+### What We DO Use
+- Physics (energy, damping, entropy, viscosity, Reynolds)
+- Thermodynamics (energy states, phase transitions)
+- Kinematics (velocity, acceleration, jerk, momentum)
+- Rolling percentiles (adaptive to current distribution)
+- Probability distributions (where in the distribution is current value?)
+- First principles derivation
+
+## ADAPTIVE PERCENTILES
+
+Every metric should be converted to its position in the rolling distribution:
+
+```python
+# CORRECT: Adaptive percentile
+feature_pct = feature.rolling(window).apply(
+    lambda x: (x.iloc[-1] > x.iloc[:-1]).mean()
+)
+# Returns 0-1: where does current value sit in recent history?
+
+# WRONG: Static threshold
+if feature > 0.8:  # NO! This is not adaptive
+```
+
+## PHYSICS FIRST PRINCIPLES
+
+| Concept | Formula | Meaning |
+|---------|---------|---------|
+| Kinetic Energy | E = ½mv² = ½ × velocity² | Energy in motion |
+| Damping | ζ = σ(v) / μ(\|v\|) | Energy dissipation |
+| Reynolds | Re = (v × L × ρ) / μ | Laminar vs turbulent |
+| Viscosity | μ = resistance / flow | Market friction |
+| Spring Stiffness | k = F / x = volume / Δprice | Resistance to displacement |
+| Phase Space | (position, momentum) | State confinement |
+| Entropy | S = disorder measure | Predictability |
+
+## DYNAMIC REGIME DETECTION
+
+Regimes are detected by WHERE current values sit in their distributions:
+
+```python
+# Compression = multiple physics metrics in extreme percentiles
+phase_compressed = phase_compression_pct > 0.8  # Top 20%
+high_suppression = suppression_ratio_pct > 0.7  # Top 30%
+low_entropy = entropy_proxy_pct < 0.3          # Bottom 30%
+```
+
+But even these percentile cutoffs should ideally be learned, not fixed.
+
+## SELF-HEALING / ADAPTIVE
+
+The system must work across:
+- Any instrument (BTCUSD, EURUSD, COPPER, etc.)
+- Any timeframe (M15, H1, H4, D1)
+- Any market regime
+- Any volatility environment
+
+This is achieved by:
+1. All features as percentiles (0-1 range)
+2. No instrument-specific parameters
+3. RL discovers what works, not hardcoded rules
+
+## WHAT RL DISCOVERS
+
+The neural network learns:
+1. WHEN energy is about to release (compression → trigger → acceleration)
+2. WHEN NOT to trade (fragile regime - high friction)
+3. WHICH direction (long vs short based on physics state)
+4. WHEN to exit (MFE/MAE efficiency)
+
+We provide FEATURES. RL finds PATTERNS.
+
+## OMEGA REWARD (Pythagorean Path Efficiency)
+
+The reward function must have NO static coefficients. We use Pythagorean geometry:
+
+```python
+# Goal: Maximum displacement from entry via shortest path
+# Agent should exit as FAR from entry as possible (in right direction)
+# but via the SHORTEST path (no yo-yo whipsaw)
+
+# Total excursion = Pythagorean distance in MFE/MAE space
+total_excursion = sqrt(MFE² + MAE²)
+
+# Path efficiency = how direct was the path?
+path_efficiency = |PnL| / total_excursion
+
+# Omega = signed reward (direction matters)
+omega = PnL × path_efficiency
+```
+
+Why this works:
+- Clean move (MFE only): high omega (large PnL, small excursion)
+- Whipsaw (high MFE + high MAE): low omega (excursion dominates)
+- Loss with excursion: negative omega (penalty)
+
+NO static weights, NO arbitrary coefficients - pure geometry.
+
+## POTENTIAL-BASED REWARD SHAPING (Dense Signal)
+
+Problem: Sparse rewards (only on EXIT) → stagnating loss, slow learning.
+Solution: Potential-based shaping (Ng et al. 1999) - policy invariant.
+
+```python
+# Potential function Φ(s) = unrealized_pnl + mfe
+# Shaping reward = Φ(s') - Φ(s) = delta_pnl + delta_mfe
+
+# During HOLD:
+delta_pnl = current_unrealized - prev_unrealized  # Moving right direction?
+delta_mfe = current_mfe - prev_mfe                # New profit highs?
+reward = delta_pnl + delta_mfe                     # Dense feedback
+```
+
+Why this works:
+- Gives immediate feedback every step (not just on EXIT)
+- Both deltas in same units (% of price) - no arbitrary weights
+- Proven to not change optimal policy (just speeds learning)
+- Rewards moving in profitable direction, penalizes drawdowns
+
+## PROBABILITY PREDICTORS
+
+Instead of rules, we compute probabilities:
+- P(move up | high energy + acceleration up)
+- P(continuation | low Reynolds + positive momentum)
+- P(reversal | high entropy + extreme range position)
+
+These are IMPLICIT in the neural network weights, not explicit rules.
+
+## EXAMPLE: Energy Release
+
+Wrong approach:
+```python
+if bb_width < 0.02 and volume > 2 * avg_volume:
+    enter_trade()  # NO! Static rules
+```
+
+Correct approach:
+```python
+# Compute physics features
+physics_compression = composite of phase/suppression/entropy/stiffness
+was_compressed = physics_compression.rolling(5).max() == 1
+
+# Let RL learn what to do with these features
+state = [all physics percentiles + position info]
+action = network.predict(state)  # RL decides
+```
+
+## FRICTION = VISCOSITY (Not Time)
+
+Market friction comes from:
+- Spread (from symbol_info)
+- Low liquidity (volume percentile)
+- High viscosity (price impact)
+
+NOT from:
+- Time of day
+- Calendar events
+- Session boundaries
+
+## PARETO ANALYSIS: FAT CANDLES
+
+"Fat candle" is RELATIVE to the instrument's distribution:
+- What's fat for crypto differs from gold differs from forex
+- Summer volatility differs from winter
+- Use rolling percentile, NOT static threshold
+
+```python
+# "Fat" = top 20% of THIS instrument's recent distribution
+candle_magnitude_pct = magnitude.rolling(500).apply(
+    lambda x: (x.iloc[-1] > x.iloc[:-1]).mean()
+)
+is_fat_candle = candle_magnitude_pct >= 0.8  # Pareto: 20% → 80% of gains
+```
+
+Track physics state BEFORE fat candles:
+- prior_phase_compression
+- prior_suppression
+- prior_entropy
+- compression_buildup
+
+RL learns: "When physics looks like X, fat candle probability increases"
+
+## DSP: ADAPTIVE WINDOWS VIA FOURIER TRANSFORM
+
+NO hardcoded window sizes (no "20 bars", no "500 bars").
+Use Digital Signal Processing to find the data's natural cycles:
+
+```python
+# FFT decomposes signal into frequency components
+fft_vals = np.fft.fft(detrended_velocity)
+power = np.abs(fft_vals) ** 2
+
+# Find dominant periods (where power peaks)
+# These are the natural cycles in THIS instrument's data
+short_period = first_dominant_period   # Fast cycle
+long_period = second_dominant_period   # Slow cycle
+
+# Use these as windows - derived from data, not hardcoded
+lookback = short_period
+window = long_period
+```
+
+Why this works:
+- Gold has different cycles than BTC than EURUSD
+- Summer has different cycles than winter
+- FFT finds the ACTUAL cycles in the data
+- No magic numbers
+
+## SEASONALITY / REGIME ADAPTATION
+
+Use DSP-derived windows for regime detection:
+
+```python
+vol_regime_ratio = short_vol / long_vol
+# >1 = high vol regime, <1 = low vol regime
+# Windows are FFT-derived, not hardcoded
+```
+
+This lets RL learn regime-dependent patterns WITHOUT hardcoded anything.
+
+## SUMMARY
+
+> "We don't trade rules. We provide physics state. RL discovers edges."
+
+Every feature should be:
+1. Derived from first principles (physics)
+2. Expressed as a percentile (adaptive)
+3. Instrument-agnostic (works everywhere)
+4. Fed to RL for pattern discovery (not rules)
+
+## GPU REQUIREMENTS
+
+Training REQUIRES GPU acceleration. CPU training is 100x slower.
+
+**Check GPU availability:**
+```python
+import torch
+print(f"CUDA: {torch.cuda.is_available()}")
+print(f"Devices: {torch.cuda.device_count()}")
+```
+
+**For AMD GPUs (ROCm):**
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
+```
+
+**For NVIDIA GPUs (CUDA):**
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+```
+
+**Environment variables for ROCm (AMD GPUs):**
+```bash
+# For RX 7600 / RDNA3:
+export HSA_OVERRIDE_GFX_VERSION=11.0.0
+export HIP_VISIBLE_DEVICES=0
+
+# For RX 6000 series / RDNA2:
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
+export HIP_VISIBLE_DEVICES=0
+```
+
+**CRITICAL**: If no GPU detected, DO NOT proceed with training. Fix GPU first.
+
+The code will detect AMD ROCm automatically via `torch.version.hip`.
+Default behavior: ROCm for AMD, CUDA for NVIDIA - no manual config needed.
