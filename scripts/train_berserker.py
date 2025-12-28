@@ -297,21 +297,25 @@ def train_berserker(
                     # Training step
                     if len(buffer) >= config.batch_size:
                         batch = buffer.sample(config.batch_size)
-                        states, actions, rewards, next_states, dones = batch
+                        states_t, actions_t, rewards_t, next_states_t, dones_t = batch
 
-                        # NaN handling
-                        states_np = np.array(states)
-                        next_states_np = np.array(next_states)
-                        states_np = np.nan_to_num(states_np, nan=0.5, posinf=1.0, neginf=0.0)
-                        next_states_np = np.nan_to_num(next_states_np, nan=0.5, posinf=1.0, neginf=0.0)
-                        states_np = np.clip(states_np, -10, 10)
-                        next_states_np = np.clip(next_states_np, -10, 10)
-
-                        states_t = torch.FloatTensor(states_np).to(device)
-                        actions_t = torch.LongTensor(actions).to(device)
-                        rewards_t = torch.FloatTensor(np.clip(rewards, -10, 10)).to(device)
-                        next_states_t = torch.FloatTensor(next_states_np).to(device)
-                        dones_t = torch.FloatTensor(dones).to(device)
+                        # Handle if already tensors (from GPU buffer)
+                        if isinstance(states_t, torch.Tensor):
+                            # NaN handling on GPU tensors
+                            states_t = torch.nan_to_num(states_t, nan=0.5, posinf=1.0, neginf=0.0)
+                            next_states_t = torch.nan_to_num(next_states_t, nan=0.5, posinf=1.0, neginf=0.0)
+                            states_t = torch.clamp(states_t, -10, 10)
+                            next_states_t = torch.clamp(next_states_t, -10, 10)
+                            rewards_t = torch.clamp(rewards_t, -10, 10)
+                        else:
+                            # Convert numpy arrays
+                            states_np = np.nan_to_num(np.array(states_t), nan=0.5, posinf=1.0, neginf=0.0)
+                            next_states_np = np.nan_to_num(np.array(next_states_t), nan=0.5, posinf=1.0, neginf=0.0)
+                            states_t = torch.FloatTensor(np.clip(states_np, -10, 10)).to(device)
+                            actions_t = torch.LongTensor(actions_t).to(device)
+                            rewards_t = torch.FloatTensor(np.clip(rewards_t, -10, 10)).to(device)
+                            next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
+                            dones_t = torch.FloatTensor(dones_t).to(device)
 
                         with torch.no_grad():
                             next_q = target_net(next_states_t).max(1)[0]
