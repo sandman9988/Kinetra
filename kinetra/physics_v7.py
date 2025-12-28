@@ -582,7 +582,7 @@ def classify_regime_adaptive(
     return regimes
 
 
-def compute_symc_ratio(high, low, close, volume, lookback: int = 20):
+def compute_symc_ratio(close, volume, lookback: int = 20):
     """
     Compute SymC Ratio (χ) - The governing metric for market stability.
 
@@ -597,7 +597,6 @@ def compute_symc_ratio(high, low, close, volume, lookback: int = 20):
     - γ (damping) ≈ volume absorption rate (how fast liquidity absorbs orders)
     - ω (natural frequency) ≈ volatility (how fast price oscillates)
     """
-    high = pd.Series(high)
     close = pd.Series(close)
     volume = pd.Series(volume)
 
@@ -655,7 +654,7 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
     displacement = ((close - equilibrium) / equilibrium).fillna(0.0).values
 
     # SymC ratio for proper regime classification
-    symc = compute_symc_ratio(high.values, low.values, close.values, volume.values, lookback)
+    symc = compute_symc_ratio(close.values, volume.values, lookback)
     symc_series = pd.Series(symc)
 
     # ADAPTIVE regime classification - NO FIXED THRESHOLDS

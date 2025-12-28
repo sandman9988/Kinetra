@@ -126,7 +126,7 @@ class BaseV7Strategy(Strategy):
         # SymC Ratio: damping regime (< 0.8 = momentum, > 1.2 = mean revert)
         self.symc = self.I(
             compute_symc_ratio,
-            self.data.High, self.data.Low, self.data.Close, self.data.Volume, self.lookback
+            self.data.Close, self.data.Volume, self.lookback
         )
 
     def get_position_size(self) -> float:

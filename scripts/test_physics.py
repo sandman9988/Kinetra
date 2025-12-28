@@ -145,7 +145,7 @@ def test_physics_measures():
 
     # Test SymC Ratio
     print("\n5. SymC Ratio (Damping):")
-    symc = compute_symc_ratio(high, low, close, volume, lookback=20)
+    symc = compute_symc_ratio(close, volume, lookback=20)
     print(f"   Mean: {np.mean(symc[20:]):.3f}")
     print(f"   Underdamped (χ < 0.8): {np.sum(symc < 0.8)} bars")
     print(f"   Overdamped (χ > 1.2): {np.sum(symc > 1.2)} bars")
