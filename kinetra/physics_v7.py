@@ -486,7 +486,6 @@ def compute_order_flow_force(open_, high, low, close, volume):
     Returns:
         Array of force values (positive = buy pressure, negative = sell pressure)
     """
-    open_ = pd.Series(open_)
     high = pd.Series(high)
     low = pd.Series(low)
     close = pd.Series(close)
