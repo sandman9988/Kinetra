@@ -15,7 +15,7 @@ No hardcoded rules - pure feature learning.
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 from dataclasses import dataclass
 import time
 
@@ -126,7 +126,6 @@ class PhysicsFeatureComputer:
 
         Returns (short_period, long_period) - the two most significant cycles.
         """
-
         # Clean series
         clean = series.dropna().values
         n = len(clean)

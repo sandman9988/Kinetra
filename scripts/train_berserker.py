@@ -2,12 +2,18 @@
 """
 Berserker Entry Training - GPU Accelerated
 
+NEW ARCHITECTURE:
+- Train ONE instrument at a time
+- 4 PARALLEL timeframe streams (M15, M30, H1, H4)
+- Analyze & summarize after each instrument completes
+- Move to next instrument
+
 Features:
 - GPU acceleration (AMD ROCm / NVIDIA CUDA)
+- Parallel timeframe training per instrument
 - Atomic model saving (no corruption on interrupt)
 - Run-based data management
 - Comprehensive logging
-- Prometheus metrics
 
 Usage:
     python scripts/train_berserker.py --run berserker_run1
@@ -16,14 +22,24 @@ Usage:
 
 import sys
 import os
+
+# Configure ROCm BEFORE importing torch - must be set before any CUDA/HIP initialization
+# This avoids hipBLASLt warnings on RDNA3 GPUs (RX 7600, etc.)
+os.environ.setdefault('TORCH_BLAS_PREFER_HIPBLASLT', '0')
+os.environ.setdefault('HSA_OVERRIDE_GFX_VERSION', '11.0.0')
+
 import json
 import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+from collections import defaultdict
 import argparse
 import logging
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -47,6 +63,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Thread-safe logging lock
+log_lock = threading.Lock()
+
+TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
+
 
 class AtomicSaver:
     """Atomic model saving to prevent corruption."""
@@ -54,6 +75,7 @@ class AtomicSaver:
     def __init__(self, models_dir: Path):
         self.models_dir = Path(models_dir)
         self.models_dir.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def save_checkpoint(
         self,
@@ -63,10 +85,7 @@ class AtomicSaver:
         metrics: Dict,
         filename: str = "checkpoint.pt"
     ) -> Path:
-        """Atomically save model checkpoint.
-
-        Uses temp file + rename pattern to prevent corruption.
-        """
+        """Atomically save model checkpoint."""
         checkpoint = {
             'episode': episode,
             'model_state_dict': model.state_dict(),
@@ -75,18 +94,15 @@ class AtomicSaver:
             'timestamp': datetime.now().isoformat(),
         }
 
-        target_path = self.models_dir / filename
-        temp_path = self.models_dir / f".{filename}.tmp"
-
-        # Write to temp file first
-        torch.save(checkpoint, temp_path)
-
-        # Atomic rename
-        shutil.move(str(temp_path), str(target_path))
+        with self._lock:
+            target_path = self.models_dir / filename
+            temp_path = self.models_dir / f".{filename}.tmp"
+            torch.save(checkpoint, temp_path)
+            shutil.move(str(temp_path), str(target_path))
 
         return target_path
 
-    def save_best(self, model: nn.Module, metrics: Dict) -> Path:
+    def save_best(self, model: nn.Module, metrics: Dict, filename: str = "best_model.pt") -> Path:
         """Save best model checkpoint."""
         checkpoint = {
             'model_state_dict': model.state_dict(),
@@ -94,11 +110,11 @@ class AtomicSaver:
             'timestamp': datetime.now().isoformat(),
         }
 
-        target_path = self.models_dir / "best_model.pt"
-        temp_path = self.models_dir / ".best_model.pt.tmp"
-
-        torch.save(checkpoint, temp_path)
-        shutil.move(str(temp_path), str(target_path))
+        with self._lock:
+            target_path = self.models_dir / filename
+            temp_path = self.models_dir / f".{filename}.tmp"
+            torch.save(checkpoint, temp_path)
+            shutil.move(str(temp_path), str(target_path))
 
         return target_path
 
@@ -116,23 +132,33 @@ class RunLogger:
     def __init__(self, logs_dir: Path):
         self.logs_dir = Path(logs_dir)
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
         # Create log files
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.results_file = self.logs_dir / f"results_{timestamp}.jsonl"
         self.summary_file = self.logs_dir / "summary.json"
 
-    def log_episode(self, episode: int, metrics: Dict):
+    def log_episode(self, instrument: str, timeframe: str, episode: int, metrics: Dict):
         """Log single episode results."""
         entry = {
+            'instrument': instrument,
+            'timeframe': timeframe,
             'episode': episode,
             'timestamp': datetime.now().isoformat(),
             **metrics
         }
 
-        # Append to JSONL file (one JSON object per line)
-        with open(self.results_file, 'a') as f:
-            f.write(json.dumps(entry) + '\n')
+        with self._lock:
+            with open(self.results_file, 'a') as f:
+                f.write(json.dumps(entry) + '\n')
+
+    def log_instrument_summary(self, instrument: str, summary: Dict):
+        """Log instrument completion summary."""
+        summary_file = self.logs_dir / f"summary_{instrument}.json"
+        summary['completed_at'] = datetime.now().isoformat()
+        with open(summary_file, 'w') as f:
+            json.dump(summary, f, indent=2)
 
     def log_summary(self, summary: Dict):
         """Log final summary."""
@@ -140,70 +166,409 @@ class RunLogger:
         with open(self.summary_file, 'w') as f:
             json.dump(summary, f, indent=2)
 
-    def get_results(self) -> List[Dict]:
-        """Read all logged results."""
-        results = []
-        for log_file in sorted(self.logs_dir.glob("results_*.jsonl")):
-            with open(log_file) as f:
-                for line in f:
-                    if line.strip():
-                        results.append(json.loads(line))
-        return results
+
+def configure_rocm_backend():
+    """Configure ROCm to use hipBLAS instead of hipBLASLt for unsupported architectures."""
+    import os
+    # Force hipBLAS backend for RDNA3 (gfx1100/gfx1102) - avoids hipBLASLt warnings
+    os.environ.setdefault('TORCH_BLAS_PREFER_HIPBLASLT', '0')
+    # Ensure GFX version override is set for RX 7600 (gfx1102 -> gfx1100)
+    os.environ.setdefault('HSA_OVERRIDE_GFX_VERSION', '11.0.0')
 
 
 def detect_device() -> torch.device:
     """Detect best available device - AMD ROCm or NVIDIA CUDA."""
-    # Check for CUDA/ROCm availability
-    # Note: PyTorch ROCm uses the same torch.cuda API
     if torch.cuda.is_available():
         device = torch.device('cuda')
         gpu_name = torch.cuda.get_device_name(0)
-
-        # Detect if this is AMD (ROCm/HIP) or NVIDIA
         is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
 
         if is_rocm:
+            configure_rocm_backend()
             logger.info(f"Using AMD GPU (ROCm): {gpu_name}")
-            logger.info(f"  HIP version: {torch.version.hip}")
+            logger.info(f"  hipBLAS backend configured (TORCH_BLAS_PREFER_HIPBLASLT=0)")
         else:
             logger.info(f"Using NVIDIA GPU (CUDA): {gpu_name}")
-            logger.info(f"  CUDA version: {torch.version.cuda}")
 
         return device
     else:
-        # No GPU - provide helpful message
         logger.error("=" * 60)
         logger.error("NO GPU DETECTED - Training will be 100x slower!")
         logger.error("=" * 60)
-        logger.error("")
-        logger.error("For AMD GPUs (like RX 7600), install ROCm PyTorch:")
-        logger.error("  pip install torch --index-url https://download.pytorch.org/whl/rocm6.0")
-        logger.error("")
-        logger.error("Environment variables for AMD:")
-        logger.error("  export HSA_OVERRIDE_GFX_VERSION=11.0.0  # For RDNA3 (7600)")
-        logger.error("  export HIP_VISIBLE_DEVICES=0")
+        logger.error("For AMD GPUs: pip install torch --index-url https://download.pytorch.org/whl/rocm6.0")
+        logger.error("export HSA_OVERRIDE_GFX_VERSION=11.0.0  # For RDNA3")
         logger.error("=" * 60)
-
         return torch.device('cpu')
+
+
+def parse_instrument_timeframe(filename: str) -> Tuple[Optional[str], Optional[str]]:
+    """Parse instrument and timeframe from filename.
+
+    Expected format: BTCUSD_M30_20240101_20241231.csv
+    Returns: (instrument, timeframe) or (None, None) if parse fails
+    """
+    parts = filename.replace('.csv', '').split('_')
+    if len(parts) >= 2:
+        instrument = parts[0]
+        timeframe = parts[1]
+        return instrument, timeframe
+    return None, None
+
+
+def group_files_by_instrument(data_files: List[Path]) -> Dict[str, Dict[str, Path]]:
+    """Group data files by instrument, then by timeframe.
+
+    Returns: {instrument: {timeframe: path, ...}, ...}
+    """
+    grouped = defaultdict(dict)
+
+    for path in data_files:
+        instrument, timeframe = parse_instrument_timeframe(path.name)
+        if instrument and timeframe:
+            grouped[instrument][timeframe] = path
+
+    return dict(grouped)
+
+
+def train_timeframe(
+    instrument: str,
+    timeframe: str,
+    data_path: Path,
+    device: torch.device,
+    saver: AtomicSaver,
+    run_logger: RunLogger,
+    n_episodes: int = 100,
+    config: TrainingConfig = None,
+) -> Dict:
+    """Train single timeframe for an instrument.
+
+    Returns summary metrics for this timeframe.
+    """
+    thread_id = f"{instrument}_{timeframe}"
+
+    with log_lock:
+        logger.info(f"  [{thread_id}] Starting training...")
+
+    # Load data
+    data = load_csv_data(str(data_path))
+    fc = PhysicsFeatureComputer()
+    features = fc.compute(data)
+    env = TradingEnv(data, features)
+
+    with log_lock:
+        logger.info(f"  [{thread_id}] Loaded {len(data)} bars, {env.state_dim} features")
+
+    state_dim = env.state_dim
+    action_dim = env.action_dim
+
+    if config is None:
+        config = TrainingConfig(
+            learning_rate=3e-4,
+            batch_size=512,
+            gamma=0.95,
+            epsilon_start=0.8,
+            epsilon_end=0.05,
+            epsilon_decay=0.995,
+            buffer_size=50000,
+            target_update_freq=50,
+            n_episodes=n_episodes,
+        )
+
+    # Initialize networks
+    hidden_sizes = (256, 128, 64)
+    q_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
+    target_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
+    target_net.load_state_dict(q_net.state_dict())
+
+    optimizer = torch.optim.Adam(q_net.parameters(), lr=config.learning_rate)
+    buffer = ReplayBuffer(config.buffer_size, device)
+
+    epsilon = config.epsilon_start
+    best_pnl = float('-inf')
+    total_steps = 0
+    episode_start_time = None
+    heartbeat_interval = 1000  # Log every N steps
+
+    all_episode_metrics = []
+
+    for episode in range(n_episodes):
+        episode_stats = {
+            'trades': 0, 'wins': 0, 'pnl': 0,
+            'mfe': [], 'mae': [],
+            'entry_energy': [], 'move_capture': [], 'mfe_first': [],
+        }
+        losses = []
+        episode_steps = 0
+        episode_start_time = time.time()
+
+        state = env.reset()
+        done = False
+
+        while not done:
+            # Action selection
+            if np.random.random() < epsilon:
+                action = np.random.randint(0, action_dim)
+            else:
+                with torch.no_grad():
+                    state_t = torch.FloatTensor(state).unsqueeze(0).to(device)
+                    q = q_net(state_t)
+                    action = q.argmax().item()
+
+            next_state, reward, done, info = env.step(action)
+            buffer.push(state, action, reward, next_state, done)
+
+            # Track trades
+            if info.get('trade_pnl') is not None:
+                pnl = info['trade_pnl']
+                episode_stats['trades'] += 1
+                episode_stats['pnl'] += pnl
+                if pnl > 0:
+                    episode_stats['wins'] += 1
+                episode_stats['mfe'].append(info.get('mfe', 0))
+                episode_stats['mae'].append(info.get('mae', 0))
+                episode_stats['entry_energy'].append(info.get('entry_energy', 0.5))
+                episode_stats['move_capture'].append(info.get('move_capture', 0))
+                episode_stats['mfe_first'].append(info.get('mfe_first', False))
+
+            # Training step
+            if len(buffer) >= config.batch_size:
+                batch = buffer.sample(config.batch_size)
+                states_t, actions_t, rewards_t, next_states_t, dones_t = batch
+
+                if isinstance(states_t, torch.Tensor):
+                    states_t = torch.nan_to_num(states_t, nan=0.5, posinf=1.0, neginf=0.0)
+                    next_states_t = torch.nan_to_num(next_states_t, nan=0.5, posinf=1.0, neginf=0.0)
+                    states_t = torch.clamp(states_t, -10, 10)
+                    next_states_t = torch.clamp(next_states_t, -10, 10)
+                    rewards_t = torch.clamp(rewards_t, -10, 10)
+                else:
+                    states_np = np.nan_to_num(np.array(states_t), nan=0.5, posinf=1.0, neginf=0.0)
+                    next_states_np = np.nan_to_num(np.array(next_states_t), nan=0.5, posinf=1.0, neginf=0.0)
+                    states_t = torch.FloatTensor(np.clip(states_np, -10, 10)).to(device)
+                    actions_t = torch.LongTensor(actions_t).to(device)
+                    rewards_t = torch.FloatTensor(np.clip(rewards_t, -10, 10)).to(device)
+                    next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
+                    dones_t = torch.FloatTensor(dones_t).to(device)
+
+                with torch.no_grad():
+                    next_q = target_net(next_states_t).max(1)[0]
+                    targets = rewards_t + config.gamma * next_q * (1 - dones_t)
+                    targets = torch.clamp(targets, -100, 100)
+
+                current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
+                loss = F.huber_loss(current_q, targets)
+
+                optimizer.zero_grad()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
+                optimizer.step()
+                losses.append(loss.item())
+
+            if total_steps % config.target_update_freq == 0:
+                target_net.load_state_dict(q_net.state_dict())
+
+            state = next_state
+            total_steps += 1
+            episode_steps += 1
+
+            # Heartbeat - show progress during long episodes
+            if episode_steps % heartbeat_interval == 0:
+                elapsed = time.time() - episode_start_time
+                steps_per_sec = episode_steps / elapsed if elapsed > 0 else 0
+                with log_lock:
+                    print(f"    [{thread_id}] ♥ Step {episode_steps:,} | {steps_per_sec:.0f} steps/s | Trades: {episode_stats['trades']}        ", end='\r', flush=True)
+
+        # Clear heartbeat line
+        print(" " * 80, end='\r', flush=True)
+
+        # Epsilon decay
+        epsilon = max(config.epsilon_end, epsilon * config.epsilon_decay)
+
+        # Episode metrics
+        n_trades = episode_stats['trades']
+        win_rate = (episode_stats['wins'] / n_trades * 100) if n_trades > 0 else 0
+        total_pnl = episode_stats['pnl']
+        avg_loss = np.mean(losses) if losses else 0
+        avg_mfe = np.mean(episode_stats['mfe']) if episode_stats['mfe'] else 0
+        avg_mae = np.mean(episode_stats['mae']) if episode_stats['mae'] else 0
+        mfe_mae_ratio = avg_mfe / avg_mae if avg_mae > 0 else 0
+
+        episode_metrics = {
+            'trades': n_trades,
+            'win_rate': win_rate,
+            'total_pnl': total_pnl,
+            'avg_loss': avg_loss,
+            'mfe_mae_ratio': mfe_mae_ratio,
+            'epsilon': epsilon,
+        }
+        all_episode_metrics.append(episode_metrics)
+
+        # Log to file
+        run_logger.log_episode(instrument, timeframe, episode + 1, episode_metrics)
+
+        # Save best model
+        if total_pnl > best_pnl:
+            best_pnl = total_pnl
+            saver.save_best(q_net, episode_metrics, f"best_{instrument}_{timeframe}.pt")
+
+        # Progress log every 10 episodes
+        if (episode + 1) % 10 == 0:
+            with log_lock:
+                logger.info(
+                    f"  [{thread_id}] Ep {episode+1:3d}/{n_episodes} | "
+                    f"Trades: {n_trades:3d} | WR: {win_rate:5.1f}% | "
+                    f"PnL: {total_pnl:+.2f}% | Loss: {avg_loss:.4f}"
+                )
+            saver.save_checkpoint(
+                q_net, optimizer, episode + 1,
+                {'best_pnl': best_pnl, **episode_metrics},
+                f"checkpoint_{instrument}_{timeframe}.pt"
+            )
+
+    # Final save
+    saver.save_checkpoint(
+        q_net, optimizer, n_episodes,
+        {'best_pnl': best_pnl},
+        f"final_{instrument}_{timeframe}.pt"
+    )
+
+    # Summary for this timeframe
+    summary = {
+        'instrument': instrument,
+        'timeframe': timeframe,
+        'bars': len(data),
+        'episodes': n_episodes,
+        'best_pnl': best_pnl,
+        'final_epsilon': epsilon,
+        'total_steps': total_steps,
+        'avg_trades_per_episode': np.mean([m['trades'] for m in all_episode_metrics]),
+        'avg_win_rate': np.mean([m['win_rate'] for m in all_episode_metrics]),
+        'avg_pnl': np.mean([m['total_pnl'] for m in all_episode_metrics]),
+    }
+
+    with log_lock:
+        logger.info(f"  [{thread_id}] ✓ Complete! Best PnL: {best_pnl:+.2f}%")
+
+    return summary
+
+
+def analyze_instrument_results(instrument: str, timeframe_results: Dict[str, Dict]) -> Dict:
+    """Analyze and summarize results across all timeframes for an instrument."""
+
+    logger.info(f"\n{'='*60}")
+    logger.info(f"INSTRUMENT ANALYSIS: {instrument}")
+    logger.info(f"{'='*60}")
+
+    summary = {
+        'instrument': instrument,
+        'timeframes': {},
+        'best_timeframe': None,
+        'best_pnl': float('-inf'),
+        'total_trades': 0,
+        'avg_win_rate': 0,
+    }
+
+    win_rates = []
+    pnls = []
+
+    for tf, results in timeframe_results.items():
+        summary['timeframes'][tf] = results
+
+        logger.info(f"  {tf:4s} | PnL: {results['best_pnl']:+8.2f}% | "
+                   f"WR: {results['avg_win_rate']:5.1f}% | "
+                   f"Trades/Ep: {results['avg_trades_per_episode']:.1f}")
+
+        if results['best_pnl'] > summary['best_pnl']:
+            summary['best_pnl'] = results['best_pnl']
+            summary['best_timeframe'] = tf
+
+        win_rates.append(results['avg_win_rate'])
+        pnls.append(results['best_pnl'])
+
+    summary['avg_win_rate'] = np.mean(win_rates) if win_rates else 0
+    summary['avg_pnl'] = np.mean(pnls) if pnls else 0
+
+    logger.info(f"\n  BEST: {summary['best_timeframe']} with {summary['best_pnl']:+.2f}% PnL")
+    logger.info(f"  AVG across timeframes: WR={summary['avg_win_rate']:.1f}%, PnL={summary['avg_pnl']:+.2f}%")
+    logger.info(f"{'='*60}\n")
+
+    return summary
+
+
+def train_instrument_parallel(
+    instrument: str,
+    timeframe_files: Dict[str, Path],
+    device: torch.device,
+    saver: AtomicSaver,
+    run_logger: RunLogger,
+    n_episodes: int = 100,
+) -> Dict:
+    """Train all timeframes for an instrument in parallel.
+
+    Returns instrument summary after all timeframes complete.
+    """
+    logger.info(f"\n{'#'*60}")
+    logger.info(f"# TRAINING INSTRUMENT: {instrument}")
+    logger.info(f"# Timeframes: {', '.join(timeframe_files.keys())}")
+    logger.info(f"{'#'*60}\n")
+
+    timeframe_results = {}
+
+    # Run timeframes in parallel using ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=len(timeframe_files)) as executor:
+        futures = {}
+
+        for timeframe, data_path in timeframe_files.items():
+            future = executor.submit(
+                train_timeframe,
+                instrument=instrument,
+                timeframe=timeframe,
+                data_path=data_path,
+                device=device,
+                saver=saver,
+                run_logger=run_logger,
+                n_episodes=n_episodes,
+            )
+            futures[future] = timeframe
+
+        # Collect results as they complete
+        for future in as_completed(futures):
+            timeframe = futures[future]
+            try:
+                result = future.result()
+                timeframe_results[timeframe] = result
+            except Exception as e:
+                logger.error(f"  [{instrument}_{timeframe}] FAILED: {e}")
+                timeframe_results[timeframe] = {'error': str(e)}
+
+    # Analyze results for this instrument
+    summary = analyze_instrument_results(instrument, timeframe_results)
+
+    # Log instrument summary
+    run_logger.log_instrument_summary(instrument, summary)
+
+    return summary
 
 
 def train_berserker(
     run_dir: Path,
     n_episodes: int = 100,
-    resume: bool = True,
     metrics_port: int = 8001,
 ):
-    """Train Berserker entry strategy.
+    """Train Berserker - one instrument at a time, parallel timeframes.
 
-    Args:
-        run_dir: Path to run folder
-        n_episodes: Number of training episodes
-        resume: Resume from checkpoint if available
-        metrics_port: Port for Prometheus metrics
+    Architecture:
+    1. Group files by instrument
+    2. For each instrument:
+       - Launch 4 parallel threads (M15, M30, H1, H4)
+       - Wait for all to complete
+       - Analyze & summarize
+    3. Move to next instrument
     """
 
     logger.info("=" * 70)
     logger.info("KINETRA BERSERKER TRAINING")
+    logger.info("Architecture: Per-instrument with parallel timeframes")
     logger.info("=" * 70)
 
     # Setup paths
@@ -217,291 +582,71 @@ def train_berserker(
     run_logger = RunLogger(logs_dir)
     metrics = start_metrics_server(metrics_port)
 
-    # Load data
+    # Load and group data files
     data_files = sorted(data_dir.glob("*.csv"))
     if not data_files:
         logger.error(f"No data files found in {data_dir}")
         return
 
-    logger.info(f"Loading {len(data_files)} data files...")
-    instruments = []
-    for path in data_files:
-        name = path.stem
-        logger.info(f"  Loading {name}...")
-        data = load_csv_data(str(path))
-        fc = PhysicsFeatureComputer()
-        features = fc.compute(data)
-        instruments.append((name, data, features))
+    logger.info(f"Found {len(data_files)} data files")
 
-    # Create environments
-    envs = []
-    for name, data, features in instruments:
-        env = TradingEnv(data, features)
-        envs.append((name, env))
-        logger.info(f"  {name}: {len(data)} bars, {env.state_dim} state dims")
+    # Group by instrument
+    grouped = group_files_by_instrument(data_files)
 
-    state_dim = envs[0][1].state_dim
-    action_dim = envs[0][1].action_dim
+    logger.info(f"Instruments: {list(grouped.keys())}")
+    for inst, tfs in grouped.items():
+        logger.info(f"  {inst}: {list(tfs.keys())}")
 
-    # Training config - OPTIMIZED FOR GPU
-    config = TrainingConfig(
-        learning_rate=3e-4,
-        batch_size=1024,          # MAX GPU: Large batches = better GPU utilization
-        gamma=0.95,
-        epsilon_start=0.8,
-        epsilon_end=0.05,
-        epsilon_decay=0.995,
-        buffer_size=100000,       # Larger buffer for more diverse sampling
-        target_update_freq=50,    # More frequent target updates
-        n_episodes=n_episodes,
-    )
+    # Train each instrument
+    all_results = {}
 
-    # Initialize networks - WIDER for GPU parallelism
-    hidden_sizes = (512, 256, 128, 64)  # Deeper & wider = more GPU work
-    q_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
-    target_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
-    target_net.load_state_dict(q_net.state_dict())
+    for i, (instrument, timeframe_files) in enumerate(grouped.items(), 1):
+        logger.info(f"\n[{i}/{len(grouped)}] Processing {instrument}...")
 
-    optimizer = torch.optim.Adam(q_net.parameters(), lr=config.learning_rate)
-    buffer = ReplayBuffer(config.buffer_size, device)
-
-    # Resume from checkpoint
-    start_episode = 0
-    best_pnl = float('-inf')
-
-    if resume:
-        checkpoint = saver.load_checkpoint()
-        if checkpoint:
-            q_net.load_state_dict(checkpoint['model_state_dict'])
-            target_net.load_state_dict(checkpoint['model_state_dict'])
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            start_episode = checkpoint['episode']
-            best_pnl = checkpoint['metrics'].get('best_pnl', float('-inf'))
-            logger.info(f"Resumed from episode {start_episode}")
-
-    epsilon = config.epsilon_start
-    total_steps = 0
-
-    logger.info(f"\nTraining for {n_episodes} episodes across {len(envs)} instruments...")
-    logger.info(f"Monitor: http://localhost:{metrics_port}/metrics")
-    logger.info("-" * 70)
-
-    try:
-        for episode in range(start_episode, n_episodes):
-            episode_stats = {
-                'trades': 0, 'wins': 0, 'pnl': 0,
-                'mfe': [], 'mae': [],
-                # NEW DIAGNOSTICS
-                'entry_energy': [],  # What energy percentile at entry
-                'move_capture': [],  # % of move captured
-                'mfe_first': [],     # Did MFE come before MAE?
-            }
-            losses = []
-
-            for inst_name, env in envs:
-                state = env.reset()
-                done = False
-
-                while not done:
-                    # Action selection
-                    if np.random.random() < epsilon:
-                        action = np.random.randint(0, action_dim)
-                    else:
-                        with torch.no_grad():
-                            state_t = torch.FloatTensor(state).unsqueeze(0).to(device)
-                            q = q_net(state_t)
-                            action = q.argmax().item()
-
-                    next_state, reward, done, info = env.step(action)
-                    buffer.push(state, action, reward, next_state, done)
-
-                    # Track trades
-                    if info.get('trade_pnl') is not None:
-                        pnl = info['trade_pnl']
-                        episode_stats['trades'] += 1
-                        episode_stats['pnl'] += pnl
-                        if pnl > 0:
-                            episode_stats['wins'] += 1
-                        episode_stats['mfe'].append(info.get('mfe', 0))
-                        episode_stats['mae'].append(info.get('mae', 0))
-                        # NEW DIAGNOSTICS
-                        episode_stats['entry_energy'].append(info.get('entry_energy', 0.5))
-                        episode_stats['move_capture'].append(info.get('move_capture', 0))
-                        episode_stats['mfe_first'].append(info.get('mfe_first', False))
-                        metrics.record_trade(pnl)
-
-                    # Training step
-                    if len(buffer) >= config.batch_size:
-                        batch = buffer.sample(config.batch_size)
-                        states_t, actions_t, rewards_t, next_states_t, dones_t = batch
-
-                        # Handle if already tensors (from GPU buffer)
-                        if isinstance(states_t, torch.Tensor):
-                            # NaN handling on GPU tensors
-                            states_t = torch.nan_to_num(states_t, nan=0.5, posinf=1.0, neginf=0.0)
-                            next_states_t = torch.nan_to_num(next_states_t, nan=0.5, posinf=1.0, neginf=0.0)
-                            states_t = torch.clamp(states_t, -10, 10)
-                            next_states_t = torch.clamp(next_states_t, -10, 10)
-                            rewards_t = torch.clamp(rewards_t, -10, 10)
-                        else:
-                            # Convert numpy arrays
-                            states_np = np.nan_to_num(np.array(states_t), nan=0.5, posinf=1.0, neginf=0.0)
-                            next_states_np = np.nan_to_num(np.array(next_states_t), nan=0.5, posinf=1.0, neginf=0.0)
-                            states_t = torch.FloatTensor(np.clip(states_np, -10, 10)).to(device)
-                            actions_t = torch.LongTensor(actions_t).to(device)
-                            rewards_t = torch.FloatTensor(np.clip(rewards_t, -10, 10)).to(device)
-                            next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
-                            dones_t = torch.FloatTensor(dones_t).to(device)
-
-                        with torch.no_grad():
-                            next_q = target_net(next_states_t).max(1)[0]
-                            targets = rewards_t + config.gamma * next_q * (1 - dones_t)
-                            targets = torch.clamp(targets, -100, 100)
-
-                        current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
-                        loss = F.huber_loss(current_q, targets)
-
-                        optimizer.zero_grad()
-                        loss.backward()
-                        torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
-                        optimizer.step()
-                        losses.append(loss.item())
-
-                    if total_steps % config.target_update_freq == 0:
-                        target_net.load_state_dict(q_net.state_dict())
-
-                    state = next_state
-                    total_steps += 1
-
-            # Epsilon decay
-            epsilon = max(config.epsilon_end, epsilon * config.epsilon_decay)
-
-            # Episode metrics
-            n_trades = episode_stats['trades']
-            win_rate = (episode_stats['wins'] / n_trades * 100) if n_trades > 0 else 0
-            total_pnl = episode_stats['pnl']
-            avg_loss = np.mean(losses) if losses else 0
-            avg_mfe = np.mean(episode_stats['mfe']) if episode_stats['mfe'] else 0
-            avg_mae = np.mean(episode_stats['mae']) if episode_stats['mae'] else 0
-            mfe_mae_ratio = avg_mfe / avg_mae if avg_mae > 0 else 0
-
-            # NEW DIAGNOSTICS
-            avg_entry_energy = np.mean(episode_stats['entry_energy']) if episode_stats['entry_energy'] else 0.5
-            avg_move_capture = np.mean(episode_stats['move_capture']) if episode_stats['move_capture'] else 0
-            mfe_first_pct = (sum(episode_stats['mfe_first']) / len(episode_stats['mfe_first']) * 100) if episode_stats['mfe_first'] else 0
-
-            # Get action distribution from environments
-            total_actions = {0: 0, 1: 0, 2: 0, 3: 0}
-            for _, env in envs:
-                for k, v in env.action_counts.items():
-                    total_actions[k] = total_actions.get(k, 0) + v
-            action_sum = sum(total_actions.values())
-            hold_pct = (total_actions[0] / action_sum * 100) if action_sum > 0 else 0
-            entry_pct = ((total_actions[1] + total_actions[2]) / action_sum * 100) if action_sum > 0 else 0
-
-            episode_metrics = {
-                'trades': n_trades,
-                'win_rate': win_rate,
-                'total_pnl': total_pnl,
-                'avg_loss': avg_loss,
-                'avg_mfe': avg_mfe,
-                'avg_mae': avg_mae,
-                'mfe_mae_ratio': mfe_mae_ratio,
-                'epsilon': epsilon,
-                # NEW DIAGNOSTICS
-                'avg_entry_energy': avg_entry_energy,
-                'avg_move_capture': avg_move_capture,
-                'mfe_first_pct': mfe_first_pct,
-                'hold_pct': hold_pct,
-                'entry_pct': entry_pct,
-            }
-
-            # Log to file
-            run_logger.log_episode(episode + 1, episode_metrics)
-
-            # Update Prometheus
-            rl_metrics = RLMetrics(
-                episode=episode + 1,
-                total_trades=n_trades,
-                win_rate=win_rate,
-                total_pnl=total_pnl,
-                avg_pnl=total_pnl / n_trades if n_trades > 0 else 0,
-                avg_mfe=avg_mfe,
-                avg_mae=avg_mae,
-                mfe_mae_ratio=mfe_mae_ratio,
-                mfe_captured=0,
-                epsilon=epsilon,
-                loss=avg_loss,
-                reward=0,
-            )
-            metrics.update_rl_metrics(rl_metrics)
-            metrics.complete_episode()
-
-            # Save checkpoint every 10 episodes
-            if (episode + 1) % 10 == 0:
-                saver.save_checkpoint(
-                    q_net, optimizer, episode + 1,
-                    {'best_pnl': best_pnl, **episode_metrics}
-                )
-                logger.info(f"Checkpoint saved at episode {episode + 1}")
-
-            # Save best model
-            if total_pnl > best_pnl:
-                best_pnl = total_pnl
-                saver.save_best(q_net, episode_metrics)
-
-            # Print progress - standard metrics
-            logger.info(
-                f"Ep {episode+1:3d}/{n_episodes} | "
-                f"Trades: {n_trades:3d} | "
-                f"WR: {win_rate:5.1f}% | "
-                f"PnL: {total_pnl:+8.2f}% | "
-                f"Loss: {avg_loss:.4f} | "
-                f"ε: {epsilon:.3f}"
-            )
-            # DIAGNOSTIC LINE - Entry quality and capture
-            logger.info(
-                f"  └─ EntryE: {avg_entry_energy:.2f} | "
-                f"MoveCap: {avg_move_capture:+.1f}% | "
-                f"MFE1st: {mfe_first_pct:.0f}% | "
-                f"Hold: {hold_pct:.0f}% | "
-                f"MFE/MAE: {mfe_mae_ratio:.2f}"
-            )
-
-    except KeyboardInterrupt:
-        logger.info("\nTraining interrupted. Saving checkpoint...")
-        saver.save_checkpoint(
-            q_net, optimizer, episode,
-            {'best_pnl': best_pnl}
+        result = train_instrument_parallel(
+            instrument=instrument,
+            timeframe_files=timeframe_files,
+            device=device,
+            saver=saver,
+            run_logger=run_logger,
+            n_episodes=n_episodes,
         )
 
-    # Final save
-    saver.save_checkpoint(
-        q_net, optimizer, n_episodes,
-        {'best_pnl': best_pnl}
-    )
+        all_results[instrument] = result
 
-    # Log summary
+    # Final summary
+    logger.info("\n" + "=" * 70)
+    logger.info("TRAINING COMPLETE - FINAL SUMMARY")
+    logger.info("=" * 70)
+
+    best_overall = {'instrument': None, 'timeframe': None, 'pnl': float('-inf')}
+
+    for instrument, result in all_results.items():
+        if result.get('best_pnl', float('-inf')) > best_overall['pnl']:
+            best_overall['instrument'] = instrument
+            best_overall['timeframe'] = result.get('best_timeframe')
+            best_overall['pnl'] = result.get('best_pnl', 0)
+
+        logger.info(f"  {instrument}: Best={result.get('best_timeframe')} @ {result.get('best_pnl', 0):+.2f}%")
+
+    logger.info(f"\n  OVERALL BEST: {best_overall['instrument']} / {best_overall['timeframe']} "
+               f"with {best_overall['pnl']:+.2f}% PnL")
+    logger.info("=" * 70)
+
+    # Save final summary
     run_logger.log_summary({
-        'total_episodes': n_episodes,
-        'best_pnl': best_pnl,
-        'final_epsilon': epsilon,
-        'total_steps': total_steps,
-        'instruments': [name for name, _ in envs],
+        'instruments': list(all_results.keys()),
+        'results': all_results,
+        'best_overall': best_overall,
+        'episodes_per_timeframe': n_episodes,
     })
-
-    logger.info("-" * 70)
-    logger.info(f"Training complete! Best P&L: {best_pnl:.2f}%")
-    logger.info(f"Models saved to: {models_dir}")
-    logger.info(f"Logs saved to: {logs_dir}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Berserker Entry Training")
     parser.add_argument("--run", type=str, help="Run name (e.g., berserker_run1)")
     parser.add_argument("--new-run", action="store_true", help="Create new run")
-    parser.add_argument("--episodes", type=int, default=100, help="Number of episodes")
-    parser.add_argument("--no-resume", action="store_true", help="Don't resume from checkpoint")
+    parser.add_argument("--episodes", type=int, default=100, help="Episodes per timeframe")
     parser.add_argument("--port", type=int, default=8001, help="Metrics port")
     args = parser.parse_args()
 
@@ -519,7 +664,6 @@ def main():
                 logger.info(f"  - {run['name']}")
             return
     else:
-        # Use most recent run or create new one
         runs = dm.list_runs()
         if runs:
             run_name = runs[-1]['name']
@@ -531,7 +675,6 @@ def main():
     train_berserker(
         run_dir=run_dir,
         n_episodes=args.episodes,
-        resume=not args.no_resume,
         metrics_port=args.port,
     )
 
