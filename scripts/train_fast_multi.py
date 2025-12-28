@@ -128,21 +128,37 @@ def train_fast(data_paths: list, n_episodes: int = 100, metrics_port: int = 8000
                     batch = buffer.sample(config.batch_size)
                     states, actions, rewards, next_states, dones = batch
 
-                    states = torch.FloatTensor(np.array(states)).to(device)
+                    # Convert to tensors with NaN handling
+                    states_np = np.array(states)
+                    next_states_np = np.array(next_states)
+
+                    # Replace NaN/inf with 0.5 (neutral value for percentiles)
+                    states_np = np.nan_to_num(states_np, nan=0.5, posinf=1.0, neginf=0.0)
+                    next_states_np = np.nan_to_num(next_states_np, nan=0.5, posinf=1.0, neginf=0.0)
+
+                    # Clip to reasonable range (percentiles should be 0-1, but position info may vary)
+                    states_np = np.clip(states_np, -10, 10)
+                    next_states_np = np.clip(next_states_np, -10, 10)
+
+                    states = torch.FloatTensor(states_np).to(device)
                     actions = torch.LongTensor(actions).to(device)
-                    rewards = torch.FloatTensor(rewards).to(device)
-                    next_states = torch.FloatTensor(np.array(next_states)).to(device)
+                    rewards = torch.FloatTensor(np.clip(rewards, -10, 10)).to(device)  # Clip rewards too
+                    next_states = torch.FloatTensor(next_states_np).to(device)
                     dones = torch.FloatTensor(dones).to(device)
 
                     with torch.no_grad():
                         next_q = target_net(next_states).max(1)[0]
                         targets = rewards + config.gamma * next_q * (1 - dones)
+                        # Clip targets to prevent explosion
+                        targets = torch.clamp(targets, -100, 100)
 
                     current_q = q_net(states).gather(1, actions.unsqueeze(1)).squeeze()
-                    loss = torch.nn.functional.mse_loss(current_q, targets)
+                    loss = torch.nn.functional.huber_loss(current_q, targets)  # Huber loss more stable
 
                     optimizer.zero_grad()
                     loss.backward()
+                    # Gradient clipping to prevent explosion
+                    torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
                     optimizer.step()
                     losses.append(loss.item())
 
