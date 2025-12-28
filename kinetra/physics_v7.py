@@ -598,7 +598,6 @@ def compute_symc_ratio(high, low, close, volume, lookback: int = 20):
     - ω (natural frequency) ≈ volatility (how fast price oscillates)
     """
     high = pd.Series(high)
-    low = pd.Series(low)
     close = pd.Series(close)
     volume = pd.Series(volume)
 
