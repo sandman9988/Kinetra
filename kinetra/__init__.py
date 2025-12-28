@@ -67,6 +67,16 @@ from .strategies_v7 import (
     get_v7_strategy,
 )
 
+# Health Score & Reward Shaping
+from .health_score import (
+    RewardShaper,
+    CompositeHealthScore,
+    TradeReward,
+    HealthScore,
+    compute_reward_from_trade,
+    compute_health_from_metrics,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -120,4 +130,11 @@ __all__ = [
     "MultiAgentV7Strategy",
     "list_v7_strategies",
     "get_v7_strategy",
+    # Health Score & Reward Shaping
+    "RewardShaper",
+    "CompositeHealthScore",
+    "TradeReward",
+    "HealthScore",
+    "compute_reward_from_trade",
+    "compute_health_from_metrics",
 ]
