@@ -77,6 +77,22 @@ from .health_score import (
     compute_health_from_metrics,
 )
 
+# Market Microstructure & Friction
+from .market_microstructure import (
+    SymbolSpec,
+    AssetClass,
+    FrictionModel,
+    AdaptiveFrictionTracker,
+    get_symbol_spec,
+    compute_friction_series,
+)
+
+# MT5 Bridge (Direct, MetaAPI, Bridge modes)
+from .mt5_bridge import (
+    MT5Bridge,
+    save_bridge_server_script,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -137,4 +153,14 @@ __all__ = [
     "HealthScore",
     "compute_reward_from_trade",
     "compute_health_from_metrics",
+    # Market Microstructure & Friction
+    "SymbolSpec",
+    "AssetClass",
+    "FrictionModel",
+    "AdaptiveFrictionTracker",
+    "get_symbol_spec",
+    "compute_friction_series",
+    # MT5 Bridge
+    "MT5Bridge",
+    "save_bridge_server_script",
 ]
