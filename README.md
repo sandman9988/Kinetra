@@ -65,7 +65,33 @@ Market Data → Physics Engine → Regime Detection → RL Agent → Risk Manage
 
 ## 🚀 Quick Start
 
-### Installation
+### Pop!_OS / Ubuntu Full Setup
+
+For a fresh Pop!_OS or Ubuntu installation, use the automated setup scripts:
+
+```bash
+# Clone repository
+git clone https://github.com/sandman9988/Kinetra.git
+cd Kinetra
+
+# Option 1: Use Makefile (recommended)
+make setup          # Full Python dev environment
+make setup-mt5      # Install MetaTrader 5 via Wine
+
+# Option 2: Run scripts directly
+chmod +x scripts/setup_dev_env.sh scripts/setup_mt5_wine.sh
+./scripts/setup_dev_env.sh    # Python + dependencies
+./scripts/setup_mt5_wine.sh   # MT5 via Wine
+```
+
+After setup:
+```bash
+source .venv/bin/activate     # Activate virtual environment
+make test                     # Run test suite
+make mt5                      # Launch MetaTrader 5
+```
+
+### Manual Installation
 
 ```bash
 # Clone repository
@@ -106,28 +132,31 @@ docker-compose up -d
 ```
 Kinetra/
 ├── .github/workflows/       # CI/CD pipelines
-│   ├── ci_backtest.yml     # Continuous backtesting
-│   ├── cd_deploy.yml       # Auto-deployment
-│   └── theorem_validation.yml
+│   └── ci.yml              # Tests, lint, backtest
 ├── kinetra/                 # Core system
 │   ├── physics_engine.py   # Energy, damping, entropy
 │   ├── risk_management.py  # RoR, CHS, position sizing
 │   ├── rl_agent.py         # PPO reinforcement learning
 │   ├── reward_shaping.py   # Adaptive reward (ARS)
 │   ├── backtest_engine.py  # Monte Carlo validation
-│   └── health_monitor.py   # Real-time monitoring
+│   ├── health_monitor.py   # Real-time monitoring
+│   └── mt5_connector.py    # MetaTrader 5 integration
 ├── tests/                   # Comprehensive testing
 │   ├── test_physics.py
-│   ├── test_rl.py
-│   └── test_backtest.py
+│   ├── test_risk.py
+│   └── test_integration.py
 ├── docs/                    # Design Bible
 │   ├── architecture.md
 │   ├── theorem_proofs.md
 │   └── deployment.md
-├── scripts/                 # Automation
-│   └── batch_backtest.py
+├── scripts/                 # Automation & setup
+│   ├── setup_dev_env.sh    # Python environment setup
+│   ├── setup_mt5_wine.sh   # MT5 Wine installation
+│   ├── run_mt5.sh          # Launch MT5
+│   └── batch_backtest.py   # Batch backtesting
 ├── data/                    # Market data (gitignored)
-└── Dockerfile              # Production container
+├── Dockerfile              # Production container
+└── Makefile                # Dev commands
 ```
 
 ## 🔬 First Principles Design

@@ -14,6 +14,7 @@ from .rl_agent import KinetraAgent
 from .reward_shaping import AdaptiveRewardShaper
 from .backtest_engine import BacktestEngine
 from .health_monitor import HealthMonitor
+from .mt5_connector import MT5Connector, MT5Session, load_csv_data
 
 __all__ = [
     "PhysicsEngine",
@@ -27,4 +28,7 @@ __all__ = [
     "AdaptiveRewardShaper",
     "BacktestEngine",
     "HealthMonitor",
+    "MT5Connector",
+    "MT5Session",
+    "load_csv_data",
 ]
