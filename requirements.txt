@@ -12,6 +12,7 @@ gymnasium>=0.28.0
 pydantic>=2.0.0
 
 # Backtesting & Analysis
+backtesting>=0.6.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 plotly>=5.14.0
