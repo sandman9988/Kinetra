@@ -125,19 +125,39 @@ class PhysicsFeatureComputer:
         )
 
         # === REYNOLDS NUMBER (Turbulent vs Laminar) ===
-        # Re = (velocity * range * volume) / volatility
-        # Low Re = laminar = trending (CONTINUATION)
-        # High Re = turbulent = chaotic (REVERSAL likely)
         bar_range_pct = (df['high'] - df['low']) / df['close']
         volatility_re = velocity.rolling(self.lookback).std().clip(lower=1e-10)
         volume_norm = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
         reynolds = (velocity.abs() * bar_range_pct * volume_norm) / volatility_re
         result['reynolds'] = reynolds.rolling(self.lookback).mean()
 
+        # === VISCOSITY (resistance to flow) ===
+        avg_volume = df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        volume_norm_v = df['volume'] / avg_volume
+        viscosity = bar_range_pct / volume_norm_v.clip(lower=1e-10)
+        result['viscosity'] = viscosity.rolling(self.lookback).mean()
+
+        # === ANGULAR MOMENTUM (rotational/cyclical) ===
+        price_mean = df['close'].rolling(self.lookback).mean()
+        price_deviation = df['close'] - price_mean
+        angular_position = price_deviation / df['close'].rolling(self.lookback).std().clip(lower=1e-10)
+        angular_velocity = angular_position.diff()
+        result['angular_momentum'] = angular_position * angular_velocity
+
+        # === POTENTIAL ENERGY (stored in compression) ===
+        bar_range = df['high'] - df['low']
+        avg_range = bar_range.rolling(self.lookback).mean()
+        range_compression = 1 - (bar_range / avg_range.clip(lower=1e-10))
+        result['potential_energy'] = range_compression.clip(lower=0) * volatility_re
+
+        # === MOMENTUM DIRECTION (for RL to learn continuation vs reversal) ===
+        result['momentum_direction'] = np.sign(df['close'].pct_change(5))
+
         # === CONVERT TO PERCENTILES (Adaptive, no fixed thresholds) ===
         feature_cols = ['energy', 'damping', 'entropy', 'acceleration', 'jerk',
                        'impulse', 'liquidity', 'buying_pressure', 'range_position',
-                       'flow_consistency', 'roc', 'inertia', 'volume_pct', 'reynolds']
+                       'flow_consistency', 'roc', 'inertia', 'volume_pct', 'reynolds',
+                       'viscosity', 'angular_momentum', 'potential_energy']
 
         for col in feature_cols:
             result[f'{col}_pct'] = result[col].rolling(window, min_periods=self.lookback).apply(
