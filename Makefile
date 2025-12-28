@@ -19,6 +19,7 @@ setup-mt5:
 
 install:
 	pip install -r requirements.txt
+	pip install -e .
 
 test:
 	pytest tests/ -v

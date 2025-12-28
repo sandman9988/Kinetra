@@ -115,6 +115,9 @@ fi
 # Install project requirements
 pip install -r requirements.txt
 
+# Install kinetra package in editable mode
+pip install -e .
+
 print_status "Project dependencies installed"
 
 # ==========================================
