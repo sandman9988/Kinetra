@@ -190,42 +190,62 @@ class PhysicsEngine:
             return RegimeType.OVERDAMPED  # High friction -> ranging
     
     def compute_physics_state(
-        self, 
-        prices: pd.Series, 
-        volume: Optional[pd.Series] = None
+        self,
+        prices: pd.Series,
+        volume: Optional[pd.Series] = None,
+        include_percentiles: bool = True
     ) -> pd.DataFrame:
         """
         Compute complete physics state for market data.
-        
+
         Args:
             prices: Time series of prices
             volume: Optional volume data
-            
+            include_percentiles: Include rolling percentile ranks (adaptive per instrument)
+
         Returns:
-            DataFrame with columns: energy, damping, entropy, regime
+            DataFrame with columns: energy, damping, entropy, regime, and optionally
+            energy_pct, damping_pct, entropy_pct (rolling percentile ranks 0-1)
         """
         energy = self.calculate_energy(prices)
         damping = self.calculate_damping(prices, volume)
         entropy = self.calculate_entropy(prices)
-        
+
         # Ensure all series have same index
         energy = energy.reindex(prices.index, fill_value=0.0)
         damping = damping.reindex(prices.index, fill_value=0.0)
         entropy = entropy.reindex(prices.index, fill_value=0.0)
-        
+
         # Create state DataFrame
         state = pd.DataFrame({
             'energy': energy,
             'damping': damping,
             'entropy': entropy
         }, index=prices.index)
-        
+
         # Force non-negative values (numerical stability)
         state['energy'] = state['energy'].clip(lower=0.0)
         state['damping'] = state['damping'].clip(lower=0.0)
         state['entropy'] = state['entropy'].clip(lower=0.0)
-        
-        # Classify regime for each timestep
+
+        # Add rolling percentile ranks (ADAPTIVE PER INSTRUMENT)
+        # These are the key features for RL - no fixed thresholds
+        if include_percentiles:
+            window = min(500, len(state))  # Rolling window for percentiles
+            state['energy_pct'] = state['energy'].rolling(window, min_periods=self.lookback).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
+                raw=False
+            ).fillna(0.5)
+            state['damping_pct'] = state['damping'].rolling(window, min_periods=self.lookback).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
+                raw=False
+            ).fillna(0.5)
+            state['entropy_pct'] = state['entropy'].rolling(window, min_periods=self.lookback).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
+                raw=False
+            ).fillna(0.5)
+
+        # Classify regime for each timestep (human-readable label, not for trading)
         regimes = []
         for i in range(len(state)):
             if i < self.lookback:
@@ -240,14 +260,14 @@ class PhysicsEngine:
                     history_damping
                 )
                 regimes.append(regime)
-        
+
         state['regime'] = [r.value for r in regimes]
-        
+
         # Validate physics constraints
         assert (state['energy'] >= 0).all(), "Energy must be non-negative"
         assert (state['damping'] >= 0).all(), "Damping must be non-negative"
         assert (state['entropy'] >= 0).all(), "Entropy must be non-negative"
-        
+
         return state
 
 

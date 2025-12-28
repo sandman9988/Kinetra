@@ -91,7 +91,7 @@ class TradingEnv:
     def _compute_features(self):
         """Compute all physics features upfront."""
         engine = PhysicsEngine(lookback=self.lookback)
-        physics = engine.compute_physics_state(self.data['close'])
+        physics = engine.compute_physics_state(self.data['close'], include_percentiles=True)
 
         self.features = pd.DataFrame({
             'open': self.data['open'],
@@ -102,22 +102,94 @@ class TradingEnv:
             'damping': physics['damping'],
             'entropy': physics['entropy'],
             'regime': physics['regime'],
+            # ADAPTIVE PERCENTILES - no fixed thresholds, instrument-specific
+            'energy_pct': physics['energy_pct'],
+            'damping_pct': physics['damping_pct'],
+            'entropy_pct': physics['entropy_pct'],
         })
 
-        # Encode regime as numeric
+        # Encode regime as numeric (human label, not for trading decisions)
         regime_map = {'underdamped': 0, 'critical': 1, 'overdamped': 2}
         self.features['regime_code'] = self.features['regime'].map(regime_map).fillna(1)
 
-        # Momentum features
-        self.features['returns'] = self.data['close'].pct_change()
-        self.features['momentum_5'] = self.data['close'].pct_change(5)
-        self.features['momentum_20'] = self.data['close'].pct_change(20)
+        # PRICE DYNAMICS - raw velocity and acceleration
+        self.features['price_velocity'] = self.data['close'].diff()
+        self.features['price_accel'] = self.features['price_velocity'].diff()
+        self.features['returns'] = self.data['close'].pct_change()  # For normalization
 
-        # Energy dynamics
+        # ENERGY DYNAMICS - key trigger contributors
+        self.features['energy_velocity'] = self.features['energy'].diff()
+        self.features['energy_accel'] = self.features['energy_velocity'].diff()
         self.features['energy_change'] = self.features['energy'].pct_change()
-        self.features['energy_ma5'] = self.features['energy'].rolling(5).mean()
-        self.features['energy_ma20'] = self.features['energy'].rolling(20).mean()
-        self.features['energy_std5'] = self.features['energy'].rolling(5).std()
+
+        # DAMPING DYNAMICS - damping buildup precedes release
+        self.features['damping_velocity'] = self.features['damping'].diff()
+
+        # CROSS-FEATURE RATIO - physics relationship (no fixed thresholds)
+        self.features['energy_damping_ratio'] = self.features['energy'] / (self.features['damping'] + 1e-8)
+
+        # REGIME TRANSITIONS - key trigger
+        self.features['regime_changed'] = (self.features['regime'] != self.features['regime'].shift(1)).astype(float)
+        self.features['regime_lag1'] = self.features['regime_code'].shift(1)
+        self.features['regime_lag2'] = self.features['regime_code'].shift(2)
+
+        # ADAPTIVE PERCENTILES for dynamics (all relative, no fixed thresholds)
+        window = min(200, len(self.features))
+
+        # Energy dynamics percentiles
+        self.features['energy_vel_pct'] = self.features['energy_velocity'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+        self.features['energy_acc_pct'] = self.features['energy_accel'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # Price dynamics percentiles
+        self.features['price_vel_pct'] = self.features['price_velocity'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+        self.features['price_acc_pct'] = self.features['price_accel'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # Damping dynamics percentile
+        self.features['damp_vel_pct'] = self.features['damping_velocity'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # Cross-feature ratio percentile
+        self.features['edr_pct'] = self.features['energy_damping_ratio'].rolling(window, min_periods=20).apply(
+            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        ).fillna(0.5)
+
+        # LIQUIDITY FEATURES (volume-based)
+        if 'volume' in self.data.columns and self.data['volume'].sum() > 0:
+            self.features['volume'] = self.data['volume']
+            self.features['volume_velocity'] = self.features['volume'].diff()
+
+            # Volume percentiles (adaptive)
+            vol_window = min(200, len(self.features))
+            self.features['volume_pct'] = self.features['volume'].rolling(vol_window, min_periods=20).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+            ).fillna(0.5)
+            self.features['vol_vel_pct'] = self.features['volume_velocity'].rolling(vol_window, min_periods=20).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+            ).fillna(0.5)
+
+            # Volume-price divergence (high volume on small moves = absorption)
+            abs_return = self.features['returns'].abs() + 1e-10
+            self.features['vol_price_ratio'] = self.features['volume'] / (abs_return * self.features['close'])
+            self.features['vpr_pct'] = self.features['vol_price_ratio'].rolling(vol_window, min_periods=20).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+            ).fillna(0.5)
+        else:
+            # No volume data - use neutral values
+            self.features['volume_pct'] = 0.5
+            self.features['vol_vel_pct'] = 0.5
+            self.features['vpr_pct'] = 0.5
+
+        # SPECTRAL FEATURES (FFT-based) - frequency domain analysis
+        self._compute_spectral_features()
 
         # Volatility (for reward normalization)
         self.features['atr'] = self._compute_atr(14)
@@ -127,6 +199,65 @@ class TradingEnv:
 
         # Normalize features for neural network
         self._normalize_features()
+
+    def _compute_spectral_features(self, window: int = 32):
+        """
+        Compute FFT-based spectral features.
+
+        Extracts:
+        - dominant_freq: Strongest oscillation frequency (normalized)
+        - spectral_energy: Total power in frequency domain
+        - spectral_entropy: Disorder in frequency distribution
+        - low_freq_ratio: Energy in low frequencies (trend component)
+        """
+        prices = self.features['close'].values
+
+        # Rolling FFT features
+        n = len(prices)
+        dom_freq = np.zeros(n)
+        spec_energy = np.zeros(n)
+        spec_entropy = np.zeros(n)
+        low_freq_ratio = np.zeros(n)
+
+        for i in range(window, n):
+            segment = prices[i-window:i]
+            # Detrend
+            segment = segment - np.mean(segment)
+
+            # FFT
+            fft = np.fft.rfft(segment)
+            power = np.abs(fft) ** 2
+
+            # Avoid division by zero
+            total_power = np.sum(power) + 1e-10
+
+            # Dominant frequency (normalized to [0, 1])
+            dom_idx = np.argmax(power[1:]) + 1  # Skip DC component
+            dom_freq[i] = dom_idx / (window / 2)  # Normalize by Nyquist
+
+            # Spectral energy (log scale, normalized)
+            spec_energy[i] = np.log1p(total_power)
+
+            # Spectral entropy (disorder in frequency distribution)
+            power_norm = power / total_power
+            power_norm = power_norm[power_norm > 1e-10]
+            spec_entropy[i] = -np.sum(power_norm * np.log(power_norm))
+
+            # Low frequency ratio (trend vs noise)
+            low_cutoff = max(1, len(power) // 4)
+            low_freq_ratio[i] = np.sum(power[:low_cutoff]) / total_power
+
+        self.features['dom_freq'] = dom_freq
+        self.features['spec_energy'] = spec_energy
+        self.features['spec_entropy'] = spec_entropy
+        self.features['low_freq_ratio'] = low_freq_ratio
+
+        # Convert to percentiles (adaptive)
+        window_pct = min(200, n)
+        for col in ['dom_freq', 'spec_energy', 'spec_entropy', 'low_freq_ratio']:
+            self.features[f'{col}_pct'] = self.features[col].rolling(window_pct, min_periods=20).apply(
+                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+            ).fillna(0.5)
 
     def _compute_atr(self, period: int = 14) -> pd.Series:
         """Compute Average True Range."""
@@ -160,12 +291,21 @@ class TradingEnv:
 
     def _get_state_dim(self) -> int:
         """Calculate state dimension."""
-        # Core features (normalized)
-        core_features = 11  # energy, damping, entropy, regime, returns, momentum*2, energy_change, energy_ma*2, energy_std
-        # Position state
-        position_features = 4  # direction, unrealized_pnl_norm, bars_in_trade, mfe_mae_ratio
-        # History (optional)
-        history_features = self.state_history * 3  # energy, damping, entropy history
+        # Physics percentiles (3): energy_pct, damping_pct, entropy_pct
+        # Energy dynamics (2): energy_vel_pct, energy_acc_pct
+        # Price dynamics (2): price_vel_pct, price_acc_pct
+        # Damping dynamics (1): damp_vel_pct
+        # Cross-feature (1): edr_pct (energy/damping ratio)
+        # Liquidity (3): volume_pct, vol_vel_pct, vpr_pct
+        # Spectral (4): dom_freq_pct, spec_energy_pct, spec_entropy_pct, low_freq_ratio_pct
+        # Regime (3): regime_code, regime_changed, regime_lag1
+        core_features = 19
+
+        # Position state (4): direction, unrealized_pnl, bars_in_trade, mfe_mae_ratio
+        position_features = 4
+
+        # History (4 per bar): energy_pct, energy_vel_pct, price_vel_pct, volume_pct
+        history_features = self.state_history * 4
 
         return core_features + position_features + history_features
 
@@ -180,23 +320,46 @@ class TradingEnv:
         return self._get_state()
 
     def _get_state(self) -> np.ndarray:
-        """Get current state vector."""
+        """Get current state vector - ALL adaptive percentiles, no fixed thresholds."""
         bar = self.current_bar
         f = self.features
 
-        # Core normalized features
+        # ALL features are adaptive percentiles [0, 1] - instrument-specific
         state = [
-            f.loc[bar, 'energy_norm'] if 'energy_norm' in f.columns else 0,
-            f.loc[bar, 'damping_norm'] if 'damping_norm' in f.columns else 0,
-            f.loc[bar, 'entropy_norm'] if 'entropy_norm' in f.columns else 0,
-            f.loc[bar, 'regime_code'] / 2.0,  # 0, 0.5, 1
-            f.loc[bar, 'returns_norm'] if 'returns_norm' in f.columns else 0,
-            f.loc[bar, 'momentum_5_norm'] if 'momentum_5_norm' in f.columns else 0,
-            f.loc[bar, 'momentum_20_norm'] if 'momentum_20_norm' in f.columns else 0,
-            f.loc[bar, 'energy_change_norm'] if 'energy_change_norm' in f.columns else 0,
-            f.loc[bar, 'energy_ma5_norm'] if 'energy_ma5_norm' in f.columns else 0,
-            f.loc[bar, 'energy_ma20_norm'] if 'energy_ma20_norm' in f.columns else 0,
-            f.loc[bar, 'energy_std5_norm'] if 'energy_std5_norm' in f.columns else 0,
+            # Physics percentiles (3)
+            f.loc[bar, 'energy_pct'],
+            f.loc[bar, 'damping_pct'],
+            f.loc[bar, 'entropy_pct'],
+
+            # Energy dynamics percentiles (2)
+            f.loc[bar, 'energy_vel_pct'],
+            f.loc[bar, 'energy_acc_pct'],
+
+            # Price dynamics percentiles (2)
+            f.loc[bar, 'price_vel_pct'],
+            f.loc[bar, 'price_acc_pct'],
+
+            # Damping dynamics (1)
+            f.loc[bar, 'damp_vel_pct'],
+
+            # Cross-feature ratio (1)
+            f.loc[bar, 'edr_pct'],
+
+            # Liquidity percentiles (3)
+            f.loc[bar, 'volume_pct'],
+            f.loc[bar, 'vol_vel_pct'],
+            f.loc[bar, 'vpr_pct'],
+
+            # Spectral features (4) - frequency domain
+            f.loc[bar, 'dom_freq_pct'],
+            f.loc[bar, 'spec_energy_pct'],
+            f.loc[bar, 'spec_entropy_pct'],
+            f.loc[bar, 'low_freq_ratio_pct'],
+
+            # Regime (3)
+            f.loc[bar, 'regime_code'] / 2.0,
+            f.loc[bar, 'regime_changed'],
+            f.loc[bar, 'regime_lag1'] / 2.0 if pd.notna(f.loc[bar, 'regime_lag1']) else 0.5,
         ]
 
         # Position state
@@ -216,17 +379,18 @@ class TradingEnv:
         else:
             state.extend([0, 0, 0, 0.5])
 
-        # History
+        # History - key dynamics percentiles
         for i in range(self.state_history):
             hist_bar = bar - i - 1
             if hist_bar >= 0:
                 state.extend([
-                    f.loc[hist_bar, 'energy_norm'] if 'energy_norm' in f.columns else 0,
-                    f.loc[hist_bar, 'damping_norm'] if 'damping_norm' in f.columns else 0,
-                    f.loc[hist_bar, 'entropy_norm'] if 'entropy_norm' in f.columns else 0,
+                    f.loc[hist_bar, 'energy_pct'],      # Energy level
+                    f.loc[hist_bar, 'energy_vel_pct'],  # Energy velocity
+                    f.loc[hist_bar, 'price_vel_pct'],   # Price velocity
+                    f.loc[hist_bar, 'volume_pct'],      # Liquidity
                 ])
             else:
-                state.extend([0, 0, 0])
+                state.extend([0.5, 0.5, 0.5, 0.5])  # Neutral
 
         return np.array(state, dtype=np.float32)
 

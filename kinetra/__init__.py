@@ -21,7 +21,18 @@ from .symbol_spec import (
 )
 from .backtest_engine import Trade, TradeDirection, BacktestResult
 from .trigger_predictor import TriggerPredictor, TriggerPrediction, Direction
-from .trading_env import TradingEnv, Action, Position
+
+# RL components require PyTorch
+try:
+    from .rl_agent import KinetraAgent
+    from .trading_env import TradingEnv, Action, Position
+    _RL_AVAILABLE = True
+except ImportError:
+    KinetraAgent = None
+    TradingEnv = None
+    Action = None
+    Position = None
+    _RL_AVAILABLE = False
 
 __all__ = [
     "PhysicsEngine",
