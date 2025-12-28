@@ -263,7 +263,14 @@ def train_berserker(
 
     try:
         for episode in range(start_episode, n_episodes):
-            episode_stats = {'trades': 0, 'wins': 0, 'pnl': 0, 'mfe': [], 'mae': []}
+            episode_stats = {
+                'trades': 0, 'wins': 0, 'pnl': 0,
+                'mfe': [], 'mae': [],
+                # NEW DIAGNOSTICS
+                'entry_energy': [],  # What energy percentile at entry
+                'move_capture': [],  # % of move captured
+                'mfe_first': [],     # Did MFE come before MAE?
+            }
             losses = []
 
             for inst_name, env in envs:
@@ -292,6 +299,10 @@ def train_berserker(
                             episode_stats['wins'] += 1
                         episode_stats['mfe'].append(info.get('mfe', 0))
                         episode_stats['mae'].append(info.get('mae', 0))
+                        # NEW DIAGNOSTICS
+                        episode_stats['entry_energy'].append(info.get('entry_energy', 0.5))
+                        episode_stats['move_capture'].append(info.get('move_capture', 0))
+                        episode_stats['mfe_first'].append(info.get('mfe_first', False))
                         metrics.record_trade(pnl)
 
                     # Training step
@@ -349,6 +360,20 @@ def train_berserker(
             avg_mae = np.mean(episode_stats['mae']) if episode_stats['mae'] else 0
             mfe_mae_ratio = avg_mfe / avg_mae if avg_mae > 0 else 0
 
+            # NEW DIAGNOSTICS
+            avg_entry_energy = np.mean(episode_stats['entry_energy']) if episode_stats['entry_energy'] else 0.5
+            avg_move_capture = np.mean(episode_stats['move_capture']) if episode_stats['move_capture'] else 0
+            mfe_first_pct = (sum(episode_stats['mfe_first']) / len(episode_stats['mfe_first']) * 100) if episode_stats['mfe_first'] else 0
+
+            # Get action distribution from environments
+            total_actions = {0: 0, 1: 0, 2: 0, 3: 0}
+            for _, env in envs:
+                for k, v in env.action_counts.items():
+                    total_actions[k] = total_actions.get(k, 0) + v
+            action_sum = sum(total_actions.values())
+            hold_pct = (total_actions[0] / action_sum * 100) if action_sum > 0 else 0
+            entry_pct = ((total_actions[1] + total_actions[2]) / action_sum * 100) if action_sum > 0 else 0
+
             episode_metrics = {
                 'trades': n_trades,
                 'win_rate': win_rate,
@@ -358,6 +383,12 @@ def train_berserker(
                 'avg_mae': avg_mae,
                 'mfe_mae_ratio': mfe_mae_ratio,
                 'epsilon': epsilon,
+                # NEW DIAGNOSTICS
+                'avg_entry_energy': avg_entry_energy,
+                'avg_move_capture': avg_move_capture,
+                'mfe_first_pct': mfe_first_pct,
+                'hold_pct': hold_pct,
+                'entry_pct': entry_pct,
             }
 
             # Log to file
@@ -394,7 +425,7 @@ def train_berserker(
                 best_pnl = total_pnl
                 saver.save_best(q_net, episode_metrics)
 
-            # Print progress
+            # Print progress - standard metrics
             logger.info(
                 f"Ep {episode+1:3d}/{n_episodes} | "
                 f"Trades: {n_trades:3d} | "
@@ -402,6 +433,14 @@ def train_berserker(
                 f"PnL: {total_pnl:+8.2f}% | "
                 f"Loss: {avg_loss:.4f} | "
                 f"ε: {epsilon:.3f}"
+            )
+            # DIAGNOSTIC LINE - Entry quality and capture
+            logger.info(
+                f"  └─ EntryE: {avg_entry_energy:.2f} | "
+                f"MoveCap: {avg_move_capture:+.1f}% | "
+                f"MFE1st: {mfe_first_pct:.0f}% | "
+                f"Hold: {hold_pct:.0f}% | "
+                f"MFE/MAE: {mfe_mae_ratio:.2f}"
             )
 
     except KeyboardInterrupt:

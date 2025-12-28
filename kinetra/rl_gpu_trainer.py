@@ -230,6 +230,9 @@ if TORCH_AVAILABLE:
             self.state_dim = len(self.feature_cols) + 4  # + position info
             self.action_dim = 4
 
+            # DIAGNOSTIC: Track action distribution
+            self.action_counts = {0: 0, 1: 0, 2: 0, 3: 0}
+
             self.reset()
 
         def reset(self) -> np.ndarray:
@@ -240,6 +243,13 @@ if TORCH_AVAILABLE:
             self.mfe = 0.0
             self.mae = 0.0
             self.trades = []
+            # DIAGNOSTIC: Reset action counts
+            self.action_counts = {0: 0, 1: 0, 2: 0, 3: 0}
+            # DIAGNOSTIC: Track entry quality
+            self.entry_energy_pct = 0.0
+            self.entry_candle_position = 0.0  # 0=low, 1=high of entry candle
+            self.move_high = 0.0  # Highest point after entry
+            self.move_low = 0.0   # Lowest point after entry
             return self._get_state()
 
         def _get_state(self) -> np.ndarray:
@@ -266,11 +276,18 @@ if TORCH_AVAILABLE:
             reward = 0.0
             info = {}
 
+            # DIAGNOSTIC: Track action distribution
+            self.action_counts[action] = self.action_counts.get(action, 0) + 1
+
             current = self.df.iloc[self.idx]
             high, low, close = current['high'], current['low'], current['close']
+            candle_range = high - low if high > low else 0.0001
 
-            # Update MFE/MAE if in position
+            # Update MFE/MAE and move tracking if in position
             if self.position != 0:
+                self.move_high = max(self.move_high, high)
+                self.move_low = min(self.move_low, low)
+
                 if self.position == 1:
                     self.mfe = max(self.mfe, (high - self.entry_price) / self.entry_price * 100)
                     self.mae = max(self.mae, (self.entry_price - low) / self.entry_price * 100)
@@ -285,6 +302,11 @@ if TORCH_AVAILABLE:
                 self.entry_bar = self.idx
                 self.mfe = 0.0
                 self.mae = 0.0
+                # DIAGNOSTIC: Entry quality
+                self.entry_energy_pct = self.feature_df.iloc[self.idx].get('energy_pct', 0.5)
+                self.entry_candle_position = (close - low) / candle_range  # Where in candle we entered
+                self.move_high = high
+                self.move_low = low
 
             elif action == self.SHORT and self.position == 0:
                 self.position = -1
@@ -292,6 +314,11 @@ if TORCH_AVAILABLE:
                 self.entry_bar = self.idx
                 self.mfe = 0.0
                 self.mae = 0.0
+                # DIAGNOSTIC: Entry quality
+                self.entry_energy_pct = self.feature_df.iloc[self.idx].get('energy_pct', 0.5)
+                self.entry_candle_position = (high - close) / candle_range  # For short, high is bad
+                self.move_high = high
+                self.move_low = low
 
             elif action == self.EXIT and self.position != 0:
                 pnl = (close - self.entry_price) / self.entry_price * 100 * self.position
@@ -300,17 +327,46 @@ if TORCH_AVAILABLE:
                 mfe_capture = pnl / self.mfe if self.mfe > 0.01 else 0
                 efficiency = self.mfe / (self.mae + 0.01)
 
+                # DIAGNOSTIC: Calculate move capture %
+                total_move = self.move_high - self.move_low
+                if self.position == 1:
+                    captured_move = close - self.entry_price
+                    potential_move = self.move_high - self.entry_price
+                else:
+                    captured_move = self.entry_price - close
+                    potential_move = self.entry_price - self.move_low
+                move_capture_pct = (captured_move / potential_move * 100) if potential_move > 0 else 0
+
+                # DIAGNOSTIC: MFE came first or MAE came first?
+                # This is approximated - in reality we'd need bar-by-bar tracking
+                mfe_first = self.mfe > self.mae
+
                 # Composite reward: P&L + bonus for efficiency
                 reward = pnl + 0.5 * mfe_capture - 0.3 * self.mae
 
-                self.trades.append({
+                trade_info = {
                     'pnl': pnl,
                     'mfe': self.mfe,
                     'mae': self.mae,
                     'mfe_capture': mfe_capture * 100,
                     'efficiency': efficiency,
                     'bars': self.idx - self.entry_bar,
-                })
+                    # NEW DIAGNOSTICS
+                    'entry_energy_pct': self.entry_energy_pct,
+                    'entry_candle_pos': self.entry_candle_position,
+                    'move_capture_pct': move_capture_pct,
+                    'mfe_first': mfe_first,
+                    'direction': 'long' if self.position == 1 else 'short',
+                }
+                self.trades.append(trade_info)
+
+                # Return trade info for logging
+                info['trade_pnl'] = pnl
+                info['mfe'] = self.mfe
+                info['mae'] = self.mae
+                info['entry_energy'] = self.entry_energy_pct
+                info['move_capture'] = move_capture_pct
+                info['mfe_first'] = mfe_first
 
                 self.position = 0
 
@@ -326,7 +382,14 @@ if TORCH_AVAILABLE:
             if done and self.position != 0:
                 pnl = (self.df.iloc[self.idx]['close'] - self.entry_price) / self.entry_price * 100 * self.position
                 reward = pnl
-                self.trades.append({'pnl': pnl, 'mfe': self.mfe, 'mae': self.mae})
+                self.trades.append({
+                    'pnl': pnl, 'mfe': self.mfe, 'mae': self.mae,
+                    'entry_energy_pct': self.entry_energy_pct,
+                    'forced_close': True
+                })
+                info['trade_pnl'] = pnl
+                info['mfe'] = self.mfe
+                info['mae'] = self.mae
                 self.position = 0
 
             return self._get_state(), reward, done, info
@@ -339,7 +402,7 @@ if TORCH_AVAILABLE:
             mfes = [t['mfe'] for t in self.trades]
             maes = [t['mae'] for t in self.trades]
 
-            return {
+            stats = {
                 'trades': len(self.trades),
                 'win_rate': sum(1 for p in pnls if p > 0) / len(pnls) * 100,
                 'total_pnl': sum(pnls),
@@ -348,6 +411,50 @@ if TORCH_AVAILABLE:
                 'avg_mae': np.mean(maes),
                 'mfe_mae_ratio': np.mean(mfes) / (np.mean(maes) + 0.01),
             }
+
+            # NEW DIAGNOSTICS
+            # Entry energy - are we entering on high or low energy candles?
+            entry_energies = [t.get('entry_energy_pct', 0.5) for t in self.trades if 'entry_energy_pct' in t]
+            if entry_energies:
+                stats['avg_entry_energy'] = np.mean(entry_energies)
+
+            # Move capture - what % of the move after entry did we capture?
+            move_captures = [t.get('move_capture_pct', 0) for t in self.trades if 'move_capture_pct' in t]
+            if move_captures:
+                stats['avg_move_capture'] = np.mean(move_captures)
+
+            # MFE first ratio - how often did profit come before drawdown?
+            mfe_firsts = [t.get('mfe_first', False) for t in self.trades if 'mfe_first' in t]
+            if mfe_firsts:
+                stats['mfe_first_ratio'] = sum(mfe_firsts) / len(mfe_firsts) * 100
+
+            # Entry candle position - are we chasing (entering late in candle)?
+            entry_positions = [t.get('entry_candle_pos', 0.5) for t in self.trades if 'entry_candle_pos' in t]
+            if entry_positions:
+                stats['avg_entry_candle_pos'] = np.mean(entry_positions)
+
+            # Action distribution
+            total_actions = sum(self.action_counts.values())
+            if total_actions > 0:
+                stats['hold_pct'] = self.action_counts[0] / total_actions * 100
+                stats['long_pct'] = self.action_counts[1] / total_actions * 100
+                stats['short_pct'] = self.action_counts[2] / total_actions * 100
+                stats['exit_pct'] = self.action_counts[3] / total_actions * 100
+
+            # Winning vs losing trade diagnostics
+            winning = [t for t in self.trades if t['pnl'] > 0]
+            losing = [t for t in self.trades if t['pnl'] <= 0]
+
+            if winning:
+                stats['winners_avg_mfe'] = np.mean([t['mfe'] for t in winning])
+                stats['winners_avg_mae'] = np.mean([t['mae'] for t in winning])
+                stats['winners_avg_bars'] = np.mean([t.get('bars', 0) for t in winning])
+            if losing:
+                stats['losers_avg_mfe'] = np.mean([t['mfe'] for t in losing])
+                stats['losers_avg_mae'] = np.mean([t['mae'] for t in losing])
+                stats['losers_avg_bars'] = np.mean([t.get('bars', 0) for t in losing])
+
+            return stats
 
 
     class GPUTrainer:
