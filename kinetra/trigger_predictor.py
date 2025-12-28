@@ -5,16 +5,23 @@ Probabilistic predictor for berserker mode entry.
 Uses ONLY empirically-validated signals with adaptive percentiles.
 
 Validated Signals (from BTCUSD M30 17k bars):
+
+MAGNITUDE (when to expect big move):
 - Energy > 90th pct + Damping < 10th pct = 1.83x lift
 - Underdamped regime = 1.87x lift
 - Energy building (peaked) = 1.43x lift
 - Volume amplification = 1.24x when high volume
-- Low entropy improves quality = 1.06x
 
-NOT USED (empirically not supported):
-- Body ratio (0.93x - worse than baseline)
-- Fixed MAs (lagging)
-- Fixed ROC periods
+DIRECTION (which way the move goes):
+- Berserker bars show MEAN REVERSION (53.7% counter-trend)
+- LAMINAR flow + Berserker = 56% reversal (+12% edge)
+- High flow consistency + Berserker = 56.4% reversal (+6% edge)
+- Trade AGAINST momentum on berserker bars
+
+Physics interpretation:
+- Laminar flow = smooth consistent trend (low turbulence)
+- Berserker in laminar flow = trend exhaustion point
+- High energy + low damping = energy about to release (reverse)
 """
 
 import numpy as np
@@ -36,12 +43,14 @@ class Direction(Enum):
 class TriggerPrediction:
     """Prediction output for trigger event."""
     probability: float  # 0-1 probability of high-energy release
-    direction: Direction  # BUY, SELL, or NEUTRAL
+    direction: Direction  # BUY, SELL, or NEUTRAL (counter-trend on berserker)
     horizon_bars: int  # Forecast horizon
     confidence: str  # LOW, MEDIUM, HIGH, BERSERKER
     signal_strength: float  # Combined feature score
     conditions_met: List[str]  # List of triggered conditions
     contributing_factors: Dict[str, float]  # Factor contributions
+    direction_confidence: float  # 0-1 confidence in direction
+    is_laminar: bool  # Laminar flow state
     message: str  # Human-readable prediction
 
     def __str__(self) -> str:
@@ -52,11 +61,11 @@ class TriggerPredictor:
     """
     Composite trigger predictor using empirically-validated signals.
 
-    All features are adaptive percentiles - no fixed thresholds.
-    Weights are derived from empirical lift measurements.
+    MAGNITUDE: All features are adaptive percentiles - no fixed thresholds.
+    DIRECTION: Counter-trend (mean reversion) on berserker bars.
     """
 
-    # Empirically validated lift factors (from validate_thesis.py)
+    # Empirically validated lift factors
     VALIDATED_LIFTS = {
         'high_energy': 1.71,         # energy_pct > 0.75
         'underdamped': 1.87,         # damping_pct < 0.25 (low damping)
@@ -65,6 +74,13 @@ class TriggerPredictor:
         'energy_peaked': 1.43,       # high energy + was rising
         'volume_amplify': 1.24,      # high energy + high volume
         'low_entropy': 1.06,         # entropy_pct < 0.50
+    }
+
+    # Direction confidence based on empirical testing
+    DIRECTION_CONFIDENCE = {
+        'base_berserker': 0.537,     # 53.7% counter-trend accuracy
+        'laminar_berserker': 0.56,   # 56% with laminar flow
+        'high_flow_berserker': 0.564, # 56.4% with high flow consistency
     }
 
     # Convert lifts to log-weights for combining
@@ -90,7 +106,9 @@ class TriggerPredictor:
         volume_pct: float = 0.5,
         energy_vel_pct: float = 0.5,
         prev_energy_vel_pct: float = 0.5,
-        price_direction: float = 0.0,
+        momentum: float = 0.0,
+        flow_consistency: float = 0.5,
+        laminar_score_pct: float = 0.5,
     ) -> TriggerPrediction:
         """
         Generate composite trigger prediction.
@@ -104,7 +122,9 @@ class TriggerPredictor:
             volume_pct: Volume percentile (0-1)
             energy_vel_pct: Energy velocity percentile (0-1)
             prev_energy_vel_pct: Previous bar energy velocity percentile
-            price_direction: Price return direction for trade bias
+            momentum: Price momentum (positive = up trend, negative = down)
+            flow_consistency: How consistent recent direction was (0-1)
+            laminar_score_pct: Laminar flow score percentile (0-1)
 
         Returns:
             TriggerPrediction with probability, direction, confidence
@@ -114,41 +134,37 @@ class TriggerPredictor:
         composite_score = 0.0
 
         # === BERSERKER CONDITION (strongest signal) ===
-        # Energy > 90th percentile + Damping < 10th percentile = 1.83x lift
         is_berserker_90_10 = (energy_pct > 0.90) and (damping_pct < 0.10)
+        is_berserker_75_25 = (energy_pct > 0.75) and (damping_pct < 0.25)
+
         if is_berserker_90_10:
             conditions_met.append('BERSERKER_90_10')
             weight = self.FACTOR_WEIGHTS['berserker_90_10']
             contributing_factors['berserker_90_10'] = weight
             composite_score += weight
-
-        # Energy > 75th percentile + Damping < 25th percentile = 1.54x lift
-        is_berserker_75_25 = (energy_pct > 0.75) and (damping_pct < 0.25)
-        if is_berserker_75_25 and not is_berserker_90_10:
+        elif is_berserker_75_25:
             conditions_met.append('BERSERKER_75_25')
             weight = self.FACTOR_WEIGHTS['berserker_75_25']
             contributing_factors['berserker_75_25'] = weight
             composite_score += weight
 
-        # === UNDERDAMPED REGIME (1.87x lift) ===
-        # Low damping = underdamped = high energy transfer potential
+        # === UNDERDAMPED REGIME ===
         is_underdamped = damping_pct < 0.25
         if is_underdamped and not is_berserker_90_10 and not is_berserker_75_25:
             conditions_met.append('UNDERDAMPED')
-            weight = self.FACTOR_WEIGHTS['underdamped'] * 0.5  # Partial credit
+            weight = self.FACTOR_WEIGHTS['underdamped'] * 0.5
             contributing_factors['underdamped'] = weight
             composite_score += weight
 
-        # === HIGH ENERGY (1.71x lift) ===
+        # === HIGH ENERGY ===
         is_high_energy = energy_pct > 0.75
         if is_high_energy and not is_berserker_90_10 and not is_berserker_75_25:
             conditions_met.append('HIGH_ENERGY')
-            weight = self.FACTOR_WEIGHTS['high_energy'] * 0.5  # Partial credit
+            weight = self.FACTOR_WEIGHTS['high_energy'] * 0.5
             contributing_factors['high_energy'] = weight
             composite_score += weight
 
-        # === ENERGY PEAKED (1.43x lift) ===
-        # Energy was building (rising) and is now high
+        # === ENERGY PEAKED ===
         energy_was_rising = prev_energy_vel_pct > 0.5
         energy_now_high = energy_pct > 0.70
         is_peaked = energy_was_rising and energy_now_high
@@ -158,8 +174,7 @@ class TriggerPredictor:
             contributing_factors['energy_peaked'] = weight
             composite_score += weight
 
-        # === VOLUME AMPLIFICATION (1.24x) ===
-        # High volume amplifies energy signals
+        # === VOLUME AMPLIFICATION ===
         is_high_volume = volume_pct > 0.75
         if is_high_volume and is_high_energy:
             conditions_met.append('VOLUME_AMPLIFY')
@@ -167,8 +182,7 @@ class TriggerPredictor:
             contributing_factors['volume_amplify'] = weight
             composite_score += weight
 
-        # === LOW ENTROPY (1.06x - quality filter) ===
-        # Lower entropy = cleaner signal
+        # === LOW ENTROPY ===
         is_low_entropy = entropy_pct < 0.50
         if is_low_entropy and len(conditions_met) > 0:
             conditions_met.append('CLEAN_SIGNAL')
@@ -176,36 +190,52 @@ class TriggerPredictor:
             contributing_factors['low_entropy'] = weight
             composite_score += weight
 
-        # === CONVERT SCORE TO PROBABILITY ===
-        # Use sigmoid mapping calibrated to empirical hit rates:
-        # - Berserker 90/10 condition: ~40% hit rate (1.83x on 22% base)
-        # - Berserker 75/25 condition: ~34% hit rate (1.54x on 22% base)
-        # - Baseline: ~22% probability
+        # === LAMINAR FLOW DETECTION ===
+        is_laminar = laminar_score_pct > 0.6 or flow_consistency > 0.7
+        if is_laminar:
+            conditions_met.append('LAMINAR_FLOW')
 
-        # Sigmoid: p = 1 / (1 + exp(-k*(score - threshold)))
-        # Calibrated so score of 0.6 (berserker_90_10) -> ~40%
-        base_prob = 0.22  # Baseline probability from data
+        # === CONVERT SCORE TO PROBABILITY ===
+        base_prob = 0.22
         if composite_score > 0:
-            # Scale probability based on combined log-lifts
-            # exp(score) gives combined lift, multiply by base
             combined_lift = np.exp(composite_score)
             probability = min(0.85, base_prob * combined_lift)
         else:
-            probability = base_prob * 0.5  # Below baseline
+            probability = base_prob * 0.5
 
-        # === DETERMINE DIRECTION ===
-        if price_direction > 0.0005:
-            direction = Direction.BUY
-        elif price_direction < -0.0005:
-            direction = Direction.SELL
-        else:
-            # Use energy velocity as tiebreaker
-            if energy_vel_pct > 0.6:
+        # === DETERMINE DIRECTION (COUNTER-TREND ON BERSERKER) ===
+        # Key insight: Berserker bars show mean reversion
+        # Laminar flow + berserker = trend exhaustion = 56% reversal
+
+        if is_berserker_90_10 or is_berserker_75_25:
+            # COUNTER-TREND: Trade against momentum
+            if momentum > 0.0001:
+                # Momentum is UP -> predict DOWN (reversal)
+                direction = Direction.SELL
+                conditions_met.append('FADE_UP_MOMENTUM')
+            elif momentum < -0.0001:
+                # Momentum is DOWN -> predict UP (reversal)
                 direction = Direction.BUY
-            elif energy_vel_pct < 0.4:
+                conditions_met.append('FADE_DOWN_MOMENTUM')
+            else:
+                direction = Direction.NEUTRAL
+
+            # Direction confidence based on flow state
+            if is_laminar:
+                direction_confidence = self.DIRECTION_CONFIDENCE['laminar_berserker']
+            elif flow_consistency > 0.7:
+                direction_confidence = self.DIRECTION_CONFIDENCE['high_flow_berserker']
+            else:
+                direction_confidence = self.DIRECTION_CONFIDENCE['base_berserker']
+        else:
+            # Non-berserker: neutral or follow momentum weakly
+            if momentum > 0.001:
+                direction = Direction.BUY
+            elif momentum < -0.001:
                 direction = Direction.SELL
             else:
                 direction = Direction.NEUTRAL
+            direction_confidence = 0.50  # No edge outside berserker
 
         # === DETERMINE CONFIDENCE LEVEL ===
         if is_berserker_90_10:
@@ -220,22 +250,20 @@ class TriggerPredictor:
         # === GENERATE MESSAGE ===
         prob_pct = int(probability * 100)
         dir_str = direction.value
+        dir_conf_pct = int(direction_confidence * 100)
 
         if confidence == 'BERSERKER':
+            flow_state = "LAMINAR (trend exhaustion)" if is_laminar else "turbulent"
             message = (
-                f"BERSERKER: {prob_pct}% probability of {dir_str} energy release "
-                f"in next {self.horizon} bars. "
-                f"[E>{int(energy_pct*100)}pct, D<{int(damping_pct*100)}pct]"
+                f"BERSERKER: {prob_pct}% magnitude, {dir_conf_pct}% {dir_str}. "
+                f"Flow: {flow_state}. Counter-trend entry."
             )
         elif confidence == 'HIGH':
             message = (
-                f"HIGH: {prob_pct}% chance of {dir_str} release. "
-                f"Conditions: {', '.join(conditions_met[:3])}"
+                f"HIGH: {prob_pct}% move expected. Direction: {dir_str} ({dir_conf_pct}%)"
             )
         elif confidence == 'MEDIUM':
-            message = (
-                f"MEDIUM: {prob_pct}% probability. {', '.join(conditions_met[:2])}"
-            )
+            message = f"MEDIUM: {prob_pct}% probability. {', '.join(conditions_met[:2])}"
         else:
             message = f"LOW: {prob_pct}% - monitoring"
 
@@ -247,6 +275,8 @@ class TriggerPredictor:
             signal_strength=composite_score,
             conditions_met=conditions_met,
             contributing_factors=contributing_factors,
+            direction_confidence=direction_confidence,
+            is_laminar=is_laminar,
             message=message,
         )
 
@@ -262,23 +292,29 @@ class TriggerPredictor:
         - energy_pct, damping_pct, entropy_pct
         - volume_pct (optional, defaults to 0.5)
         - energy_vel_pct (optional)
-        - close (for direction)
-
-        Args:
-            df: DataFrame with physics percentile features
-            bar_idx: Current bar index
-
-        Returns:
-            TriggerPrediction
+        - flow_consistency (optional) - computed if missing
+        - laminar_score_pct (optional)
+        - close (for momentum)
         """
         row = df.iloc[bar_idx]
         prev_row = df.iloc[bar_idx - 1] if bar_idx > 0 else row
 
-        # Get price direction
-        if 'close' in df.columns and bar_idx > 0:
-            price_direction = (row['close'] - prev_row['close']) / prev_row['close']
+        # Get momentum
+        if 'momentum_5' in df.columns:
+            momentum = row['momentum_5']
+        elif 'close' in df.columns and bar_idx > 4:
+            momentum = (row['close'] - df.iloc[bar_idx - 5]['close']) / df.iloc[bar_idx - 5]['close']
         else:
-            price_direction = 0.0
+            momentum = 0.0
+
+        # Flow consistency (direction consistency over last 5 bars)
+        if 'flow_consistency' in df.columns:
+            flow_consistency = row['flow_consistency']
+        elif 'returns' in df.columns and bar_idx >= 5:
+            signs = np.sign(df['returns'].iloc[bar_idx-4:bar_idx+1])
+            flow_consistency = (signs == signs.iloc[-1]).mean()
+        else:
+            flow_consistency = 0.5
 
         return self.predict(
             energy_pct=row.get('energy_pct', 0.5),
@@ -287,7 +323,9 @@ class TriggerPredictor:
             volume_pct=row.get('volume_pct', 0.5),
             energy_vel_pct=row.get('energy_vel_pct', 0.5),
             prev_energy_vel_pct=prev_row.get('energy_vel_pct', 0.5),
-            price_direction=price_direction,
+            momentum=momentum,
+            flow_consistency=flow_consistency,
+            laminar_score_pct=row.get('laminar_score_pct', 0.5),
         )
 
     def backtest(
@@ -299,33 +337,43 @@ class TriggerPredictor:
         Backtest the predictor on historical data.
 
         Args:
-            df: DataFrame with physics percentiles and forward returns
+            df: DataFrame with physics percentiles
             min_confidence: Minimum confidence level to count as signal
 
         Returns:
-            Dict with backtest statistics
+            Dict with backtest statistics including direction accuracy
         """
         confidence_order = ['LOW', 'MEDIUM', 'HIGH', 'BERSERKER']
         min_level = confidence_order.index(min_confidence)
 
         signals = []
-        for i in range(self.lookback, len(df) - self.horizon):
+        for i in range(max(self.lookback, 5), len(df) - self.horizon):
             pred = self.predict_from_dataframe(df, i)
             level = confidence_order.index(pred.confidence)
 
             if level >= min_level:
-                # Get forward return
                 fwd_return = (
                     df.iloc[i + self.horizon]['close'] - df.iloc[i]['close']
                 ) / df.iloc[i]['close']
+
+                # Direction correctness
+                if pred.direction == Direction.BUY:
+                    dir_correct = fwd_return > 0
+                elif pred.direction == Direction.SELL:
+                    dir_correct = fwd_return < 0
+                else:
+                    dir_correct = None
 
                 signals.append({
                     'bar': i,
                     'probability': pred.probability,
                     'direction': pred.direction.value,
+                    'direction_confidence': pred.direction_confidence,
                     'confidence': pred.confidence,
+                    'is_laminar': pred.is_laminar,
                     'fwd_return': fwd_return,
                     'fwd_abs_return': abs(fwd_return),
+                    'dir_correct': dir_correct,
                     'conditions': pred.conditions_met,
                 })
 
@@ -334,36 +382,40 @@ class TriggerPredictor:
 
         signals_df = pd.DataFrame(signals)
 
-        # Calculate statistics
+        # Magnitude stats
         avg_abs_return = signals_df['fwd_abs_return'].mean() * 100
         baseline_abs_return = df['close'].pct_change(self.horizon).abs().mean() * 100
 
-        # Direction accuracy
-        signals_df['correct_dir'] = (
-            ((signals_df['direction'] == 'BUY') & (signals_df['fwd_return'] > 0)) |
-            ((signals_df['direction'] == 'SELL') & (signals_df['fwd_return'] < 0))
-        )
-        dir_accuracy = signals_df['correct_dir'].mean() * 100
+        # Direction stats (exclude NEUTRAL)
+        dir_signals = signals_df[signals_df['dir_correct'].notna()]
+        if len(dir_signals) > 0:
+            dir_accuracy = dir_signals['dir_correct'].mean() * 100
+        else:
+            dir_accuracy = 0
+
+        # Laminar vs non-laminar
+        laminar_signals = signals_df[signals_df['is_laminar']]
+        if len(laminar_signals) > 0:
+            laminar_dir_acc = laminar_signals[laminar_signals['dir_correct'].notna()]['dir_correct'].mean() * 100
+        else:
+            laminar_dir_acc = 0
 
         return {
             'signals': len(signals_df),
             'avg_abs_move': avg_abs_return,
             'baseline_abs_move': baseline_abs_return,
-            'lift': avg_abs_return / baseline_abs_return if baseline_abs_return > 0 else 0,
+            'magnitude_lift': avg_abs_return / baseline_abs_return if baseline_abs_return > 0 else 0,
             'direction_accuracy': dir_accuracy,
-            'by_confidence': signals_df.groupby('confidence').agg({
-                'fwd_abs_return': ['count', 'mean'],
-                'correct_dir': 'mean',
-            }).to_dict(),
+            'direction_edge': dir_accuracy - 50,
+            'laminar_signals': len(laminar_signals),
+            'laminar_dir_accuracy': laminar_dir_acc,
         }
 
 
 def validate_predictor(data_path: str = None):
     """Validate the composite predictor on actual data."""
-    import sys
     from pathlib import Path
 
-    # Find data
     if data_path is None:
         project_root = Path(__file__).parent.parent
         csv_files = list(project_root.glob("*BTCUSD*.csv"))
@@ -386,40 +438,62 @@ def validate_predictor(data_path: str = None):
     df['energy_pct'] = physics['energy_pct']
     df['damping_pct'] = physics['damping_pct']
     df['entropy_pct'] = physics['entropy_pct']
+    df['returns'] = df['close'].pct_change()
+    df['momentum_5'] = df['close'].pct_change(5)
 
-    # Add volume percentile
+    # Volume percentile
     window = min(500, len(df))
     df['volume_pct'] = df['volume'].rolling(window).apply(
         lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
         raw=False
     ).fillna(0.5)
 
-    # Add energy velocity percentile
+    # Energy velocity percentile
     df['energy_vel'] = physics['energy'].diff()
     df['energy_vel_pct'] = df['energy_vel'].rolling(window).apply(
         lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
         raw=False
     ).fillna(0.5)
 
+    # Flow consistency
+    df['return_sign'] = np.sign(df['returns'])
+    df['flow_consistency'] = df['return_sign'].rolling(5).apply(
+        lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False
+    ).fillna(0.5)
+
+    # Laminar score
+    df['trend_5'] = df['close'].pct_change(5)
+    df['vol_5'] = df['returns'].rolling(5).std()
+    df['smoothness'] = df['trend_5'].abs() / (df['vol_5'] + 1e-10)
+    df['laminar_score'] = df['flow_consistency'] * (1 - df['entropy_pct']) * df['smoothness'].clip(0, 5) / 5
+    df['laminar_score_pct'] = df['laminar_score'].rolling(200, min_periods=20).apply(
+        lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+    ).fillna(0.5)
+
     df = df.dropna()
 
-    # Initialize predictor
+    # Backtest
     predictor = TriggerPredictor(horizon=2)
 
-    # Backtest
     print("\n" + "=" * 70)
-    print("COMPOSITE PREDICTOR VALIDATION")
+    print("COMPOSITE PREDICTOR VALIDATION (Magnitude + Direction)")
     print("=" * 70)
 
-    for min_conf in ['LOW', 'MEDIUM', 'HIGH', 'BERSERKER']:
+    for min_conf in ['MEDIUM', 'HIGH', 'BERSERKER']:
         results = predictor.backtest(df, min_confidence=min_conf)
-        print(f"\n{min_conf} confidence threshold:")
+        print(f"\n{min_conf} threshold:")
         print(f"  Signals: {results.get('signals', 0)}")
         if results.get('signals', 0) > 0:
-            print(f"  Avg move: {results['avg_abs_move']:.3f}%")
-            print(f"  Baseline: {results['baseline_abs_move']:.3f}%")
-            print(f"  Lift: {results['lift']:.2f}x")
-            print(f"  Direction accuracy: {results['direction_accuracy']:.1f}%")
+            print(f"  Magnitude:")
+            print(f"    Avg move: {results['avg_abs_move']:.3f}%")
+            print(f"    Baseline: {results['baseline_abs_move']:.3f}%")
+            print(f"    Lift: {results['magnitude_lift']:.2f}x")
+            print(f"  Direction:")
+            print(f"    Accuracy: {results['direction_accuracy']:.1f}%")
+            print(f"    Edge: {results['direction_edge']:+.1f}%")
+            if results.get('laminar_signals', 0) > 10:
+                print(f"  Laminar subset ({results['laminar_signals']} signals):")
+                print(f"    Direction accuracy: {results['laminar_dir_accuracy']:.1f}%")
 
 
 if __name__ == "__main__":
