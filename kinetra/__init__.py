@@ -3,6 +3,11 @@ Kinetra - Physics-First Adaptive Trading System
 
 A self-validating, reinforcement learning-based algorithmic trading system
 that models markets as kinetic energy systems with damping and entropy.
+
+Physics principles:
+- Kinetic Energy: E = 0.5 * m * v² (market momentum)
+- Damping: ζ = friction / (2 * √(k*m)) (market resistance)
+- Entropy: H = -Σ p_i * log(p_i) (market disorder)
 """
 
 __version__ = "1.0.0"
@@ -34,18 +39,164 @@ except ImportError:
     Position = None
     _RL_AVAILABLE = False
 
+# Physics backtester (using backtesting.py)
+from .physics_backtester import (
+    PhysicsBacktestRunner,
+    EnergyMomentumStrategy,
+    DampingReversionStrategy,
+    EntropyVolatilityStrategy,
+    AccelerationTrendStrategy,
+    MultiPhysicsStrategy,
+    ThermodynamicEquilibriumStrategy,
+    list_strategies,
+    get_strategy,
+    calculate_physics_metrics,
+)
+
+# Data utilities for MT5
+from .data_utils import (
+    load_mt5_csv,
+    load_mt5_history,
+    validate_ohlcv,
+    preprocess_mt5_data,
+    get_data_summary,
+    split_data,
+    create_walk_forward_windows,
+)
+
+# Physics v7.0 (Energy-Transfer Theorem)
+from .physics_v7 import (
+    PhysicsEngineV7,
+    PhysicsState,
+    AgentType,
+    RegimeState,
+    EnergyWeightedExitManager,
+    calculate_omega_ratio,
+    calculate_z_factor,
+    calculate_energy_captured,
+    validate_theorem_targets,
+)
+
+# v7.0 Strategies (Berserker, Sniper)
+from .strategies_v7 import (
+    BerserkerStrategy,
+    SniperStrategy,
+    MultiAgentV7Strategy,
+    list_v7_strategies,
+    get_v7_strategy,
+)
+
+# Health Score & Reward Shaping
+from .health_score import (
+    RewardShaper,
+    CompositeHealthScore,
+    TradeReward,
+    HealthScore,
+    compute_reward_from_trade,
+    compute_health_from_metrics,
+)
+
+# Market Microstructure & Friction
+from .market_microstructure import (
+    SymbolSpec,
+    AssetClass,
+    TradingMode,
+    FrictionModel,
+    AdaptiveFrictionTracker,
+    get_symbol_spec,
+    compute_friction_series,
+)
+
+# MT5 Bridge (Direct, MetaAPI, Bridge modes)
+from .mt5_bridge import (
+    MT5Bridge,
+    save_bridge_server_script,
+)
+
+# Atomic Persistence (crash-safe checkpointing)
+from .persistence import (
+    AtomicCheckpointer,
+    StreamingDataPersister,
+    CheckpointType,
+    create_checkpointer,
+)
+
 __all__ = [
+    # Physics Engine
     "PhysicsEngine",
     "calculate_energy",
     "calculate_damping",
     "calculate_entropy",
+    # Risk Management
     "RiskManager",
     "calculate_risk_of_ruin",
     "composite_health_score",
+    # RL Agent
     "KinetraAgent",
+    # Reward Shaping
     "AdaptiveRewardShaper",
+    # Backtest Engines
     "BacktestEngine",
+    "PhysicsBacktestRunner",
+    # Physics Strategies
+    "EnergyMomentumStrategy",
+    "DampingReversionStrategy",
+    "EntropyVolatilityStrategy",
+    "AccelerationTrendStrategy",
+    "MultiPhysicsStrategy",
+    "ThermodynamicEquilibriumStrategy",
+    "list_strategies",
+    "get_strategy",
+    "calculate_physics_metrics",
+    # Health Monitor
     "HealthMonitor",
+    # Data Utilities
+    "load_mt5_csv",
+    "load_mt5_history",
+    "validate_ohlcv",
+    "preprocess_mt5_data",
+    "get_data_summary",
+    "split_data",
+    "create_walk_forward_windows",
+    # Physics v7.0
+    "PhysicsEngineV7",
+    "PhysicsState",
+    "AgentType",
+    "RegimeState",
+    "EnergyWeightedExitManager",
+    "calculate_omega_ratio",
+    "calculate_z_factor",
+    "calculate_energy_captured",
+    "validate_theorem_targets",
+    # v7.0 Strategies
+    "BerserkerStrategy",
+    "SniperStrategy",
+    "MultiAgentV7Strategy",
+    "list_v7_strategies",
+    "get_v7_strategy",
+    # Health Score & Reward Shaping
+    "RewardShaper",
+    "CompositeHealthScore",
+    "TradeReward",
+    "HealthScore",
+    "compute_reward_from_trade",
+    "compute_health_from_metrics",
+    # Market Microstructure & Friction
+    "SymbolSpec",
+    "AssetClass",
+    "TradingMode",
+    "FrictionModel",
+    "AdaptiveFrictionTracker",
+    "get_symbol_spec",
+    "compute_friction_series",
+    # MT5 Bridge
+    "MT5Bridge",
+    "save_bridge_server_script",
+    # Atomic Persistence
+    "AtomicCheckpointer",
+    "StreamingDataPersister",
+    "CheckpointType",
+    "create_checkpointer",
     "MT5Connector",
     "MT5Session",
     "load_csv_data",

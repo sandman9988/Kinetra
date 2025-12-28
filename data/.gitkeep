@@ -1,2 +1,12 @@
-# Data directory for market data files
-# Place your CSV/Parquet files here (they will be gitignored)
+# Data Directory - Place your MT5 CSV exports here
+#
+# Expected format (MT5 export):
+# - Columns: time, open, high, low, close, tick_volume (or volume)
+# - Any separator (comma, tab, semicolon) is auto-detected
+#
+# Run backtest:
+#   python scripts/run_full_backtest.py data/*.csv
+#   ./run_backtest.sh data/*.csv
+#
+# Or directly from QuantumHunter:
+#   python scripts/run_full_backtest.py /home/renier/QuantumHunter/*.csv
