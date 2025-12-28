@@ -109,6 +109,27 @@ Why this works:
 
 NO static weights, NO arbitrary coefficients - pure geometry.
 
+## POTENTIAL-BASED REWARD SHAPING (Dense Signal)
+
+Problem: Sparse rewards (only on EXIT) → stagnating loss, slow learning.
+Solution: Potential-based shaping (Ng et al. 1999) - policy invariant.
+
+```python
+# Potential function Φ(s) = unrealized_pnl + mfe
+# Shaping reward = Φ(s') - Φ(s) = delta_pnl + delta_mfe
+
+# During HOLD:
+delta_pnl = current_unrealized - prev_unrealized  # Moving right direction?
+delta_mfe = current_mfe - prev_mfe                # New profit highs?
+reward = delta_pnl + delta_mfe                     # Dense feedback
+```
+
+Why this works:
+- Gives immediate feedback every step (not just on EXIT)
+- Both deltas in same units (% of price) - no arbitrary weights
+- Proven to not change optimal policy (just speeds learning)
+- Rewards moving in profitable direction, penalizes drawdowns
+
 ## PROBABILITY PREDICTORS
 
 Instead of rules, we compute probabilities:

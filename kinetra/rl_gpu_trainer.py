@@ -518,6 +518,11 @@ if TORCH_AVAILABLE:
             self.entry_candle_position = 0.0  # 0=low, 1=high of entry candle
             self.move_high = 0.0  # Highest point after entry
             self.move_low = 0.0   # Lowest point after entry
+
+            # POTENTIAL-BASED SHAPING: Track previous state for delta rewards
+            self.prev_unrealized_pnl = 0.0
+            self.prev_mfe = 0.0
+
             return self._get_state()
 
         def _get_state(self) -> np.ndarray:
@@ -551,7 +556,15 @@ if TORCH_AVAILABLE:
             high, low, close = current['high'], current['low'], current['close']
             candle_range = high - low if high > low else 0.0001
 
+            # === POTENTIAL-BASED REWARD SHAPING ===
+            # Compute current unrealized PnL for delta reward
+            if self.position != 0:
+                current_unrealized = (close - self.entry_price) / self.entry_price * 100 * self.position
+            else:
+                current_unrealized = 0.0
+
             # Update MFE/MAE and move tracking if in position
+            prev_mfe = self.mfe  # Store before update
             if self.position != 0:
                 self.move_high = max(self.move_high, high)
                 self.move_low = min(self.move_low, low)
@@ -575,6 +588,9 @@ if TORCH_AVAILABLE:
                 self.entry_candle_position = (close - low) / candle_range  # Where in candle we entered
                 self.move_high = high
                 self.move_low = low
+                # Reset potential tracking for new trade
+                self.prev_unrealized_pnl = 0.0
+                self.prev_mfe = 0.0
 
             elif action == self.SHORT and self.position == 0:
                 self.position = -1
@@ -587,6 +603,9 @@ if TORCH_AVAILABLE:
                 self.entry_candle_position = (high - close) / candle_range  # For short, high is bad
                 self.move_high = high
                 self.move_low = low
+                # Reset potential tracking for new trade
+                self.prev_unrealized_pnl = 0.0
+                self.prev_mfe = 0.0
 
             elif action == self.EXIT and self.position != 0:
                 pnl = (close - self.entry_price) / self.entry_price * 100 * self.position
@@ -663,11 +682,30 @@ if TORCH_AVAILABLE:
                 self.position = 0
 
             elif action == self.HOLD and self.position != 0:
-                # No static hold penalty - Omega reward handles exit timing:
-                # - Holding too long after MFE → lower PnL, higher MAE → worse omega
-                # - Exiting at optimal time → high PnL, low MAE → better omega
-                # The Pythagorean path efficiency naturally penalizes yo-yo moves
-                reward = 0.0
+                # === POTENTIAL-BASED SHAPING (Dense Reward Signal) ===
+                #
+                # Problem: Sparse rewards (only on EXIT) → slow learning
+                # Solution: Reward = change in potential function Φ
+                #
+                # Φ(s) = unrealized_pnl + mfe_bonus
+                # Shaping reward = Φ(s') - Φ(s) = Δunrealized + Δmfe
+                #
+                # This gives immediate feedback without changing optimal policy
+                # (Ng et al. 1999: potential-based shaping is policy invariant)
+
+                # Delta unrealized PnL: moving in right direction?
+                delta_pnl = current_unrealized - self.prev_unrealized_pnl
+
+                # Delta MFE: reaching new profit highs?
+                delta_mfe = self.mfe - prev_mfe
+
+                # Combined shaping reward (no static weights - pure deltas)
+                # Both are in same units (% of price), naturally scaled
+                reward = delta_pnl + delta_mfe
+
+                # Update previous state for next step
+                self.prev_unrealized_pnl = current_unrealized
+                self.prev_mfe = self.mfe
 
             # Move to next bar
             self.idx += 1
