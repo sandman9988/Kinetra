@@ -52,7 +52,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from kinetra.mt5_connector import load_csv_data
-from kinetra.metrics_server import start_metrics_server, RLMetrics
+from kinetra.metrics_server import start_metrics_server, RLMetrics, InstrumentMetrics
 from kinetra.rl_gpu_trainer import DQN, ReplayBuffer, TrainingConfig, TradingEnv, PhysicsFeatureComputer
 from kinetra.data_manager import DataManager
 
@@ -430,6 +430,7 @@ def train_timeframe(
     run_logger: RunLogger,
     n_episodes: int = 100,
     config: TrainingConfig = None,
+    metrics_server=None,
 ) -> Dict:
     """Train single timeframe for an instrument.
 
@@ -605,12 +606,27 @@ def train_timeframe(
 
         # Episode metrics
         n_trades = episode_stats['trades']
-        win_rate = (episode_stats['wins'] / n_trades * 100) if n_trades > 0 else 0
+        n_wins = episode_stats['wins']
+        win_rate = (n_wins / n_trades * 100) if n_trades > 0 else 0
         total_pnl = episode_stats['pnl']
         avg_loss = np.mean(losses) if losses else 0
         avg_mfe = np.mean(episode_stats['mfe']) if episode_stats['mfe'] else 0
         avg_mae = np.mean(episode_stats['mae']) if episode_stats['mae'] else 0
         mfe_mae_ratio = avg_mfe / avg_mae if avg_mae > 0 else 0
+
+        # Journey efficiency metrics
+        avg_move_capture = np.mean(episode_stats['move_capture']) if episode_stats['move_capture'] else 0
+        mfe_first_count = sum(1 for x in episode_stats['mfe_first'] if x)
+        mfe_first_rate = (mfe_first_count / n_trades * 100) if n_trades > 0 else 0
+        mfe_captured = (avg_move_capture * 100) if avg_move_capture else 0
+
+        # Journey efficiency score: combines MFE-first rate, move capture, and MFE/MAE ratio
+        # Higher is better: trades that hit profit first, capture more of the move, and have good risk/reward
+        journey_efficiency = (
+            (mfe_first_rate * 0.3) +                           # 30% weight: path quality
+            (mfe_captured * 0.4) +                              # 40% weight: capture efficiency
+            (min(mfe_mae_ratio, 3.0) / 3.0 * 100 * 0.3)        # 30% weight: risk/reward (capped at 3:1)
+        ) if n_trades > 0 else 0
 
         episode_metrics = {
             'trades': n_trades,
@@ -621,6 +637,26 @@ def train_timeframe(
             'epsilon': epsilon,
         }
         all_episode_metrics.append(episode_metrics)
+
+        # Update Prometheus metrics for this instrument/timeframe
+        if metrics_server is not None:
+            inst_metrics = InstrumentMetrics(
+                instrument=instrument,
+                timeframe=timeframe,
+                episode=episode + 1,
+                trades=n_trades,
+                wins=n_wins,
+                win_rate=win_rate,
+                total_pnl=total_pnl,
+                avg_pnl=total_pnl / n_trades if n_trades > 0 else 0,
+                avg_mfe=avg_mfe,
+                avg_mae=avg_mae,
+                mfe_captured=mfe_captured,
+                mfe_first_rate=mfe_first_rate,
+                move_capture=avg_move_capture * 100,
+                journey_efficiency=journey_efficiency,
+            )
+            metrics_server.update_instrument_metrics(inst_metrics)
 
         # Log to file
         run_logger.log_episode(instrument, timeframe, episode + 1, episode_metrics)
@@ -721,6 +757,7 @@ def train_instrument_parallel(
     saver: AtomicSaver,
     run_logger: RunLogger,
     n_episodes: int = 100,
+    metrics_server=None,
 ) -> Dict:
     """Train all timeframes for an instrument in parallel.
 
@@ -747,6 +784,7 @@ def train_instrument_parallel(
                 saver=saver,
                 run_logger=run_logger,
                 n_episodes=n_episodes,
+                metrics_server=metrics_server,
             )
             futures[future] = timeframe
 
@@ -856,6 +894,7 @@ def train_berserker(
                             saver=saver,
                             run_logger=run_logger,
                             n_episodes=n_episodes,
+                            metrics_server=metrics,
                         )
                         futures[future] = instrument
 
@@ -878,6 +917,7 @@ def train_berserker(
                     saver=saver,
                     run_logger=run_logger,
                     n_episodes=n_episodes,
+                    metrics_server=metrics,
                 )
                 all_results[instrument] = result
 

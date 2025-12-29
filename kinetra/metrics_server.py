@@ -3,6 +3,10 @@ Prometheus Metrics Server for Kinetra RL Training
 
 Exposes real-time metrics for Grafana visualization:
 - Episode stats (trades, win rate, PnL)
+- Per-instrument stats with timeframe breakdown
+- Instrument class aggregates (Forex, Crypto, Indices, Commodities)
+- Portfolio-level metrics
+- Journey efficiency (MFE capture, MFE-first rate)
 - Feature importance
 - Physics state (energy, damping, Reynolds)
 - Training progress (loss, epsilon)
@@ -11,8 +15,22 @@ Exposes real-time metrics for Grafana visualization:
 from prometheus_client import start_http_server, Gauge, Counter, Summary, Info
 import time
 import threading
-from typing import Dict, Optional
-from dataclasses import dataclass
+from typing import Dict, Optional, List
+from dataclasses import dataclass, field
+
+
+# Instrument classification
+INSTRUMENT_CLASSES = {
+    'BTCUSD': 'crypto',
+    'GBPUSD+': 'forex',
+    'DJ30ft': 'indices',
+    'NAS100': 'indices',
+    'Nikkei225': 'indices',
+    'UKOUSD': 'commodities',  # Brent Oil
+    'XAUUSD+': 'commodities',  # Gold
+}
+
+TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
 
 
 @dataclass
@@ -32,14 +50,37 @@ class RLMetrics:
     reward: float = 0.0
 
 
+@dataclass
+class InstrumentMetrics:
+    """Container for per-instrument metrics."""
+    instrument: str = ""
+    timeframe: str = ""
+    episode: int = 0
+    trades: int = 0
+    wins: int = 0
+    win_rate: float = 0.0
+    total_pnl: float = 0.0
+    avg_pnl: float = 0.0
+    avg_mfe: float = 0.0
+    avg_mae: float = 0.0
+    mfe_captured: float = 0.0
+    mfe_first_rate: float = 0.0  # % of trades where MFE came before MAE
+    move_capture: float = 0.0    # % of available move captured
+    journey_efficiency: float = 0.0  # Overall trade path quality
+
+
 class MetricsServer:
     """Prometheus metrics server for RL training."""
 
     def __init__(self, port: int = 8000):
         self.port = port
         self.started = False
+        self._lock = threading.Lock()
 
-        # === RL TRAINING METRICS ===
+        # Track instrument data for aggregations
+        self._instrument_data: Dict[str, Dict[str, InstrumentMetrics]] = {}
+
+        # === RL TRAINING METRICS (global) ===
         self.episode = Gauge('kinetra_rl_episode', 'Current episode number')
         self.total_trades = Gauge('kinetra_rl_total_trades', 'Total trades in current episode')
         self.win_rate = Gauge('kinetra_rl_win_rate', 'Win rate percentage')
@@ -49,11 +90,100 @@ class MetricsServer:
         self.loss = Gauge('kinetra_rl_loss', 'Training loss')
         self.reward = Gauge('kinetra_rl_reward', 'Episode total reward')
 
-        # === MFE/MAE METRICS ===
+        # === MFE/MAE METRICS (global) ===
         self.avg_mfe = Gauge('kinetra_rl_avg_mfe', 'Average MFE')
         self.avg_mae = Gauge('kinetra_rl_avg_mae', 'Average MAE')
         self.mfe_mae_ratio = Gauge('kinetra_rl_mfe_mae_ratio', 'MFE/MAE efficiency ratio')
         self.mfe_captured = Gauge('kinetra_rl_mfe_captured', 'MFE capture percentage')
+
+        # === PER-INSTRUMENT METRICS ===
+        self.instrument_episode = Gauge(
+            'kinetra_instrument_episode', 'Current episode for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_trades = Gauge(
+            'kinetra_instrument_trades', 'Total trades for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_wins = Gauge(
+            'kinetra_instrument_wins', 'Winning trades for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_win_rate = Gauge(
+            'kinetra_instrument_win_rate', 'Win rate for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_pnl = Gauge(
+            'kinetra_instrument_pnl', 'Total P&L for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_avg_pnl = Gauge(
+            'kinetra_instrument_avg_pnl', 'Average P&L per trade for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_mfe = Gauge(
+            'kinetra_instrument_mfe', 'Average MFE for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_mae = Gauge(
+            'kinetra_instrument_mae', 'Average MAE for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_mfe_captured = Gauge(
+            'kinetra_instrument_mfe_captured', 'MFE capture % for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_mfe_first = Gauge(
+            'kinetra_instrument_mfe_first', 'MFE-first rate (trade quality)',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_move_capture = Gauge(
+            'kinetra_instrument_move_capture', 'Move capture % for instrument',
+            ['instrument', 'timeframe']
+        )
+        self.instrument_journey_efficiency = Gauge(
+            'kinetra_instrument_journey_efficiency', 'Journey efficiency score',
+            ['instrument', 'timeframe']
+        )
+
+        # === PER-INSTRUMENT CLASS METRICS ===
+        self.class_trades = Gauge(
+            'kinetra_class_trades', 'Total trades for instrument class',
+            ['class']
+        )
+        self.class_wins = Gauge(
+            'kinetra_class_wins', 'Winning trades for instrument class',
+            ['class']
+        )
+        self.class_win_rate = Gauge(
+            'kinetra_class_win_rate', 'Win rate for instrument class',
+            ['class']
+        )
+        self.class_pnl = Gauge(
+            'kinetra_class_pnl', 'Total P&L for instrument class',
+            ['class']
+        )
+        self.class_avg_pnl = Gauge(
+            'kinetra_class_avg_pnl', 'Average P&L for instrument class',
+            ['class']
+        )
+        self.class_journey_efficiency = Gauge(
+            'kinetra_class_journey_efficiency', 'Journey efficiency for class',
+            ['class']
+        )
+
+        # === PORTFOLIO METRICS ===
+        self.portfolio_trades = Gauge('kinetra_portfolio_trades', 'Total portfolio trades')
+        self.portfolio_wins = Gauge('kinetra_portfolio_wins', 'Total portfolio wins')
+        self.portfolio_win_rate = Gauge('kinetra_portfolio_win_rate', 'Portfolio win rate')
+        self.portfolio_pnl = Gauge('kinetra_portfolio_pnl', 'Total portfolio P&L')
+        self.portfolio_avg_pnl = Gauge('kinetra_portfolio_avg_pnl', 'Portfolio average P&L')
+        self.portfolio_journey_efficiency = Gauge(
+            'kinetra_portfolio_journey_efficiency', 'Portfolio journey efficiency'
+        )
+        self.portfolio_instruments_active = Gauge(
+            'kinetra_portfolio_instruments_active', 'Number of active instruments'
+        )
 
         # === PHYSICS STATE METRICS ===
         self.energy_pct = Gauge('kinetra_physics_energy_pct', 'Current energy percentile')
@@ -186,6 +316,105 @@ class MetricsServer:
             self.wins.inc()
         else:
             self.losses.inc()
+
+    def update_instrument_metrics(self, metrics: InstrumentMetrics):
+        """Update per-instrument metrics and recalculate aggregates."""
+        if not self.started:
+            return
+
+        instrument = metrics.instrument
+        timeframe = metrics.timeframe
+
+        # Store for aggregation
+        with self._lock:
+            if instrument not in self._instrument_data:
+                self._instrument_data[instrument] = {}
+            self._instrument_data[instrument][timeframe] = metrics
+
+        # Update per-instrument gauges
+        labels = {'instrument': instrument, 'timeframe': timeframe}
+        self.instrument_episode.labels(**labels).set(metrics.episode)
+        self.instrument_trades.labels(**labels).set(metrics.trades)
+        self.instrument_wins.labels(**labels).set(metrics.wins)
+        self.instrument_win_rate.labels(**labels).set(metrics.win_rate)
+        self.instrument_pnl.labels(**labels).set(metrics.total_pnl)
+        self.instrument_avg_pnl.labels(**labels).set(metrics.avg_pnl)
+        self.instrument_mfe.labels(**labels).set(metrics.avg_mfe)
+        self.instrument_mae.labels(**labels).set(metrics.avg_mae)
+        self.instrument_mfe_captured.labels(**labels).set(metrics.mfe_captured)
+        self.instrument_mfe_first.labels(**labels).set(metrics.mfe_first_rate)
+        self.instrument_move_capture.labels(**labels).set(metrics.move_capture)
+        self.instrument_journey_efficiency.labels(**labels).set(metrics.journey_efficiency)
+
+        # Recalculate aggregates
+        self._update_aggregates()
+
+    def _update_aggregates(self):
+        """Recalculate class and portfolio aggregates from instrument data."""
+        if not self.started:
+            return
+
+        with self._lock:
+            # Aggregate by class
+            class_stats: Dict[str, Dict] = {
+                'crypto': {'trades': 0, 'wins': 0, 'pnl': 0.0, 'journey_eff': []},
+                'forex': {'trades': 0, 'wins': 0, 'pnl': 0.0, 'journey_eff': []},
+                'indices': {'trades': 0, 'wins': 0, 'pnl': 0.0, 'journey_eff': []},
+                'commodities': {'trades': 0, 'wins': 0, 'pnl': 0.0, 'journey_eff': []},
+            }
+
+            # Portfolio totals
+            portfolio_trades = 0
+            portfolio_wins = 0
+            portfolio_pnl = 0.0
+            portfolio_journey_eff = []
+
+            for instrument, timeframes in self._instrument_data.items():
+                inst_class = INSTRUMENT_CLASSES.get(instrument, 'other')
+                if inst_class not in class_stats:
+                    class_stats[inst_class] = {'trades': 0, 'wins': 0, 'pnl': 0.0, 'journey_eff': []}
+
+                for tf, m in timeframes.items():
+                    # Class aggregation
+                    class_stats[inst_class]['trades'] += m.trades
+                    class_stats[inst_class]['wins'] += m.wins
+                    class_stats[inst_class]['pnl'] += m.total_pnl
+                    if m.journey_efficiency > 0:
+                        class_stats[inst_class]['journey_eff'].append(m.journey_efficiency)
+
+                    # Portfolio aggregation
+                    portfolio_trades += m.trades
+                    portfolio_wins += m.wins
+                    portfolio_pnl += m.total_pnl
+                    if m.journey_efficiency > 0:
+                        portfolio_journey_eff.append(m.journey_efficiency)
+
+            # Update class metrics
+            for cls, stats in class_stats.items():
+                self.class_trades.labels(**{'class': cls}).set(stats['trades'])
+                self.class_wins.labels(**{'class': cls}).set(stats['wins'])
+                win_rate = (stats['wins'] / stats['trades'] * 100) if stats['trades'] > 0 else 0
+                self.class_win_rate.labels(**{'class': cls}).set(win_rate)
+                self.class_pnl.labels(**{'class': cls}).set(stats['pnl'])
+                avg_pnl = stats['pnl'] / stats['trades'] if stats['trades'] > 0 else 0
+                self.class_avg_pnl.labels(**{'class': cls}).set(avg_pnl)
+                avg_journey = sum(stats['journey_eff']) / len(stats['journey_eff']) if stats['journey_eff'] else 0
+                self.class_journey_efficiency.labels(**{'class': cls}).set(avg_journey)
+
+            # Update portfolio metrics
+            self.portfolio_trades.set(portfolio_trades)
+            self.portfolio_wins.set(portfolio_wins)
+            self.portfolio_win_rate.set(
+                (portfolio_wins / portfolio_trades * 100) if portfolio_trades > 0 else 0
+            )
+            self.portfolio_pnl.set(portfolio_pnl)
+            self.portfolio_avg_pnl.set(
+                portfolio_pnl / portfolio_trades if portfolio_trades > 0 else 0
+            )
+            self.portfolio_journey_efficiency.set(
+                sum(portfolio_journey_eff) / len(portfolio_journey_eff) if portfolio_journey_eff else 0
+            )
+            self.portfolio_instruments_active.set(len(self._instrument_data))
 
     def complete_episode(self):
         """Mark episode as completed."""
