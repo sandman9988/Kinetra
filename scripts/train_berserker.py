@@ -231,16 +231,23 @@ def setup_gpu_optimizations():
 def compile_model(model: nn.Module, device: torch.device) -> nn.Module:
     """Compile model with torch.compile for 2x+ speedup.
 
+    NOTE: Disabled on ROCm/AMD GPUs due to compatibility issues.
     Uses 'reduce-overhead' mode for small models like DQN.
     Falls back gracefully if compilation fails.
     """
     if not torch.cuda.is_available():
         return model
 
+    # Check if ROCm - torch.compile has issues with AMD GPUs
+    is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
+    if is_rocm:
+        # ROCm doesn't fully support torch.compile yet
+        logger.info("  Skipping torch.compile (not fully supported on ROCm)")
+        return model
+
     try:
         # PyTorch 2.0+ torch.compile
         # 'reduce-overhead' is best for small models with many iterations
-        # 'max-autotune' tries more options but takes longer to compile
         compiled = torch.compile(
             model,
             mode='reduce-overhead',  # Fast compile, good for RL
