@@ -210,20 +210,28 @@ def estimate_vram_usage() -> Dict:
 
 
 def setup_gpu_optimizations():
-    """Configure GPU for maximum training speed."""
+    """Configure GPU for maximum training speed.
+    
+    Note: This function sets global PyTorch optimization flags that are safe
+    to share across threads (cudnn.benchmark, TF32). It should be called once
+    before creating any thread pools to avoid race conditions.
+    
+    We do NOT set torch.set_default_device() here because:
+    1. All tensors are explicitly moved to device via .to(device)
+    2. Setting a global default device can cause issues in multi-threaded environments
+    3. Explicit device management is more thread-safe and predictable
+    """
     if not torch.cuda.is_available():
         return
 
     # Enable cuDNN auto-tuner - finds fastest algorithms for your hardware
+    # This is a global optimization flag that's safe to set once
     torch.backends.cudnn.benchmark = True
 
     # Enable TF32 for faster matrix ops on Ampere+ GPUs (also helps on some AMD)
+    # These are global optimization flags that are safe to set once
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
-
-    # Set default tensor type to CUDA
-    if torch.cuda.is_available():
-        torch.set_default_device('cuda')
 
     logger.info("GPU optimizations enabled: cudnn.benchmark, TF32")
 
