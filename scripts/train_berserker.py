@@ -505,11 +505,11 @@ def train_timeframe(
         done = False
 
         while not done:
-            # Action selection - use inference_mode (faster than no_grad)
+            # Action selection
             if np.random.random() < epsilon:
                 action = np.random.randint(0, action_dim)
             else:
-                with torch.inference_mode():
+                with torch.no_grad():
                     state_t = torch.FloatTensor(state).unsqueeze(0).to(device)
                     q = q_net(state_t)
                     action = q.argmax().item()
@@ -550,8 +550,8 @@ def train_timeframe(
                     next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
                     dones_t = torch.FloatTensor(dones_t).to(device)
 
-                # Compute targets (no grad needed)
-                with torch.inference_mode():
+                # Compute targets (no grad needed for target network)
+                with torch.no_grad():
                     next_q = target_net(next_states_t).max(1)[0]
                     targets = rewards_t + config.gamma * next_q * (1 - dones_t)
                     targets = torch.clamp(targets, -100, 100)
