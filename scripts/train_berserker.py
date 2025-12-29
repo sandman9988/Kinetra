@@ -461,7 +461,6 @@ def train_timeframe(
             epsilon_end=0.05,
             epsilon_decay=0.995,
             buffer_size=50000,
-            target_update_freq=50,
             n_episodes=n_episodes,
         )
 
@@ -578,8 +577,10 @@ def train_timeframe(
 
                 losses.append(loss.item())
 
-            if total_steps % config.target_update_freq == 0:
-                target_net.load_state_dict(q_net.state_dict())
+                # Soft target update (Polyak averaging) - more stable than hard updates
+                tau = 0.005
+                for target_param, param in zip(target_net.parameters(), q_net.parameters()):
+                    target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 
             state = next_state
             total_steps += 1
