@@ -39,6 +39,7 @@ import argparse
 import logging
 import threading
 import time
+import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add project root to path
@@ -51,7 +52,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from kinetra.mt5_connector import load_csv_data
-from kinetra.metrics_server import start_metrics_server, RLMetrics
+from kinetra.metrics_server import start_metrics_server, RLMetrics, InstrumentMetrics
 from kinetra.rl_gpu_trainer import DQN, ReplayBuffer, TrainingConfig, TradingEnv, PhysicsFeatureComputer
 from kinetra.data_manager import DataManager
 
@@ -67,6 +68,196 @@ logger = logging.getLogger(__name__)
 log_lock = threading.Lock()
 
 TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
+
+
+class PowerManager:
+    """Manage CPU/GPU power settings for maximum training performance."""
+
+    def __init__(self):
+        self.original_gpu_power = None
+        self.original_cpu_governor = None
+
+    def set_high_performance(self):
+        """Set CPU and GPU to high performance mode."""
+        logger.info("Setting power to HIGH PERFORMANCE mode...")
+
+        # GPU: Set AMD GPU to high performance
+        try:
+            # Read current setting
+            gpu_power_file = "/sys/class/drm/card1/device/power_dpm_force_performance_level"
+            if os.path.exists(gpu_power_file):
+                with open(gpu_power_file, 'r') as f:
+                    self.original_gpu_power = f.read().strip()
+
+                # Set to high (requires root or appropriate permissions)
+                result = subprocess.run(
+                    ['sudo', 'tee', gpu_power_file],
+                    input=b'high',
+                    capture_output=True
+                )
+                if result.returncode == 0:
+                    logger.info("  GPU: Set to 'high' performance")
+                else:
+                    logger.warning("  GPU: Could not set power (may need sudo)")
+        except Exception as e:
+            logger.warning(f"  GPU power setting failed: {e}")
+
+        # CPU: Set governor to performance
+        try:
+            result = subprocess.run(
+                ['sudo', 'cpupower', 'frequency-set', '-g', 'performance'],
+                capture_output=True
+            )
+            if result.returncode == 0:
+                self.original_cpu_governor = 'powersave'  # Assume default
+                logger.info("  CPU: Set to 'performance' governor")
+            else:
+                logger.warning("  CPU: Could not set governor (may need cpupower installed)")
+        except FileNotFoundError:
+            logger.warning("  CPU: cpupower not installed (sudo apt install linux-tools-common)")
+        except Exception as e:
+            logger.warning(f"  CPU governor setting failed: {e}")
+
+        # Disable screen blanking during training
+        try:
+            subprocess.run(['xset', 's', 'off'], capture_output=True)
+            subprocess.run(['xset', '-dpms'], capture_output=True)
+            logger.info("  Display: Screen blanking disabled")
+        except Exception:
+            pass  # May not have display
+
+    def restore(self):
+        """Restore original power settings."""
+        logger.info("Restoring power settings...")
+
+        # Restore GPU
+        if self.original_gpu_power:
+            try:
+                gpu_power_file = "/sys/class/drm/card1/device/power_dpm_force_performance_level"
+                subprocess.run(
+                    ['sudo', 'tee', gpu_power_file],
+                    input=self.original_gpu_power.encode(),
+                    capture_output=True
+                )
+                logger.info(f"  GPU: Restored to '{self.original_gpu_power}'")
+            except Exception as e:
+                logger.warning(f"  GPU restore failed: {e}")
+
+        # Restore CPU
+        if self.original_cpu_governor:
+            try:
+                subprocess.run(
+                    ['sudo', 'cpupower', 'frequency-set', '-g', self.original_cpu_governor],
+                    capture_output=True
+                )
+                logger.info(f"  CPU: Restored to '{self.original_cpu_governor}'")
+            except Exception:
+                pass
+
+        # Re-enable screen blanking
+        try:
+            subprocess.run(['xset', 's', 'on'], capture_output=True)
+            subprocess.run(['xset', '+dpms'], capture_output=True)
+        except Exception:
+            pass
+
+    def __enter__(self):
+        self.set_high_performance()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.restore()
+
+
+def estimate_vram_usage() -> Dict:
+    """Estimate VRAM usage per model and calculate parallelism capacity.
+
+    RX 7600 = 8GB VRAM
+    Each DQN model (256, 128, 64) with 47 inputs ≈ 0.5MB parameters
+    Replay buffer (50k samples) ≈ 200MB per timeframe
+    PyTorch overhead ≈ 500MB
+
+    Returns capacity estimates.
+    """
+    if not torch.cuda.is_available():
+        return {'parallel_instruments': 1, 'reason': 'CPU only'}
+
+    try:
+        total_vram = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # GB
+        reserved = 0.5  # GB for PyTorch overhead
+
+        # Per timeframe estimates
+        model_size = 0.002  # GB (small DQN)
+        buffer_size = 0.2   # GB (50k samples)
+        per_timeframe = model_size + buffer_size
+
+        # Per instrument = 4 timeframes
+        per_instrument = per_timeframe * 4
+
+        available = total_vram - reserved
+        max_parallel = int(available / per_instrument)
+        max_parallel = max(1, min(max_parallel, 4))  # Cap at 4
+
+        return {
+            'total_vram_gb': round(total_vram, 1),
+            'per_instrument_gb': round(per_instrument, 2),
+            'parallel_instruments': max_parallel,
+            'parallel_timeframes': 4,
+            'total_parallel_models': max_parallel * 4,
+        }
+    except Exception as e:
+        return {'parallel_instruments': 1, 'error': str(e)}
+
+
+def setup_gpu_optimizations():
+    """Configure GPU for maximum training speed."""
+    if not torch.cuda.is_available():
+        return
+
+    # Enable cuDNN auto-tuner - finds fastest algorithms for your hardware
+    torch.backends.cudnn.benchmark = True
+
+    # Enable TF32 for faster matrix ops on Ampere+ GPUs (also helps on some AMD)
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+
+    # Set default tensor type to CUDA
+    if torch.cuda.is_available():
+        torch.set_default_device('cuda')
+
+    logger.info("GPU optimizations enabled: cudnn.benchmark, TF32")
+
+
+def compile_model(model: nn.Module, device: torch.device) -> nn.Module:
+    """Compile model with torch.compile for 2x+ speedup.
+
+    NOTE: Disabled on ROCm/AMD GPUs due to compatibility issues.
+    Uses 'reduce-overhead' mode for small models like DQN.
+    Falls back gracefully if compilation fails.
+    """
+    if not torch.cuda.is_available():
+        return model
+
+    # Check if ROCm - torch.compile has issues with AMD GPUs
+    is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
+    if is_rocm:
+        # ROCm doesn't fully support torch.compile yet
+        logger.info("  Skipping torch.compile (not fully supported on ROCm)")
+        return model
+
+    try:
+        # PyTorch 2.0+ torch.compile
+        # 'reduce-overhead' is best for small models with many iterations
+        compiled = torch.compile(
+            model,
+            mode='reduce-overhead',  # Fast compile, good for RL
+            fullgraph=False,         # Allow graph breaks
+        )
+        logger.info("  Model compiled with torch.compile (reduce-overhead mode)")
+        return compiled
+    except Exception as e:
+        logger.warning(f"  torch.compile failed, using eager mode: {e}")
+        return model
 
 
 class AtomicSaver:
@@ -239,6 +430,7 @@ def train_timeframe(
     run_logger: RunLogger,
     n_episodes: int = 100,
     config: TrainingConfig = None,
+    metrics_server=None,
 ) -> Dict:
     """Train single timeframe for an instrument.
 
@@ -270,18 +462,31 @@ def train_timeframe(
             epsilon_end=0.05,
             epsilon_decay=0.995,
             buffer_size=50000,
-            target_update_freq=50,
             n_episodes=n_episodes,
         )
 
-    # Initialize networks
+    # Initialize networks with GPU optimizations
     hidden_sizes = (256, 128, 64)
     q_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
     target_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
     target_net.load_state_dict(q_net.state_dict())
 
+    # Compile models for 2x+ speedup (PyTorch 2.0+)
+    use_compile = device.type == 'cuda'
+    if use_compile:
+        q_net = compile_model(q_net, device)
+        target_net = compile_model(target_net, device)
+
     optimizer = torch.optim.Adam(q_net.parameters(), lr=config.learning_rate)
     buffer = ReplayBuffer(config.buffer_size, device)
+
+    # Mixed precision training (FP16) - 2x memory efficiency, faster math
+    # Note: AMP has issues on ROCm, disable it for AMD GPUs
+    is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
+    use_amp = device.type == 'cuda' and not is_rocm
+    scaler = torch.amp.GradScaler('cuda') if use_amp else None
+    if is_rocm:
+        logger.info("  AMP disabled (compatibility issues on ROCm)")
 
     epsilon = config.epsilon_start
     best_pnl = float('-inf')
@@ -330,7 +535,7 @@ def train_timeframe(
                 episode_stats['move_capture'].append(info.get('move_capture', 0))
                 episode_stats['mfe_first'].append(info.get('mfe_first', False))
 
-            # Training step
+            # Training step with AMP (Automatic Mixed Precision)
             if len(buffer) >= config.batch_size:
                 batch = buffer.sample(config.batch_size)
                 states_t, actions_t, rewards_t, next_states_t, dones_t = batch
@@ -350,22 +555,37 @@ def train_timeframe(
                     next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
                     dones_t = torch.FloatTensor(dones_t).to(device)
 
+                # Compute targets (no grad needed for target network)
                 with torch.no_grad():
                     next_q = target_net(next_states_t).max(1)[0]
                     targets = rewards_t + config.gamma * next_q * (1 - dones_t)
                     targets = torch.clamp(targets, -100, 100)
 
-                current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
-                loss = F.huber_loss(current_q, targets)
+                # Forward pass with AMP autocast
+                optimizer.zero_grad(set_to_none=True)  # Slightly faster than zero_grad()
 
-                optimizer.zero_grad()
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
-                optimizer.step()
+                if use_amp:
+                    with torch.amp.autocast('cuda'):
+                        current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
+                        loss = F.huber_loss(current_q, targets)
+                    scaler.scale(loss).backward()
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
+                    loss = F.huber_loss(current_q, targets)
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
+                    optimizer.step()
+
                 losses.append(loss.item())
 
-            if total_steps % config.target_update_freq == 0:
-                target_net.load_state_dict(q_net.state_dict())
+                # Soft target update (Polyak averaging) - more stable than hard updates
+                tau = 0.005
+                for target_param, param in zip(target_net.parameters(), q_net.parameters()):
+                    target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 
             state = next_state
             total_steps += 1
@@ -386,12 +606,27 @@ def train_timeframe(
 
         # Episode metrics
         n_trades = episode_stats['trades']
-        win_rate = (episode_stats['wins'] / n_trades * 100) if n_trades > 0 else 0
+        n_wins = episode_stats['wins']
+        win_rate = (n_wins / n_trades * 100) if n_trades > 0 else 0
         total_pnl = episode_stats['pnl']
         avg_loss = np.mean(losses) if losses else 0
         avg_mfe = np.mean(episode_stats['mfe']) if episode_stats['mfe'] else 0
         avg_mae = np.mean(episode_stats['mae']) if episode_stats['mae'] else 0
         mfe_mae_ratio = avg_mfe / avg_mae if avg_mae > 0 else 0
+
+        # Journey efficiency metrics
+        avg_move_capture = np.mean(episode_stats['move_capture']) if episode_stats['move_capture'] else 0
+        mfe_first_count = sum(1 for x in episode_stats['mfe_first'] if x)
+        mfe_first_rate = (mfe_first_count / n_trades * 100) if n_trades > 0 else 0
+        mfe_captured = (avg_move_capture * 100) if avg_move_capture else 0
+
+        # Journey efficiency score: combines MFE-first rate, move capture, and MFE/MAE ratio
+        # Higher is better: trades that hit profit first, capture more of the move, and have good risk/reward
+        journey_efficiency = (
+            (mfe_first_rate * 0.3) +                           # 30% weight: path quality
+            (mfe_captured * 0.4) +                              # 40% weight: capture efficiency
+            (min(mfe_mae_ratio, 3.0) / 3.0 * 100 * 0.3)        # 30% weight: risk/reward (capped at 3:1)
+        ) if n_trades > 0 else 0
 
         episode_metrics = {
             'trades': n_trades,
@@ -402,6 +637,26 @@ def train_timeframe(
             'epsilon': epsilon,
         }
         all_episode_metrics.append(episode_metrics)
+
+        # Update Prometheus metrics for this instrument/timeframe
+        if metrics_server is not None:
+            inst_metrics = InstrumentMetrics(
+                instrument=instrument,
+                timeframe=timeframe,
+                episode=episode + 1,
+                trades=n_trades,
+                wins=n_wins,
+                win_rate=win_rate,
+                total_pnl=total_pnl,
+                avg_pnl=total_pnl / n_trades if n_trades > 0 else 0,
+                avg_mfe=avg_mfe,
+                avg_mae=avg_mae,
+                mfe_captured=mfe_captured,
+                mfe_first_rate=mfe_first_rate,
+                move_capture=avg_move_capture * 100,
+                journey_efficiency=journey_efficiency,
+            )
+            metrics_server.update_instrument_metrics(inst_metrics)
 
         # Log to file
         run_logger.log_episode(instrument, timeframe, episode + 1, episode_metrics)
@@ -502,6 +757,7 @@ def train_instrument_parallel(
     saver: AtomicSaver,
     run_logger: RunLogger,
     n_episodes: int = 100,
+    metrics_server=None,
 ) -> Dict:
     """Train all timeframes for an instrument in parallel.
 
@@ -528,6 +784,7 @@ def train_instrument_parallel(
                 saver=saver,
                 run_logger=run_logger,
                 n_episodes=n_episodes,
+                metrics_server=metrics_server,
             )
             futures[future] = timeframe
 
@@ -554,21 +811,20 @@ def train_berserker(
     run_dir: Path,
     n_episodes: int = 100,
     metrics_port: int = 8001,
+    parallel_instruments: int = 0,  # 0 = auto-detect based on VRAM
 ):
-    """Train Berserker - one instrument at a time, parallel timeframes.
+    """Train Berserker - parallel instruments, each with parallel timeframes.
 
     Architecture:
     1. Group files by instrument
-    2. For each instrument:
-       - Launch 4 parallel threads (M15, M30, H1, H4)
-       - Wait for all to complete
-       - Analyze & summarize
-    3. Move to next instrument
+    2. Train N instruments in parallel (based on VRAM)
+    3. Each instrument has 4 parallel timeframe threads
+    4. Each model is SEPARATE (no shared weights)
+    5. Analyze & summarize after each instrument batch
     """
 
     logger.info("=" * 70)
     logger.info("KINETRA BERSERKER TRAINING")
-    logger.info("Architecture: Per-instrument with parallel timeframes")
     logger.info("=" * 70)
 
     # Setup paths
@@ -578,6 +834,18 @@ def train_berserker(
 
     # Initialize components
     device = detect_device()
+    setup_gpu_optimizations()  # Enable cudnn.benchmark, TF32, etc.
+
+    # Estimate VRAM and parallelism capacity
+    vram_info = estimate_vram_usage()
+    if parallel_instruments <= 0:
+        parallel_instruments = vram_info.get('parallel_instruments', 1)
+
+    logger.info(f"VRAM: {vram_info.get('total_vram_gb', '?')} GB")
+    logger.info(f"Per instrument: ~{vram_info.get('per_instrument_gb', '?')} GB (4 timeframes)")
+    logger.info(f"Parallel capacity: {parallel_instruments} instruments × 4 timeframes = {parallel_instruments * 4} models")
+    logger.info("-" * 70)
+
     saver = AtomicSaver(models_dir)
     run_logger = RunLogger(logs_dir)
     metrics = start_metrics_server(metrics_port)
@@ -597,22 +865,61 @@ def train_berserker(
     for inst, tfs in grouped.items():
         logger.info(f"  {inst}: {list(tfs.keys())}")
 
-    # Train each instrument
+    # Train instruments with power management
     all_results = {}
+    instruments_list = list(grouped.items())
 
-    for i, (instrument, timeframe_files) in enumerate(grouped.items(), 1):
-        logger.info(f"\n[{i}/{len(grouped)}] Processing {instrument}...")
+    with PowerManager():
+        # Process instruments in batches based on parallel capacity
+        for batch_start in range(0, len(instruments_list), parallel_instruments):
+            batch = instruments_list[batch_start:batch_start + parallel_instruments]
+            batch_num = batch_start // parallel_instruments + 1
+            total_batches = (len(instruments_list) + parallel_instruments - 1) // parallel_instruments
 
-        result = train_instrument_parallel(
-            instrument=instrument,
-            timeframe_files=timeframe_files,
-            device=device,
-            saver=saver,
-            run_logger=run_logger,
-            n_episodes=n_episodes,
-        )
+            if len(batch) > 1:
+                logger.info(f"\n{'#'*60}")
+                logger.info(f"# BATCH {batch_num}/{total_batches}: Training {len(batch)} instruments in parallel")
+                logger.info(f"# {[inst for inst, _ in batch]}")
+                logger.info(f"{'#'*60}")
 
-        all_results[instrument] = result
+                # Train batch of instruments in parallel
+                with ThreadPoolExecutor(max_workers=len(batch)) as executor:
+                    futures = {}
+                    for instrument, timeframe_files in batch:
+                        future = executor.submit(
+                            train_instrument_parallel,
+                            instrument=instrument,
+                            timeframe_files=timeframe_files,
+                            device=device,
+                            saver=saver,
+                            run_logger=run_logger,
+                            n_episodes=n_episodes,
+                            metrics_server=metrics,
+                        )
+                        futures[future] = instrument
+
+                    for future in as_completed(futures):
+                        instrument = futures[future]
+                        try:
+                            result = future.result()
+                            all_results[instrument] = result
+                        except Exception as e:
+                            logger.error(f"  [{instrument}] FAILED: {e}")
+                            all_results[instrument] = {'error': str(e)}
+            else:
+                # Single instrument - no extra parallelism needed
+                instrument, timeframe_files = batch[0]
+                logger.info(f"\n[{batch_start + 1}/{len(instruments_list)}] Processing {instrument}...")
+                result = train_instrument_parallel(
+                    instrument=instrument,
+                    timeframe_files=timeframe_files,
+                    device=device,
+                    saver=saver,
+                    run_logger=run_logger,
+                    n_episodes=n_episodes,
+                    metrics_server=metrics,
+                )
+                all_results[instrument] = result
 
     # Final summary
     logger.info("\n" + "=" * 70)
@@ -648,6 +955,8 @@ def main():
     parser.add_argument("--new-run", action="store_true", help="Create new run")
     parser.add_argument("--episodes", type=int, default=100, help="Episodes per timeframe")
     parser.add_argument("--port", type=int, default=8001, help="Metrics port")
+    parser.add_argument("--parallel", type=int, default=0,
+                        help="Parallel instruments (0=auto based on VRAM)")
     args = parser.parse_args()
 
     dm = DataManager()
@@ -676,6 +985,7 @@ def main():
         run_dir=run_dir,
         n_episodes=args.episodes,
         metrics_port=args.port,
+        parallel_instruments=args.parallel,
     )
 
 
