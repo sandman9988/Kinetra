@@ -305,6 +305,94 @@ class PhysicsEngine:
 
         return result.bfill().fillna(0.0)
 
+    def compute_advanced_volatility(self, df: pd.DataFrame, window: int = 24) -> pd.DataFrame:
+        """Compute Yang-Zhang and Rogers-Satchell volatility estimators.
+
+        Superior to ATR because:
+        - ATR is a simple range measure, NOT a true volatility estimator
+        - Yang-Zhang: Handles overnight gaps, most efficient OHLC estimator
+        - Rogers-Satchell: Accounts for drift, uses all OHLC information
+
+        First-principles: Expose ALL volatility measures, no assumptions about which is better.
+        """
+        o = np.log(df["open"])
+        h = np.log(df["high"])
+        l = np.log(df["low"])
+        c = np.log(df["close"])
+
+        # Previous close for overnight component
+        c_prev = c.shift(1)
+
+        result = pd.DataFrame(index=df.index)
+
+        # ============================================================
+        # ROGERS-SATCHELL VOLATILITY (handles drift, no overnight)
+        # ============================================================
+        # RS = sqrt( ln(H/C) * ln(H/O) + ln(L/C) * ln(L/O) )
+        # Robust to non-zero drift (trending markets)
+        rs_var = (h - c) * (h - o) + (l - c) * (l - o)
+        rs_var = rs_var.clip(lower=0)  # Ensure non-negative
+        result["vol_rs"] = np.sqrt(rs_var.rolling(window, min_periods=5).mean()) * np.sqrt(252 * 24)  # Annualized
+
+        # ============================================================
+        # YANG-ZHANG VOLATILITY (most efficient, handles overnight)
+        # ============================================================
+        # Combines: overnight (close-to-open), open-to-close, Rogers-Satchell
+        # σ²_YZ = σ²_overnight + k*σ²_open-close + (1-k)*σ²_RS
+
+        # Overnight variance: (O_t - C_{t-1})²
+        overnight = o - c_prev
+        overnight_var = overnight.rolling(window, min_periods=5).var()
+
+        # Open-to-close variance
+        oc = c - o
+        oc_var = oc.rolling(window, min_periods=5).var()
+
+        # Rogers-Satchell variance (already computed)
+        rs_var_rolling = rs_var.rolling(window, min_periods=5).mean()
+
+        # Yang-Zhang combination (k = 0.34 is optimal for efficiency)
+        k = 0.34
+        yz_var = overnight_var + k * oc_var + (1 - k) * rs_var_rolling
+        yz_var = yz_var.clip(lower=1e-12)
+        result["vol_yz"] = np.sqrt(yz_var) * np.sqrt(252 * 24)  # Annualized
+
+        # ============================================================
+        # GARMAN-KLASS VOLATILITY (classic OHLC estimator)
+        # ============================================================
+        # GK = 0.5 * (H-L)² - (2*ln(2)-1) * (C-O)²
+        gk_var = 0.5 * (h - l)**2 - (2 * np.log(2) - 1) * (c - o)**2
+        gk_var = gk_var.clip(lower=0)
+        result["vol_gk"] = np.sqrt(gk_var.rolling(window, min_periods=5).mean()) * np.sqrt(252 * 24)
+
+        # ============================================================
+        # PARKINSON VOLATILITY (range-based, simplest)
+        # ============================================================
+        # PK = (H-L)² / (4 * ln(2))
+        pk_var = (h - l)**2 / (4 * np.log(2))
+        result["vol_pk"] = np.sqrt(pk_var.rolling(window, min_periods=5).mean()) * np.sqrt(252 * 24)
+
+        # ============================================================
+        # Z-SCORES (for regime detection and stacking)
+        # ============================================================
+        for col in ["vol_rs", "vol_yz", "vol_gk", "vol_pk"]:
+            col_mean = result[col].rolling(252, min_periods=20).mean()
+            col_std = result[col].rolling(252, min_periods=20).std()
+            result[f"{col}_z"] = ((result[col] - col_mean) / (col_std + 1e-8)).clip(-5, 5).fillna(0)
+
+        # ============================================================
+        # VOLATILITY RATIOS (regime signals)
+        # ============================================================
+        # YZ/RS ratio: >1 means overnight gaps dominate (gap risk)
+        result["vol_ratio_yz_rs"] = result["vol_yz"] / (result["vol_rs"] + 1e-8)
+
+        # Short/Long vol ratio (volatility term structure)
+        vol_short = np.sqrt(rs_var.rolling(6, min_periods=3).mean()) * np.sqrt(252 * 24)
+        vol_long = result["vol_rs"]
+        result["vol_term_structure"] = vol_short / (vol_long + 1e-8)  # >1 = backwardation (stress)
+
+        return result.bfill().fillna(0)
+
     @staticmethod
     def _compute_regime_age(regime_series: pd.Series) -> pd.Series:
         age = np.zeros(len(regime_series))
@@ -344,7 +432,7 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
     - Percentiles: all _pct features (empirical CDFs)
     """
     if bar_index >= len(physics_state):
-        return np.zeros(45)  # Return zeros for out-of-bounds
+        return np.zeros(49)  # Return zeros for out-of-bounds (42 base + 7 vol)
 
     ps = physics_state.iloc[bar_index]
 
@@ -415,6 +503,15 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
         ps.get("PE_pct", 0.5),
         ps.get("reynolds_pct", 0.5),
         ps.get("eta_pct", 0.5),
+
+        # === ADVANCED VOLATILITY (YZ/RS/GK/PK) ===
+        ps.get("vol_rs", 0),               # Rogers-Satchell (drift-robust)
+        ps.get("vol_yz", 0),               # Yang-Zhang (most efficient)
+        ps.get("vol_gk", 0),               # Garman-Klass (classic)
+        ps.get("vol_rs_z", 0),             # z-scored RS
+        ps.get("vol_yz_z", 0),             # z-scored YZ
+        ps.get("vol_ratio_yz_rs", 1.0),    # YZ/RS ratio (gap risk)
+        ps.get("vol_term_structure", 1.0), # short/long vol ratio (stress)
     ]
 
     return np.array(features, dtype=np.float32)
@@ -436,6 +533,9 @@ def get_rl_feature_names() -> list:
         "regime_age_frac",
         "adaptive_trail_mult",
         "PE_pct", "reynolds_pct", "eta_pct",
+        # Advanced volatility (YZ/RS/GK/PK)
+        "vol_rs", "vol_yz", "vol_gk", "vol_rs_z", "vol_yz_z",
+        "vol_ratio_yz_rs", "vol_term_structure",
     ]
 
 
@@ -1009,6 +1109,31 @@ def main():
     print(f"{'=' * 60}")
     physics = PhysicsEngine()
     physics_state = physics.compute_physics_state(df["close"])
+
+    # Compute advanced volatility (Yang-Zhang, Rogers-Satchell)
+    print(f"\n{'=' * 60}")
+    print("COMPUTING ADVANCED VOLATILITY (YZ/RS/GK/PK)")
+    print(f"{'=' * 60}")
+    vol_state = physics.compute_advanced_volatility(df)
+
+    # Merge volatility into physics state
+    for col in vol_state.columns:
+        physics_state[col] = vol_state[col].values
+
+    # Show volatility comparison
+    print(f"\nVolatility Estimator Comparison (annualized %):")
+    print(f"  {'Estimator':<20} {'Mean':>10} {'Current':>10} {'Corr w/ RS':>12}")
+    print("-" * 55)
+    for est in ["vol_rs", "vol_yz", "vol_gk", "vol_pk"]:
+        mean_vol = vol_state[est].mean() * 100
+        curr_vol = vol_state[est].iloc[-1] * 100
+        corr = vol_state[est].corr(vol_state["vol_rs"])
+        name = {"vol_rs": "Rogers-Satchell", "vol_yz": "Yang-Zhang",
+                "vol_gk": "Garman-Klass", "vol_pk": "Parkinson"}[est]
+        print(f"  {name:<20} {mean_vol:>9.1f}% {curr_vol:>9.1f}% {corr:>12.3f}")
+
+    print(f"\n  Current YZ/RS ratio: {vol_state['vol_ratio_yz_rs'].iloc[-1]:.2f} (>1 = gap risk)")
+    print(f"  Vol term structure:  {vol_state['vol_term_structure'].iloc[-1]:.2f} (>1 = stress/backwardation)")
 
     # Show regime distribution
     regime_counts = physics_state["regime"].value_counts()
