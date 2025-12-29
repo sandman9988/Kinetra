@@ -170,6 +170,63 @@ class PhysicsEngine:
             .fillna(0.5)
         )
 
+        # ============================================================
+        # SHORT-TIMEFRAME CHAOS MEASURES (Better than Hurst for H1)
+        # ============================================================
+
+        # 1. Rolling CVaR (Conditional Value at Risk / Expected Shortfall)
+        # Captures tail risk dynamics - spikes indicate regime stress
+        cvar_window = 72  # ~3 days for H1
+        q05 = v.rolling(cvar_window, min_periods=20).quantile(0.05)
+        result["cvar_95"] = v.rolling(cvar_window, min_periods=20).apply(
+            lambda w: w[w <= np.quantile(w, 0.05)].mean() if len(w) > 10 else 0, raw=True
+        ).fillna(0)
+
+        # CVaR asymmetry: upside vs downside tail risk
+        q95 = v.rolling(cvar_window, min_periods=20).quantile(0.95)
+        result["cvar_05_upside"] = v.rolling(cvar_window, min_periods=20).apply(
+            lambda w: w[w >= np.quantile(w, 0.95)].mean() if len(w) > 10 else 0, raw=True
+        ).fillna(0)
+        result["cvar_asymmetry"] = result["cvar_05_upside"].abs() / (result["cvar_95"].abs() + 1e-8)
+
+        # 2. Lyapunov Proxy (Local Divergence Rate)
+        # Measures sensitivity to initial conditions / chaos
+        # Positive = chaotic/diverging, Negative = stable/converging
+        lyap_window = 24  # 1 day for H1
+        result["lyapunov_proxy"] = (
+            (v.diff().abs() / (v.abs().shift(1) + 1e-8))
+            .rolling(lyap_window, min_periods=5)
+            .mean()
+            .apply(lambda x: np.log(x + 1e-8))
+        ).fillna(0)
+
+        # 3. Local Correlation Dimension Proxy (Simplified)
+        # Uses return embedding distance ratios
+        def local_dim_proxy(window, eps_ratio=0.5):
+            if len(window) < 10:
+                return 2.0
+            dists = np.abs(window[:, None] - window[None, :])
+            np.fill_diagonal(dists, np.inf)
+            eps = np.median(dists) * eps_ratio
+            count_in = np.sum(dists < eps)
+            count_out = np.sum(dists < eps * 2)
+            if count_in > 0 and count_out > count_in:
+                return np.log(count_out / count_in) / np.log(2)
+            return 2.0
+
+        result["local_dim"] = v.rolling(48, min_periods=20).apply(
+            lambda w: local_dim_proxy(w.values), raw=False
+        ).fillna(2.0)
+
+        # Percentiles for new measures
+        for col in ["cvar_95", "cvar_asymmetry", "lyapunov_proxy", "local_dim"]:
+            result[f"{col}_pct"] = (
+                result[col]
+                .rolling(self.pct_window, min_periods=10)
+                .apply(lambda w: (w <= w[-1]).mean(), raw=True)
+                .fillna(0.5)
+            )
+
         return result.bfill().fillna(0.0)
 
     @staticmethod
@@ -311,6 +368,51 @@ def composite_regime_hybrid_signal(physics_state: pd.DataFrame, bar_index: int) 
     # Also long on positive jerk in LAMINAR (trend continuation)
     if regime == "LAMINAR" and composite_val > 0:
         return 1
+
+    return 0
+
+
+def cvar_chaos_signal(physics_state: pd.DataFrame, bar_index: int) -> int:
+    """CVaR + Chaos signal: Optimal for short timeframes (H1/M15).
+
+    Uses tail risk dynamics and local chaos measures instead of Hurst.
+    - High CVaR asymmetry (upside > downside) + low Lyapunov = trend (long)
+    - High Lyapunov + high local_dim = chaos (avoid or short)
+    - Regime filter for safety
+    """
+    if bar_index >= len(physics_state):
+        return 0
+    ps = physics_state.iloc[bar_index]
+
+    # Regime filter
+    regime = str(ps.get("regime", "UNKNOWN"))
+    if regime in ["OVERDAMPED", "UNKNOWN"]:
+        return 0
+
+    # CVaR metrics
+    cvar_asym = ps.get("cvar_asymmetry", 1.0)
+    cvar_asym_pct = ps.get("cvar_asymmetry_pct", 0.5)
+    lyap = ps.get("lyapunov_proxy", 0.0)
+    lyap_pct = ps.get("lyapunov_proxy_pct", 0.5)
+    local_dim = ps.get("local_dim", 2.0)
+    local_dim_pct = ps.get("local_dim_pct", 0.5)
+
+    # Signal logic:
+    # 1. Favorable tail asymmetry (upside > downside) = bullish
+    # 2. Low chaos (Lyapunov < median) = stable trend
+    # 3. Low dimension = ordered/persistent
+
+    # Long: Asymmetry favors upside + stable chaos
+    if cvar_asym > 1.0 and cvar_asym_pct > 0.6 and lyap_pct < 0.5:
+        return 1
+
+    # Long in LAMINAR with low dimension (ordered trend)
+    if regime == "LAMINAR" and local_dim_pct < 0.4 and lyap_pct < 0.4:
+        return 1
+
+    # Short: High chaos + high dimension (only if not in strong trend)
+    if regime == "BREAKOUT" and lyap_pct > 0.8 and local_dim_pct > 0.7:
+        return -1
 
     return 0
 
@@ -489,31 +591,40 @@ def main():
     print(f"    Net P&L: ${result_hybrid['total_net_pnl']:+,.2f}")
     print(f"    Sharpe: {result_hybrid['sharpe_ratio']:.2f}")
 
+    # Strategy 4: CVaR + Chaos (optimal for short timeframes)
+    result_cvar = engine.run_backtest(df, physics_state, signal_func=cvar_chaos_signal)
+    print(f"\n[4] CVAR + CHAOS (Lyapunov + Local Dim):")
+    print(f"    Trades: {result_cvar['total_trades']}")
+    print(f"    Net P&L: ${result_cvar['total_net_pnl']:+,.2f}")
+    print(f"    Sharpe: {result_cvar['sharpe_ratio']:.2f}")
+
     # Comparison
     print(f"\n{'=' * 60}")
     print("STRATEGY COMPARISON SUMMARY")
     print(f"{'=' * 60}")
-    print(f"{'Metric':<20} {'Regime':>12} {'Composite':>12} {'Hybrid':>12}")
+    print(f"{'Metric':<15} {'Regime':>10} {'Composite':>10} {'Hybrid':>10} {'CVaR':>10}")
     print("-" * 60)
 
     regime_sharpe = result_regime['sharpe_ratio']
     composite_sharpe = result_composite['sharpe_ratio']
     hybrid_sharpe = result_hybrid['sharpe_ratio']
-    best_sharpe = max(regime_sharpe, composite_sharpe, hybrid_sharpe)
-    print(f"{'Sharpe Ratio':<20} {regime_sharpe:>12.2f} {composite_sharpe:>12.2f} {hybrid_sharpe:>12.2f}")
+    cvar_sharpe = result_cvar['sharpe_ratio']
+    print(f"{'Sharpe':<15} {regime_sharpe:>10.2f} {composite_sharpe:>10.2f} {hybrid_sharpe:>10.2f} {cvar_sharpe:>10.2f}")
 
     regime_pnl = result_regime['total_net_pnl']
     composite_pnl = result_composite['total_net_pnl']
     hybrid_pnl = result_hybrid['total_net_pnl']
-    print(f"{'Net P&L':<20} ${regime_pnl:>11,.0f} ${composite_pnl:>11,.0f} ${hybrid_pnl:>11,.0f}")
+    cvar_pnl = result_cvar['total_net_pnl']
+    print(f"{'Net P&L':<15} ${regime_pnl:>9,.0f} ${composite_pnl:>9,.0f} ${hybrid_pnl:>9,.0f} ${cvar_pnl:>9,.0f}")
 
     regime_trades = result_regime['total_trades']
     composite_trades = result_composite['total_trades']
     hybrid_trades = result_hybrid['total_trades']
-    print(f"{'Total Trades':<20} {regime_trades:>12} {composite_trades:>12} {hybrid_trades:>12}")
+    cvar_trades = result_cvar['total_trades']
+    print(f"{'Trades':<15} {regime_trades:>10} {composite_trades:>10} {hybrid_trades:>10} {cvar_trades:>10}")
 
     # Determine winner
-    all_sharpes = {"Regime": regime_sharpe, "Composite": composite_sharpe, "Hybrid": hybrid_sharpe}
+    all_sharpes = {"Regime": regime_sharpe, "Composite": composite_sharpe, "Hybrid": hybrid_sharpe, "CVaR": cvar_sharpe}
     winner = max(all_sharpes, key=all_sharpes.get)
     print(f"\nBest Risk-Adjusted: {winner} (Sharpe {all_sharpes[winner]:.2f})")
 
