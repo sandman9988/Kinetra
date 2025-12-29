@@ -480,8 +480,12 @@ def train_timeframe(
     buffer = ReplayBuffer(config.buffer_size, device)
 
     # Mixed precision training (FP16) - 2x memory efficiency, faster math
-    use_amp = device.type == 'cuda'
+    # Note: AMP has issues on ROCm, disable it for AMD GPUs
+    is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None
+    use_amp = device.type == 'cuda' and not is_rocm
     scaler = torch.amp.GradScaler('cuda') if use_amp else None
+    if is_rocm:
+        logger.info("  AMP disabled (compatibility issues on ROCm)")
 
     epsilon = config.epsilon_start
     best_pnl = float('-inf')
