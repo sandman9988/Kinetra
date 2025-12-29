@@ -539,6 +539,199 @@ def get_rl_feature_names() -> list:
     ]
 
 
+class ProbabilisticBreakoutPredictor:
+    """Composite probability predictor for directional breakouts.
+
+    First-principles ML approach:
+    - Uses ungated physics features (jerk_z, entropy_z, lyap_z, vol_yz_z, etc.)
+    - Ensemble of calibrated classifiers for reliable probabilities
+    - Calibration via Platt (sigmoid) or Isotonic regression
+    - Outputs: P(breakout > threshold in N bars)
+
+    Calibration comparison:
+    - Platt: Fast, works with small data, assumes sigmoid-shaped scores
+    - Isotonic: More flexible, needs more data, better for tree/NN models
+
+    Example output: "82% probability of -3% breakout in next 3 bars"
+    """
+
+    def __init__(
+        self,
+        threshold_pct: float = 0.03,
+        lookahead_bars: int = 3,
+        calibration_method: str = "isotonic",  # or "sigmoid" (Platt)
+    ):
+        self.threshold_pct = threshold_pct
+        self.lookahead_bars = lookahead_bars
+        self.calibration_method = calibration_method
+        self.models = None
+        self.feature_names = None
+
+    def prepare_labels(self, df: pd.DataFrame) -> pd.Series:
+        """Create binary labels for breakout events.
+
+        Breakout = cumulative return over lookahead exceeds threshold.
+        """
+        log_returns = np.log(df["close"]).diff()
+        cum_return = log_returns.rolling(self.lookahead_bars).sum().shift(-self.lookahead_bars)
+
+        # Downward breakout (for short signals)
+        down_breakout = (cum_return < -self.threshold_pct).astype(int)
+
+        # Upward breakout (for long signals)
+        up_breakout = (cum_return > self.threshold_pct).astype(int)
+
+        return pd.DataFrame({
+            "down_breakout": down_breakout,
+            "up_breakout": up_breakout,
+            "cum_return": cum_return,
+        })
+
+    def get_feature_matrix(self, physics_state: pd.DataFrame) -> np.ndarray:
+        """Extract features for prediction (uses RL feature factory)."""
+        features = np.array([
+            get_rl_state_features(physics_state, i)
+            for i in range(len(physics_state))
+        ])
+        self.feature_names = get_rl_feature_names()
+        return features
+
+    def fit(self, physics_state: pd.DataFrame, df: pd.DataFrame, target: str = "down_breakout"):
+        """Train calibrated ensemble on historical data.
+
+        Args:
+            physics_state: Physics features DataFrame
+            df: OHLCV DataFrame
+            target: "down_breakout" or "up_breakout"
+        """
+        try:
+            from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+            from sklearn.calibration import CalibratedClassifierCV
+            from sklearn.model_selection import train_test_split
+        except ImportError:
+            print("[WARN] sklearn not available for probabilistic predictor")
+            return None
+
+        X = self.get_feature_matrix(physics_state)
+        labels = self.prepare_labels(df)
+        y = labels[target].values
+
+        # Remove NaN (from lookahead)
+        valid_mask = ~np.isnan(y)
+        X = X[valid_mask]
+        y = y[valid_mask].astype(int)
+
+        if len(y) < 500:
+            print(f"[WARN] Insufficient data for training ({len(y)} samples)")
+            return None
+
+        # Train/val split (temporal to avoid leakage)
+        split_idx = int(len(X) * 0.7)
+        X_train, X_val = X[:split_idx], X[split_idx:]
+        y_train, y_val = y[:split_idx], y[split_idx:]
+
+        # Ensemble of base models
+        base_models = [
+            ("RF", RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)),
+            ("GB", GradientBoostingClassifier(n_estimators=100, max_depth=5, random_state=42)),
+        ]
+
+        self.models = []
+        for name, model in base_models:
+            # Calibrate on validation set
+            calibrated = CalibratedClassifierCV(
+                model,
+                method=self.calibration_method,
+                cv="prefit" if hasattr(model, "predict_proba") else 3
+            )
+            model.fit(X_train, y_train)
+            calibrated.fit(X_val, y_val)
+            self.models.append((name, calibrated))
+
+        print(f"[OK] Trained {len(self.models)} calibrated models ({self.calibration_method})")
+        return self
+
+    def predict_proba(self, physics_state: pd.DataFrame, bar_index: int) -> Dict[str, float]:
+        """Get calibrated probability for breakout at current bar.
+
+        Returns dict with:
+        - composite_prob: Average probability across ensemble
+        - individual: Per-model probabilities
+        - confidence: How much models agree (1 - std)
+        """
+        if self.models is None:
+            return {"composite_prob": 0.5, "confidence": 0.0}
+
+        features = get_rl_state_features(physics_state, bar_index).reshape(1, -1)
+
+        probs = []
+        individual = {}
+        for name, model in self.models:
+            prob = model.predict_proba(features)[0, 1]  # P(breakout=1)
+            probs.append(prob)
+            individual[name] = prob
+
+        composite = np.mean(probs)
+        confidence = 1 - np.std(probs)  # Higher when models agree
+
+        return {
+            "composite_prob": composite,
+            "individual": individual,
+            "confidence": confidence,
+        }
+
+    def evaluate_calibration(self, physics_state: pd.DataFrame, df: pd.DataFrame,
+                              target: str = "down_breakout") -> Dict[str, float]:
+        """Evaluate calibration quality on held-out data.
+
+        Returns Brier score and reliability metrics.
+        """
+        try:
+            from sklearn.metrics import brier_score_loss
+        except ImportError:
+            return {}
+
+        X = self.get_feature_matrix(physics_state)
+        labels = self.prepare_labels(df)
+        y = labels[target].values
+
+        valid_mask = ~np.isnan(y)
+        X = X[valid_mask]
+        y = y[valid_mask].astype(int)
+
+        # Use last 20% as test set
+        test_start = int(len(X) * 0.8)
+        X_test, y_test = X[test_start:], y[test_start:]
+
+        if self.models is None or len(X_test) == 0:
+            return {}
+
+        # Get ensemble predictions
+        all_probs = []
+        for _, model in self.models:
+            probs = model.predict_proba(X_test)[:, 1]
+            all_probs.append(probs)
+
+        composite_probs = np.mean(all_probs, axis=0)
+
+        # Brier score (lower = better calibration)
+        brier = brier_score_loss(y_test, composite_probs)
+
+        # Empirical hit rate at different thresholds
+        high_conf_mask = composite_probs > 0.8
+        if high_conf_mask.sum() > 10:
+            hit_rate_80 = y_test[high_conf_mask].mean()
+        else:
+            hit_rate_80 = np.nan
+
+        return {
+            "brier_score": brier,
+            "hit_rate_at_80pct": hit_rate_80,
+            "test_samples": len(y_test),
+            "positive_rate": y_test.mean(),
+        }
+
+
 def analyze_regime_quality(physics_state: pd.DataFrame, df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
     """Analyze return distribution by regime."""
     print(f"\n{'=' * 60}")
