@@ -209,6 +209,50 @@ def estimate_vram_usage() -> Dict:
         return {'parallel_instruments': 1, 'error': str(e)}
 
 
+def setup_gpu_optimizations():
+    """Configure GPU for maximum training speed."""
+    if not torch.cuda.is_available():
+        return
+
+    # Enable cuDNN auto-tuner - finds fastest algorithms for your hardware
+    torch.backends.cudnn.benchmark = True
+
+    # Enable TF32 for faster matrix ops on Ampere+ GPUs (also helps on some AMD)
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+
+    # Set default tensor type to CUDA
+    if torch.cuda.is_available():
+        torch.set_default_device('cuda')
+
+    logger.info("GPU optimizations enabled: cudnn.benchmark, TF32")
+
+
+def compile_model(model: nn.Module, device: torch.device) -> nn.Module:
+    """Compile model with torch.compile for 2x+ speedup.
+
+    Uses 'reduce-overhead' mode for small models like DQN.
+    Falls back gracefully if compilation fails.
+    """
+    if not torch.cuda.is_available():
+        return model
+
+    try:
+        # PyTorch 2.0+ torch.compile
+        # 'reduce-overhead' is best for small models with many iterations
+        # 'max-autotune' tries more options but takes longer to compile
+        compiled = torch.compile(
+            model,
+            mode='reduce-overhead',  # Fast compile, good for RL
+            fullgraph=False,         # Allow graph breaks
+        )
+        logger.info("  Model compiled with torch.compile (reduce-overhead mode)")
+        return compiled
+    except Exception as e:
+        logger.warning(f"  torch.compile failed, using eager mode: {e}")
+        return model
+
+
 class AtomicSaver:
     """Atomic model saving to prevent corruption."""
 
@@ -414,14 +458,24 @@ def train_timeframe(
             n_episodes=n_episodes,
         )
 
-    # Initialize networks
+    # Initialize networks with GPU optimizations
     hidden_sizes = (256, 128, 64)
     q_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
     target_net = DQN(state_dim, action_dim, hidden_sizes).to(device)
     target_net.load_state_dict(q_net.state_dict())
 
+    # Compile models for 2x+ speedup (PyTorch 2.0+)
+    use_compile = device.type == 'cuda'
+    if use_compile:
+        q_net = compile_model(q_net, device)
+        target_net = compile_model(target_net, device)
+
     optimizer = torch.optim.Adam(q_net.parameters(), lr=config.learning_rate)
     buffer = ReplayBuffer(config.buffer_size, device)
+
+    # Mixed precision training (FP16) - 2x memory efficiency, faster math
+    use_amp = device.type == 'cuda'
+    scaler = torch.amp.GradScaler('cuda') if use_amp else None
 
     epsilon = config.epsilon_start
     best_pnl = float('-inf')
@@ -445,11 +499,11 @@ def train_timeframe(
         done = False
 
         while not done:
-            # Action selection
+            # Action selection - use inference_mode (faster than no_grad)
             if np.random.random() < epsilon:
                 action = np.random.randint(0, action_dim)
             else:
-                with torch.no_grad():
+                with torch.inference_mode():
                     state_t = torch.FloatTensor(state).unsqueeze(0).to(device)
                     q = q_net(state_t)
                     action = q.argmax().item()
@@ -470,7 +524,7 @@ def train_timeframe(
                 episode_stats['move_capture'].append(info.get('move_capture', 0))
                 episode_stats['mfe_first'].append(info.get('mfe_first', False))
 
-            # Training step
+            # Training step with AMP (Automatic Mixed Precision)
             if len(buffer) >= config.batch_size:
                 batch = buffer.sample(config.batch_size)
                 states_t, actions_t, rewards_t, next_states_t, dones_t = batch
@@ -490,18 +544,31 @@ def train_timeframe(
                     next_states_t = torch.FloatTensor(np.clip(next_states_np, -10, 10)).to(device)
                     dones_t = torch.FloatTensor(dones_t).to(device)
 
-                with torch.no_grad():
+                # Compute targets (no grad needed)
+                with torch.inference_mode():
                     next_q = target_net(next_states_t).max(1)[0]
                     targets = rewards_t + config.gamma * next_q * (1 - dones_t)
                     targets = torch.clamp(targets, -100, 100)
 
-                current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
-                loss = F.huber_loss(current_q, targets)
+                # Forward pass with AMP autocast
+                optimizer.zero_grad(set_to_none=True)  # Slightly faster than zero_grad()
 
-                optimizer.zero_grad()
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
-                optimizer.step()
+                if use_amp:
+                    with torch.amp.autocast('cuda'):
+                        current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
+                        loss = F.huber_loss(current_q, targets)
+                    scaler.scale(loss).backward()
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
+                    loss = F.huber_loss(current_q, targets)
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
+                    optimizer.step()
+
                 losses.append(loss.item())
 
             if total_steps % config.target_update_freq == 0:
@@ -717,6 +784,7 @@ def train_berserker(
 
     # Initialize components
     device = detect_device()
+    setup_gpu_optimizations()  # Enable cudnn.benchmark, TF32, etc.
 
     # Estimate VRAM and parallelism capacity
     vram_info = estimate_vram_usage()
