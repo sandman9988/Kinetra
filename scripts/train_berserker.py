@@ -39,6 +39,7 @@ import argparse
 import logging
 import threading
 import time
+import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add project root to path
@@ -67,6 +68,145 @@ logger = logging.getLogger(__name__)
 log_lock = threading.Lock()
 
 TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
+
+
+class PowerManager:
+    """Manage CPU/GPU power settings for maximum training performance."""
+
+    def __init__(self):
+        self.original_gpu_power = None
+        self.original_cpu_governor = None
+
+    def set_high_performance(self):
+        """Set CPU and GPU to high performance mode."""
+        logger.info("Setting power to HIGH PERFORMANCE mode...")
+
+        # GPU: Set AMD GPU to high performance
+        try:
+            # Read current setting
+            gpu_power_file = "/sys/class/drm/card1/device/power_dpm_force_performance_level"
+            if os.path.exists(gpu_power_file):
+                with open(gpu_power_file, 'r') as f:
+                    self.original_gpu_power = f.read().strip()
+
+                # Set to high (requires root or appropriate permissions)
+                result = subprocess.run(
+                    ['sudo', 'tee', gpu_power_file],
+                    input=b'high',
+                    capture_output=True
+                )
+                if result.returncode == 0:
+                    logger.info("  GPU: Set to 'high' performance")
+                else:
+                    logger.warning("  GPU: Could not set power (may need sudo)")
+        except Exception as e:
+            logger.warning(f"  GPU power setting failed: {e}")
+
+        # CPU: Set governor to performance
+        try:
+            result = subprocess.run(
+                ['sudo', 'cpupower', 'frequency-set', '-g', 'performance'],
+                capture_output=True
+            )
+            if result.returncode == 0:
+                self.original_cpu_governor = 'powersave'  # Assume default
+                logger.info("  CPU: Set to 'performance' governor")
+            else:
+                logger.warning("  CPU: Could not set governor (may need cpupower installed)")
+        except FileNotFoundError:
+            logger.warning("  CPU: cpupower not installed (sudo apt install linux-tools-common)")
+        except Exception as e:
+            logger.warning(f"  CPU governor setting failed: {e}")
+
+        # Disable screen blanking during training
+        try:
+            subprocess.run(['xset', 's', 'off'], capture_output=True)
+            subprocess.run(['xset', '-dpms'], capture_output=True)
+            logger.info("  Display: Screen blanking disabled")
+        except Exception:
+            pass  # May not have display
+
+    def restore(self):
+        """Restore original power settings."""
+        logger.info("Restoring power settings...")
+
+        # Restore GPU
+        if self.original_gpu_power:
+            try:
+                gpu_power_file = "/sys/class/drm/card1/device/power_dpm_force_performance_level"
+                subprocess.run(
+                    ['sudo', 'tee', gpu_power_file],
+                    input=self.original_gpu_power.encode(),
+                    capture_output=True
+                )
+                logger.info(f"  GPU: Restored to '{self.original_gpu_power}'")
+            except Exception as e:
+                logger.warning(f"  GPU restore failed: {e}")
+
+        # Restore CPU
+        if self.original_cpu_governor:
+            try:
+                subprocess.run(
+                    ['sudo', 'cpupower', 'frequency-set', '-g', self.original_cpu_governor],
+                    capture_output=True
+                )
+                logger.info(f"  CPU: Restored to '{self.original_cpu_governor}'")
+            except Exception:
+                pass
+
+        # Re-enable screen blanking
+        try:
+            subprocess.run(['xset', 's', 'on'], capture_output=True)
+            subprocess.run(['xset', '+dpms'], capture_output=True)
+        except Exception:
+            pass
+
+    def __enter__(self):
+        self.set_high_performance()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.restore()
+
+
+def estimate_vram_usage() -> Dict:
+    """Estimate VRAM usage per model and calculate parallelism capacity.
+
+    RX 7600 = 8GB VRAM
+    Each DQN model (256, 128, 64) with 47 inputs ≈ 0.5MB parameters
+    Replay buffer (50k samples) ≈ 200MB per timeframe
+    PyTorch overhead ≈ 500MB
+
+    Returns capacity estimates.
+    """
+    if not torch.cuda.is_available():
+        return {'parallel_instruments': 1, 'reason': 'CPU only'}
+
+    try:
+        total_vram = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # GB
+        reserved = 0.5  # GB for PyTorch overhead
+
+        # Per timeframe estimates
+        model_size = 0.002  # GB (small DQN)
+        buffer_size = 0.2   # GB (50k samples)
+        per_timeframe = model_size + buffer_size
+
+        # Per instrument = 4 timeframes
+        per_instrument = per_timeframe * 4
+
+        available = total_vram - reserved
+        max_parallel = int(available / per_instrument)
+        max_parallel = max(1, min(max_parallel, 4))  # Cap at 4
+
+        return {
+            'total_vram_gb': round(total_vram, 1),
+            'per_instrument_gb': round(per_instrument, 2),
+            'parallel_instruments': max_parallel,
+            'parallel_timeframes': 4,
+            'total_parallel_models': max_parallel * 4,
+        }
+    except Exception as e:
+        return {'parallel_instruments': 1, 'error': str(e)}
 
 
 class AtomicSaver:
@@ -554,21 +694,20 @@ def train_berserker(
     run_dir: Path,
     n_episodes: int = 100,
     metrics_port: int = 8001,
+    parallel_instruments: int = 0,  # 0 = auto-detect based on VRAM
 ):
-    """Train Berserker - one instrument at a time, parallel timeframes.
+    """Train Berserker - parallel instruments, each with parallel timeframes.
 
     Architecture:
     1. Group files by instrument
-    2. For each instrument:
-       - Launch 4 parallel threads (M15, M30, H1, H4)
-       - Wait for all to complete
-       - Analyze & summarize
-    3. Move to next instrument
+    2. Train N instruments in parallel (based on VRAM)
+    3. Each instrument has 4 parallel timeframe threads
+    4. Each model is SEPARATE (no shared weights)
+    5. Analyze & summarize after each instrument batch
     """
 
     logger.info("=" * 70)
     logger.info("KINETRA BERSERKER TRAINING")
-    logger.info("Architecture: Per-instrument with parallel timeframes")
     logger.info("=" * 70)
 
     # Setup paths
@@ -578,6 +717,17 @@ def train_berserker(
 
     # Initialize components
     device = detect_device()
+
+    # Estimate VRAM and parallelism capacity
+    vram_info = estimate_vram_usage()
+    if parallel_instruments <= 0:
+        parallel_instruments = vram_info.get('parallel_instruments', 1)
+
+    logger.info(f"VRAM: {vram_info.get('total_vram_gb', '?')} GB")
+    logger.info(f"Per instrument: ~{vram_info.get('per_instrument_gb', '?')} GB (4 timeframes)")
+    logger.info(f"Parallel capacity: {parallel_instruments} instruments × 4 timeframes = {parallel_instruments * 4} models")
+    logger.info("-" * 70)
+
     saver = AtomicSaver(models_dir)
     run_logger = RunLogger(logs_dir)
     metrics = start_metrics_server(metrics_port)
@@ -597,22 +747,59 @@ def train_berserker(
     for inst, tfs in grouped.items():
         logger.info(f"  {inst}: {list(tfs.keys())}")
 
-    # Train each instrument
+    # Train instruments with power management
     all_results = {}
+    instruments_list = list(grouped.items())
 
-    for i, (instrument, timeframe_files) in enumerate(grouped.items(), 1):
-        logger.info(f"\n[{i}/{len(grouped)}] Processing {instrument}...")
+    with PowerManager():
+        # Process instruments in batches based on parallel capacity
+        for batch_start in range(0, len(instruments_list), parallel_instruments):
+            batch = instruments_list[batch_start:batch_start + parallel_instruments]
+            batch_num = batch_start // parallel_instruments + 1
+            total_batches = (len(instruments_list) + parallel_instruments - 1) // parallel_instruments
 
-        result = train_instrument_parallel(
-            instrument=instrument,
-            timeframe_files=timeframe_files,
-            device=device,
-            saver=saver,
-            run_logger=run_logger,
-            n_episodes=n_episodes,
-        )
+            if len(batch) > 1:
+                logger.info(f"\n{'#'*60}")
+                logger.info(f"# BATCH {batch_num}/{total_batches}: Training {len(batch)} instruments in parallel")
+                logger.info(f"# {[inst for inst, _ in batch]}")
+                logger.info(f"{'#'*60}")
 
-        all_results[instrument] = result
+                # Train batch of instruments in parallel
+                with ThreadPoolExecutor(max_workers=len(batch)) as executor:
+                    futures = {}
+                    for instrument, timeframe_files in batch:
+                        future = executor.submit(
+                            train_instrument_parallel,
+                            instrument=instrument,
+                            timeframe_files=timeframe_files,
+                            device=device,
+                            saver=saver,
+                            run_logger=run_logger,
+                            n_episodes=n_episodes,
+                        )
+                        futures[future] = instrument
+
+                    for future in as_completed(futures):
+                        instrument = futures[future]
+                        try:
+                            result = future.result()
+                            all_results[instrument] = result
+                        except Exception as e:
+                            logger.error(f"  [{instrument}] FAILED: {e}")
+                            all_results[instrument] = {'error': str(e)}
+            else:
+                # Single instrument - no extra parallelism needed
+                instrument, timeframe_files = batch[0]
+                logger.info(f"\n[{batch_start + 1}/{len(instruments_list)}] Processing {instrument}...")
+                result = train_instrument_parallel(
+                    instrument=instrument,
+                    timeframe_files=timeframe_files,
+                    device=device,
+                    saver=saver,
+                    run_logger=run_logger,
+                    n_episodes=n_episodes,
+                )
+                all_results[instrument] = result
 
     # Final summary
     logger.info("\n" + "=" * 70)
@@ -648,6 +835,8 @@ def main():
     parser.add_argument("--new-run", action="store_true", help="Create new run")
     parser.add_argument("--episodes", type=int, default=100, help="Episodes per timeframe")
     parser.add_argument("--port", type=int, default=8001, help="Metrics port")
+    parser.add_argument("--parallel", type=int, default=0,
+                        help="Parallel instruments (0=auto based on VRAM)")
     args = parser.parse_args()
 
     dm = DataManager()
@@ -676,6 +865,7 @@ def main():
         run_dir=run_dir,
         n_episodes=args.episodes,
         metrics_port=args.port,
+        parallel_instruments=args.parallel,
     )
 
 
