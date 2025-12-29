@@ -227,6 +227,53 @@ class PhysicsEngine:
                 .fillna(0.5)
             )
 
+        # ============================================================
+        # Z-SCORE NORMALIZATION (for proper stacking)
+        # ============================================================
+        # Z-scoring makes measures stationary and comparable across regimes
+        z_window = 252  # Standard normalization window
+
+        # Jerk Z-score
+        jerk_mean = result["j"].rolling(z_window, min_periods=20).mean()
+        jerk_std = result["j"].rolling(z_window, min_periods=20).std()
+        result["jerk_z"] = ((result["j"] - jerk_mean) / (jerk_std + 1e-8)).clip(-5, 5).fillna(0)
+
+        # Entropy Z-score
+        ent_mean = result["entropy"].rolling(z_window, min_periods=20).mean()
+        ent_std = result["entropy"].rolling(z_window, min_periods=20).std()
+        result["entropy_z"] = ((result["entropy"] - ent_mean) / (ent_std + 1e-8)).clip(-5, 5).fillna(0)
+
+        # Lyapunov Z-score
+        lyap_mean = result["lyapunov_proxy"].rolling(z_window, min_periods=20).mean()
+        lyap_std = result["lyapunov_proxy"].rolling(z_window, min_periods=20).std()
+        result["lyap_z"] = ((result["lyapunov_proxy"] - lyap_mean) / (lyap_std + 1e-8)).clip(-5, 5).fillna(0)
+
+        # ============================================================
+        # STACKED COMPOSITES (Physics-Based Non-Linear Amplification)
+        # ============================================================
+
+        # Stack 1: Jerk + Entropy (exponential thermodynamic amplification)
+        # High entropy → system susceptible to perturbations → jerk effects explode
+        result["stack_jerk_entropy"] = result["jerk_z"] * np.exp(result["entropy_z"])
+
+        # Stack 2: Jerk + Lyapunov (multiplicative chaos amplification)
+        # Positive Lyapunov → chaotic sensitivity → jerk diverges faster
+        result["stack_jerk_lyap"] = result["jerk_z"] * result["lyap_z"].abs()
+
+        # Triple Stack: Full Physics Composite (kinematics + thermodynamics + chaos)
+        # Combines all three for emergent criticality detection
+        # jerk_z * exp(entropy_z) * lyap_z = detects true phase-transition jolts
+        result["triple_stack"] = result["jerk_z"] * np.exp(result["entropy_z"]) * result["lyap_z"]
+
+        # Percentiles for stacked signals (for quantile-based triggering)
+        for col in ["stack_jerk_entropy", "stack_jerk_lyap", "triple_stack"]:
+            result[f"{col}_pct"] = (
+                result[col].abs()
+                .rolling(self.pct_window, min_periods=10)
+                .apply(lambda w: (w <= w[-1]).mean(), raw=True)
+                .fillna(0.5)
+            )
+
         return result.bfill().fillna(0.0)
 
     @staticmethod
@@ -417,6 +464,96 @@ def cvar_chaos_signal(physics_state: pd.DataFrame, bar_index: int) -> int:
     return 0
 
 
+def triple_stack_signal(physics_state: pd.DataFrame, bar_index: int) -> int:
+    """Triple Stack Signal: jerk_z × exp(entropy_z) × lyap_z
+
+    Full physics composite combining:
+    - Kinematics (jerk): 3rd derivative captures "spasms" / inflection points
+    - Thermodynamics (entropy): disorder amplifies perturbation sensitivity
+    - Chaos (Lyapunov): divergence rate determines butterfly effect magnitude
+
+    Physics rationale:
+    In non-equilibrium thermodynamics, energy dissipation (entropy) and
+    divergence rates (Lyapunov) exponentially boost instabilities (jerk-like forces).
+
+    Trade logic:
+    - Extreme |triple_stack| in top quantile → directional trade based on jerk sign
+    - Negative jerk (sharp deceleration) → potential rebound → long
+    - Positive jerk (sharp acceleration) → potential reversal → short
+    """
+    if bar_index >= len(physics_state):
+        return 0
+    ps = physics_state.iloc[bar_index]
+
+    # Get triple stack values
+    triple_stack = ps.get("triple_stack", 0.0)
+    triple_stack_pct = ps.get("triple_stack_pct", 0.5)
+    jerk_z = ps.get("jerk_z", 0.0)
+
+    # Optional regime filter (can disable for pure physics signal)
+    regime = str(ps.get("regime", "UNKNOWN"))
+
+    # Threshold: top 5% of |triple_stack| (high conviction only)
+    threshold_pct = 0.95
+
+    if triple_stack_pct < threshold_pct:
+        return 0
+
+    # Direction based on jerk sign:
+    # - Negative jerk = deceleration = potential rebound = LONG
+    # - Positive jerk = acceleration = potential reversal = SHORT
+    if jerk_z < -1.5:  # Strong negative jerk (z < -1.5σ)
+        return 1  # Long
+    elif jerk_z > 1.5:  # Strong positive jerk (z > 1.5σ)
+        return -1  # Short
+
+    return 0
+
+
+def triple_stack_regime_filtered_signal(physics_state: pd.DataFrame, bar_index: int) -> int:
+    """Triple Stack + Regime Filter: Physics composite with regime awareness.
+
+    Like triple_stack_signal but:
+    - Adds regime filter (avoid OVERDAMPED)
+    - Lower threshold (90th percentile) for more signals
+    - Long-only mode for trending crypto (optional shorts in BREAKOUT only)
+    """
+    if bar_index >= len(physics_state):
+        return 0
+    ps = physics_state.iloc[bar_index]
+
+    # Regime filter
+    regime = str(ps.get("regime", "UNKNOWN"))
+    if regime in ["OVERDAMPED", "UNKNOWN"]:
+        return 0
+
+    # Get triple stack values
+    triple_stack = ps.get("triple_stack", 0.0)
+    triple_stack_pct = ps.get("triple_stack_pct", 0.5)
+    jerk_z = ps.get("jerk_z", 0.0)
+    entropy_z = ps.get("entropy_z", 0.0)
+
+    # Lower threshold for regime-filtered approach (more signals)
+    threshold_pct = 0.90
+
+    if triple_stack_pct < threshold_pct:
+        return 0
+
+    # Long: Negative jerk + favorable regime
+    if jerk_z < -1.0:
+        return 1
+
+    # Long: Positive entropy + LAMINAR (trend continuation with disorder spike)
+    if regime == "LAMINAR" and entropy_z > 1.0 and jerk_z > 0:
+        return 1
+
+    # Short: Only in BREAKOUT with extreme positive jerk (reversal)
+    if regime == "BREAKOUT" and jerk_z > 2.0:
+        return -1
+
+    return 0
+
+
 class SimpleBacktestEngine:
     """Minimal backtest engine with configurable signal function."""
 
@@ -565,7 +702,7 @@ def main():
 
     # Run BOTH backtests for comparison
     print(f"\n{'=' * 60}")
-    print("BACKTEST COMPARISON: Regime vs Composite Stacking")
+    print("BACKTEST COMPARISON: All Physics Strategies")
     print(f"{'=' * 60}")
 
     engine = SimpleBacktestEngine()
@@ -577,19 +714,19 @@ def main():
     print(f"    Net P&L: ${result_regime['total_net_pnl']:+,.2f}")
     print(f"    Sharpe: {result_regime['sharpe_ratio']:.2f}")
 
-    # Strategy 2: Composite stacking (jerk × exp(entropy)) - pure
-    result_composite = engine.run_backtest(df, physics_state, signal_func=composite_stacked_signal)
-    print(f"\n[2] COMPOSITE STACKING (pure, long/short):")
-    print(f"    Trades: {result_composite['total_trades']}")
-    print(f"    Net P&L: ${result_composite['total_net_pnl']:+,.2f}")
-    print(f"    Sharpe: {result_composite['sharpe_ratio']:.2f}")
+    # Strategy 2: Triple Stack Pure (jerk_z × exp(entropy_z) × lyap_z)
+    result_triple = engine.run_backtest(df, physics_state, signal_func=triple_stack_signal)
+    print(f"\n[2] TRIPLE STACK (jerk_z × exp(entropy_z) × lyap_z):")
+    print(f"    Trades: {result_triple['total_trades']}")
+    print(f"    Net P&L: ${result_triple['total_net_pnl']:+,.2f}")
+    print(f"    Sharpe: {result_triple['sharpe_ratio']:.2f}")
 
-    # Strategy 3: Hybrid (composite + regime filter, long-only)
-    result_hybrid = engine.run_backtest(df, physics_state, signal_func=composite_regime_hybrid_signal)
-    print(f"\n[3] HYBRID (composite + regime filter, long-only):")
-    print(f"    Trades: {result_hybrid['total_trades']}")
-    print(f"    Net P&L: ${result_hybrid['total_net_pnl']:+,.2f}")
-    print(f"    Sharpe: {result_hybrid['sharpe_ratio']:.2f}")
+    # Strategy 3: Triple Stack + Regime Filter
+    result_triple_regime = engine.run_backtest(df, physics_state, signal_func=triple_stack_regime_filtered_signal)
+    print(f"\n[3] TRIPLE STACK + REGIME FILTER:")
+    print(f"    Trades: {result_triple_regime['total_trades']}")
+    print(f"    Net P&L: ${result_triple_regime['total_net_pnl']:+,.2f}")
+    print(f"    Sharpe: {result_triple_regime['sharpe_ratio']:.2f}")
 
     # Strategy 4: CVaR + Chaos (optimal for short timeframes)
     result_cvar = engine.run_backtest(df, physics_state, signal_func=cvar_chaos_signal)
@@ -598,35 +735,59 @@ def main():
     print(f"    Net P&L: ${result_cvar['total_net_pnl']:+,.2f}")
     print(f"    Sharpe: {result_cvar['sharpe_ratio']:.2f}")
 
+    # Strategy 5: Original Composite (for reference)
+    result_composite = engine.run_backtest(df, physics_state, signal_func=composite_stacked_signal)
+    print(f"\n[5] COMPOSITE (jerk × exp(entropy), original):")
+    print(f"    Trades: {result_composite['total_trades']}")
+    print(f"    Net P&L: ${result_composite['total_net_pnl']:+,.2f}")
+    print(f"    Sharpe: {result_composite['sharpe_ratio']:.2f}")
+
     # Comparison
     print(f"\n{'=' * 60}")
     print("STRATEGY COMPARISON SUMMARY")
     print(f"{'=' * 60}")
-    print(f"{'Metric':<15} {'Regime':>10} {'Composite':>10} {'Hybrid':>10} {'CVaR':>10}")
-    print("-" * 60)
+    print(f"{'Metric':<12} {'Regime':>9} {'Triple':>9} {'Tri+Reg':>9} {'CVaR':>9} {'Composite':>10}")
+    print("-" * 70)
 
     regime_sharpe = result_regime['sharpe_ratio']
-    composite_sharpe = result_composite['sharpe_ratio']
-    hybrid_sharpe = result_hybrid['sharpe_ratio']
+    triple_sharpe = result_triple['sharpe_ratio']
+    triple_regime_sharpe = result_triple_regime['sharpe_ratio']
     cvar_sharpe = result_cvar['sharpe_ratio']
-    print(f"{'Sharpe':<15} {regime_sharpe:>10.2f} {composite_sharpe:>10.2f} {hybrid_sharpe:>10.2f} {cvar_sharpe:>10.2f}")
+    composite_sharpe = result_composite['sharpe_ratio']
+    print(f"{'Sharpe':<12} {regime_sharpe:>9.2f} {triple_sharpe:>9.2f} {triple_regime_sharpe:>9.2f} {cvar_sharpe:>9.2f} {composite_sharpe:>10.2f}")
 
     regime_pnl = result_regime['total_net_pnl']
-    composite_pnl = result_composite['total_net_pnl']
-    hybrid_pnl = result_hybrid['total_net_pnl']
+    triple_pnl = result_triple['total_net_pnl']
+    triple_regime_pnl = result_triple_regime['total_net_pnl']
     cvar_pnl = result_cvar['total_net_pnl']
-    print(f"{'Net P&L':<15} ${regime_pnl:>9,.0f} ${composite_pnl:>9,.0f} ${hybrid_pnl:>9,.0f} ${cvar_pnl:>9,.0f}")
+    composite_pnl = result_composite['total_net_pnl']
+    print(f"{'Net P&L':<12} ${regime_pnl:>8,.0f} ${triple_pnl:>8,.0f} ${triple_regime_pnl:>8,.0f} ${cvar_pnl:>8,.0f} ${composite_pnl:>9,.0f}")
 
     regime_trades = result_regime['total_trades']
-    composite_trades = result_composite['total_trades']
-    hybrid_trades = result_hybrid['total_trades']
+    triple_trades = result_triple['total_trades']
+    triple_regime_trades = result_triple_regime['total_trades']
     cvar_trades = result_cvar['total_trades']
-    print(f"{'Trades':<15} {regime_trades:>10} {composite_trades:>10} {hybrid_trades:>10} {cvar_trades:>10}")
+    composite_trades = result_composite['total_trades']
+    print(f"{'Trades':<12} {regime_trades:>9} {triple_trades:>9} {triple_regime_trades:>9} {cvar_trades:>9} {composite_trades:>10}")
 
     # Determine winner
-    all_sharpes = {"Regime": regime_sharpe, "Composite": composite_sharpe, "Hybrid": hybrid_sharpe, "CVaR": cvar_sharpe}
+    all_sharpes = {
+        "Regime": regime_sharpe,
+        "Triple Stack": triple_sharpe,
+        "Triple+Regime": triple_regime_sharpe,
+        "CVaR": cvar_sharpe,
+        "Composite": composite_sharpe
+    }
     winner = max(all_sharpes, key=all_sharpes.get)
     print(f"\nBest Risk-Adjusted: {winner} (Sharpe {all_sharpes[winner]:.2f})")
+
+    # Show z-score statistics
+    print(f"\n{'=' * 60}")
+    print("Z-SCORE STATISTICS")
+    print(f"{'=' * 60}")
+    for col in ["jerk_z", "entropy_z", "lyap_z", "triple_stack"]:
+        vals = physics_state[col]
+        print(f"{col}: mean={vals.mean():.3f}, std={vals.std():.3f}, min={vals.min():.3f}, max={vals.max():.3f}")
 
     # Universal truth validation
     print(f"\n{'=' * 60}")
