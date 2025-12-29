@@ -2027,14 +2027,26 @@ def run_multi_instrument_exploration(
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    if len(sys.argv) > 1 and sys.argv[1] == "--multi":
+    parser = argparse.ArgumentParser(description="RL Exploration Framework")
+    parser.add_argument("--multi", action="store_true", help="Run multi-instrument exploration")
+    parser.add_argument("--data-dir", type=str, default="data/master",
+                        help="Path to data directory containing CSV files")
+    parser.add_argument("--episodes", type=int, default=25,
+                        help="Episodes per instrument (multi) or total (single)")
+    parser.add_argument("--agents", type=str, default="Random,LinearQ,TabularQ",
+                        help="Comma-separated list of agents to test")
+
+    args = parser.parse_args()
+
+    if args.multi:
         # Run multi-instrument exploration
         results = run_multi_instrument_exploration(
-            data_dir="data/master",
-            episodes_per_instrument=25,
+            data_dir=args.data_dir,
+            episodes_per_instrument=args.episodes,
+            agents_to_test=args.agents.split(",") if args.agents else None,
         )
     else:
         # Run single-instrument exploration (original)
-        results = run_exploration_test()
+        results = run_exploration_test(n_episodes=args.episodes)
