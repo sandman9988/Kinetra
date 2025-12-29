@@ -1514,7 +1514,8 @@ class MultiInstrumentLoader:
     - Unified interface for multi-instrument training
     """
 
-    FILENAME_PATTERN = r"^([A-Z\-]+)_([A-Z0-9]+)_\d+_\d+\.csv$"
+    # Pattern matches: BTCUSD_H1_..., GBPUSD+_M15_..., Nikkei225_H4_..., NAS100_M30_..., DJ30ft_H1_...
+    FILENAME_PATTERN = r"^([A-Za-z0-9\+\-]+)_([A-Z0-9]+)_\d+_\d+\.csv$"
 
     def __init__(
         self,
