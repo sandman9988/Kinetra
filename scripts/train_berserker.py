@@ -562,12 +562,11 @@ def train_timeframe(
                     targets = torch.clamp(targets, -100, 100)
 
                 # Forward pass with AMP autocast
-                optimizer.zero_grad(set_to_none=True)  # Slightly faster than zero_grad()
-
                 if use_amp:
                     with torch.amp.autocast('cuda'):
                         current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
                         loss = F.huber_loss(current_q, targets)
+                    optimizer.zero_grad(set_to_none=True)
                     scaler.scale(loss).backward()
                     scaler.unscale_(optimizer)
                     torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
@@ -576,6 +575,7 @@ def train_timeframe(
                 else:
                     current_q = q_net(states_t).gather(1, actions_t.unsqueeze(1)).squeeze()
                     loss = F.huber_loss(current_q, targets)
+                    optimizer.zero_grad(set_to_none=True)
                     loss.backward()
                     torch.nn.utils.clip_grad_norm_(q_net.parameters(), max_norm=1.0)
                     optimizer.step()
