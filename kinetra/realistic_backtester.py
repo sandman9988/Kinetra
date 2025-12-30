@@ -80,8 +80,17 @@ class BacktestResult:
 
     total_pnl: float
     total_return_pct: float
+
+    # Risk-adjusted metrics
     sharpe_ratio: float
+    sortino_ratio: float = 0.0  # Downside deviation-adjusted
+    omega_ratio: float = 0.0    # Gain/loss threshold ratio
+
+    # Risk metrics
     max_drawdown: float
+    max_drawdown_pct: float = 0.0
+    cvar_95: float = 0.0  # Conditional Value at Risk (95%)
+    cvar_99: float = 0.0  # Conditional Value at Risk (99%)
 
     # Realistic costs
     total_spread_cost: float
@@ -93,6 +102,7 @@ class BacktestResult:
     avg_mfe: float
     avg_mae: float
     avg_mfe_mae_ratio: float
+    mfe_capture_pct: float = 0.0  # How much MFE was captured as profit
 
     # Regime breakdown (CRITICAL for detecting overfitting)
     regime_performance: Dict[str, Dict] = field(default_factory=dict)
@@ -105,19 +115,33 @@ class BacktestResult:
     # All trades
     trades: List[Trade] = field(default_factory=list)
 
+    # Equity curve
+    equity_curve: Optional[pd.Series] = None
+
     def to_dict(self) -> Dict:
         """Convert to dictionary for JSON export."""
         return {
             'total_trades': self.total_trades,
+            'winning_trades': self.winning_trades,
+            'losing_trades': self.losing_trades,
             'win_rate': self.win_rate,
             'total_pnl': self.total_pnl,
             'total_return_pct': self.total_return_pct,
             'sharpe_ratio': self.sharpe_ratio,
+            'sortino_ratio': self.sortino_ratio,
+            'omega_ratio': self.omega_ratio,
             'max_drawdown': self.max_drawdown,
+            'max_drawdown_pct': self.max_drawdown_pct,
+            'cvar_95': self.cvar_95,
+            'cvar_99': self.cvar_99,
             'total_spread_cost': self.total_spread_cost,
             'total_commission': self.total_commission,
             'total_swap': self.total_swap,
+            'total_slippage': self.total_slippage,
+            'avg_mfe': self.avg_mfe,
+            'avg_mae': self.avg_mae,
             'avg_mfe_mae_ratio': self.avg_mfe_mae_ratio,
+            'mfe_capture_pct': self.mfe_capture_pct,
             'regime_performance': self.regime_performance,
             'constraint_violations': {
                 'freeze_violations': self.total_freeze_violations,
@@ -154,6 +178,8 @@ class RealisticBacktester:
         self,
         spec: SymbolSpec,
         initial_capital: float = 10000.0,
+        risk_per_trade: float = 0.01,  # 1% risk per trade
+        timeframe: str = "H1",         # For proper Sharpe annualization
         enable_slippage: bool = True,
         slippage_std_pips: float = 0.5,
         enable_freeze_zones: bool = True,
@@ -166,6 +192,8 @@ class RealisticBacktester:
         Args:
             spec: SymbolSpec with freeze zones and stops levels
             initial_capital: Starting capital
+            risk_per_trade: Percentage of equity to risk per trade (0-1)
+            timeframe: Data timeframe for proper Sharpe annualization
             enable_slippage: Simulate slippage (Gaussian noise)
             slippage_std_pips: Slippage standard deviation in pips
             enable_freeze_zones: Enforce freeze zone restrictions
@@ -174,6 +202,8 @@ class RealisticBacktester:
         """
         self.spec = spec
         self.initial_capital = initial_capital
+        self.risk_per_trade = risk_per_trade
+        self.timeframe = timeframe
         self.enable_slippage = enable_slippage
         self.slippage_std_pips = slippage_std_pips
         self.enable_freeze_zones = enable_freeze_zones
@@ -524,6 +554,7 @@ class RealisticBacktester:
                 avg_mae=0.0,
                 avg_mfe_mae_ratio=0.0,
                 trades=[],
+                equity_curve=pd.Series(equity_curve),
             )
 
         # Overall metrics
@@ -531,14 +562,59 @@ class RealisticBacktester:
         losing_trades = [t for t in trades if t.pnl <= 0]
 
         total_pnl = sum(t.pnl for t in trades)
-        returns = [t.pnl for t in trades]
-        sharpe = np.mean(returns) / (np.std(returns) + 1e-8) if len(returns) > 1 else 0.0
 
-        # Drawdown
-        equity = np.array(equity_curve)
-        peak = np.maximum.accumulate(equity)
-        drawdown = (peak - equity) / peak
-        max_dd = float(np.max(drawdown))
+        # Convert equity curve to pandas Series and calculate returns
+        equity = pd.Series(equity_curve)
+        returns = equity.pct_change().dropna()
+
+        # Timeframe-aware annualization factor
+        timeframe_bars_per_year = {
+            "M1": 525600, "M5": 105120, "M15": 35040, "M30": 17520,
+            "H1": 8760, "H4": 2190, "D1": 252, "W1": 52, "MN": 12,
+        }
+        bars_per_year = timeframe_bars_per_year.get(self.timeframe, 252)
+        annualization = np.sqrt(bars_per_year)
+
+        # Sharpe ratio (annualized, timeframe-aware)
+        if len(returns) > 1 and returns.std() > 0:
+            sharpe = (returns.mean() / returns.std()) * annualization
+        else:
+            sharpe = 0.0
+
+        # Sortino ratio (downside deviation)
+        sortino = 0.0
+        if len(returns) > 1 and returns.std() > 0:
+            downside_returns = returns[returns < 0]
+            if len(downside_returns) > 0 and downside_returns.std() > 0:
+                sortino = (returns.mean() / downside_returns.std()) * annualization
+            else:
+                sortino = float('inf') if returns.mean() > 0 else 0.0
+
+        # CVaR (Conditional Value at Risk) - downside tail risk
+        cvar_95 = 0.0
+        cvar_99 = 0.0
+        if len(returns) > 0:
+            q95 = returns.quantile(0.05)
+            q99 = returns.quantile(0.01)
+            cvar_95 = returns[returns <= q95].mean() if len(returns[returns <= q95]) > 0 else 0.0
+            cvar_99 = returns[returns <= q99].mean() if len(returns[returns <= q99]) > 0 else 0.0
+
+        # Omega ratio (gain/loss threshold)
+        omega = 0.0
+        threshold = 0
+        gains = returns[returns > threshold].sum()
+        losses = abs(returns[returns <= threshold].sum())
+        omega = gains / losses if losses > 0 else float('inf')
+
+        # Drawdown (absolute and percentage)
+        equity_arr = np.array(equity_curve)
+        peak = np.maximum.accumulate(equity_arr)
+        drawdown = (peak - equity_arr) / peak
+        max_dd_pct = float(np.max(drawdown))
+
+        # Find max drawdown in absolute terms
+        drawdown_abs = peak - equity_arr
+        max_dd = float(np.max(drawdown_abs))
 
         # Costs
         total_spread = sum(t.entry_spread + t.exit_spread for t in trades)
@@ -546,10 +622,15 @@ class RealisticBacktester:
         total_swap = sum(t.swap for t in trades)
         total_slippage = sum(abs(t.entry_slippage) + abs(t.exit_slippage) for t in trades)
 
-        # Quality
+        # Quality metrics
         avg_mfe = np.mean([t.mfe for t in trades])
         avg_mae = np.mean([t.mae for t in trades])
         avg_mfe_mae = avg_mfe / (avg_mae + 1e-8) if avg_mae > 0 else 0.0
+
+        # MFE capture % - how much of potential profit was actually captured
+        total_mfe = sum(t.mfe for t in trades)
+        realized_profit = sum(max(0, t.pnl) for t in trades)
+        mfe_capture = realized_profit / total_mfe if total_mfe > 0 else 0.0
 
         # Regime breakdown
         regime_performance = self._compute_regime_breakdown(trades)
@@ -561,8 +642,13 @@ class RealisticBacktester:
             win_rate=len(winning_trades) / len(trades),
             total_pnl=total_pnl,
             total_return_pct=total_pnl / self.initial_capital,
-            sharpe_ratio=sharpe,
+            sharpe_ratio=float(sharpe),
+            sortino_ratio=float(sortino) if sortino != float('inf') else 999.0,
+            omega_ratio=float(omega) if omega != float('inf') else 999.0,
             max_drawdown=max_dd,
+            max_drawdown_pct=max_dd_pct,
+            cvar_95=float(cvar_95),
+            cvar_99=float(cvar_99),
             total_spread_cost=total_spread,
             total_commission=total_commission,
             total_swap=total_swap,
@@ -570,8 +656,10 @@ class RealisticBacktester:
             avg_mfe=avg_mfe,
             avg_mae=avg_mae,
             avg_mfe_mae_ratio=avg_mfe_mae,
+            mfe_capture_pct=float(mfe_capture),
             regime_performance=regime_performance,
             trades=trades,
+            equity_curve=equity,
         )
 
     def _compute_regime_breakdown(self, trades: List[Trade]) -> Dict[str, Dict]:
@@ -627,3 +715,115 @@ class RealisticBacktester:
                 }
 
         return breakdown
+
+    def monte_carlo_validation(
+        self,
+        data: pd.DataFrame,
+        signal_generator: callable,
+        n_runs: int = 100,
+        shuffle_method: str = "returns",
+        classify_regimes: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Run Monte Carlo validation to assess strategy robustness.
+
+        This tests if the strategy's edge is real or just luck by running
+        backtest on randomized versions of the data.
+
+        Args:
+            data: Original OHLCV data
+            signal_generator: Function that takes data and returns signals DataFrame
+            n_runs: Number of simulation runs
+            shuffle_method: "returns" (shuffle returns) or "bootstrap" (resample with replacement)
+            classify_regimes: Classify regimes in shuffled data
+
+        Returns:
+            DataFrame with results from each run
+
+        Usage:
+            def my_signal_gen(data):
+                # Your strategy logic
+                return signals_df
+
+            mc_results = backtester.monte_carlo_validation(data, my_signal_gen, n_runs=100)
+
+            # Check if real result is in top 5% (p < 0.05)
+            real_sharpe = backtester.run(data, signals).sharpe_ratio
+            percentile = (mc_results['sharpe_ratio'] < real_sharpe).mean()
+            if percentile > 0.95:
+                print("Strategy has statistically significant edge!")
+        """
+        results = []
+
+        for i in range(n_runs):
+            # Create shuffled data
+            if shuffle_method == "returns":
+                shuffled = self._shuffle_returns(data)
+            elif shuffle_method == "bootstrap":
+                shuffled = self._bootstrap_sample(data)
+            else:
+                raise ValueError(f"Unsupported shuffle method: {shuffle_method}. Use 'returns' or 'bootstrap'.")
+
+            # Generate signals on shuffled data
+            signals = signal_generator(shuffled)
+
+            # Run backtest
+            result = self.run(shuffled, signals, classify_regimes=classify_regimes)
+
+            # Extract key metrics
+            results.append({
+                'run': i,
+                'total_trades': result.total_trades,
+                'win_rate': result.win_rate,
+                'total_pnl': result.total_pnl,
+                'total_return_pct': result.total_return_pct,
+                'sharpe_ratio': result.sharpe_ratio,
+                'sortino_ratio': result.sortino_ratio,
+                'omega_ratio': result.omega_ratio,
+                'max_drawdown': result.max_drawdown,
+                'max_drawdown_pct': result.max_drawdown_pct,
+                'cvar_95': result.cvar_95,
+                'mfe_capture_pct': result.mfe_capture_pct,
+            })
+
+        return pd.DataFrame(results)
+
+    def _shuffle_returns(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Shuffle returns while preserving price structure.
+
+        This maintains statistical properties of returns but destroys
+        any predictive patterns in the time series.
+        """
+        returns = data["close"].pct_change().dropna()
+        shuffled_returns = returns.sample(frac=1).reset_index(drop=True)
+
+        # Reconstruct prices from shuffled returns
+        new_close = [data["close"].iloc[0]]
+        for r in shuffled_returns:
+            new_close.append(new_close[-1] * (1 + r))
+
+        new_data = data.copy()
+        new_data["close"] = new_close[: len(data)]
+
+        # Adjust OHLC proportionally
+        ratio = new_data["close"] / data["close"]
+        new_data["open"] = data["open"] * ratio
+        new_data["high"] = data["high"] * ratio
+        new_data["low"] = data["low"] * ratio
+
+        # Preserve spread if exists
+        if 'spread' in data.columns:
+            new_data['spread'] = data['spread']
+
+        return new_data
+
+    def _bootstrap_sample(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Create bootstrap sample of data (sample with replacement).
+
+        This tests if the strategy works on different random subsets
+        of the historical data.
+        """
+        indices = np.random.choice(len(data), size=len(data), replace=True)
+        return data.iloc[indices].reset_index(drop=True)
