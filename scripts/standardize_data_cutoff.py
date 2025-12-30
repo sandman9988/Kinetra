@@ -286,15 +286,57 @@ def truncate_to_cutoff(
     return results
 
 
+def get_market_holidays(start_year: int = 2024, end_year: int = 2025) -> set:
+    """Get US market holidays using pandas_market_calendars."""
+    try:
+        import pandas_market_calendars as mcal
+        nyse = mcal.get_calendar('NYSE')
+        holidays = nyse.holidays().holidays
+        # Filter to date range
+        holidays = {pd.Timestamp(h).date() for h in holidays
+                   if start_year <= pd.Timestamp(h).year <= end_year}
+        return holidays
+    except ImportError:
+        # Fallback: hardcoded major US holidays
+        return {
+            # 2024
+            pd.Timestamp('2024-01-01').date(),  # New Year
+            pd.Timestamp('2024-01-15').date(),  # MLK Day
+            pd.Timestamp('2024-02-19').date(),  # Presidents Day
+            pd.Timestamp('2024-03-29').date(),  # Good Friday
+            pd.Timestamp('2024-05-27').date(),  # Memorial Day
+            pd.Timestamp('2024-06-19').date(),  # Juneteenth
+            pd.Timestamp('2024-07-04').date(),  # Independence Day
+            pd.Timestamp('2024-09-02').date(),  # Labor Day
+            pd.Timestamp('2024-11-28').date(),  # Thanksgiving
+            pd.Timestamp('2024-12-25').date(),  # Christmas
+            # 2025
+            pd.Timestamp('2025-01-01').date(),
+            pd.Timestamp('2025-01-20').date(),
+            pd.Timestamp('2025-02-17').date(),
+            pd.Timestamp('2025-04-18').date(),
+            pd.Timestamp('2025-05-26').date(),
+            pd.Timestamp('2025-06-19').date(),
+            pd.Timestamp('2025-07-04').date(),
+            pd.Timestamp('2025-09-01').date(),
+            pd.Timestamp('2025-11-27').date(),
+            pd.Timestamp('2025-12-25').date(),
+        }
+
+
 def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
     """
     Analyze gaps in data (weekends, holidays, unusual gaps).
 
+    Uses pandas_market_calendars for accurate holiday detection.
     Returns dict with gap statistics and flagged anomalies.
     """
     from datetime import timedelta
 
     data_path = Path(data_dir)
+
+    # Get market holidays
+    holidays = get_market_holidays()
 
     # Expected gap by timeframe (in hours)
     expected_gaps = {
@@ -348,20 +390,27 @@ def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
                     gap >= 40 and gap <= 60
                 )
 
+                # Check if this is a known holiday
+                gap_date = dt.date()
+                prev_date = (dt - pd.Timedelta(hours=gap)).date() if gap > 0 else gap_date
+                is_known_holiday = gap_date in holidays or prev_date in holidays
+
                 if gap > expected_gap_hours * 2 and not is_weekend_gap:
                     all_gaps.append({
                         "file": csv_file.name,
                         "datetime": dt,
                         "gap_hours": gap,
                         "weekday": dt.strftime("%A"),
+                        "is_holiday": is_known_holiday,
                     })
 
-                    # Flag potential holidays (gap > 24h on weekday)
-                    if gap > 24 and dt.weekday() < 5:
+                    # Flag holidays (known or suspected)
+                    if is_known_holiday or (gap > 24 and dt.weekday() < 5):
                         holiday_gaps.append({
                             "datetime": dt,
                             "gap_hours": gap,
-                            "likely_holiday": True,
+                            "known_holiday": is_known_holiday,
+                            "holiday_date": prev_date if prev_date in holidays else gap_date,
                         })
 
         except Exception as e:
@@ -381,21 +430,42 @@ def print_gap_analysis(gaps: Dict):
     print("  GAP ANALYSIS (Holidays, Unusual Gaps)")
     print("=" * 60)
 
+    # Check if using pandas_market_calendars
+    try:
+        import pandas_market_calendars
+        print("  (Using pandas_market_calendars for holiday detection)")
+    except ImportError:
+        print("  (Using hardcoded holiday list - install pandas_market_calendars for auto-updates)")
+
     print(f"\nTotal unusual gaps found: {gaps.get('total_gaps_found', 0)}")
-    print(f"Potential holiday gaps: {gaps.get('holiday_gaps', 0)}")
+    print(f"Holiday-related gaps: {gaps.get('holiday_gaps', 0)}")
 
     if gaps.get('holidays'):
-        print("\n[LIKELY HOLIDAYS]")
-        print("-" * 40)
-        for h in gaps['holidays'][:10]:
-            dt = h['datetime']
-            print(f"  {dt.strftime('%Y-%m-%d %A')}: {h['gap_hours']:.1f}h gap")
+        known = [h for h in gaps['holidays'] if h.get('known_holiday')]
+        unknown = [h for h in gaps['holidays'] if not h.get('known_holiday')]
+
+        if known:
+            print("\n[KNOWN HOLIDAYS (from calendar)]")
+            print("-" * 50)
+            for h in known[:15]:
+                dt = h['datetime']
+                hdate = h.get('holiday_date', dt.date())
+                print(f"  {hdate} ({dt.strftime('%A')}): {h['gap_hours']:.0f}h gap")
+
+        if unknown:
+            print("\n[UNKNOWN GAPS (not in calendar)]")
+            print("-" * 50)
+            for h in unknown[:10]:
+                dt = h['datetime']
+                print(f"  {dt.strftime('%Y-%m-%d %A')}: {h['gap_hours']:.0f}h gap")
 
     if gaps.get('gaps'):
-        print("\n[UNUSUAL GAPS (sample)]")
-        print("-" * 40)
-        for g in gaps['gaps'][:10]:
-            print(f"  {g['datetime']}: {g['gap_hours']:.1f}h ({g['weekday']})")
+        non_holiday = [g for g in gaps['gaps'] if not g.get('is_holiday')]
+        if non_holiday:
+            print("\n[OTHER UNUSUAL GAPS]")
+            print("-" * 50)
+            for g in non_holiday[:10]:
+                print(f"  {g['datetime']}: {g['gap_hours']:.1f}h ({g['weekday']})")
 
 
 def main():
