@@ -102,6 +102,16 @@ class SymbolSpec:
     # Trading calculation
     profit_calc_mode: str = "FOREX"  # Profit calculation mode (FOREX, CFD, FUTURES, etc.)
 
+    # Stop placement & freeze zones (CRITICAL for live trading)
+    trade_stops_level: int = 0      # Minimum distance for SL/TP from price (in points)
+    trade_freeze_level: int = 0     # Freeze zone before close/events (in points)
+
+    # Order execution modes
+    trade_mode: str = "FULL"        # FULL, CLOSEONLY, DISABLED
+    filling_mode: str = "IOC"       # IOC (Immediate or Cancel), FOK (Fill or Kill), RETURN
+    order_mode: str = "MARKET_LIMIT"  # Allowed order types
+    order_gtc_mode: str = "GTC"     # Good Till Cancelled mode
+
     # Session info
     session_start: time = time(0, 0)   # Market open (UTC)
     session_end: time = time(23, 59)   # Market close (UTC)
@@ -197,6 +207,64 @@ class SymbolSpec:
         # For most pairs, 1 pip = 0.0001 (or 0.01 for JPY pairs)
         pip_size = 10 * self.point if self.digits == 5 or self.digits == 3 else self.point
         return pip_size * self.contract_size * lot_size
+
+    def validate_stop_distance(self, entry_price: float, stop_price: float) -> tuple[bool, str]:
+        """
+        Validate that stop loss/take profit meets minimum distance requirement.
+
+        Args:
+            entry_price: Entry or current price
+            stop_price: Proposed SL/TP price
+
+        Returns:
+            (is_valid, error_message) tuple
+        """
+        if self.trade_stops_level == 0:
+            return (True, "")  # No minimum distance required
+
+        distance_price = abs(stop_price - entry_price)
+        # Use round() instead of int() to handle floating point precision issues
+        distance_points = round(distance_price / self.point)
+        min_points = self.trade_stops_level
+
+        if distance_points < min_points:
+            return (
+                False,
+                f"Stop distance {distance_points} points < minimum {min_points} points "
+                f"({distance_price:.{self.digits}f} < {min_points * self.point:.{self.digits}f})"
+            )
+
+        return (True, "")
+
+    def is_in_freeze_zone(self) -> bool:
+        """
+        Check if currently in freeze zone (before market close/events).
+
+        Note: This is a simplified check. Real freeze zone detection would need:
+        - Current server time
+        - Time to next market close
+        - Special event calendar (NFP, FOMC, etc.)
+
+        Returns:
+            True if modifications blocked (conservative default)
+        """
+        # Conservative: if freeze level exists, assume we might be in freeze zone
+        # Real implementation would check time until session_end
+        return self.trade_freeze_level > 0
+
+    def get_safe_stop_distance(self, safety_multiplier: float = 1.5) -> float:
+        """
+        Get safe stop loss distance with safety buffer.
+
+        Args:
+            safety_multiplier: Multiplier for minimum distance (default 1.5x)
+
+        Returns:
+            Safe distance in price units
+        """
+        min_distance_price = self.trade_stops_level * self.point
+        safe_distance = min_distance_price * safety_multiplier
+        return safe_distance
 
 
 # Pre-defined symbol specifications

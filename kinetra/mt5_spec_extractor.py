@@ -103,6 +103,16 @@ class MT5SpecExtractor:
             # Trading calculation
             profit_calc_mode=self._get_profit_calc_mode(info.trade_calc_mode),
 
+            # Stop placement & freeze zones (CRITICAL for live trading)
+            trade_stops_level=getattr(info, 'trade_stops_level', 0),
+            trade_freeze_level=getattr(info, 'trade_freeze_level', 0),
+
+            # Order execution modes
+            trade_mode=self._get_trade_mode(getattr(info, 'trade_mode', 0)),
+            filling_mode=self._get_filling_mode(getattr(info, 'filling_mode', 0)),
+            order_mode=self._get_order_mode(getattr(info, 'order_mode', 0)),
+            order_gtc_mode=self._get_order_gtc_mode(getattr(info, 'order_gtc_mode', 0)),
+
             # Trading hours (extract from MT5 if available)
             trading_hours=self._extract_trading_hours(symbol),
 
@@ -210,6 +220,16 @@ class MT5SpecExtractor:
             'profit_calc_mode': spec.profit_calc_mode,
             'trading_hours': spec.trading_hours,
 
+            # Stop placement & freeze zones
+            'trade_stops_level': spec.trade_stops_level,
+            'trade_freeze_level': spec.trade_freeze_level,
+
+            # Order execution modes
+            'trade_mode': spec.trade_mode,
+            'filling_mode': spec.filling_mode,
+            'order_mode': spec.order_mode,
+            'order_gtc_mode': spec.order_gtc_mode,
+
             # Metadata
             'last_updated': spec.last_updated.isoformat() if spec.last_updated else None,
             'source': spec.source,
@@ -291,6 +311,52 @@ class MT5SpecExtractor:
             6: "saturday",
         }
         return days.get(rollover_day, "wednesday")
+
+    def _get_trade_mode(self, trade_mode: int) -> str:
+        """Convert MT5 trade_mode to string."""
+        modes = {
+            0: "DISABLED",      # Trade disabled
+            1: "LONGONLY",      # Long positions only
+            2: "SHORTONLY",     # Short positions only
+            3: "CLOSEONLY",     # Close only (no new positions)
+            4: "FULL",          # Full trading allowed
+        }
+        return modes.get(trade_mode, "FULL")
+
+    def _get_filling_mode(self, filling_mode: int) -> str:
+        """Convert MT5 filling_mode to string."""
+        # MT5 filling mode is a bit flag
+        if filling_mode & 1:  # FOK (Fill or Kill)
+            return "FOK"
+        elif filling_mode & 2:  # IOC (Immediate or Cancel)
+            return "IOC"
+        elif filling_mode & 4:  # RETURN (fill at available volume)
+            return "RETURN"
+        return "IOC"  # Default
+
+    def _get_order_mode(self, order_mode: int) -> str:
+        """Convert MT5 order_mode to string."""
+        # MT5 order mode is also a bit flag
+        allowed = []
+        if order_mode & 1:
+            allowed.append("MARKET")
+        if order_mode & 2:
+            allowed.append("LIMIT")
+        if order_mode & 4:
+            allowed.append("STOP")
+        if order_mode & 8:
+            allowed.append("STOP_LIMIT")
+        return "_".join(allowed) if allowed else "MARKET_LIMIT"
+
+    def _get_order_gtc_mode(self, gtc_mode: int) -> str:
+        """Convert MT5 order_gtc_mode to string."""
+        modes = {
+            0: "GTC",           # Good till cancelled
+            1: "DAY",           # Good for day
+            2: "SPECIFIED",     # Good till specified date
+            3: "SPECIFIED_DAY", # Specified day only
+        }
+        return modes.get(gtc_mode, "GTC")
 
     def _extract_trading_hours(self, symbol: str) -> Optional[Dict[str, str]]:
         """

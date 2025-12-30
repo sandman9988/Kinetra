@@ -307,6 +307,15 @@ class UnifiedDataLoader:
             swap_triple_day=data.get('swap_triple_day', 'wednesday'),
             profit_calc_mode=data.get('profit_calc_mode', 'FOREX'),
             trading_hours=data.get('trading_hours'),
+            # Stop placement & freeze zones
+            trade_stops_level=data.get('trade_stops_level', 0),
+            trade_freeze_level=data.get('trade_freeze_level', 0),
+            # Order execution modes
+            trade_mode=data.get('trade_mode', 'FULL'),
+            filling_mode=data.get('filling_mode', 'IOC'),
+            order_mode=data.get('order_mode', 'MARKET_LIMIT'),
+            order_gtc_mode=data.get('order_gtc_mode', 'GTC'),
+            # Metadata
             last_updated=datetime.fromisoformat(data['last_updated']) if data.get('last_updated') else None,
             source=data.get('source', 'json')
         )
