@@ -225,15 +225,24 @@ def truncate_to_cutoff(
 
                     # Combine date + time into datetime
                     if 'date' in df.columns and 'time' in df.columns:
-                        df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+                        # Handle MT5 date format: 2024.01.02 (dots instead of dashes)
+                        date_str = df['date'].astype(str).str.replace('.', '-', regex=False)
+                        df['datetime'] = pd.to_datetime(date_str + ' ' + df['time'].astype(str))
                         time_col = 'datetime'
                     elif 'datetime' in df.columns:
                         df['datetime'] = pd.to_datetime(df['datetime'])
                         time_col = 'datetime'
                     else:
-                        # Assume first column is time
+                        # Assume first column is time - try MT5 format first
                         time_col = df.columns[0]
-                        df[time_col] = pd.to_datetime(df[time_col])
+                        try:
+                            # Try standard format
+                            df[time_col] = pd.to_datetime(df[time_col])
+                        except Exception:
+                            # Try with dot-separated dates
+                            df[time_col] = pd.to_datetime(
+                                df[time_col].astype(str).str.replace('.', '-', regex=False)
+                            )
 
                     # Filter by cutoff
                     df_truncated = df[df[time_col] <= cutoff]
@@ -367,7 +376,9 @@ def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
             df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
 
             if 'date' in df.columns and 'time' in df.columns:
-                df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+                # Handle MT5 date format: 2024.01.02 (dots instead of dashes)
+                date_str = df['date'].astype(str).str.replace('.', '-', regex=False)
+                df['datetime'] = pd.to_datetime(date_str + ' ' + df['time'].astype(str))
             else:
                 continue
 
