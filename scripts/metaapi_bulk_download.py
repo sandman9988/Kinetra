@@ -195,8 +195,8 @@ def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> 
     return None
 
 
-# Concurrency control - start aggressive, back off on rate limits
-MAX_CONCURRENT_DOWNLOADS = 6  # Higher parallelism
+# Concurrency control - aggressive for 32-thread AMD 5950
+MAX_CONCURRENT_DOWNLOADS = 12  # Network I/O bound, can go higher
 
 
 class ProgressTracker:
