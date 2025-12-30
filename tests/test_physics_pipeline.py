@@ -1475,7 +1475,11 @@ class SimpleBacktestEngine:
 
 def main():
     warnings.filterwarnings("ignore")
-    DATA_PATH = "data/master/BTCUSD_H1_202407010000_202512270700.csv"
+    import glob
+    btc_files = glob.glob("data/master/BTCUSD_H1_*.csv")
+    if not btc_files:
+        raise FileNotFoundError("No BTCUSD_H1_*.csv files found in data/master/")
+    DATA_PATH = sorted(btc_files)[-1]
 
     print("\n" + "=" * 60)
     print("PHYSICS ENGINE TEST PIPELINE")

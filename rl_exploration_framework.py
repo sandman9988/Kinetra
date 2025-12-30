@@ -1304,8 +1304,12 @@ def run_exploration_test(
         get_rl_feature_names,
     )
 
-    # Load data
-    DATA_PATH = "data/master/BTCUSD_H1_202407010000_202512270700.csv"
+    # Load data - find BTCUSD H1 file dynamically
+    import glob
+    btc_files = glob.glob("data/master/BTCUSD_H1_*.csv")
+    if not btc_files:
+        raise FileNotFoundError("No BTCUSD_H1_*.csv files found in data/master/")
+    DATA_PATH = sorted(btc_files)[-1]  # Use most recent
     if persistence:
         persistence.logger.info(f"Loading data: {DATA_PATH}")
     else:
