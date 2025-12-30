@@ -42,6 +42,9 @@ try:
         INSTRUMENT_PROFILES, RewardProfile, REWARD_PROFILES,
         TradeValidator, VolatilityEstimator
     )
+    from kinetra.trend_discovery import (
+        UnifiedStrategyLearner, TrendDefinitionLearner
+    )
     MEASUREMENT_FRAMEWORK_AVAILABLE = True
 except ImportError as e:
     print(f"[WARN] Measurement framework not fully available: {e}")
@@ -100,6 +103,7 @@ class ComprehensiveTradingEnv:
     - Composite signal stacking
     - Class-specific reward shaping
     - Trade validation
+    - Strategy definition learning (what is "trend" for this class?)
     """
 
     def __init__(
@@ -107,12 +111,14 @@ class ComprehensiveTradingEnv:
         inst_measurements,  # InstrumentMeasurements object
         feature_extractor: ExplorationFeatureExtractor,
         reward_shaper: RewardShaper,
+        strategy_learner: Optional['UnifiedStrategyLearner'] = None,
         trade_validator: Optional[TradeValidator] = None,
         max_bars: int = 500,
     ):
         self.inst_meas = inst_measurements
         self.extractor = feature_extractor
         self.reward_shaper = reward_shaper
+        self.strategy_learner = strategy_learner
         self.validator = trade_validator or TradeValidator()
         self.max_bars = max_bars
 
@@ -299,6 +305,27 @@ class ComprehensiveTradingEnv:
                     pnl, self.mae, self.mfe, bars_held
                 )
 
+                # Record for strategy definition learning
+                if self.strategy_learner is not None:
+                    # Get entry measurements for learning what defines "trend"
+                    entry_meas = {
+                        name: self.inst_meas.normalized_measurements[name][self.entry_bar]
+                        for name in self.inst_meas.normalized_measurements
+                        if self.entry_bar < len(self.inst_meas.normalized_measurements[name])
+                        and np.isfinite(self.inst_meas.normalized_measurements[name][self.entry_bar])
+                    }
+
+                    self.strategy_learner.record_trade(
+                        asset_class=self.inst_meas.asset_class,
+                        instrument=self.inst_meas.instrument_key,
+                        entry_measurements=entry_meas,
+                        pnl=pnl,
+                        mae=self.mae,
+                        mfe=self.mfe,
+                        bars_held=bars_held,
+                        direction=self.position,  # 1=long, -1=short
+                    )
+
                 # Reset position
                 self.position = 0
                 self.entry_price = 0.0
@@ -395,6 +422,11 @@ def run_comprehensive_exploration(
     # Create feature extractor
     extractor = ExplorationFeatureExtractor()
 
+    # Create strategy learner - discovers what "trend" and "MR" mean per class
+    strategy_learner = UnifiedStrategyLearner()
+    print("\n[STEP 3] Strategy learner initialized")
+    print("  Will discover what 'trend' and 'mean reversion' mean per class")
+
     # Create class-specific reward shapers
     reward_shapers = {
         'Forex': RewardShaper.from_asset_class('Forex'),
@@ -404,7 +436,7 @@ def run_comprehensive_exploration(
         'EnergyCommodities': RewardShaper.from_asset_class('EnergyCommodities'),
     }
 
-    print("\n[STEP 3] Reward shapers by class:")
+    print("\n[STEP 4] Reward shapers by class:")
     for cls, shaper in reward_shapers.items():
         print(f"  {cls}: MAE_w={shaper.mae_penalty_weight}, "
               f"trend={shaper.trend_bonus_weight}, hold={shaper.holding_bonus_weight}")
@@ -461,11 +493,12 @@ def run_comprehensive_exploration(
         asset_class = inst_meas.asset_class
         reward_shaper = reward_shapers.get(asset_class, reward_shapers['Forex'])
 
-        # Create env
+        # Create env with strategy learner
         env = ComprehensiveTradingEnv(
             inst_measurements=inst_meas,
             feature_extractor=extractor,
             reward_shaper=reward_shaper,
+            strategy_learner=strategy_learner,
         )
 
         # Run episode
@@ -557,10 +590,75 @@ def run_comprehensive_exploration(
                   f"{inv['low_vol_correlation']:+.2f} → {inv['high_vol_correlation']:+.2f} "
                   f"({inv['type']})")
 
+    # STRATEGY DEFINITION DISCOVERY - What "trend" means per class
+    print("\n" + "=" * 80)
+    print("  TREND DEFINITION DISCOVERY")
+    print("  What measurements ACTUALLY define 'trending' per class")
+    print("=" * 80)
+
+    for asset_class in sorted(set(per_class.keys())):
+        profile = strategy_learner.get_class_strategy_profile(asset_class)
+
+        print(f"\n  {asset_class}:")
+
+        # Trend definition
+        trend = profile.get('trend', {})
+        trend_def = trend.get('definition', {})
+        if trend_def.get('top_predictors'):
+            print(f"    TREND defined by:")
+            for pred in trend_def['top_predictors'][:5]:
+                corr = pred['correlation']
+                name = pred['measurement']
+                bar = "█" * int(abs(corr) * 15)
+                sign = "+" if corr > 0 else "-"
+                print(f"      {sign}{abs(corr):.3f} {name:<35} {bar}")
+            print(f"    Win rate: {trend.get('win_rate', 0):.1%}, Avg PnL: {trend.get('avg_pnl', 0):.3f}%")
+
+        # MR definition
+        mr = profile.get('mean_reversion', {})
+        mr_def = mr.get('definition', {})
+        if mr_def.get('top_predictors'):
+            print(f"    MEAN-REVERSION defined by:")
+            for pred in mr_def['top_predictors'][:3]:
+                corr = pred['correlation']
+                name = pred['measurement']
+                sign = "+" if corr > 0 else "-"
+                print(f"      {sign}{abs(corr):.3f} {name}")
+            print(f"    Win rate: {mr.get('win_rate', 0):.1%}, Avg PnL: {mr.get('avg_pnl', 0):.3f}%")
+
+        print(f"    → RECOMMENDED: {profile.get('recommended_strategy', 'unknown').upper()}")
+
+    # Cross-class comparison
+    print("\n" + "-" * 60)
+    print("  CROSS-CLASS COMPARISON: Same measurement, different meaning")
+    print("-" * 60)
+
+    comparison = strategy_learner.trend_learner.compare_trend_definitions()
+    if not comparison.empty:
+        print(f"\n  {'Class':<20} {'#1 Predictor':<25} {'#2 Predictor':<25}")
+        print("  " + "-" * 70)
+        for _, row in comparison.iterrows():
+            cls = row.get('asset_class', 'unknown')
+            p1 = row.get('predictor_1', 'N/A')
+            p2 = row.get('predictor_2', 'N/A')
+            print(f"  {cls:<20} {str(p1):<25} {str(p2):<25}")
+
     # Save results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_dir = Path("results")
     results_dir.mkdir(exist_ok=True)
+
+    # Collect strategy definitions
+    strategy_definitions = {}
+    for asset_class in per_class.keys():
+        profile = strategy_learner.get_class_strategy_profile(asset_class)
+        strategy_definitions[asset_class] = {
+            'trend_definition': profile.get('trend', {}).get('definition', {}),
+            'mr_definition': profile.get('mean_reversion', {}).get('definition', {}),
+            'trend_win_rate': profile.get('trend', {}).get('win_rate', 0),
+            'mr_win_rate': profile.get('mean_reversion', {}).get('win_rate', 0),
+            'recommended': profile.get('recommended_strategy', 'unknown'),
+        }
 
     results = {
         "timestamp": timestamp,
@@ -571,6 +669,7 @@ def run_comprehensive_exploration(
             k: v if not isinstance(v, pd.DataFrame) else v.to_dict()
             for k, v in discoveries.items()
         },
+        "strategy_definitions": strategy_definitions,
     }
 
     results_file = results_dir / f"comprehensive_exploration_{timestamp}.json"
