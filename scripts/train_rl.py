@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated RL Training Loop
+Automated RL Training Loop - Physics Only
 
 Continuous training cycle:
 1. Collect experiences via backtest (VIRTUAL mode)
@@ -8,14 +8,18 @@ Continuous training cycle:
 3. Checkpoint periodically
 4. Evaluate and log metrics
 
+PHYSICS ONLY: No RSI, MACD, Bollinger, etc.
+Uses: Kinematics, Energy, Flow, Entropy, Field Theory
+
 Supports:
-- Synthetic data (for testing)
-- Real MT5 data via bridge
+- Real MT5 data from data/master/
+- Synthetic data (fallback for testing)
 - Atomic checkpointing for crash recovery
 
 Usage:
     python scripts/train_rl.py --episodes 100
-    python scripts/train_rl.py --live  # Use MT5 bridge for live data
+    python scripts/train_rl.py --episodes 100 --data-dir data/master --timeframe H1
+    python scripts/train_rl.py --sync  # Git pull before training
 """
 
 import sys
@@ -28,6 +32,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from collections import deque
 import random
+import glob
+import re
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -200,6 +206,155 @@ def generate_synthetic_episode(
         'Volume': volume,
     }, index=dates)
 
+
+# =============================================================================
+# REAL DATA LOADING (MT5 Format)
+# =============================================================================
+
+class RealDataLoader:
+    """
+    Load real market data from data/master/ directory.
+
+    MT5 format: tab-separated with columns:
+    <DATE>, <TIME>, <OPEN>, <HIGH>, <LOW>, <CLOSE>, <TICKVOL>, <VOL>, <SPREAD>
+    """
+
+    def __init__(self, data_dir: str = "data/master", timeframe: str = "H1"):
+        self.data_dir = Path(data_dir)
+        self.timeframe = timeframe
+        self.files: List[Path] = []
+        self.current_file_idx = 0
+        self._scan_files()
+
+    def _scan_files(self):
+        """Scan for matching data files."""
+        pattern = f"*_{self.timeframe}_*.csv"
+        self.files = sorted(self.data_dir.glob(pattern))
+        if self.files:
+            print(f"Found {len(self.files)} {self.timeframe} data files")
+        else:
+            print(f"WARNING: No {self.timeframe} files in {self.data_dir}")
+
+    def _parse_symbol(self, filepath: Path) -> str:
+        """Extract symbol name from filename."""
+        # Format: SYMBOL_TIMEFRAME_START_END.csv
+        name = filepath.stem
+        parts = name.split('_')
+        if parts:
+            return parts[0].replace('+', '')  # Remove + suffix
+        return "UNKNOWN"
+
+    def load_file(self, filepath: Path) -> Optional[pd.DataFrame]:
+        """Load a single MT5 CSV file into standardized DataFrame."""
+        try:
+            # Read tab-separated data
+            df = pd.read_csv(filepath, sep='\t')
+
+            # Normalize column names
+            df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
+
+            # Combine date + time into datetime
+            if 'date' in df.columns and 'time' in df.columns:
+                # Handle MT5 date format: 2024.01.02 -> 2024-01-02
+                date_str = df['date'].astype(str).str.replace('.', '-', regex=False)
+                df['datetime'] = pd.to_datetime(date_str + ' ' + df['time'].astype(str))
+                df = df.set_index('datetime')
+
+            # Rename to standard columns
+            column_map = {
+                'open': 'Open',
+                'high': 'High',
+                'low': 'Low',
+                'close': 'Close',
+                'tickvol': 'Volume',
+                'vol': 'RealVolume',
+                'spread': 'Spread',
+            }
+
+            df = df.rename(columns=column_map)
+
+            # Ensure we have required columns
+            required = ['Open', 'High', 'Low', 'Close', 'Volume']
+            for col in required:
+                if col not in df.columns:
+                    if col == 'Volume' and 'RealVolume' in df.columns:
+                        df['Volume'] = df['RealVolume']
+                    else:
+                        print(f"  Missing column {col} in {filepath.name}")
+                        return None
+
+            # Drop date/time text columns
+            df = df.drop(columns=['date', 'time'], errors='ignore')
+
+            return df[['Open', 'High', 'Low', 'Close', 'Volume'] +
+                      [c for c in ['Spread', 'RealVolume'] if c in df.columns]]
+
+        except Exception as e:
+            print(f"  Error loading {filepath.name}: {e}")
+            return None
+
+    def get_random_episode(self, min_bars: int = 500) -> Tuple[pd.DataFrame, str]:
+        """
+        Get a random episode from available data.
+
+        Returns (dataframe, symbol) tuple.
+        """
+        if not self.files:
+            # Fallback to synthetic
+            return generate_synthetic_episode(min_bars), "SYNTHETIC"
+
+        # Shuffle files for variety
+        available = list(self.files)
+        random.shuffle(available)
+
+        for filepath in available:
+            df = self.load_file(filepath)
+            if df is not None and len(df) >= min_bars:
+                symbol = self._parse_symbol(filepath)
+                # Take a random slice if file is large
+                if len(df) > min_bars * 2:
+                    max_start = len(df) - min_bars
+                    start_idx = random.randint(0, max_start)
+                    df = df.iloc[start_idx:start_idx + min_bars].reset_index(drop=True)
+                return df, symbol
+
+        # Fallback
+        print("  No valid data files, using synthetic")
+        return generate_synthetic_episode(min_bars), "SYNTHETIC"
+
+    def get_all_symbols(self) -> List[str]:
+        """Get list of all available symbols."""
+        symbols = set()
+        for f in self.files:
+            symbols.add(self._parse_symbol(f))
+        return sorted(symbols)
+
+
+def git_sync():
+    """Pull latest changes from git."""
+    import subprocess
+    print("\n[GIT SYNC] Pulling latest changes...")
+    try:
+        result = subprocess.run(
+            ['git', 'pull', '--rebase'],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        if result.returncode == 0:
+            print(f"  {result.stdout.strip()}")
+            return True
+        else:
+            print(f"  Error: {result.stderr}")
+            return False
+    except Exception as e:
+        print(f"  Git sync failed: {e}")
+        return False
+
+
+# =============================================================================
+# PHYSICS STATE COMPUTATION
+# =============================================================================
 
 # Physics state dimension: 30 core features (percentile normalized)
 PHYSICS_STATE_DIM = 30
@@ -567,25 +722,33 @@ class RLTrainer:
             {'experiences': experiences, 'step': self.step}
         )
 
-    def train(self, n_episodes: int = 100, checkpoint_every: int = 10):
+    def train(self, n_episodes: int = 100, checkpoint_every: int = 10,
+              data_loader: Optional['RealDataLoader'] = None):
         """Main training loop."""
         print(f"\nStarting training from episode {self.episode}")
         print(f"Using {'PyTorch' if HAS_TORCH else 'NumPy'} backend")
+        print(f"Data source: {'Real data' if data_loader else 'Synthetic'}")
         print(f"Epsilon: {self.get_epsilon():.3f}")
         print("-" * 60)
 
         for ep in range(n_episodes):
-            # Generate episode data
-            df = generate_synthetic_episode(n_bars=500, seed=self.episode + ep)
+            # Get episode data
+            if data_loader:
+                df, symbol = data_loader.get_random_episode(min_bars=500)
+            else:
+                df = generate_synthetic_episode(n_bars=500, seed=self.episode + ep)
+                symbol = "SYNTHETIC"
 
             # Run episode
-            metrics = self.run_episode(df)
+            metrics = self.run_episode(df, symbol=symbol)
+            metrics['symbol'] = symbol
 
             self.episode_rewards.append(metrics['reward'])
 
             # Log
             avg_reward = np.mean(self.episode_rewards[-100:])
             print(f"Ep {metrics['episode']:4d} | "
+                  f"{symbol:12} | "
                   f"Reward: {metrics['reward']:+7.2f} | "
                   f"Avg: {avg_reward:+7.2f} | "
                   f"Trades: {metrics['trades']:3d} | "
@@ -603,11 +766,32 @@ class RLTrainer:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Automated RL Training')
+    parser = argparse.ArgumentParser(
+        description='Kinetra RL Training - Physics Only',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Train with real data (recommended)
+  python scripts/train_rl.py --episodes 100 --data-dir data/master
+
+  # Train with specific timeframe
+  python scripts/train_rl.py --episodes 200 --timeframe H4
+
+  # Sync git and train
+  python scripts/train_rl.py --sync --episodes 100
+
+  # Train with synthetic data (testing)
+  python scripts/train_rl.py --episodes 50 --synthetic
+        """
+    )
     parser.add_argument('--episodes', type=int, default=100, help='Number of episodes')
     parser.add_argument('--checkpoint-dir', default='./checkpoints', help='Checkpoint directory')
     parser.add_argument('--checkpoint-every', type=int, default=10, help='Checkpoint frequency')
-    parser.add_argument('--live', action='store_true', help='Use MT5 bridge for live data')
+    parser.add_argument('--data-dir', default='data/master', help='Directory with MT5 CSV data')
+    parser.add_argument('--timeframe', default='H1', help='Timeframe to use (M15, M30, H1, H4)')
+    parser.add_argument('--synthetic', action='store_true', help='Use synthetic data (for testing)')
+    parser.add_argument('--sync', action='store_true', help='Git pull before training')
+    parser.add_argument('--fresh', action='store_true', help='Start fresh (ignore checkpoints)')
     args = parser.parse_args()
 
     print("=" * 60)
@@ -616,24 +800,40 @@ def main():
     print(f"State dimension: {PHYSICS_STATE_DIM} physics features")
     print("=" * 60)
 
-    if args.live:
-        # Test MT5 bridge
-        print("\nTesting MT5 bridge connection...")
-        bridge = MT5Bridge(mode="auto")
-        if bridge.connect():
-            print(f"  Mode: {bridge.mode}")
-            if bridge.mode in ["direct", "bridge"]:
-                print("  Live data available!")
-            else:
-                print("  Offline mode - using synthetic data")
+    # Git sync if requested
+    if args.sync:
+        git_sync()
+
+    # Fresh start if requested
+    if args.fresh:
+        import shutil
+        if os.path.exists(args.checkpoint_dir):
+            backup = f"{args.checkpoint_dir}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            shutil.move(args.checkpoint_dir, backup)
+            print(f"\n[FRESH] Moved old checkpoints to {backup}")
+        os.makedirs(args.checkpoint_dir, exist_ok=True)
+
+    # Initialize data loader
+    data_loader = None
+    if not args.synthetic:
+        data_loader = RealDataLoader(data_dir=args.data_dir, timeframe=args.timeframe)
+        if data_loader.files:
+            symbols = data_loader.get_all_symbols()
+            print(f"\nData: {len(symbols)} symbols, {len(data_loader.files)} files")
+            print(f"Symbols: {', '.join(symbols[:10])}{'...' if len(symbols) > 10 else ''}")
         else:
-            print("  Bridge not available - using synthetic data")
+            print("\nNo real data found, falling back to synthetic")
+            data_loader = None
 
     # Create trainer
     trainer = RLTrainer(checkpoint_dir=args.checkpoint_dir)
 
     # Train
-    trainer.train(n_episodes=args.episodes, checkpoint_every=args.checkpoint_every)
+    trainer.train(
+        n_episodes=args.episodes,
+        checkpoint_every=args.checkpoint_every,
+        data_loader=data_loader
+    )
 
 
 if __name__ == "__main__":
