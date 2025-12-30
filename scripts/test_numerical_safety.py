@@ -24,6 +24,7 @@ import traceback
 import gc
 import psutil
 import os
+from datetime import datetime
 
 
 def test_nan_propagation():
@@ -566,7 +567,10 @@ def test_floating_point_precision():
         print(f"\n  Kahan summation:")
         print(f"    Result: {kahan_result:.10f}")
         print(f"    Error: {kahan_error:.10e}")
-        print(f"    Improvement: {error / kahan_error:.2f}x better")
+        if kahan_error > 0:
+            print(f"    Improvement: {error / kahan_error:.2f}x better")
+        else:
+            print(f"    Improvement: Perfect (zero error)")
 
         # Test price tick accumulation (real trading scenario)
         print("\nPrice tick accumulation (trading scenario):\n")

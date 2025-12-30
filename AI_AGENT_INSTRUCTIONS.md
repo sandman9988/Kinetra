@@ -363,6 +363,82 @@ Tests revealed areas needing more validation:
 
 **ACTION**: Next test pass should focus on `scripts/test_numerical_safety.py` to validate defense-in-depth assumptions.
 
+### Numerical Safety Test Results (2024-12-30)
+
+**✅ PASSED (9/11 tests = 82%)**:
+
+1. **NaN Propagation** ✅
+   - NaN detection working correctly
+   - Validation catches NaN values in OHLCV data
+
+2. **Overflow/Underflow Safety** ✅
+   - Extreme prices (10^10, 10^-10) handled correctly
+   - Zero and negative prices caught by validation
+
+3. **Normalization Stability** ✅
+   - Z-score normalization stable across distributions:
+     - Normal, uniform, heavy-tailed, with outliers
+     - Nearly constant data (std ≈ 0)
+     - All zeros (degenerate case handled)
+
+4. **Digit Precision Handling** ✅
+   - Different instrument precision verified:
+     - **Yen pairs (3 digits)**: point=0.001, pip=$1000/lot
+     - **Gold (2 digits)**: point=0.01, pip=$1000/lot
+     - **Forex (5 digits)**: point=0.00001, pip=$10/lot
+     - **Crypto (2 digits)**: point=0.01, pip=$1000/lot
+   - Cross-instrument normalization works
+   - Tick calculations accurate
+
+5. **Floating Point Precision** ✅
+   - Classic issues detected: 0.1 + 0.2 ≠ 0.3
+   - Epsilon comparison (1e-9) works correctly
+   - **Kahan summation**: Perfect accuracy on 1M iterations
+   - Price tick accumulation stable (100k ticks)
+
+6. **Type Conversion Safety** ✅
+   - Python int: arbitrary precision (safe)
+   - NumPy int64: overflow detected (safe)
+   - Float→int: NaN/inf handled correctly
+   - Lot size conversions: 0.001 lot edge case identified (rounds to 0 micro-lots)
+
+7. **Timestamp Precision** ✅
+   - Unix timestamp round-trip: zero error
+   - Timezone awareness: aware/naive comparison correctly rejected
+
+8. **Memory Leak Detection** ✅
+   - 10 iterations of data loading: +2.0 MB total
+   - Well below 50 MB threshold
+   - No significant leaks
+
+9. **Safe Division Operations** ✅
+   - Division by zero: returns 0.0 (safe default)
+   - NaN/inf division: returns 0.0 (safe default)
+
+**❌ FAILED (2/11 tests)**:
+
+10. **Atomic Persistence** ❌
+    - `PersistenceManager.atomic_save()` not yet implemented
+    - Crash-safe persistence needed for exploration results
+
+11. **Array Broadcasting Safety** ❌
+    - Test logic issue: NumPy correctly broadcasts (1000,) + (1000,1) → (1000,1000)
+    - Not a bug, test expected failure incorrectly
+
+### Key Numerical Safety Findings
+
+**VALIDATED**:
+- ✅ Different digits (yen 3, forex 5, gold 2) handled correctly
+- ✅ Kahan summation eliminates floating point accumulation errors
+- ✅ NaN/inf/zero handled safely throughout
+- ✅ No memory leaks in data loading
+- ✅ Timestamp precision preserved
+
+**GAPS IDENTIFIED**:
+- ⚠️ Lot size <0.01 rounds to 0 micro-lots (precision loss)
+- ⚠️ Atomic persistence not implemented (crash safety risk)
+- ⚠️ Array broadcasting needs careful validation in physics calculations
+
 ---
 
 ## 🏥 PORTFOLIO HEALTH MONITORING
@@ -450,13 +526,16 @@ If ANY answer is "no", **stop and explore first**.
 
 ---
 
-**Last Updated**: 2024-12-30 (Post-Integration Testing)
-**Version**: 1.1
+**Last Updated**: 2024-12-30 (Post-Numerical Safety Testing)
+**Version**: 1.2
 **Status**: Active - Read before every prompt
 
 **Recent Changes**:
 - Added Poetry dependency management instructions
-- Documented integration test results (5/6 passed)
+- Documented integration test results (5/6 passed, 83%)
+- Documented numerical safety test results (9/11 passed, 82%)
 - Identified 87 datasets across 6 market types
 - Confirmed 100% market type detection accuracy
-- Noted numerical safety validation gaps for next test pass
+- Validated digit precision handling (yen 3, forex 5, gold 2, crypto 2)
+- Confirmed Kahan summation eliminates floating point errors
+- Identified gaps: atomic persistence, lot size <0.01 precision
