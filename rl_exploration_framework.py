@@ -1304,16 +1304,21 @@ def run_exploration_test(
         get_rl_feature_names,
     )
 
-    # Load data - find BTCUSD H1 file dynamically
+    # Load data - find any H1 file dynamically (prefer BTCUSD, fallback to any)
     import glob
-    btc_files = glob.glob("data/master/BTCUSD_H1_*.csv")
-    if not btc_files:
-        raise FileNotFoundError("No BTCUSD_H1_*.csv files found in data/master/")
-    DATA_PATH = sorted(btc_files)[-1]  # Use most recent
+    data_dir = os.environ.get("DATA_DIR", "data/master")
+    h1_files = glob.glob(f"{data_dir}/*_H1_*.csv")
+    if not h1_files:
+        raise FileNotFoundError(f"No *_H1_*.csv files found in {data_dir}/")
+    # Prefer BTCUSD, else use first available
+    btc_files = [f for f in h1_files if "BTCUSD" in f]
+    DATA_PATH = sorted(btc_files)[-1] if btc_files else sorted(h1_files)[-1]
     if persistence:
         persistence.logger.info(f"Loading data: {DATA_PATH}")
+        persistence.logger.info(f"Available H1 files: {len(h1_files)}")
     else:
         print(f"\nLoading data: {DATA_PATH}")
+        print(f"Available H1 files: {len(h1_files)}")
 
     df = load_btc_h1_data(DATA_PATH)
 
@@ -2038,7 +2043,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="RL Exploration Framework")
-    parser.add_argument("--multi", action="store_true", help="Run multi-instrument exploration")
+    parser.add_argument("--multi", action="store_true", default=True, help="Run multi-instrument exploration (default)")
+    parser.add_argument("--single", action="store_true", help="Run single-instrument exploration (BTCUSD only)")
     parser.add_argument("--data-dir", type=str, default="data/master",
                         help="Path to data directory containing CSV files")
     parser.add_argument("--episodes", type=int, default=25,
@@ -2048,13 +2054,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.multi:
-        # Run multi-instrument exploration
+    if args.single:
+        # Run single-instrument exploration (BTCUSD only)
+        results = run_exploration_test(n_episodes=args.episodes)
+    else:
+        # Run multi-instrument exploration (all instruments: forex, indices, crypto, commodities)
         results = run_multi_instrument_exploration(
             data_dir=args.data_dir,
             episodes_per_instrument=args.episodes,
             agents_to_test=args.agents.split(",") if args.agents else None,
         )
-    else:
-        # Run single-instrument exploration (original)
-        results = run_exploration_test(n_episodes=args.episodes)
