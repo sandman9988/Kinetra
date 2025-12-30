@@ -163,35 +163,95 @@ async def download_all():
         for tf in TIMEFRAMES:
             task_num += 1
             tf_label = 'H1' if tf == '1h' else 'H4'
+            output_dir = project_root / "data" / "master" / asset_class
+            output_dir.mkdir(parents=True, exist_ok=True)
 
-            print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
+            # Check for existing file (resume capability)
+            existing = list(output_dir.glob(f"{symbol}_{tf_label}_*.csv"))
+            if existing:
+                # Load existing and find last date
+                try:
+                    existing_df = pd.read_csv(existing[0], sep='\t')
+                    existing_df.columns = [c.lower().replace('<', '').replace('>', '') for c in existing_df.columns]
+                    last_date = pd.to_datetime(existing_df['date'] + ' ' + existing_df['time']).max()
+                    chunk_start = last_date + timedelta(hours=1 if tf == '1h' else 4)
+                    print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label} (resume from {last_date.date()})...", end=" ", flush=True)
+                except Exception:
+                    chunk_start = start_time
+                    print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
+            else:
+                chunk_start = start_time
+                existing_df = None
+                print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
 
             try:
-                candles = await account.get_historical_candles(
-                    symbol=symbol,
-                    timeframe=tf,
-                    start_time=start_time,
-                    limit=50000
-                )
+                # Chunk through history (MetaAPI returns max 1000 bars per request)
+                all_candles = []
+                chunk_end = end_time
+                max_retries = 5
+                backoff = 1.0
 
-                if not candles or len(candles) < 100:
-                    print(f"⚠️ Only {len(candles) if candles else 0} bars")
+                while chunk_start < chunk_end:
+                    for retry in range(max_retries):
+                        try:
+                            candles = await account.get_historical_candles(
+                                symbol=symbol,
+                                timeframe=tf,
+                                start_time=chunk_start,
+                                limit=1000  # MetaAPI max per request
+                            )
+                            break
+                        except Exception as e:
+                            if 'rate' in str(e).lower() or '429' in str(e):
+                                wait = backoff * (2 ** retry)
+                                print(f"⏳ Rate limit, waiting {wait:.0f}s...", end=" ", flush=True)
+                                await asyncio.sleep(wait)
+                            else:
+                                raise
+
+                    if not candles:
+                        break
+
+                    all_candles.extend(candles)
+
+                    # Move to next chunk
+                    last_time = pd.to_datetime(candles[-1]['time'])
+                    chunk_start = last_time + timedelta(hours=1 if tf == '1h' else 4)
+
+                    # Rate limit between chunks
+                    await asyncio.sleep(0.5)
+
+                    # Progress indicator
+                    print(".", end="", flush=True)
+
+                if not all_candles or len(all_candles) < 100:
+                    print(f" ⚠️ Only {len(all_candles) if all_candles else 0} bars")
                     failed.append((symbol, tf_label, "insufficient data"))
                     continue
 
                 # Convert to DataFrame
-                df = pd.DataFrame(candles)
+                df = pd.DataFrame(all_candles)
                 df['time'] = pd.to_datetime(df['time'])
+                df = df.drop_duplicates(subset=['time']).sort_values('time')
 
-                # Create output directory
-                output_dir = project_root / "data" / "master" / asset_class
-                output_dir.mkdir(parents=True, exist_ok=True)
+                # Merge with existing data if resuming
+                if existing_df is not None:
+                    existing_df['time'] = pd.to_datetime(existing_df['date'] + ' ' + existing_df['time'])
+                    # Merge: keep existing, add new
+                    new_mask = ~df['time'].isin(existing_df['time'])
+                    if new_mask.sum() > 0:
+                        print(f" +{new_mask.sum()} new bars", end="")
 
                 # Naming convention: SYMBOL_TIMEFRAME_STARTDATE_ENDDATE.csv
                 start_str = df['time'].iloc[0].strftime('%Y%m%d%H%M')
                 end_str = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
                 filename = f"{symbol}_{tf_label}_{start_str}_{end_str}.csv"
                 output_file = output_dir / filename
+
+                # Remove old file if exists (will be replaced)
+                for old in existing:
+                    if old != output_file:
+                        old.unlink()
 
                 # Prepare export format (MetaTrader style)
                 df_export = pd.DataFrame({
@@ -207,24 +267,24 @@ async def download_all():
                 # Atomic save
                 atomic_write_csv(df_export, output_file, sep='\t')
 
-                print(f"✅ {len(candles):,} bars")
+                print(f" ✅ {len(df):,} bars total")
 
                 downloaded.append({
                     'symbol': symbol,
                     'original': original,
                     'asset_class': asset_class,
                     'timeframe': tf_label,
-                    'bars': len(candles),
+                    'bars': len(df),
                     'start': str(df['time'].iloc[0]),
                     'end': str(df['time'].iloc[-1]),
                     'file': str(output_file),
                 })
 
-                # Rate limit
+                # Rate limit between symbols
                 await asyncio.sleep(0.3)
 
             except Exception as e:
-                print(f"❌ {e}")
+                print(f" ❌ {e}")
                 failed.append((symbol, tf_label, str(e)))
 
     # Cleanup
