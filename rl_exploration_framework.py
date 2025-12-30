@@ -511,17 +511,19 @@ class TradingEnv:
 
         current_price = self._get_price(self.current_bar)
 
-        # Update existing position (MAE/MFE tracking)
+        # Update existing position (MAE/MFE tracking in PERCENTAGE terms)
         if self.trade_state.position != 0:
             self.trade_state.bars_held += 1
+            entry_price = self.trade_state.entry_price
 
+            # Convert to percentage for cross-instrument consistency
             if self.trade_state.position == 1:  # Long
-                pnl = current_price - self.trade_state.entry_price
+                pnl_pct = ((current_price - entry_price) / entry_price) * 100
             else:  # Short
-                pnl = self.trade_state.entry_price - current_price
+                pnl_pct = ((entry_price - current_price) / entry_price) * 100
 
-            self.trade_state.mfe = max(self.trade_state.mfe, pnl)
-            self.trade_state.mae = min(self.trade_state.mae, pnl)
+            self.trade_state.mfe = max(self.trade_state.mfe, pnl_pct)
+            self.trade_state.mae = min(self.trade_state.mae, pnl_pct)
 
         # Force close if held too long (prevent infinite positions)
         force_close = (
@@ -579,11 +581,16 @@ class TradingEnv:
         if self.trade_state.position == 0:
             return 0.0, False
 
-        # Calculate raw PnL
+        # Calculate raw PnL as PERCENTAGE (not absolute) for cross-instrument normalization
+        # This fixes the currency mismatch issue (BTCJPY in JPY vs BTCUSD in USD)
+        entry_price = self.trade_state.entry_price
         if self.trade_state.position == 1:  # Long
-            raw_pnl = price - self.trade_state.entry_price
+            raw_pnl_pct = ((price - entry_price) / entry_price) * 100
         else:  # Short
-            raw_pnl = self.trade_state.entry_price - price
+            raw_pnl_pct = ((entry_price - price) / entry_price) * 100
+
+        # Keep absolute PnL for tracking but use percentage for reward
+        raw_pnl = raw_pnl_pct  # Now in percentage terms
 
         # Shape reward using physics measures
         reward = self.reward_shaper.shape_reward(
@@ -640,13 +647,16 @@ class TradingEnv:
 
 class RewardShaper:
     """
-    Physics-based reward shaping.
+    Physics-based reward shaping with RISK-ADJUSTED returns.
 
     First-principles: Don't just reward PnL - reward GOOD trading:
     - Edge ratio (MFE/Hypotenuse): Reward efficient paths
     - Entropy alignment: Higher reward when trading with entropy flow
     - Regime awareness: Bonus for trading in favorable regimes
     - Risk-adjusted: Penalize excessive drawdown (MAE)
+
+    IMPORTANT: raw_pnl is now in PERCENTAGE terms (not absolute) for cross-instrument normalization.
+    This fixes the currency mismatch issue (BTCJPY in JPY vs BTCUSD in USD).
 
     The agent should discover that physics-aligned trades work better.
     """
@@ -658,12 +668,14 @@ class RewardShaper:
         mae_penalty_weight: float = 0.3,
         regime_bonus_weight: float = 0.2,
         entropy_alignment_weight: float = 0.1,
+        risk_adjustment: bool = True,  # NEW: Enable risk-adjusted rewards
     ):
         self.pnl_weight = pnl_weight
         self.edge_ratio_weight = edge_ratio_weight
         self.mae_penalty_weight = mae_penalty_weight
         self.regime_bonus_weight = regime_bonus_weight
         self.entropy_alignment_weight = entropy_alignment_weight
+        self.risk_adjustment = risk_adjustment
 
     def shape_reward(
         self,
@@ -677,27 +689,37 @@ class RewardShaper:
         bar_index: int,
     ) -> float:
         """
-        Compute physics-shaped reward.
+        Compute physics-shaped reward with RISK ADJUSTMENT.
 
         Components:
-        1. Raw PnL (normalized)
+        1. Raw PnL (normalized) - NOW IN PERCENTAGE TERMS
         2. Edge ratio bonus (efficient path)
         3. MAE penalty (excessive drawdown)
         4. Regime bonus (favorable conditions)
         5. Entropy alignment (trade with disorder flow)
+        6. Risk adjustment: reward = pnl / (1 + |max_drawdown|)
         """
-        # Normalize PnL by typical move (avoid scale issues)
-        pnl_normalized = raw_pnl / (abs(raw_pnl) + 100)  # Sigmoid-like normalization
+        # raw_pnl is now in PERCENTAGE terms (e.g., 0.5 = 0.5% return)
+        # Normalize using sigmoid-like function centered on typical percentage moves
+        # A 1% move is significant, 5% is very significant
+        pnl_normalized = raw_pnl / (abs(raw_pnl) + 1.0)  # Adjusted for percentage scale
 
-        # Edge ratio: MFE / sqrt(MAE² + MFE²)
-        mae_abs = abs(mae)
-        mfe_abs = abs(mfe)
+        # Risk-adjusted PnL: penalize profits that came with excessive drawdown
+        # Formula: reward = pnl / (1 + |max_drawdown|)
+        if self.risk_adjustment and mae < 0:
+            drawdown_penalty = 1.0 + abs(mae) / 2.0  # mae is in % terms
+            pnl_normalized = pnl_normalized / drawdown_penalty
+
+        # Edge ratio: MFE / sqrt(MAE² + MFE²) - now in percentage terms
+        mae_abs = abs(mae)  # Now in percentage
+        mfe_abs = abs(mfe)  # Now in percentage
         hypotenuse = np.sqrt(mae_abs**2 + mfe_abs**2 + 1e-8)
         edge_ratio = mfe_abs / hypotenuse if hypotenuse > 0 else 0.5
         edge_bonus = (edge_ratio - 0.5) * 2  # Center at 0, range [-1, 1]
 
         # MAE penalty (excessive drawdown is bad even if profitable)
-        mae_penalty = -min(0, mae) / (abs(mae) + 100)  # Normalized penalty
+        # mae is now in percentage terms, so adjust threshold
+        mae_penalty = -min(0, mae) / (abs(mae) + 1.0)  # Adjusted for % scale
 
         # Regime bonus
         regime_bonus = 0.0

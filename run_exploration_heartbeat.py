@@ -53,19 +53,19 @@ def print_heartbeat(
     cumulative: dict,
     portfolio: dict,
 ):
-    """Print formatted heartbeat stats."""
+    """Print formatted heartbeat stats. PnL is now in PERCENTAGE terms."""
     asset_class = get_asset_class(instrument)
 
-    # Per-episode stats
+    # Per-episode stats (PnL is now percentage, not absolute dollars)
     print(f"\n{'─'*80}")
     print(f"│ EP {episode:3d}/{total_episodes} │ {instrument:<20} │ {asset_class:<10} │")
     print(f"├{'─'*80}")
-    print(f"│ Reward: {reward:+10.2f} │ PnL: ${pnl:+12,.0f} │ Trades: {trades:3d} │")
+    print(f"│ Reward: {reward:+10.2f} │ PnL: {pnl:+8.2f}% │ Trades: {trades:3d} │")
 
     # Cumulative stats
     print(f"├{'─'*80}")
     print(f"│ CUMULATIVE: Total R={cumulative['total_reward']:+.1f} │ "
-          f"Total PnL=${cumulative['total_pnl']:+,.0f} │ "
+          f"Total PnL={cumulative['total_pnl']:+.2f}% │ "
           f"Avg R={cumulative['avg_reward']:+.2f} │")
 
     # Portfolio breakdown
@@ -76,7 +76,7 @@ def print_heartbeat(
             avg_r = stats['total_reward'] / stats['episodes']
             avg_pnl = stats['total_pnl'] / stats['episodes']
             print(f"│   {cls:<12}: Eps={stats['episodes']:3d} │ "
-                  f"Avg R={avg_r:+8.2f} │ Avg PnL=${avg_pnl:+10,.0f} │")
+                  f"Avg R={avg_r:+8.2f} │ Avg PnL={avg_pnl:+8.2f}% │")
     print(f"└{'─'*80}")
 
 
@@ -214,24 +214,25 @@ def run_with_heartbeat(
 
     # Final summary
     print("\n" + "=" * 80)
-    print("  FINAL RESULTS")
+    print("  FINAL RESULTS (PnL in PERCENTAGE terms for cross-instrument comparison)")
     print("=" * 80)
 
     print(f"\n[CUMULATIVE]")
     print(f"  Total Episodes: {cumulative['episodes']}")
     print(f"  Total Reward:   {cumulative['total_reward']:+.1f}")
-    print(f"  Total PnL:      ${cumulative['total_pnl']:+,.0f}")
+    print(f"  Total PnL:      {cumulative['total_pnl']:+.2f}%")
+    print(f"  Avg PnL/Ep:     {cumulative['total_pnl'] / cumulative['episodes'] if cumulative['episodes'] > 0 else 0:+.2f}%")
     print(f"  Avg Reward:     {cumulative['avg_reward']:+.2f}")
 
     print(f"\n[PORTFOLIO BY ASSET CLASS]")
-    print(f"  {'Class':<12} {'Episodes':>8} {'Avg Reward':>12} {'Avg PnL':>14} {'Total PnL':>14}")
-    print("  " + "-" * 62)
+    print(f"  {'Class':<12} {'Episodes':>8} {'Avg Reward':>12} {'Avg PnL%':>12} {'Total PnL%':>12}")
+    print("  " + "-" * 60)
     for cls in sorted(portfolio.keys()):
         stats = portfolio[cls]
         if stats['episodes'] > 0:
             avg_r = stats['total_reward'] / stats['episodes']
             avg_pnl = stats['total_pnl'] / stats['episodes']
-            print(f"  {cls:<12} {stats['episodes']:>8} {avg_r:>+12.2f} ${avg_pnl:>+13,.0f} ${stats['total_pnl']:>+13,.0f}")
+            print(f"  {cls:<12} {stats['episodes']:>8} {avg_r:>+12.2f} {avg_pnl:>+12.2f}% {stats['total_pnl']:>+11.2f}%")
 
     print(f"\n[TOP 10 INSTRUMENTS BY AVG REWARD]")
     inst_avg = []
@@ -242,14 +243,14 @@ def run_with_heartbeat(
             inst_avg.append((inst, avg_r, avg_pnl, len(data['rewards'])))
 
     inst_avg.sort(key=lambda x: x[1], reverse=True)
-    print(f"  {'Instrument':<25} {'Eps':>5} {'Avg Reward':>12} {'Avg PnL':>14}")
-    print("  " + "-" * 58)
+    print(f"  {'Instrument':<25} {'Eps':>5} {'Avg Reward':>12} {'Avg PnL%':>12}")
+    print("  " + "-" * 56)
     for inst, avg_r, avg_pnl, eps in inst_avg[:10]:
-        print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} ${avg_pnl:>+13,.0f}")
+        print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} {avg_pnl:>+12.2f}%")
 
     print(f"\n[BOTTOM 5 INSTRUMENTS]")
     for inst, avg_r, avg_pnl, eps in inst_avg[-5:]:
-        print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} ${avg_pnl:>+13,.0f}")
+        print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} {avg_pnl:>+12.2f}%")
 
     # Top features
     print(f"\n[TOP FEATURES LEARNED]")

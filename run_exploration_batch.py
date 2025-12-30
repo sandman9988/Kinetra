@@ -143,17 +143,17 @@ def run_batch(
         "top_features": top_features,
     }
 
-    # Print summary
+    # Print summary (PnL is now in PERCENTAGE terms for cross-instrument comparison)
     print("\n" + "=" * 70)
-    print(f"RESULTS: {config_name}")
+    print(f"RESULTS: {config_name} (PnL in PERCENTAGE terms)")
     print("=" * 70)
     print(f"  Total Reward: {results['total_reward']:+.1f}")
     print(f"  Avg Reward:   {results['avg_reward']:+.2f}")
-    print(f"  Total PnL:    ${results['total_pnl']:+,.0f}")
-    print(f"  Avg PnL:      ${results['avg_pnl']:+,.0f}")
+    print(f"  Total PnL:    {results['total_pnl']:+.2f}%")
+    print(f"  Avg PnL:      {results['avg_pnl']:+.2f}%")
     print("\nPer Instrument:")
     for key, stats in inst_summary.items():
-        print(f"  {key}: R={stats['avg_reward']:+.2f}, PnL=${stats['avg_pnl']:+,.0f}")
+        print(f"  {key}: R={stats['avg_reward']:+.2f}, PnL={stats['avg_pnl']:+.2f}%")
 
     print("\nTop Features Learned:")
     for action, features in top_features.items():
