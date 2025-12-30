@@ -41,7 +41,9 @@ async def test_metaapi():
     print(f"    ✅ Found {len(accounts)} account(s)")
 
     for acc in accounts:
-        print(f"       - {acc.id}: {acc.name} ({acc.server}) - {acc.state}")
+        server = getattr(acc, 'server', 'N/A')
+        state = getattr(acc, 'state', 'N/A')
+        print(f"       - {acc.id}: {acc.name} ({server}) - {state}")
 
     # Step 3: Select account
     print("\n[3] Selecting account...")
@@ -53,7 +55,9 @@ async def test_metaapi():
 
     # Step 4: Deploy if needed
     print("\n[4] Deploying account...")
-    if account.state != 'DEPLOYED':
+    state = getattr(account, 'state', None)
+    if state != 'DEPLOYED':
+        print(f"    Current state: {state}, deploying...")
         await account.deploy()
     await account.wait_connected()
     print("    ✅ Account connected")
