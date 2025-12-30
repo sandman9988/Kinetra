@@ -682,8 +682,8 @@ class RealisticBacktester:
 
         # Z-factor (statistical edge metric)
         z_factor = 0.0
-        if total_trades > 1:
-            win_rate = len(winning_trades) / total_trades
+        if len(trades) > 1:
+            win_rate = len(winning_trades) / len(trades)
             avg_win = np.mean([t.pnl for t in winning_trades]) if winning_trades else 0
             avg_loss = np.mean([abs(t.pnl) for t in losing_trades]) if losing_trades else 0
 
