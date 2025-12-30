@@ -121,6 +121,14 @@ from .persistence import (
     create_checkpointer,
 )
 
+# DoppelgangerTriad (shadow agent risk management)
+from .doppelganger_triad import (
+    DoppelgangerTriad,
+    ShadowAgent,
+    ShadowAgentState,
+    AgentPerformance,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -220,4 +228,9 @@ __all__ = [
     "TradingEnv",
     "Action",
     "Position",
+    # DoppelgangerTriad
+    "DoppelgangerTriad",
+    "ShadowAgent",
+    "ShadowAgentState",
+    "AgentPerformance",
 ]
