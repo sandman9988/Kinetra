@@ -302,16 +302,35 @@ async def run_complete_backtest_async():
     commission_per_lot = 3.0  # Vantage: $3/side (not available from API)
 
     if ACCOUNT_ID is None:
-        print("\n❌ Please set ACCOUNT_ID in this script")
-        print("   Run test_metaapi_auth.py to find your account ID")
-        return
+        print("\n⚠️  ACCOUNT_ID not set - using fallback manual spec (NOT from MetaAPI)")
+        print("   For real broker specs, set ACCOUNT_ID and run test_metaapi_auth.py")
 
-    # Step 0: Fetch broker specs from MetaAPI
-    print("\n" + "="*80)
-    print("STEP 0: FETCHING BROKER SPECS FROM METAAPI")
-    print("="*80)
+        # Fallback: Create manual spec for testing (NOT from broker API)
+        spec = SymbolSpec(
+            symbol=symbol,
+            asset_class=AssetClass.FOREX,
+            digits=3,
+            point=0.001,
+            contract_size=100000.0,
+            volume_min=0.01,
+            volume_max=100.0,
+            volume_step=0.01,
+            spread_typical=18,  # Manual estimate
+            commission_per_lot=commission_per_lot,
+            swap_long=-0.3,  # Manual estimate
+            swap_short=0.1,   # Manual estimate
+            swap_triple_day="wednesday",
+            trade_freeze_level=0,
+            trade_stops_level=0,
+        )
+        print(f"✅ Using manual spec for {symbol} (fallback mode)")
+    else:
+        # Step 0: Fetch broker specs from MetaAPI
+        print("\n" + "="*80)
+        print("STEP 0: FETCHING BROKER SPECS FROM METAAPI")
+        print("="*80)
 
-    spec = await get_spec_from_metaapi(API_TOKEN, ACCOUNT_ID, symbol, commission_per_lot)
+        spec = await get_spec_from_metaapi(API_TOKEN, ACCOUNT_ID, symbol, commission_per_lot)
 
     # Step 1: Load data (from local CSV for now - could also fetch from MetaAPI)
     data = load_mt5_vantage_data(symbol, timeframe, bars)

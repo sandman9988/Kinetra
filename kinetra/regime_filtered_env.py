@@ -229,6 +229,11 @@ class RegimeFilteredTradingEnv(TradingEnv):
         # Call parent reset first
         state = super().reset()
 
+        # If valid_bars not yet initialized (during __init__), return parent's state
+        # This happens when parent's __init__ calls reset() before we've finished setup
+        if not hasattr(self, 'valid_bars'):
+            return state
+
         # Now override current_bar to start at a random valid bar
         min_bar = self.lookback + self.state_history + 100  # Need history
         max_bar = len(self.features) - 500  # Need future bars
