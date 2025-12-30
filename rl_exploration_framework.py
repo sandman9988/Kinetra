@@ -1505,6 +1505,7 @@ class InstrumentData:
     """Container for instrument/timeframe data."""
     instrument: str
     timeframe: str
+    asset_class: str  # forex, crypto, indices, metals, energy
     df: pd.DataFrame
     physics_state: pd.DataFrame
     file_path: str
@@ -1513,6 +1514,10 @@ class InstrumentData:
     @property
     def key(self) -> str:
         return f"{self.instrument}_{self.timeframe}"
+
+    @property
+    def full_key(self) -> str:
+        return f"{self.asset_class}/{self.instrument}_{self.timeframe}"
 
 
 class MultiInstrumentLoader:
@@ -1558,12 +1563,15 @@ class MultiInstrumentLoader:
             self._log(f"[WARN] Data directory not found: {self.data_dir}")
             return discovered
 
-        for csv_file in sorted(self.data_dir.glob("*.csv")):
+        # Search recursively in subdirectories (forex/, crypto/, indices/, metals/, energy/)
+        for csv_file in sorted(self.data_dir.glob("**/*.csv")):
             match = re.match(self.FILENAME_PATTERN, csv_file.name)
             if match:
                 instrument, timeframe = match.groups()
-                discovered.append((instrument, timeframe, str(csv_file)))
-                self._log(f"  [FOUND] {instrument} {timeframe}: {csv_file.name}")
+                # Determine asset class from parent directory
+                asset_class = csv_file.parent.name if csv_file.parent != self.data_dir else "unknown"
+                discovered.append((instrument, timeframe, str(csv_file), asset_class))
+                self._log(f"  [FOUND] {asset_class}/{instrument} {timeframe}: {csv_file.name}")
             else:
                 self._log(f"  [SKIP] {csv_file.name} (doesn't match pattern)")
 
@@ -1578,12 +1586,12 @@ class MultiInstrumentLoader:
 
         self._log(f"\n[LOADING] {len(discovered)} datasets...")
 
-        for instrument, timeframe, filepath in discovered:
+        for instrument, timeframe, filepath, asset_class in discovered:
             try:
-                data = self._load_single(instrument, timeframe, filepath)
+                data = self._load_single(instrument, timeframe, filepath, asset_class)
                 if data.bar_count >= self.min_bars:
                     self.instruments[data.key] = data
-                    self._log(f"  [OK] {data.key}: {data.bar_count} bars")
+                    self._log(f"  [OK] {asset_class}/{data.key}: {data.bar_count} bars")
                 else:
                     self._log(f"  [SKIP] {data.key}: {data.bar_count} bars < {self.min_bars}")
             except Exception as e:
@@ -1593,11 +1601,11 @@ class MultiInstrumentLoader:
         return self.instruments
 
     def _load_single(
-        self, instrument: str, timeframe: str, filepath: str
+        self, instrument: str, timeframe: str, filepath: str, asset_class: str = "unknown"
     ) -> InstrumentData:
         """Load single instrument and compute physics state."""
         # Load raw data
-        df = self._load_csv(filepath)
+        df = self._load_csv(filepath, asset_class)
 
         # Compute full physics state
         physics = self._physics_engine
@@ -1623,14 +1631,15 @@ class MultiInstrumentLoader:
         return InstrumentData(
             instrument=instrument,
             timeframe=timeframe,
+            asset_class=asset_class,
             df=df,
             physics_state=physics_state,
             file_path=filepath,
             bar_count=len(df),
         )
 
-    def _load_csv(self, filepath: str) -> pd.DataFrame:
-        """Load CSV with standard preprocessing."""
+    def _load_csv(self, filepath: str, asset_class: str = "unknown") -> pd.DataFrame:
+        """Load CSV with standard preprocessing and trading hours filtering."""
         df = pd.read_csv(filepath, sep="\t")
         df.columns = [c.lower().replace("<", "").replace(">", "") for c in df.columns]
 
@@ -1643,6 +1652,26 @@ class MultiInstrumentLoader:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
         df.dropna(subset=["close"], inplace=True)
+
+        # Filter by trading hours based on asset class
+        if asset_class == "forex":
+            # Forex: 24/5 - exclude weekends (Sat 00:00 to Sun 21:00 UTC)
+            df = df[~((df.index.dayofweek == 5) |
+                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
+        elif asset_class == "indices":
+            # Indices: typical exchange hours (filter weekends)
+            df = df[df.index.dayofweek < 5]
+        elif asset_class == "crypto":
+            # Crypto: 24/7 - no filtering needed
+            pass
+        elif asset_class == "metals":
+            # Metals (gold, silver): similar to forex, exclude weekends
+            df = df[~((df.index.dayofweek == 5) |
+                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
+        elif asset_class == "energy":
+            # Energy: exchange hours, exclude weekends
+            df = df[df.index.dayofweek < 5]
+
         return df
 
     def get_instrument(self, key: str) -> Optional[InstrumentData]:
