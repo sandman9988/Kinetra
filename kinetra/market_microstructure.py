@@ -61,6 +61,7 @@ class SymbolSpec:
     Symbol contract specification from MT5/broker.
 
     All values that affect friction and position sizing.
+    Designed to capture complete MT5 symbol_info structure.
     """
     symbol: str
     asset_class: AssetClass
@@ -75,26 +76,46 @@ class SymbolSpec:
     volume_max: float = 100.0       # Maximum lot
     volume_step: float = 0.01       # Lot increment
 
-    # Margin
-    margin_initial: float = 0.01    # Initial margin rate (1% = 100:1 leverage)
-    margin_maintenance: float = 0.005
-    margin_currency: str = "USD"
+    # Margin (MT5 complete specification)
+    margin_initial: float = 0.01          # Initial margin rate (deprecated - use rates below)
+    margin_maintenance: float = 0.005     # Maintenance margin (deprecated)
+    margin_initial_rate_buy: float = 0.01  # Initial margin rate for long positions
+    margin_initial_rate_sell: float = 0.01 # Initial margin rate for short positions
+    margin_maintenance_rate_buy: float = 0.005  # Maintenance margin rate for long
+    margin_maintenance_rate_sell: float = 0.005 # Maintenance margin rate for short
+    margin_hedge: float = 0.0             # Margin for hedged positions
+    margin_currency: str = "USD"          # Currency for margin calculation
+    margin_mode: str = "FOREX"            # FOREX, FOREX-NO-LEVERAGE, CFD, etc.
 
     # Costs
     spread_typical: float = 0.0     # Typical spread in points
     spread_min: float = 0.0         # Minimum spread
     spread_max: float = 0.0         # Maximum spread (during news/rollover)
     commission_per_lot: float = 0.0 # Commission per lot per side
-    swap_long: float = 0.0          # Daily swap for long positions (points)
-    swap_short: float = 0.0         # Daily swap for short positions (points)
+
+    # Swap (MT5 complete specification)
+    swap_long: float = 0.0          # Daily swap for long positions
+    swap_short: float = 0.0         # Daily swap for short positions
+    swap_type: str = "points"       # "points" or "percentage" or "interest"
+    swap_triple_day: str = "wednesday"  # Day when triple swap is charged
+
+    # Trading calculation
+    profit_calc_mode: str = "FOREX"  # Profit calculation mode (FOREX, CFD, FUTURES, etc.)
 
     # Session info
     session_start: time = time(0, 0)   # Market open (UTC)
     session_end: time = time(23, 59)   # Market close (UTC)
     rollover_time: time = time(21, 0)  # Daily rollover (UTC) - typically 21:00
 
+    # Detailed trading hours (optional, for precise modeling)
+    trading_hours: Optional[Dict[str, str]] = None  # {"monday": "00:01-23:58", ...}
+
     # Liquidity profile (normalized 0-1 by hour)
     liquidity_profile: Dict[int, float] = field(default_factory=dict)
+
+    # Metadata (for tracking updates)
+    last_updated: Optional[datetime] = None  # When spec was last updated from MT5
+    source: str = "manual"  # "manual", "mt5", "broker_api", etc.
 
     def __post_init__(self):
         if self.point is None:

@@ -23,6 +23,8 @@ from .data_package import DataPackage, DataFormat
 from .data_utils import load_mt5_csv
 from .market_microstructure import AssetClass, SymbolSpec, SYMBOL_SPECS, get_symbol_spec
 
+import json
+
 
 class UnifiedDataLoader:
     """
@@ -41,7 +43,8 @@ class UnifiedDataLoader:
         self,
         validate: bool = True,
         compute_physics: bool = False,  # Disabled by default (requires numpy/heavy deps)
-        verbose: bool = False
+        verbose: bool = False,
+        specs_file: Optional[str] = None
     ):
         """
         Initialize data loader.
@@ -50,10 +53,14 @@ class UnifiedDataLoader:
             validate: Run data quality validation
             compute_physics: Compute physics state (requires PhysicsEngine)
             verbose: Print loading progress
+            specs_file: Path to instrument_specs.json (auto-detected if None)
         """
         self.validate = validate
         self.compute_physics = compute_physics
         self.verbose = verbose
+
+        # Load instrument specs from JSON if available
+        self.specs_cache = self._load_specs_from_json(specs_file)
 
     def load(
         self,
@@ -222,9 +229,96 @@ class UnifiedDataLoader:
         # Default to forex
         return AssetClass.FOREX
 
+    def _load_specs_from_json(self, specs_file: Optional[str] = None) -> Dict[str, SymbolSpec]:
+        """
+        Load symbol specifications from JSON file.
+
+        Args:
+            specs_file: Path to JSON file (auto-detected if None)
+
+        Returns:
+            Dictionary mapping symbol -> SymbolSpec
+        """
+        # Auto-detect specs file if not provided
+        if specs_file is None:
+            # Try common locations
+            possible_paths = [
+                Path("data/master/instrument_specs.json"),
+                Path("../data/master/instrument_specs.json"),
+                Path("../../data/master/instrument_specs.json"),
+            ]
+            for path in possible_paths:
+                if path.exists():
+                    specs_file = str(path)
+                    break
+
+        if specs_file is None or not Path(specs_file).exists():
+            if self.verbose:
+                print("  No instrument_specs.json found, using hardcoded specs")
+            return {}
+
+        # Load JSON
+        try:
+            with open(specs_file, 'r') as f:
+                specs_data = json.load(f)
+
+            # Convert to SymbolSpec objects
+            specs = {}
+            for symbol, data in specs_data.items():
+                specs[symbol] = self._dict_to_spec(data)
+
+            if self.verbose:
+                print(f"  Loaded {len(specs)} specs from {specs_file}")
+
+            return specs
+
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Failed to load specs from {specs_file}: {e}")
+            return {}
+
+    def _dict_to_spec(self, data: Dict[str, Any]) -> SymbolSpec:
+        """Convert JSON dictionary to SymbolSpec object."""
+        from datetime import datetime
+
+        return SymbolSpec(
+            symbol=data['symbol'],
+            asset_class=AssetClass(data['asset_class']),
+            digits=data['digits'],
+            point=data.get('point'),
+            contract_size=data.get('contract_size', 100000),
+            volume_min=data.get('volume_min', 0.01),
+            volume_max=data.get('volume_max', 100.0),
+            volume_step=data.get('volume_step', 0.01),
+            margin_initial_rate_buy=data.get('margin_initial_rate_buy', 0.01),
+            margin_initial_rate_sell=data.get('margin_initial_rate_sell', 0.01),
+            margin_maintenance_rate_buy=data.get('margin_maintenance_rate_buy', 0.005),
+            margin_maintenance_rate_sell=data.get('margin_maintenance_rate_sell', 0.005),
+            margin_hedge=data.get('margin_hedge', 0.0),
+            margin_currency=data.get('margin_currency', 'USD'),
+            margin_mode=data.get('margin_mode', 'FOREX'),
+            spread_typical=data.get('spread_typical', 0.0),
+            spread_min=data.get('spread_min', 0.0),
+            spread_max=data.get('spread_max', 0.0),
+            commission_per_lot=data.get('commission_per_lot', 0.0),
+            swap_long=data.get('swap_long', 0.0),
+            swap_short=data.get('swap_short', 0.0),
+            swap_type=data.get('swap_type', 'points'),
+            swap_triple_day=data.get('swap_triple_day', 'wednesday'),
+            profit_calc_mode=data.get('profit_calc_mode', 'FOREX'),
+            trading_hours=data.get('trading_hours'),
+            last_updated=datetime.fromisoformat(data['last_updated']) if data.get('last_updated') else None,
+            source=data.get('source', 'json')
+        )
+
     def _load_symbol_spec(self, symbol: str, market_type: AssetClass) -> SymbolSpec:
         """
         Load or generate symbol specification.
+
+        Priority:
+        1. JSON specs file (real MT5 data)
+        2. Hardcoded SYMBOL_SPECS
+        3. Generic fallback
 
         Args:
             symbol: Trading symbol
@@ -233,7 +327,11 @@ class UnifiedDataLoader:
         Returns:
             SymbolSpec instance
         """
-        # Try to get from predefined specs
+        # First: Try JSON cache (real MT5 data)
+        if symbol in self.specs_cache:
+            return self.specs_cache[symbol]
+
+        # Second: Try hardcoded specs
         return get_symbol_spec(symbol)
 
     def _preprocess(
