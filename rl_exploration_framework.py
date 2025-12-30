@@ -47,6 +47,13 @@ warnings.filterwarnings("ignore")
 _this_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(_this_dir / "tests"))
 
+# Try GPU physics (ROCm/CUDA)
+try:
+    from kinetra.parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
+
 
 # =============================================================================
 # PERSISTENCE & LOGGING: Atomic saves, graceful failure

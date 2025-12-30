@@ -24,6 +24,13 @@ import pandas as pd
 from .physics_engine import PhysicsEngine
 from .symbol_spec import SymbolSpec
 
+# Try GPU physics
+try:
+    from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
+
 
 class TradeDirection(Enum):
     """Trade direction enumeration."""
@@ -197,6 +204,7 @@ class BacktestEngine:
         risk_per_trade: float = 0.01,  # 1% risk per trade
         max_positions: int = 1,
         use_physics_signals: bool = True,
+        use_gpu: bool = True,  # Use GPU for physics if available
     ):
         """
         Initialize backtest engine.
@@ -206,12 +214,17 @@ class BacktestEngine:
             risk_per_trade: Percentage of equity to risk per trade (0-1)
             max_positions: Maximum number of concurrent positions
             use_physics_signals: Use physics-based signals when no custom signal provided
+            use_gpu: Use GPU acceleration for physics (ROCm/CUDA)
         """
         self.initial_capital = initial_capital
         self.risk_per_trade = risk_per_trade
         self.max_positions = max_positions
         self.use_physics_signals = use_physics_signals
+        self.use_gpu = use_gpu and GPU_AVAILABLE
 
+        # Use GPU physics if available
+        if self.use_gpu:
+            self.gpu_physics = GPUPhysicsEngine(device="auto")
         self.physics = PhysicsEngine()
         self.trades: List[Trade] = []
         self.equity = initial_capital

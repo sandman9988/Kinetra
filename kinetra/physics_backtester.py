@@ -18,6 +18,13 @@ from backtesting.lib import crossover
 
 from .physics_engine import PhysicsEngine, RegimeType
 
+# Try GPU physics (ROCm/CUDA)
+try:
+    from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
+
 
 # =============================================================================
 # PHYSICS INDICATOR FUNCTIONS (for use as Backtesting.py indicators)

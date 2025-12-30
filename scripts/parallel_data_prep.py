@@ -1,12 +1,12 @@
 """
 Parallel Data Preparation Pipeline
 ===================================
-32-thread parallel processing for:
+GPU-accelerated physics + 32-thread parallel processing for:
 - Holiday tagging (using market_calendar)
-- Physics feature computation (60+ measurements)
+- Physics feature computation (60+ measurements) - GPU BATCH
 - Parquet output with full metadata
 
-Uses ThreadPoolExecutor for I/O and ProcessPoolExecutor for CPU.
+Uses GPU for physics, ThreadPoolExecutor for I/O.
 """
 
 import sys
@@ -23,6 +23,13 @@ sys.path.insert(0, str(project_root))
 
 from kinetra.physics_engine import PhysicsEngine
 from kinetra.market_calendar import get_calendar_for_symbol
+
+# Try to import GPU physics
+try:
+    from kinetra.parallel import GPUPhysicsEngine, compute_physics_parallel, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
 
 # Use all 32 threads
 MAX_WORKERS = 32
@@ -102,8 +109,25 @@ def add_holiday_tags(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
     return df
 
 
-def compute_physics_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute all physics measurements using PhysicsEngine."""
+def compute_physics_features(df: pd.DataFrame, use_gpu: bool = True) -> pd.DataFrame:
+    """Compute all physics measurements using PhysicsEngine (GPU if available)."""
+
+    # Try GPU first (ROCm/CUDA)
+    if use_gpu and GPU_AVAILABLE:
+        try:
+            gpu_engine = GPUPhysicsEngine(device="auto")
+            close_prices = df['close'].values.reshape(1, -1)  # Shape: (1, n_bars)
+            physics_batch = gpu_engine.compute_physics_batch(close_prices, lookback=64)
+
+            # Flatten batch results back to series
+            for key, values in physics_batch.items():
+                df[key] = values.flatten()
+
+            return df
+        except Exception as e:
+            print(f"    GPU failed ({e}), falling back to CPU")
+
+    # CPU fallback
     engine = PhysicsEngine(
         vel_window=1,
         damping_window=64,
@@ -237,7 +261,7 @@ def process_single_file(args) -> dict:
 
 
 def prep_all_data(data_dir: Path = None, output_dir: Path = None):
-    """Main entry point - parallel prep all downloaded data."""
+    """Main entry point - GPU + parallel prep all downloaded data."""
 
     if data_dir is None:
         data_dir = project_root / "data" / "master"
@@ -245,8 +269,19 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
         output_dir = project_root / "data" / "prepared"
 
     print("\n" + "="*70)
-    print("PARALLEL DATA PREPARATION (32 threads)")
+    print("DATA PREPARATION (GPU + 32 threads)")
     print("="*70)
+
+    # GPU status
+    if GPU_AVAILABLE:
+        try:
+            import torch
+            gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Unknown"
+            print(f"  🎮 GPU: {gpu_name} (ROCm/CUDA)")
+        except:
+            print(f"  🎮 GPU: Available (PyTorch)")
+    else:
+        print(f"  💻 GPU: Not available (CPU fallback)")
 
     # Find all CSV files
     all_files = []
