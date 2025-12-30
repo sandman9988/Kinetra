@@ -1,0 +1,300 @@
+"""
+MetaAPI Bulk Data Download
+==========================
+Downloads data for all asset classes, organizes properly,
+with atomic saves and proper naming conventions.
+"""
+
+import sys
+from pathlib import Path
+from datetime import datetime, timedelta
+import pandas as pd
+import asyncio
+import json
+import tempfile
+import shutil
+
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+try:
+    from metaapi_cloud_sdk import MetaApi
+except ImportError:
+    print("Install: pip install metaapi-cloud-sdk")
+    sys.exit(1)
+
+# =====================================================
+# CREDENTIALS
+# =====================================================
+API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJjMTdhODAwNThhOWE3OWE0NDNkZjBlOGM1NDZjZjlmMSIsImFjY2Vzc1J1bGVzIjpbeyJpZCI6InRyYWRpbmctYWNjb3VudC1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVzdC1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcnBjLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVhbC10aW1lLXN0cmVhbWluZy1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOndzOnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtZXRhc3RhdHMtYXBpIiwibWV0aG9kcyI6WyJtZXRhc3RhdHMtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6InJpc2stbWFuYWdlbWVudC1hcGkiLCJtZXRob2RzIjpbInJpc2stbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoiY29weWZhY3RvcnktYXBpIiwibWV0aG9kcyI6WyJjb3B5ZmFjdG9yeS1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibXQtbWFuYWdlci1hcGkiLCJtZXRob2RzIjpbIm10LW1hbmFnZXItYXBpOnJlc3Q6ZGVhbGluZzoqOioiLCJtdC1tYW5hZ2VyLWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJiaWxsaW5nLWFwaSIsIm1ldGhvZHMiOlsiYmlsbGluZy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfV0sImlnbm9yZVJhdGVMaW1pdHMiOmZhbHNlLCJ0b2tlbklkIjoiMjAyMTAyMTMiLCJpbXBlcnNvbmF0ZWQiOmZhbHNlLCJyZWFsVXNlcklkIjoiYzE3YTgwMDU4YTlhNzlhNDQzZGYwZThjNTQ2Y2Y5ZjEiLCJpYXQiOjE3NjcxMjY5NzQsImV4cCI6MTc3NDkwMjk3NH0.MNG5qH4ufgoKivTCTuvfVywtTYgYhkIEWCLoff9F1tP3MvGLNRhHNwe2dyMppSTr5mzEFlkF1VRlpFthpq2KnOUvCATFNUM04cUYJcpcv6Arp_Pf653Lrtm1DK2Br4NZYQr9eh_ZndXIN2qm2QYSAi2W5wXovAaMkLPjs1x2J1G4ZxFM48u7xrqCci0Sri2dhCLNI6eVX9-VlfLJb4iYJqbKcS7GacodmtUHQqzKKusazLPoEe0cJmVPVj0h5OwXiWnZRH07VY9e9s3i-5BzHp9syGVDh7rU3D7IU8jCaB8oBWl6S49MW-wpY41_cdxf3eo53CN0MY3GikfZbusgO_2xAxxBfbsmMIC9l0g2TiUIuATEfMILPzcAhCjKE35AAc0JEbXw0XxBWyIZoCAcdqI2FuyyMOyddKfSQ7y7kkW_0tu5d9P8p-HUdE5FEI_rEHbfxfEy4CLI9LY_5ZycuhZwrnOyKLS_CPX4iFtdTT40eHynaeNv8ok8_h_wirm5YQuFv_YL0u0HqTqiy5Q_f-vDJVLob7et779DsBj9myILCFGg7RlwzEcxsZNGCkbNRvsCjZE7HwqQy2IjqGNo5vI8AiEfHD0c3PGfPhdKqKS5mBa7w4md-90T_Um9VnUXHZ8EnQlrVCnP8NpsfCWGQRDPMepd_D1lvL6XjxaVMfM"
+
+ACCOUNT_ID = "e8f8c21a-32b5-40b0-9bf7-672e8ffab91f"
+
+# =====================================================
+# SYMBOLS BY ASSET CLASS (6 per class)
+# =====================================================
+SYMBOLS_BY_CLASS = {
+    'forex': [
+        'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURJPY', 'GBPJPY',
+    ],
+    'crypto': [
+        'BTCUSD', 'ETHUSD', 'LTCUSD', 'XRPUSD', 'BCHUSD', 'ADAUSD',
+    ],
+    'indices': [
+        'US30', 'US500', 'NAS100', 'GER40', 'UK100', 'JP225',
+    ],
+    'metals': [
+        'XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD', 'COPPER', 'XAUEUR',
+    ],
+    'energy': [
+        'USOIL', 'UKOIL', 'NGAS', 'BRENT', 'WTI', 'HEATING',
+    ],
+}
+
+# Timeframes to download
+TIMEFRAMES = ['1h', '4h']  # H1 and H4
+
+
+def atomic_write_csv(df: pd.DataFrame, filepath: Path, sep: str = '\t'):
+    """Write CSV atomically - write to temp file then rename."""
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write to temp file in same directory
+    temp_fd, temp_path = tempfile.mkstemp(
+        suffix='.csv.tmp',
+        dir=filepath.parent,
+        prefix=filepath.stem + '_'
+    )
+    try:
+        df.to_csv(temp_path, index=False, sep=sep)
+        # Atomic rename
+        shutil.move(temp_path, filepath)
+    except Exception as e:
+        # Clean up temp file on error
+        if Path(temp_path).exists():
+            Path(temp_path).unlink()
+        raise e
+
+
+def find_symbol_match(target: str, available: list) -> str:
+    """Find matching symbol from available list."""
+    target_upper = target.upper()
+
+    # Try exact match first
+    if target in available:
+        return target
+
+    # Try with common suffixes
+    for suffix in ['', '+', 'm', '.pro', '_SB']:
+        candidate = target + suffix
+        if candidate in available:
+            return candidate
+        # Case insensitive
+        matches = [s for s in available if s.upper() == (target_upper + suffix.upper())]
+        if matches:
+            return matches[0]
+
+    # Try partial match
+    matches = [s for s in available if target_upper in s.upper()]
+    if matches:
+        return matches[0]
+
+    return None
+
+
+async def download_all():
+    """Download H1 and H4 data for 6 instruments per asset class."""
+
+    print("\n" + "="*70)
+    print("METAAPI BULK DATA DOWNLOAD")
+    print("="*70)
+    print(f"  Asset classes: {len(SYMBOLS_BY_CLASS)}")
+    print(f"  Instruments per class: 6")
+    print(f"  Timeframes: H1, H4")
+    print(f"  History: 2 years")
+
+    # Connect
+    print("\n[1] Connecting to MetaAPI...")
+    api = MetaApi(API_TOKEN)
+    accounts = await api.metatrader_account_api.get_accounts_with_infinite_scroll_pagination()
+    account = next((a for a in accounts if a.id == ACCOUNT_ID), accounts[0])
+
+    if getattr(account, 'state', None) != 'DEPLOYED':
+        await account.deploy()
+    await account.wait_connected()
+    print(f"    ✅ Connected: {account.name}")
+
+    connection = account.get_rpc_connection()
+    await connection.connect()
+    await connection.wait_synchronized()
+    print("    ✅ Synchronized")
+
+    # Get available symbols
+    print("\n[2] Getting available symbols...")
+    available_symbols = await connection.get_symbols()
+    print(f"    ✅ {len(available_symbols)} symbols available")
+
+    # Match our targets
+    symbols_to_download = []
+    for asset_class, targets in SYMBOLS_BY_CLASS.items():
+        for target in targets:
+            match = find_symbol_match(target, available_symbols)
+            if match:
+                symbols_to_download.append((match, asset_class, target))
+                print(f"    ✓ {asset_class}/{target} → {match}")
+            else:
+                print(f"    ✗ {asset_class}/{target} → NOT FOUND")
+
+    print(f"\n    Total to download: {len(symbols_to_download)} symbols × {len(TIMEFRAMES)} timeframes")
+
+    # Date range (2 years)
+    end_time = datetime.now()
+    start_time = end_time - timedelta(days=730)
+
+    # Download
+    print(f"\n[3] Downloading ({start_time.date()} to {end_time.date()})...")
+
+    downloaded = []
+    failed = []
+    total_tasks = len(symbols_to_download) * len(TIMEFRAMES)
+    task_num = 0
+
+    for symbol, asset_class, original in symbols_to_download:
+        for tf in TIMEFRAMES:
+            task_num += 1
+            tf_label = 'H1' if tf == '1h' else 'H4'
+
+            print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
+
+            try:
+                candles = await account.get_historical_candles(
+                    symbol=symbol,
+                    timeframe=tf,
+                    start_time=start_time,
+                    limit=50000
+                )
+
+                if not candles or len(candles) < 100:
+                    print(f"⚠️ Only {len(candles) if candles else 0} bars")
+                    failed.append((symbol, tf_label, "insufficient data"))
+                    continue
+
+                # Convert to DataFrame
+                df = pd.DataFrame(candles)
+                df['time'] = pd.to_datetime(df['time'])
+
+                # Create output directory
+                output_dir = project_root / "data" / "master" / asset_class
+                output_dir.mkdir(parents=True, exist_ok=True)
+
+                # Naming convention: SYMBOL_TIMEFRAME_STARTDATE_ENDDATE.csv
+                start_str = df['time'].iloc[0].strftime('%Y%m%d%H%M')
+                end_str = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
+                filename = f"{symbol}_{tf_label}_{start_str}_{end_str}.csv"
+                output_file = output_dir / filename
+
+                # Prepare export format (MetaTrader style)
+                df_export = pd.DataFrame({
+                    '<DATE>': df['time'].dt.strftime('%Y.%m.%d'),
+                    '<TIME>': df['time'].dt.strftime('%H:%M:%S'),
+                    '<OPEN>': df['open'],
+                    '<HIGH>': df['high'],
+                    '<LOW>': df['low'],
+                    '<CLOSE>': df['close'],
+                    '<TICKVOL>': df['tickVolume'],
+                })
+
+                # Atomic save
+                atomic_write_csv(df_export, output_file, sep='\t')
+
+                print(f"✅ {len(candles):,} bars")
+
+                downloaded.append({
+                    'symbol': symbol,
+                    'original': original,
+                    'asset_class': asset_class,
+                    'timeframe': tf_label,
+                    'bars': len(candles),
+                    'start': str(df['time'].iloc[0]),
+                    'end': str(df['time'].iloc[-1]),
+                    'file': str(output_file),
+                })
+
+                # Rate limit
+                await asyncio.sleep(0.3)
+
+            except Exception as e:
+                print(f"❌ {e}")
+                failed.append((symbol, tf_label, str(e)))
+
+    # Cleanup
+    await connection.close()
+
+    # Summary
+    print("\n" + "="*70)
+    print("DOWNLOAD SUMMARY")
+    print("="*70)
+
+    print(f"\n  ✅ Downloaded: {len(downloaded)} files")
+    print(f"  ❌ Failed: {len(failed)} files")
+
+    if downloaded:
+        total_bars = sum(d['bars'] for d in downloaded)
+        print(f"  📊 Total bars: {total_bars:,}")
+
+        # By asset class
+        print("\n  By asset class:")
+        by_class = {}
+        for d in downloaded:
+            key = d['asset_class']
+            by_class.setdefault(key, {'h1': 0, 'h4': 0, 'bars': 0})
+            by_class[key]['bars'] += d['bars']
+            if d['timeframe'] == 'H1':
+                by_class[key]['h1'] += 1
+            else:
+                by_class[key]['h4'] += 1
+
+        for ac in sorted(by_class.keys()):
+            stats = by_class[ac]
+            print(f"    {ac}: {stats['h1']} H1 + {stats['h4']} H4 = {stats['bars']:,} bars")
+
+    # Save manifest
+    manifest_file = project_root / "data" / "master" / "download_manifest.json"
+    manifest = {
+        'downloaded_at': datetime.now().isoformat(),
+        'broker': 'Vantage',
+        'total_files': len(downloaded),
+        'total_bars': sum(d['bars'] for d in downloaded) if downloaded else 0,
+        'symbols': downloaded,
+        'failed': [{'symbol': s, 'tf': t, 'error': e} for s, t, e in failed],
+    }
+
+    with open(manifest_file, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    print(f"\n  📄 Manifest: {manifest_file}")
+
+    print("\n" + "="*70)
+    print("DATA STRUCTURE:")
+    print("="*70)
+    print("""
+    data/master/
+    ├── forex/
+    │   ├── EURUSD_H1_*.csv
+    │   ├── EURUSD_H4_*.csv
+    │   └── ...
+    ├── crypto/
+    │   ├── BTCUSD_H1_*.csv
+    │   └── ...
+    ├── indices/
+    ├── metals/
+    └── energy/
+    """)
+
+    print("\n✅ READY FOR PHYSICS EXPLORATION!")
+    print("   Run: python rl_exploration_framework.py --data-dir data/master")
+
+    return downloaded
+
+
+if __name__ == "__main__":
+    asyncio.run(download_all())
