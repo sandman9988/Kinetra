@@ -17,14 +17,14 @@ from .physics_engine import PhysicsEngine, calculate_energy, calculate_damping, 
 from .risk_management import RiskManager, calculate_risk_of_ruin, composite_health_score
 from .rl_agent import KinetraAgent
 from .reward_shaping import AdaptiveRewardShaper
-from .backtest_engine import BacktestEngine
+from .realistic_backtester import RealisticBacktester
 from .health_monitor import HealthMonitor
 from .mt5_connector import MT5Connector, MT5Session, load_csv_data
 from .symbol_spec import (
     SymbolSpec, SwapSpec, CommissionSpec, SwapType, CommissionType,
     get_symbol_spec, fetch_mt5_symbol_spec, DEFAULT_SPECS
 )
-from .backtest_engine import Trade, TradeDirection, BacktestResult
+from .realistic_backtester import Trade, BacktestResult
 from .trigger_predictor import TriggerPredictor, TriggerPrediction, Direction
 
 # RL components require PyTorch
@@ -136,7 +136,7 @@ __all__ = [
     # Reward Shaping
     "AdaptiveRewardShaper",
     # Backtest Engines
-    "BacktestEngine",
+    "RealisticBacktester",
     "PhysicsBacktestRunner",
     # Physics Strategies
     "EnergyMomentumStrategy",
@@ -211,7 +211,6 @@ __all__ = [
     "DEFAULT_SPECS",
     # Backtest types
     "Trade",
-    "TradeDirection",
     "BacktestResult",
     # Trigger prediction
     "TriggerPredictor",

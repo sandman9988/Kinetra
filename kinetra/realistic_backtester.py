@@ -124,26 +124,26 @@ class BacktestResult:
     total_return_pct: float
 
     # Risk-adjusted metrics
-    sharpe_ratio: float
+    sharpe_ratio: float = 0.0
     sortino_ratio: float = 0.0  # Downside deviation-adjusted
     omega_ratio: float = 0.0    # Gain/loss threshold ratio
 
     # Risk metrics
-    max_drawdown: float
+    max_drawdown: float = 0.0
     max_drawdown_pct: float = 0.0
     cvar_95: float = 0.0  # Conditional Value at Risk (95%)
     cvar_99: float = 0.0  # Conditional Value at Risk (99%)
 
     # Realistic costs
-    total_spread_cost: float
-    total_commission: float
-    total_swap: float
-    total_slippage: float
+    total_spread_cost: float = 0.0
+    total_commission: float = 0.0
+    total_swap: float = 0.0
+    total_slippage: float = 0.0
 
     # Quality metrics
-    avg_mfe: float
-    avg_mae: float
-    avg_mfe_mae_ratio: float
+    avg_mfe: float = 0.0
+    avg_mae: float = 0.0
+    avg_mfe_mae_ratio: float = 0.0
     mfe_capture_pct: float = 0.0  # How much MFE was captured as profit
 
     # Physics-specific metrics
