@@ -47,7 +47,7 @@ def get_vantage_spec(symbol: str) -> SymbolSpec:
             volume_step=0.01,
             # Vantage realistic costs
             spread_typical=18,  # ~1.8 pips typical
-            commission_per_lot=6.0,  # $6/lot/side
+            commission_per_lot=3.0,  # $3/lot/side = $6/lot round trip (Vantage International Demo)
             swap_long=-0.3,
             swap_short=0.1,
             swap_triple_day="wednesday",
@@ -67,7 +67,7 @@ def get_vantage_spec(symbol: str) -> SymbolSpec:
             volume_step=0.01,
             # Gold costs
             spread_typical=25,  # ~25 cents typical
-            commission_per_lot=6.0,
+            commission_per_lot=3.0,  # $3/lot/side = $6/lot round trip (Vantage International Demo)
             swap_long=-0.15,
             swap_short=-0.10,
             swap_triple_day="wednesday",
