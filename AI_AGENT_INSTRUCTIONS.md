@@ -5,20 +5,62 @@
 
 ## 🎯 CORE PHILOSOPHY: First-Principles, Zero Assumptions
 
+**CRITICAL**: QUESTION EVERYTHING, INCLUDING THIS DOCUMENT!
+
+Even the "best practices" in this document are HYPOTHESES to explore, not commandments.
+
 **NEVER**:
 - Use magic numbers (20-period MA, 14-period RSI, etc.)
 - Assume linearity (Pearson correlation, linear regression without proof)
 - Use fixed thresholds (stop at 2% ATR, etc.)
-- Apply universal rules across markets (crypto ≠ stocks ≠ forex)
+- Assume specialization strategy (asset class? regime? timeframe? universal?)
+- Apply universal rules across markets WITHOUT exploration
 - Trust Pareto distributions without validation
 - Implement TA indicators without physics justification
+- **ASSUME THAT ASSET CLASS SPECIALIZATION IS THE RIGHT APPROACH**
 
 **ALWAYS**:
 - Start from thermodynamic/physical first principles
 - Use rolling, adaptive distributions (NO fixed periods)
-- Validate per-market, per-regime
-- Explore before implementing
+- Validate per-market, per-regime, per-timeframe
+- **EXPLORE** before implementing (including specialization strategies!)
 - Question everything, even established wisdom
+- **Let the data tell you what specialization (if any) works best**
+
+### The Meta-Assumption: "We don't know HOW to specialize"
+
+Before asking "should crypto specialists use different stops than forex?", ask:
+- **Should we even specialize by asset class?**
+- Maybe specialize by regime (LAMINAR vs CHAOTIC)?
+- Maybe specialize by timeframe (M15 vs H4)?
+- Maybe specialize by volatility regime?
+- Maybe ONE universal agent is optimal?
+
+**THE ONLY ASSUMPTION**: Physics is real (energy, friction, entropy exist in markets)
+
+### Temporal Non-Stationarity: "What worked yesterday may not work tomorrow"
+
+**CRITICAL**: Even IF exploration discovers that:
+- Asset class specialists work best (today)
+- LAMINAR regime is tradeable (today)
+- Energy-based stops are optimal (today)
+
+These findings can CHANGE as markets evolve:
+- Crypto correlation with indices shifts
+- Central bank policy changes forex dynamics
+- Algorithmic trading changes intraday patterns
+- Crisis regimes invalidate normal-regime rules
+
+**THEREFORE**:
+- Continuous re-exploration (weekly/monthly)
+- Doppelgänger system detects drift (Shadow A vs Live)
+- Health scoring triggers re-training
+- Never assume today's optimal = tomorrow's optimal
+
+**Example**: In 2020, crypto was uncorrelated with stocks. In 2022, high correlation.
+A "crypto specialist" trained in 2020 would fail in 2022 without re-exploration.
+
+**SOLUTION**: Rolling exploration windows, continuous adaptation, drift detection.
 
 ---
 
@@ -43,17 +85,35 @@ Trading System:
   → Self-Healing Actions
 ```
 
-### 2. Asset Class Specialists
+### 2. Specialization Strategy (TO BE EXPLORED!)
 
-Each market type has DIFFERENT physics:
-- **Crypto** (BTCUSD): High energy, low liquidity, 24/7, gap risk dominant
-- **Forex** (EURUSD): Mean-reverting, rollover costs, 24/5, liquidity cycles
-- **Indices** (NAS100): Momentum persistence, session-dependent, vol clustering
-- **Metals** (XAUUSD): 23-hour trading, safe-haven flows, maintenance windows
-- **Energy** (XTIUSD): Inventory-driven, contango/backwardation, storage costs
-- **Shares/ETFs**: Corporate actions, exchange hours, earnings gaps
+**CRITICAL ASSUMPTION TO QUESTION**: Do we even need asset class specialists?
 
-**CRITICAL**: What works for crypto trailing stops will NOT work for forex!
+**WE DON'T KNOW YET!** The following are HYPOTHESES to explore, not facts:
+
+Hypothesis 1: Asset Class Specialization
+- Each market type MAY have different physics
+- Crypto: High energy, low liquidity, 24/7 ← EXPLORE if this matters!
+- Forex: Mean-reverting, rollover costs ← EXPLORE if specialist helps!
+- Indices: Momentum persistence ← EXPLORE if universal agent works!
+
+Hypothesis 2: Regime Specialization
+- Maybe agents should specialize by REGIME (LAMINAR vs CHAOTIC), not market
+
+Hypothesis 3: Timeframe Specialization
+- Maybe intraday vs swing vs position is the real distinction
+
+Hypothesis 4: Universal Agent
+- Maybe ONE agent can learn all markets if features are physics-based
+
+**HOW TO DISCOVER THE RIGHT SPECIALIZATION**:
+1. Start with universal agent on multi-instrument data
+2. Track performance breakdown by {asset_class, regime, timeframe, volatility}
+3. Explore: Train specialists by each dimension
+4. Measure: Which specialization gives best risk-adjusted returns?
+5. Validate: Statistical edge test, not just PnL
+
+**THE MARKET TELLS US, WE DON'T ASSUME!**
 
 ### 3. Doppelgänger System
 
