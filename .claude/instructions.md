@@ -1,5 +1,11 @@
 # Kinetra AI Development Instructions
 
+## ⚠️ MANDATORY: READ THIS BEFORE EVERY TASK ⚠️
+
+**AI Agent Reminder**: You MUST read and internalize these instructions at the START of every task. Do NOT regress to conventional approaches. If you find yourself adding RSI, MACD, Bollinger Bands, ADX, or ANY traditional indicator - STOP. That violates the core philosophy.
+
+---
+
 ## CORE PHILOSOPHY
 
 **EVERYTHING is derived from first principles. NO static rules.**
@@ -230,6 +236,42 @@ vol_regime_ratio = short_vol / long_vol
 ```
 
 This lets RL learn regime-dependent patterns WITHOUT hardcoded anything.
+
+## EXISTING PHYSICS MEASUREMENTS (60+ features)
+
+We already have comprehensive physics measurements in `physics_engine.py`:
+
+**Kinematics:**
+- velocity (log-return)
+- acceleration (Δ velocity)
+- jerk (Δ acceleration) - best fat candle predictor
+
+**Energy:**
+- kinetic energy (½mv²)
+- potential energy (1 / long-vol) - stored/compressed energy
+- eta (KE / PE) - efficiency ratio
+
+**Fluid Dynamics:**
+- reynolds (trend / noise) - laminar vs turbulent
+- damping/zeta (σ(v) / μ(|v|)) - friction
+- viscosity (resistance to flow)
+- liquidity (volume / price impact)
+
+**Thermodynamics:**
+- entropy (Shannon entropy of returns)
+- Buying Pressure (BP)
+
+**From physics_v7.py:**
+- body_ratio (|C-O| / (H-L))
+- energy (body_ratio² × vol_ewma)
+- damping (range expansion/contraction)
+
+**All converted to rolling percentiles (0-1):**
+- KE_pct, Re_m_pct, zeta_pct, Hs_pct, PE_pct, eta_pct, velocity_pct, jerk_pct
+
+**NO traditional indicators. These physics measures capture everything needed.**
+
+---
 
 ## SUMMARY
 

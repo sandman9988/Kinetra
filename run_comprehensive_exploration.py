@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 """
-Comprehensive Exploration Runner with Discovery Engine
-=======================================================
+Comprehensive Exploration Runner with PHYSICS-Based Discovery Engine
+=====================================================================
 
-Uses the full measurement + composite stacking framework.
+Uses PHYSICS-ONLY measurements. NO traditional indicators.
 Discovers what works per asset class - NO assumptions.
 
-Key features:
-- 50+ measurements computed per bar
-- Composite stacking with 5 signal generators
-- Class-specific reward shapers
-- Inverse relationship tracking during volatility
-- Discovery report at end of run
+Key Physics Features:
+- Kinematics: velocity, acceleration, jerk, snap, crackle, pop (6 derivatives)
+- Energy: kinetic, potential (compression + displacement), efficiency
+- Flow dynamics: Reynolds number, damping, viscosity, liquidity
+- Thermodynamics: entropy, entropy rate, phase compression
+- Field theory: gradients, divergence, buying pressure, body ratio
+- Microstructure: spread percentile, volume surge, volume trend
+
+What We DON'T Use:
+- NO RSI, MACD, Bollinger Bands, ADX, Aroon
+- NO hardcoded periods
+- NO magic numbers
+
+Philosophy: RL discovers patterns from physics state - not from traditional indicators.
 """
 
 import json
@@ -234,15 +242,17 @@ class ComprehensiveTradingEnv:
         reward = 0.0
         info = {"action": action}
 
-        # Get current measurements for validation
-        bar_meas = {
-            name: self.inst_meas.normalized_measurements[name][self.current_bar]
-            for name in self.inst_meas.normalized_measurements
-            if self.current_bar < len(self.inst_meas.normalized_measurements[name])
-        }
+        # Get current physics measurements
+        bar_meas = {}
+        for name in self.inst_meas.normalized_measurements:
+            if self.current_bar < len(self.inst_meas.normalized_measurements[name]):
+                val = self.inst_meas.normalized_measurements[name][self.current_bar]
+                if np.isfinite(val):
+                    bar_meas[name] = val
 
-        spread_ratio = bar_meas.get('spread_ratio_z', 0)
-        volume_ratio = bar_meas.get('volume_ratio_z', 0)
+        # Use physics-based spread and volume measures
+        spread_pct = bar_meas.get('spread_pct_pct', 0.5)  # Spread percentile
+        volume_surge = bar_meas.get('volume_surge_pct', 0.5)  # Volume surge percentile
 
         # Current price
         close = self.close_prices[self.current_bar]
@@ -310,7 +320,7 @@ class ComprehensiveTradingEnv:
                     bar_index=self.current_bar,
                 )
 
-                # Record trade
+                # Record trade with physics state
                 trade = {
                     "entry_bar": self.entry_bar,
                     "exit_bar": self.current_bar,
@@ -319,8 +329,11 @@ class ComprehensiveTradingEnv:
                     "mae": self.mae,
                     "mfe": self.mfe,
                     "bars_held": bars_held,
-                    "spread_ratio_entry": bar_meas.get('spread_ratio_z', 0),
-                    "volume_ratio_entry": bar_meas.get('volume_ratio_z', 0),
+                    "spread_pct_entry": bar_meas.get('spread_pct_pct', 0.5),
+                    "volume_surge_entry": bar_meas.get('volume_surge_pct', 0.5),
+                    "kinetic_energy_entry": bar_meas.get('kinetic_energy_pct', 0.5),
+                    "reynolds_entry": bar_meas.get('reynolds_pct', 0.5),
+                    "entropy_entry": bar_meas.get('entropy_pct', 0.5),
                 }
                 self.trades.append(trade)
                 self.total_pnl += pnl

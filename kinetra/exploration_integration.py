@@ -2,14 +2,24 @@
 Exploration Integration Module
 ==============================
 
-Wires up the comprehensive measurement + composite stacking
+Wires up the PHYSICS-BASED measurement + composite stacking
 into the RL exploration framework.
+
+NO TRADITIONAL INDICATORS. Pure physics measurements only.
 
 This is the bridge between:
 - Raw OHLCV data
-- MeasurementEngine (all measurements)
+- MeasurementEngine (physics measurements)
 - CompositeStacker (signal generation)
-- RL Agent (learning what matters)
+- RL Agent (learning what matters per asset class)
+
+Physics Measurements:
+- Kinematics: velocity, acceleration, jerk, snap, crackle, pop
+- Energy: kinetic, potential (compression + displacement), efficiency
+- Flow: Reynolds, damping, viscosity, liquidity
+- Thermodynamics: entropy, entropy rate, phase compression
+- Field: gradient, divergence, buying pressure, body ratio
+- Microstructure: spread percentile, volume surge, volume trend
 """
 
 import numpy as np
@@ -33,21 +43,27 @@ def _load_sibling_module(name: str):
 try:
     from .measurements import (
         MeasurementEngine,
-        VolatilityMeasures,
-        MomentumMeasures,
-        MeanReversionMeasures,
-        EnergyFlowMeasures,
+        KinematicsMeasures,
+        EnergyMeasures,
+        FlowMeasures,
+        ThermodynamicsMeasures,
+        FieldMeasures,
         MicrostructureMeasures,
+        PercentileNormalizer,
+        PhysicsRegimeDetector,
         CorrelationExplorer,
     )
 except ImportError:
     _meas = _load_sibling_module('measurements')
     MeasurementEngine = _meas.MeasurementEngine
-    VolatilityMeasures = _meas.VolatilityMeasures
-    MomentumMeasures = _meas.MomentumMeasures
-    MeanReversionMeasures = _meas.MeanReversionMeasures
-    EnergyFlowMeasures = _meas.EnergyFlowMeasures
+    KinematicsMeasures = _meas.KinematicsMeasures
+    EnergyMeasures = _meas.EnergyMeasures
+    FlowMeasures = _meas.FlowMeasures
+    ThermodynamicsMeasures = _meas.ThermodynamicsMeasures
+    FieldMeasures = _meas.FieldMeasures
     MicrostructureMeasures = _meas.MicrostructureMeasures
+    PercentileNormalizer = _meas.PercentileNormalizer
+    PhysicsRegimeDetector = _meas.PhysicsRegimeDetector
     CorrelationExplorer = _meas.CorrelationExplorer
 
 try:
@@ -166,7 +182,7 @@ class ExplorationDataLoader:
             # Timestamps
             timestamps = pd.DatetimeIndex(df['datetime'])
 
-            # Compute ALL measurements
+            # Compute ALL physics measurements
             raw_measurements = self.measurement_engine.compute_all(
                 open_=open_,
                 high=high,
@@ -177,11 +193,11 @@ class ExplorationDataLoader:
                 timestamps=timestamps,
             )
 
-            # Normalize to z-scores
-            normalized_measurements = self.measurement_engine.normalize_measurements(raw_measurements)
+            # Normalize to rolling percentiles (instrument-agnostic)
+            normalized_measurements = self.measurement_engine.normalize_to_percentiles(raw_measurements)
 
-            # Merge raw and normalized
-            all_measurements = {**raw_measurements, **normalized_measurements}
+            # Merge raw and normalized (percentile versions)
+            all_measurements = normalized_measurements  # Already contains both raw and _pct versions
 
             # Create instrument measurements object
             inst_meas = InstrumentMeasurements(
@@ -236,7 +252,14 @@ class ExplorationDataLoader:
 
 class ExplorationFeatureExtractor:
     """
-    Feature extractor that provides measurements + composite signals to RL agent.
+    Physics-based feature extractor for RL agent.
+
+    NO TRADITIONAL INDICATORS. Only physics measurements:
+    - Kinematics (velocity → pop)
+    - Energy (kinetic, potential, efficiency)
+    - Flow dynamics (Reynolds, damping, viscosity)
+    - Thermodynamics (entropy, phase compression)
+    - Field theory (gradient, divergence, buying pressure)
     """
 
     def __init__(self):
@@ -250,43 +273,64 @@ class ExplorationFeatureExtractor:
                      inst_meas: InstrumentMeasurements,
                      bar_idx: int) -> np.ndarray:
         """
-        Get feature vector for a single bar.
+        Get physics-based feature vector for a single bar.
 
-        Combines:
-        - Key normalized measurements
-        - Composite signals
-        - Asset class indicators
+        All features are rolling percentiles (0-1) for instrument-agnostic learning.
         """
         features = []
 
-        # === KEY MEASUREMENTS (z-scored) ===
+        # === PHYSICS MEASUREMENTS (percentile versions, 0-1 range) ===
         key_measurements = [
-            # Volatility
-            'vol_yang_zhang_z', 'vol_of_vol_z',
-            # Momentum
-            'roc_5_z', 'roc_10_z', 'roc_20_z',
-            'rsi_14_z', 'macd_histogram_z', 'adx_z',
-            'aroon_oscillator_z', 'momentum_divergence_z',
-            # Mean Reversion
-            'bollinger_pct_b_z', 'zscore_20_z', 'hurst_z', 'dist_from_vwap_z',
-            # Physics / Energy
-            'kinetic_energy_z', 'potential_energy_z', 'energy_release_rate_z',
-            'reynolds_z', 'reynolds_roc_inverse_z', 'flow_regime_z', 'entropy_rate_z',
+            # Kinematics (6 derivatives)
+            'velocity_pct', 'acceleration_pct', 'jerk_pct',
+            'snap_pct', 'crackle_pct', 'pop_pct',
+            'momentum_pct', 'impulse_pct',
+
+            # Energy
+            'kinetic_energy_pct', 'potential_energy_compression_pct',
+            'potential_energy_displacement_pct', 'energy_efficiency_pct',
+            'energy_release_rate_pct',
+
+            # Flow dynamics
+            'reynolds_pct', 'damping_pct', 'viscosity_pct', 'liquidity_pct',
+            'reynolds_momentum_corr_pct',
+
+            # Thermodynamics
+            'entropy_pct', 'entropy_rate_pct', 'phase_compression_pct',
+
+            # Field theory
+            'price_gradient_pct', 'gradient_magnitude_pct',
+            'divergence_pct', 'buying_pressure_pct', 'body_ratio_pct',
+
             # Microstructure
-            'spread_ratio_z', 'volume_ratio_z', 'liquidity_score_z', 'tick_intensity_z',
-            # Regime indicators
-            'is_mean_reverting_z', 'is_trending_z', 'is_random_walk_z',
+            'spread_pct_pct', 'volume_surge_pct', 'volume_trend_pct',
+
+            # Cross-interactions
+            'energy_momentum_product_pct', 're_damping_ratio_pct',
+            'entropy_energy_phase_pct', 'jerk_energy_pct', 'release_potential_pct',
         ]
 
         for name in key_measurements:
+            if name in inst_meas.normalized_measurements:
+                value = inst_meas.normalized_measurements[name][bar_idx]
+                features.append(value if np.isfinite(value) else 0.5)  # Default to median
+            else:
+                features.append(0.5)  # Default to median percentile
+
+        # === EXTREME FLAGS (binary features) ===
+        extreme_measurements = [
+            'velocity_extreme', 'jerk_extreme', 'kinetic_energy_extreme',
+            'reynolds_extreme', 'entropy_extreme', 'phase_compression_extreme',
+        ]
+
+        for name in extreme_measurements:
             if name in inst_meas.normalized_measurements:
                 value = inst_meas.normalized_measurements[name][bar_idx]
                 features.append(value if np.isfinite(value) else 0.0)
             else:
                 features.append(0.0)
 
-        # === COMPOSITE SIGNALS ===
-        # Get measurements at this bar for signal generation
+        # === COMPOSITE SIGNALS (from exploration engine) ===
         bar_measurements = {}
         for name in inst_meas.normalized_measurements:
             val = inst_meas.normalized_measurements[name][bar_idx]
@@ -297,7 +341,7 @@ class ExplorationFeatureExtractor:
         result = self.exploration_engine.process_bar(
             asset_class=inst_meas.asset_class,
             measurements=bar_measurements,
-            volatility_level=bar_measurements.get('vol_yang_zhang_z', 0),
+            volatility_level=bar_measurements.get('kinetic_energy_pct', 0.5),
         )
 
         # Add signal features
@@ -307,29 +351,45 @@ class ExplorationFeatureExtractor:
         return np.array(features, dtype=np.float32)
 
     def get_feature_names(self) -> List[str]:
-        """Get names of all features."""
+        """Get names of all physics features."""
         if self._feature_names is not None:
             return self._feature_names
 
         names = [
-            # Volatility
-            'vol_yang_zhang', 'vol_of_vol',
-            # Momentum
-            'roc_5', 'roc_10', 'roc_20',
-            'rsi_14', 'macd_histogram', 'adx',
-            'aroon_oscillator', 'momentum_divergence',
-            # Mean Reversion
-            'bollinger_pct_b', 'zscore_20', 'hurst', 'dist_from_vwap',
-            # Physics / Energy
-            'kinetic_energy', 'potential_energy', 'energy_release_rate',
-            'reynolds', 'reynolds_roc_inverse', 'flow_regime', 'entropy_rate',
+            # Kinematics
+            'velocity_pct', 'acceleration_pct', 'jerk_pct',
+            'snap_pct', 'crackle_pct', 'pop_pct',
+            'momentum_pct', 'impulse_pct',
+
+            # Energy
+            'kinetic_energy_pct', 'pe_compression_pct',
+            'pe_displacement_pct', 'energy_efficiency_pct',
+            'energy_release_rate_pct',
+
+            # Flow dynamics
+            'reynolds_pct', 'damping_pct', 'viscosity_pct', 'liquidity_pct',
+            're_momentum_corr_pct',
+
+            # Thermodynamics
+            'entropy_pct', 'entropy_rate_pct', 'phase_compression_pct',
+
+            # Field theory
+            'price_gradient_pct', 'gradient_mag_pct',
+            'divergence_pct', 'buying_pressure_pct', 'body_ratio_pct',
+
             # Microstructure
-            'spread_ratio', 'volume_ratio', 'liquidity_score', 'tick_intensity',
-            # Regime indicators
-            'is_mean_reverting', 'is_trending', 'is_random_walk',
+            'spread_pct', 'volume_surge_pct', 'volume_trend_pct',
+
+            # Cross-interactions
+            'energy_momentum_pct', 're_damping_ratio_pct',
+            'entropy_energy_pct', 'jerk_energy_pct', 'release_potential_pct',
+
+            # Extreme flags
+            'velocity_extreme', 'jerk_extreme', 'ke_extreme',
+            'reynolds_extreme', 'entropy_extreme', 'compression_extreme',
         ]
 
-        # Add signal feature names
+        # Add signal feature names from composite stacker
         stacker = CompositeStacker("temp")
         names.extend(stacker.get_feature_names())
 
@@ -344,29 +404,29 @@ class ExplorationFeatureExtractor:
                      mae: float,
                      mfe: float,
                      bars_held: int):
-        """Record a trade for discovery learning."""
-        # Get entry measurements
-        entry_meas = {
-            name: inst_meas.normalized_measurements[name][entry_idx]
-            for name in inst_meas.normalized_measurements
-            if np.isfinite(inst_meas.normalized_measurements[name][entry_idx])
-        }
+        """Record a trade for physics-based discovery learning."""
+        # Get entry measurements (physics only)
+        entry_meas = {}
+        for name in inst_meas.normalized_measurements:
+            if entry_idx < len(inst_meas.normalized_measurements[name]):
+                val = inst_meas.normalized_measurements[name][entry_idx]
+                if np.isfinite(val):
+                    entry_meas[name] = val
 
         # Get exit measurements
-        exit_meas = {
-            name: inst_meas.normalized_measurements[name][exit_idx]
-            for name in inst_meas.normalized_measurements
-            if np.isfinite(inst_meas.normalized_measurements[name][exit_idx])
-        }
+        exit_meas = {}
+        for name in inst_meas.normalized_measurements:
+            if exit_idx < len(inst_meas.normalized_measurements[name]):
+                val = inst_meas.normalized_measurements[name][exit_idx]
+                if np.isfinite(val):
+                    exit_meas[name] = val
 
-        # Record for correlation analysis
+        # Record for correlation analysis (discovers which physics features predict outcomes)
         self.correlation_explorer.record_trade(
             entry_measurements=entry_meas,
-            exit_measurements=exit_meas,
             pnl=pnl,
             mae=mae,
             mfe=mfe,
-            bars_held=bars_held,
         )
 
         # Record for composite signal learning
@@ -378,7 +438,7 @@ class ExplorationFeatureExtractor:
             signals=signals,
             pnl=pnl,
             measurements=entry_meas,
-            volatility_level=entry_meas.get('vol_yang_zhang_z', 0),
+            volatility_level=entry_meas.get('kinetic_energy_pct', 0.5),  # Use physics measure
         )
 
     def get_discoveries(self) -> Dict:

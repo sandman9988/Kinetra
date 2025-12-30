@@ -2,16 +2,24 @@
 Composite Stacking Framework for Multi-Asset Exploration
 =========================================================
 
-PHILOSOPHY: Let the agent discover what works.
+PHYSICS-ONLY SIGNAL GENERATION. NO TRADITIONAL INDICATORS.
 
-Instead of hardcoding "RSI < 30 = buy signal", we:
-1. Compute ALL measurements
-2. Let agent learn which combinations matter
-3. Track what works per asset class
-4. Discover inverse relationships during volatility
+Philosophy: Let the agent discover what works from PHYSICS state.
+
+We DON'T use:
+- RSI, MACD, ADX, Aroon, Bollinger Bands, VWAP
+- Any traditional technical indicators
+- Hardcoded periods or thresholds
+
+We DO use:
+- Kinematics: velocity, acceleration, jerk, snap, crackle, pop
+- Energy: kinetic, potential, efficiency, release rate
+- Flow: Reynolds, damping, viscosity, liquidity
+- Thermodynamics: entropy, entropy rate, phase compression
+- Field: gradients, divergence, buying pressure
 
 NO ASSUMPTIONS about what "trending" or "mean-reverting" means.
-Let the Hurst exponent and correlations tell us.
+Let the physics state and RL discover the patterns.
 """
 
 from dataclasses import dataclass, field
@@ -23,19 +31,19 @@ from collections import defaultdict
 
 
 # =============================================================================
-# SIGNAL TYPES (Discovered, Not Assumed)
+# SIGNAL TYPES (Physics-Based, Discovered Not Assumed)
 # =============================================================================
 
 class SignalType(Enum):
     """
-    Signal types - but we DON'T assume which measurement produces which.
-    The agent discovers this.
+    Signal types based on physics categories.
+    Agent discovers which physics features produce which patterns.
     """
-    MOMENTUM = "momentum"
-    MEAN_REVERSION = "mean_reversion"
-    VOLATILITY_BREAKOUT = "volatility_breakout"
-    FLOW_REGIME = "flow_regime"
-    MICROSTRUCTURE = "microstructure"
+    KINEMATICS = "kinematics"          # Motion derivatives
+    ENERGY = "energy"                   # Energy state and transitions
+    FLOW = "flow"                       # Fluid dynamics regime
+    THERMODYNAMICS = "thermodynamics"   # Entropy and order
+    MICROSTRUCTURE = "microstructure"   # Execution quality
     COMPOSITE = "composite"
 
 
@@ -50,14 +58,14 @@ class Signal:
 
 
 # =============================================================================
-# BASE SIGNAL GENERATORS (Exploration Mode)
+# PHYSICS-BASED SIGNAL GENERATORS
 # =============================================================================
 
 class SignalGenerator:
     """
-    Base class for signal generators.
+    Base class for physics-based signal generators.
 
-    In exploration mode, we generate signals from measurements
+    In exploration mode, we generate signals from physics measurements
     but DON'T assume they're correct. The agent learns which to trust.
     """
 
@@ -72,7 +80,6 @@ class SignalGenerator:
 
     def record_outcome(self, signal_value: float, actual_pnl: float):
         """Record how well the signal predicted the outcome."""
-        # Correlation between signal and outcome
         agreement = signal_value * np.sign(actual_pnl)
         self.performance_history.append(agreement)
 
@@ -84,248 +91,284 @@ class SignalGenerator:
         return (np.mean(recent) + 1) / 2  # Scale to 0-1
 
 
-class MomentumSignalGenerator(SignalGenerator):
+class KinematicsSignalGenerator(SignalGenerator):
     """
-    Momentum signal - but let agent discover which measurements matter.
+    Signal from motion derivatives (velocity through pop).
 
-    We provide multiple momentum-related signals, agent weights them.
+    Uses 6 derivatives of log-price:
+    - velocity (1st) - direction
+    - acceleration (2nd) - momentum change
+    - jerk (3rd) - "fat candle" predictor
+    - snap (4th) - jerk change
+    - crackle (5th), pop (6th) - higher order dynamics
     """
 
     def __init__(self):
-        super().__init__("momentum", SignalType.MOMENTUM)
+        super().__init__("kinematics", SignalType.KINEMATICS)
 
     def generate(self, measurements: Dict[str, float]) -> Signal:
-        # Multiple momentum indicators - let agent learn weights
         components = []
+        sources = []
 
-        # ROC signals
-        for period in [5, 10, 20, 50]:
-            key = f'roc_{period}_z'
-            if key in measurements:
-                components.append(('roc', measurements[key]))
+        # Velocity (direction)
+        velocity = measurements.get('velocity_pct', 0.5)
+        components.append(velocity - 0.5)  # Center at 0
+        sources.append('velocity')
 
-        # RSI signal (centered at 50)
-        for period in [7, 14, 21]:
-            key = f'rsi_{period}_z'
-            if key in measurements:
-                components.append(('rsi', measurements[key]))
+        # Acceleration (momentum change)
+        accel = measurements.get('acceleration_pct', 0.5)
+        components.append(accel - 0.5)
+        sources.append('acceleration')
 
-        # MACD histogram
-        if 'macd_histogram_z' in measurements:
-            components.append(('macd', measurements['macd_histogram_z']))
+        # Jerk (best fat candle predictor)
+        jerk = measurements.get('jerk_pct', 0.5)
+        components.append((jerk - 0.5) * 1.5)  # Weight jerk higher
+        sources.append('jerk')
 
-        # ADX (trend strength, not direction)
-        if 'adx_z' in measurements and 'plus_di_z' in measurements and 'minus_di_z' in measurements:
-            adx = measurements['adx_z']
-            direction = np.sign(measurements['plus_di_z'] - measurements['minus_di_z'])
-            components.append(('adx', adx * direction))
+        # Momentum (volume-weighted velocity)
+        momentum = measurements.get('momentum_pct', 0.5)
+        components.append(momentum - 0.5)
+        sources.append('momentum')
 
-        # Aroon oscillator
-        if 'aroon_oscillator_z' in measurements:
-            components.append(('aroon', measurements['aroon_oscillator_z']))
+        # Impulse (change in momentum)
+        impulse = measurements.get('impulse_pct', 0.5)
+        components.append(impulse - 0.5)
+        sources.append('impulse')
 
         if not components:
             return Signal(self.name, self.signal_type, 0, 0, [])
 
-        # Simple average for now - agent learns to weight
-        values = [c[1] for c in components]
-        sources = [c[0] for c in components]
+        # Weighted average (jerk gets more weight)
+        signal_value = np.tanh(np.sum(components) / len(components) * 2)
 
-        signal_value = np.tanh(np.mean(values))  # Bound to [-1, 1]
-        confidence = min(1.0, np.std(values))  # Low std = high agreement
-
-        return Signal(self.name, self.signal_type, signal_value, confidence, sources)
-
-
-class MeanReversionSignalGenerator(SignalGenerator):
-    """
-    Mean reversion signal - BUT only if Hurst < 0.5.
-
-    Key insight: MR signals are WRONG in trending markets.
-    """
-
-    def __init__(self):
-        super().__init__("mean_reversion", SignalType.MEAN_REVERSION)
-
-    def generate(self, measurements: Dict[str, float]) -> Signal:
-        # Check Hurst first - is MR even valid?
-        hurst = measurements.get('hurst_z', 0)
-        is_mr_regime = measurements.get('is_mean_reverting', 0)
-
-        if is_mr_regime < 0.5 and hurst > 0:
-            # NOT a MR regime - signal should be weak
-            regime_weight = 0.3
-        else:
-            regime_weight = 1.0
-
-        components = []
-
-        # Bollinger %B (0 = lower band, 1 = upper band)
-        if 'bollinger_pct_b_z' in measurements:
-            # Invert: high %B = overbought = short signal
-            components.append(('bb', -measurements['bollinger_pct_b_z']))
-
-        # Z-score
-        for period in [20, 50]:
-            key = f'zscore_{period}_z'
-            if key in measurements:
-                # Invert: high z-score = overbought = short signal
-                components.append(('zscore', -measurements[key]))
-
-        # Distance from VWAP
-        if 'dist_from_vwap_z' in measurements:
-            components.append(('vwap', -measurements['dist_from_vwap_z']))
-
-        # RSI extremes (but inverted for MR)
-        if 'rsi_14_z' in measurements:
-            rsi = measurements['rsi_14_z']
-            # Strong RSI = fade it in MR regime
-            components.append(('rsi_mr', -rsi))
-
-        if not components:
-            return Signal(self.name, self.signal_type, 0, 0, [])
-
-        values = [c[1] for c in components]
-        sources = [c[0] for c in components]
-
-        signal_value = np.tanh(np.mean(values)) * regime_weight
-        confidence = (1 - abs(hurst)) * regime_weight  # More confident when Hurst near 0
+        # Confidence: how aligned are the derivatives?
+        confidence = 1.0 - np.std(components)
 
         return Signal(self.name, self.signal_type, signal_value, confidence, sources)
 
 
-class VolatilityBreakoutSignalGenerator(SignalGenerator):
+class EnergySignalGenerator(SignalGenerator):
     """
-    Volatility breakout signal.
+    Signal from energy state and transitions.
 
-    High vol + direction = breakout.
-    But relationships may INVERT during extreme volatility.
+    Physics principle: Energy must go somewhere.
+    - High KE = motion (trending)
+    - High PE = compression (coiled spring)
+    - Energy release rate = imminent move
     """
 
     def __init__(self):
-        super().__init__("vol_breakout", SignalType.VOLATILITY_BREAKOUT)
+        super().__init__("energy", SignalType.ENERGY)
 
     def generate(self, measurements: Dict[str, float]) -> Signal:
         components = []
+        sources = []
 
-        # Vol-of-vol (regime uncertainty)
-        vov = measurements.get('vol_of_vol_z', 0)
+        # Kinetic energy percentile
+        ke = measurements.get('kinetic_energy_pct', 0.5)
 
-        # Kinetic energy (price velocity squared)
-        ke = measurements.get('kinetic_energy_z', 0)
+        # Potential energy (compression) percentile
+        pe_compression = measurements.get('potential_energy_compression_pct', 0.5)
+
+        # Energy efficiency ratio
+        efficiency = measurements.get('energy_efficiency_pct', 0.5)
 
         # Energy release rate
-        err = measurements.get('energy_release_rate_z', 0)
+        release_rate = measurements.get('energy_release_rate_pct', 0.5)
 
-        # Direction from momentum
-        roc = measurements.get('roc_10_z', 0)
+        # Phase compression (high PE, low KE, low entropy)
+        phase_comp = measurements.get('phase_compression_pct', 0.5)
 
-        # Breakout signal: high energy + clear direction
-        energy_level = np.sqrt(ke**2 + err**2) if ke > 0 or err > 0 else 0
-        direction = np.sign(roc)
+        # Release potential (compression × low entropy)
+        release_potential = measurements.get('release_potential_pct', 0.5)
 
-        # BUT: If vol-of-vol is extreme, relationships may invert
-        # This is the physics insight
-        if abs(vov) > 2:
-            # Extreme uncertainty - reduce confidence, maybe invert
-            inversion_factor = -0.5  # Partial inversion
-        else:
-            inversion_factor = 1.0
+        # Signal logic:
+        # High KE with positive release rate = momentum continuing
+        # High PE with rising release rate = breakout imminent
+        # High phase compression = coiled spring
 
-        signal_value = np.tanh(energy_level * direction * inversion_factor)
-        confidence = min(1.0, energy_level / 2)
+        ke_signal = (ke - 0.5) * 2
+        release_signal = (release_rate - 0.5) * 2
+        compression_signal = (phase_comp - 0.5) * 1.5  # Compression matters
 
-        sources = ['kinetic_energy', 'energy_release_rate', 'roc']
+        components.extend([ke_signal, release_signal, compression_signal])
+        sources.extend(['kinetic_energy', 'energy_release_rate', 'phase_compression'])
+
+        if not components:
+            return Signal(self.name, self.signal_type, 0, 0, [])
+
+        # Combine energy signals
+        # High energy state (KE or compression) with positive release = bullish
+        signal_value = np.tanh(np.mean(components))
+
+        # Confidence based on energy magnitude
+        confidence = min(1.0, abs(ke - 0.5) + abs(release_rate - 0.5))
+
         return Signal(self.name, self.signal_type, signal_value, confidence, sources)
 
 
 class FlowRegimeSignalGenerator(SignalGenerator):
     """
-    Flow regime signal based on Reynolds number.
+    Signal from fluid dynamics regime.
 
-    KEY INSIGHT: Reynolds should be INVERSE to ROC during instability.
-    When this breaks, it's a regime shift signal.
+    KEY PHYSICS INSIGHT: Reynolds number determines flow regime.
+    - High Re = turbulent (chaotic, relationships may invert)
+    - Low Re = laminar (smooth, predictable)
+
+    Damping coefficient indicates friction/mean-reversion tendency.
     """
 
     def __init__(self):
-        super().__init__("flow_regime", SignalType.FLOW_REGIME)
+        super().__init__("flow_regime", SignalType.FLOW)
 
     def generate(self, measurements: Dict[str, float]) -> Signal:
-        # Reynolds number
-        reynolds = measurements.get('reynolds_z', 0)
+        # Reynolds number percentile
+        reynolds = measurements.get('reynolds_pct', 0.5)
 
-        # Reynolds-ROC inverse relationship
-        inverse_corr = measurements.get('reynolds_roc_inverse', 0)
+        # Damping coefficient
+        damping = measurements.get('damping_pct', 0.5)
 
-        # Flow regime (0=laminar, 1=transitional, 2=turbulent)
-        flow = measurements.get('flow_regime', 1)
+        # Viscosity (resistance to flow)
+        viscosity = measurements.get('viscosity_pct', 0.5)
 
-        # Entropy rate
-        entropy = measurements.get('entropy_rate_z', 0)
+        # Liquidity
+        liquidity = measurements.get('liquidity_pct', 0.5)
 
-        # The signal is about REGIME, not direction
-        # Laminar + low entropy = stable, trend-following works
-        # Turbulent + high entropy = unstable, be cautious
+        # Reynolds-momentum correlation (should be inverse in stable regime)
+        re_mom_corr = measurements.get('reynolds_momentum_corr_pct', 0.5)
 
-        if flow == 0:  # Laminar
-            regime_quality = 1.0  # Good for trading
-        elif flow == 2:  # Turbulent
-            regime_quality = -0.5  # Be cautious
-        else:  # Transitional
-            regime_quality = 0.0  # Neutral
+        # Re-damping ratio
+        re_damping = measurements.get('re_damping_ratio_pct', 0.5)
 
-        # The inverse correlation breaking is THE key signal
-        # Normal: Reynolds and ROC should be negatively correlated
-        # If they become positively correlated, regime is shifting
-        if inverse_corr > 0.3:  # Should be negative, but it's positive
-            regime_shift = 1.0  # Warning: relationships inverting
+        # Regime classification:
+        # High Reynolds (>0.8) = turbulent → be cautious
+        # Low damping (<0.3) = trending → follow momentum
+        # High damping (>0.7) = mean-reverting → fade moves
+
+        sources = ['reynolds', 'damping', 'viscosity', 'liquidity']
+
+        # Regime quality signal (positive = good for trading)
+        if reynolds < 0.3:
+            # Laminar regime - stable, predictable
+            regime_quality = 0.3
+        elif reynolds > 0.8:
+            # Turbulent - chaotic, avoid
+            regime_quality = -0.5
+        else:
+            # Transitional
+            regime_quality = 0.0
+
+        # Flow direction from Re-momentum relationship
+        # If relationship is breaking (re_mom_corr > 0.6), regime is shifting
+        if re_mom_corr > 0.7:
+            regime_shift = 0.5  # Warning signal
         else:
             regime_shift = 0.0
 
-        # This signal is about "should we trade" not "which direction"
         signal_value = regime_quality - regime_shift
 
-        # Confidence based on how extreme the readings are
-        confidence = 1.0 - abs(regime_shift)
+        # Confidence based on how clear the regime is
+        confidence = 1.0 - abs(reynolds - 0.5)
 
-        sources = ['reynolds', 'reynolds_roc_inverse', 'flow_regime', 'entropy_rate']
+        return Signal(self.name, self.signal_type, signal_value, confidence, sources)
+
+
+class ThermodynamicsSignalGenerator(SignalGenerator):
+    """
+    Signal from entropy and phase state.
+
+    Physics principle:
+    - Low entropy = ordered = predictable
+    - High entropy = disordered = random
+    - Rising entropy rate = system becoming chaotic
+    - Falling entropy rate = system becoming ordered
+    """
+
+    def __init__(self):
+        super().__init__("thermodynamics", SignalType.THERMODYNAMICS)
+
+    def generate(self, measurements: Dict[str, float]) -> Signal:
+        # Entropy percentile
+        entropy = measurements.get('entropy_pct', 0.5)
+
+        # Entropy rate (change in entropy)
+        entropy_rate = measurements.get('entropy_rate_pct', 0.5)
+
+        # Phase compression (ordered energy state)
+        phase_comp = measurements.get('phase_compression_pct', 0.5)
+
+        # Entropy-energy phase interaction
+        entropy_energy = measurements.get('entropy_energy_phase_pct', 0.5)
+
+        sources = ['entropy', 'entropy_rate', 'phase_compression']
+
+        # Signal logic:
+        # Low entropy + falling entropy rate = system ordering → trend forming
+        # High entropy + rising entropy rate = increasing chaos → avoid
+        # High phase compression = ordered energy state → potential breakout
+
+        order_signal = (0.5 - entropy) * 2  # Low entropy = positive
+        trend_forming = (0.5 - entropy_rate) * 1.5  # Falling rate = positive
+        compression_signal = (phase_comp - 0.5) * 2
+
+        signal_value = np.tanh((order_signal + trend_forming + compression_signal) / 3)
+
+        # Confidence: low entropy = more predictable = higher confidence
+        confidence = 1.0 - entropy
+
         return Signal(self.name, self.signal_type, signal_value, confidence, sources)
 
 
 class MicrostructureSignalGenerator(SignalGenerator):
     """
-    Microstructure signal - execution quality.
+    Signal from market microstructure.
 
-    High spread + low volume = bad execution.
-    But this is about WHEN to trade, not direction.
+    About WHEN to trade, not direction.
+    - Wide spread = bad execution
+    - Low volume = low liquidity
+    - Volume surge = potential news/action
     """
 
     def __init__(self):
         super().__init__("microstructure", SignalType.MICROSTRUCTURE)
 
     def generate(self, measurements: Dict[str, float]) -> Signal:
-        # Spread ratio (high = bad)
-        spread = measurements.get('spread_ratio_z', 0)
+        # Spread percentile (high = wide spread = bad)
+        spread = measurements.get('spread_pct_pct', 0.5)
 
-        # Volume ratio (low = bad)
-        volume = measurements.get('volume_ratio_z', 0)
+        # Volume surge (high = unusual activity)
+        volume_surge = measurements.get('volume_surge_pct', 0.5)
 
-        # Liquidity score (high = good)
-        liquidity = measurements.get('liquidity_score_z', 0)
+        # Volume trend (rising = increasing interest)
+        volume_trend = measurements.get('volume_trend_pct', 0.5)
 
-        # Tick intensity (sudden spike = news)
-        tick = measurements.get('tick_intensity_z', 0)
+        # Liquidity from flow measures
+        liquidity = measurements.get('liquidity_pct', 0.5)
 
-        # Composite execution quality
-        # High liquidity, low spread, normal tick = good
-        execution_quality = liquidity - spread - abs(tick - 1)
+        sources = ['spread_pct', 'volume_surge', 'volume_trend', 'liquidity']
 
-        # This is NOT a directional signal
-        # It's "is now a good time to execute"
-        signal_value = np.tanh(execution_quality)
-        confidence = min(1.0, abs(liquidity))
+        # Execution quality:
+        # Good: low spread, high liquidity, moderate volume
+        # Bad: high spread, low liquidity, extreme volume (could be news)
 
-        sources = ['spread_ratio', 'volume_ratio', 'liquidity_score', 'tick_intensity']
+        spread_quality = (0.5 - spread)  # Low spread = positive
+        liquidity_quality = (liquidity - 0.5)
+
+        # Volume surge is mixed - could be opportunity or danger
+        # Moderate surge is good, extreme surge is warning
+        if volume_surge > 0.9:
+            volume_signal = -0.3  # Extreme = caution
+        elif volume_surge > 0.6:
+            volume_signal = 0.2  # Good activity
+        else:
+            volume_signal = 0.0  # Low activity
+
+        # This is about execution quality, not direction
+        signal_value = np.tanh(spread_quality + liquidity_quality + volume_signal)
+
+        # Confidence based on liquidity
+        confidence = min(1.0, liquidity)
+
         return Signal(self.name, self.signal_type, signal_value, confidence, sources)
 
 
@@ -335,20 +378,20 @@ class MicrostructureSignalGenerator(SignalGenerator):
 
 class CompositeStacker:
     """
-    Stacks multiple signal generators and learns weights per asset class.
+    Stacks multiple physics-based signal generators and learns weights per asset class.
 
-    CRITICAL: No hardcoded weights. Agent learns what works.
+    CRITICAL: No hardcoded weights. Agent learns what works from physics state.
     """
 
     def __init__(self, asset_class: str):
         self.asset_class = asset_class
 
-        # Signal generators
+        # Physics-based signal generators (NO traditional indicators)
         self.generators: Dict[str, SignalGenerator] = {
-            'momentum': MomentumSignalGenerator(),
-            'mean_reversion': MeanReversionSignalGenerator(),
-            'vol_breakout': VolatilityBreakoutSignalGenerator(),
+            'kinematics': KinematicsSignalGenerator(),
+            'energy': EnergySignalGenerator(),
             'flow_regime': FlowRegimeSignalGenerator(),
+            'thermodynamics': ThermodynamicsSignalGenerator(),
             'microstructure': MicrostructureSignalGenerator(),
         }
 
@@ -359,7 +402,7 @@ class CompositeStacker:
         self.generator_performance: Dict[str, List[Tuple[float, float]]] = defaultdict(list)
 
     def generate_composite(self, measurements: Dict[str, float]) -> Dict[str, Signal]:
-        """Generate all signals."""
+        """Generate all physics-based signals."""
         signals = {}
         for name, generator in self.generators.items():
             signals[name] = generator.generate(measurements)
@@ -458,12 +501,12 @@ class CompositeStacker:
 
 class ClassDiscoveryEngine:
     """
-    Discovers what works per asset class.
+    Discovers what physics patterns work per asset class.
 
     Tracks:
-    - Which measurements correlate with good outcomes per class
+    - Which physics measurements correlate with good outcomes per class
     - Which signal generators are reliable per class
-    - How relationships change during volatility
+    - How relationships change during high-energy regimes
     """
 
     def __init__(self):
@@ -487,7 +530,7 @@ class ClassDiscoveryEngine:
         """
         Get learned profile for asset class.
 
-        Returns what we've discovered about this class.
+        Returns what we've discovered about physics patterns for this class.
         """
         if asset_class not in self.class_stackers:
             return {'status': 'not_enough_data'}
@@ -504,7 +547,7 @@ class ClassDiscoveryEngine:
             'discoveries': self.class_discoveries.get(asset_class, {}),
         }
 
-        # Identify dominant signal type for this class
+        # Identify dominant physics signal type for this class
         best_generator = max(stacker.weights.items(), key=lambda x: x[1])
         profile['dominant_signal'] = best_generator[0]
         profile['dominant_weight'] = best_generator[1]
@@ -513,9 +556,9 @@ class ClassDiscoveryEngine:
 
     def compare_classes(self) -> pd.DataFrame:
         """
-        Compare what works across classes.
+        Compare what physics patterns work across classes.
 
-        This is THE key output - shows that "trending" means different things.
+        This is THE key output - shows that physics regimes differ by class.
         """
         rows = []
 
@@ -539,25 +582,26 @@ class ClassDiscoveryEngine:
 
 class InverseRelationshipTracker:
     """
-    Tracks when relationships INVERT during volatility.
+    Tracks when physics relationships INVERT during high-energy regimes.
 
     This is the physics insight: turbulent flow changes everything.
+    Relationships that work in laminar regime may invert in turbulent.
     """
 
     def __init__(self):
         # Track measurement pairs and their correlation over time
         self.correlation_history: Dict[Tuple[str, str], List[Tuple[float, float]]] = defaultdict(list)
-        # vol_level, correlation
+        # (energy_level, correlation)
 
     def record_correlation(self, meas1: str, meas2: str,
-                           correlation: float, volatility_level: float):
-        """Record correlation between two measurements at given vol level."""
+                           correlation: float, energy_level: float):
+        """Record correlation between two physics measurements at given energy level."""
         key = (min(meas1, meas2), max(meas1, meas2))
-        self.correlation_history[key].append((volatility_level, correlation))
+        self.correlation_history[key].append((energy_level, correlation))
 
     def find_inversions(self, min_samples: int = 50) -> List[Dict]:
         """
-        Find measurement pairs whose relationship inverts with volatility.
+        Find physics measurement pairs whose relationship inverts with energy.
 
         Returns list of discoveries.
         """
@@ -567,20 +611,20 @@ class InverseRelationshipTracker:
             if len(history) < min_samples:
                 continue
 
-            # Split by volatility
-            vol_levels = [h[0] for h in history]
+            # Split by energy level
+            energy_levels = [h[0] for h in history]
             correlations = [h[1] for h in history]
 
-            median_vol = np.median(vol_levels)
+            median_energy = np.median(energy_levels)
 
-            low_vol_corr = [c for v, c in history if v < median_vol]
-            high_vol_corr = [c for v, c in history if v >= median_vol]
+            low_energy_corr = [c for e, c in history if e < median_energy]
+            high_energy_corr = [c for e, c in history if e >= median_energy]
 
-            if len(low_vol_corr) < 10 or len(high_vol_corr) < 10:
+            if len(low_energy_corr) < 10 or len(high_energy_corr) < 10:
                 continue
 
-            mean_low = np.mean(low_vol_corr)
-            mean_high = np.mean(high_vol_corr)
+            mean_low = np.mean(low_energy_corr)
+            mean_high = np.mean(high_energy_corr)
 
             # Check for inversion (sign change or significant shift)
             if np.sign(mean_low) != np.sign(mean_high):
@@ -611,12 +655,12 @@ class InverseRelationshipTracker:
 
 class ExplorationEngine:
     """
-    Main interface for exploring measurements and composites.
+    Main interface for physics-based exploration.
 
     Combines:
-    - MeasurementEngine (compute all measurements)
-    - CompositeStacker (combine signals)
-    - ClassDiscoveryEngine (learn per class)
+    - Physics measurements (NO traditional indicators)
+    - CompositeStacker (combine physics signals)
+    - ClassDiscoveryEngine (learn physics patterns per class)
     - InverseRelationshipTracker (find inversions)
     """
 
@@ -625,7 +669,6 @@ class ExplorationEngine:
         try:
             from .measurements import MeasurementEngine
         except ImportError:
-            # Fallback for direct module loading
             import importlib.util
             from pathlib import Path
             spec = importlib.util.spec_from_file_location(
@@ -641,13 +684,13 @@ class ExplorationEngine:
     def process_bar(self, asset_class: str, measurements: Dict[str, float],
                     volatility_level: float) -> Dict:
         """
-        Process a single bar for an instrument.
+        Process a single bar using physics measurements.
 
         Returns signals and features for RL.
         """
         stacker = self.discovery_engine.get_stacker(asset_class)
 
-        # Generate signals
+        # Generate physics-based signals
         signals = stacker.generate_composite(measurements)
 
         # Get composite
@@ -667,23 +710,23 @@ class ExplorationEngine:
     def record_trade_outcome(self, asset_class: str, signals: Dict[str, Signal],
                              pnl: float, measurements: Dict[str, float],
                              volatility_level: float):
-        """Record trade outcome for learning."""
+        """Record trade outcome for physics pattern learning."""
         stacker = self.discovery_engine.get_stacker(asset_class)
 
         # Record outcome for each signal generator
         stacker.record_outcome(signals, pnl)
 
         # Update weights periodically
-        if len(stacker.generator_performance['momentum']) % 50 == 0:
+        if len(stacker.generator_performance.get('kinematics', [])) % 50 == 0:
             stacker.update_weights()
 
-        # Track inverse relationships
-        # Compare a few key measurement pairs
+        # Track inverse relationships between physics measures
+        # These are the key pairs that may invert during high-energy regimes
         pairs = [
-            ('reynolds_z', 'roc_10_z'),
-            ('vol_yang_zhang_z', 'rsi_14_z'),
-            ('hurst_z', 'adx_z'),
-            ('entropy_rate_z', 'kinetic_energy_z'),
+            ('reynolds_pct', 'momentum_pct'),       # Re vs momentum
+            ('kinetic_energy_pct', 'entropy_pct'),  # KE vs entropy
+            ('damping_pct', 'velocity_pct'),        # Damping vs velocity
+            ('phase_compression_pct', 'jerk_pct'),  # Compression vs jerk
         ]
 
         for m1, m2 in pairs:
@@ -692,7 +735,7 @@ class ExplorationEngine:
                 self.inverse_tracker.record_correlation(m1, m2, corr, volatility_level)
 
     def get_discoveries(self) -> Dict:
-        """Get all discoveries so far."""
+        """Get all physics pattern discoveries so far."""
         return {
             'class_profiles': {
                 cls: self.discovery_engine.get_class_profile(cls)
@@ -708,10 +751,10 @@ __all__ = [
     'SignalType',
     'Signal',
     'SignalGenerator',
-    'MomentumSignalGenerator',
-    'MeanReversionSignalGenerator',
-    'VolatilityBreakoutSignalGenerator',
+    'KinematicsSignalGenerator',
+    'EnergySignalGenerator',
     'FlowRegimeSignalGenerator',
+    'ThermodynamicsSignalGenerator',
     'MicrostructureSignalGenerator',
     'CompositeStacker',
     'ClassDiscoveryEngine',

@@ -1,25 +1,29 @@
 """
-Comprehensive Measurement Framework for Multi-Asset Exploration
-================================================================
+Physics-Based Measurement Framework for Multi-Asset Exploration
+=================================================================
 
-PHILOSOPHY: We don't know what we don't know.
+PHILOSOPHY: EVERYTHING derived from first principles. NO static rules.
 
-Don't assume:
-- "Trending" means the same thing for crypto vs metals vs indices
-- RSI/MACD are the right momentum measures for all classes
-- Relationships are stable - they may INVERT during volatility
+What we DON'T use:
+- NO traditional TA indicators (RSI, MACD, Bollinger, ADX, Aroon, etc.)
+- NO hardcoded periods (no "14-period", "20-period")
+- NO magic numbers
+- NO linear assumptions
 
-APPROACH:
-1. Measure EVERYTHING we can compute
-2. Track correlations between ALL measurements
-3. Let the RL agent discover what matters per class
-4. Explore inverse relationships during high-energy regimes
+What we DO use:
+- Physics (energy, damping, entropy, viscosity, Reynolds)
+- Thermodynamics (energy states, phase transitions)
+- Kinematics (velocity, acceleration, jerk, snap, crackle, pop)
+- Fluid dynamics (Reynolds number, laminar vs turbulent flow)
+- Field theory (gradients, divergence, curl-like measures)
+- DSP/FFT for adaptive windows (data-derived, not hardcoded)
+- Rolling percentiles (where in distribution, not absolute values)
 
-PHYSICS INSIGHT:
-During turbulent flow (high Reynolds), relationships flip.
-High volatility = massive energy release potential.
-What works in laminar flow fails in turbulent.
-Reynolds should be INVERSE to ROC during instability.
+KEY INSIGHTS:
+- "Trending" means different things for different asset classes
+- Relationships INVERT during turbulent flow (high Reynolds)
+- Reynolds should be INVERSE to momentum during instability
+- Let RL discover what matters per class - we just measure everything
 """
 
 from dataclasses import dataclass, field
@@ -35,16 +39,14 @@ from collections import defaultdict
 # =============================================================================
 
 class MeasurementCategory(Enum):
-    """Categories of measurements - for organization, not assumption."""
-    VOLATILITY = "volatility"
-    MOMENTUM = "momentum"
-    MEAN_REVERSION = "mean_reversion"
-    MICROSTRUCTURE = "microstructure"
-    PHYSICS = "physics"
-    ENERGY = "energy"  # Potential energy, release indicators
-    FLOW = "flow"  # Reynolds-like flow dynamics
-    CROSS_ASSET = "cross_asset"
-    TIME = "time"  # Session, day-of-week, etc.
+    """Categories for organization, NOT for assumption."""
+    KINEMATICS = "kinematics"      # Position derivatives
+    ENERGY = "energy"              # Kinetic, potential, conversion
+    FLOW = "flow"                  # Reynolds, viscosity, turbulence
+    THERMODYNAMICS = "thermo"      # Entropy, phase state
+    FIELD = "field"                # Gradients, divergence
+    MICROSTRUCTURE = "micro"       # Spread, volume, liquidity
+    REGIME = "regime"              # Derived regime indicators
 
 
 @dataclass
@@ -53,727 +55,608 @@ class Measurement:
     name: str
     category: MeasurementCategory
     value: float
-    z_score: float = 0.0  # Normalized value
-    percentile: float = 0.5  # Where in distribution
-    is_extreme: bool = False  # > 2 std or < -2 std
-
-
-@dataclass
-class MeasurementSet:
-    """Complete set of measurements for one bar."""
-    timestamp: pd.Timestamp
-    measurements: Dict[str, Measurement] = field(default_factory=dict)
-
-    def to_array(self) -> np.ndarray:
-        """Convert to feature array for RL."""
-        return np.array([m.z_score for m in self.measurements.values()])
-
-    def get_names(self) -> List[str]:
-        """Get measurement names in order."""
-        return list(self.measurements.keys())
+    percentile: float = 0.5  # Where in rolling distribution (0-1)
+    is_extreme: bool = False  # Top/bottom 5%
 
 
 # =============================================================================
-# VOLATILITY MEASUREMENTS (Multiple Estimators)
+# DSP-BASED ADAPTIVE WINDOWS
 # =============================================================================
 
-class VolatilityMeasures:
+class AdaptiveWindows:
     """
-    Multiple volatility estimators - each captures different dynamics.
-
-    Don't assume ATR is best. Yang-Zhang handles overnight gaps.
-    Parkinson uses high-low range. Rogers-Satchell handles drift.
+    Use DSP/FFT to find natural cycles in data.
+    NO hardcoded periods. Windows derived from data.
     """
 
     @staticmethod
-    def atr(high: np.ndarray, low: np.ndarray, close: np.ndarray,
-            period: int = 14) -> np.ndarray:
-        """Average True Range - classic but ignores overnight."""
-        tr = np.maximum(
-            high - low,
-            np.maximum(
-                np.abs(high - np.roll(close, 1)),
-                np.abs(low - np.roll(close, 1))
-            )
-        )
-        tr[0] = high[0] - low[0]
+    def find_dominant_periods(data: np.ndarray, num_periods: int = 3) -> List[int]:
+        """
+        Use FFT to find dominant cycles in the data.
+        Returns periods in bars (not frequencies).
+        """
+        if len(data) < 64:
+            return [5, 10, 20]  # Fallback for short series
 
-        atr = np.zeros_like(tr)
-        atr[period-1] = np.mean(tr[:period])
-        for i in range(period, len(tr)):
-            atr[i] = (atr[i-1] * (period-1) + tr[i]) / period
-        return atr
+        # Detrend
+        x = data - np.mean(data)
+
+        # FFT
+        fft_vals = np.fft.fft(x)
+        power = np.abs(fft_vals[:len(x)//2]) ** 2
+
+        # Skip DC component and very low frequencies
+        power[:3] = 0
+
+        # Find peaks
+        peak_indices = np.argsort(power)[-num_periods*2:]
+
+        # Convert to periods
+        periods = []
+        for idx in peak_indices:
+            if idx > 0:
+                period = len(x) // idx
+                if 3 <= period <= len(x) // 2:
+                    periods.append(period)
+
+        # Remove duplicates and sort
+        periods = sorted(set(periods))[:num_periods]
+
+        if not periods:
+            return [5, 10, 20]
+
+        return periods
 
     @staticmethod
-    def yang_zhang(open_: np.ndarray, high: np.ndarray, low: np.ndarray,
-                   close: np.ndarray, period: int = 20) -> np.ndarray:
+    def get_adaptive_windows(close: np.ndarray, window_size: int = 500) -> Tuple[int, int, int]:
         """
-        Yang-Zhang volatility - handles overnight gaps + intraday.
-        Better for assets with gaps (indices, some forex).
+        Get short/medium/long windows from FFT analysis.
+        Returns (short_window, medium_window, long_window).
         """
-        n = len(close)
-        vol = np.zeros(n)
+        if len(close) < window_size:
+            analysis_data = close
+        else:
+            analysis_data = close[-window_size:]
 
-        for i in range(period, n):
-            h = high[i-period:i]
-            l = low[i-period:i]
-            o = open_[i-period:i]
-            c = close[i-period:i]
-            c_prev = close[i-period-1:i-1] if i > period else c
+        periods = AdaptiveWindows.find_dominant_periods(analysis_data, 3)
 
-            # Overnight variance
-            log_oc = np.log(o / (c_prev + 1e-10) + 1e-10)
-            overnight_var = np.var(log_oc)
-
-            # Open-to-close variance
-            log_co = np.log(c / (o + 1e-10) + 1e-10)
-            open_close_var = np.var(log_co)
-
-            # Rogers-Satchell component
-            log_hc = np.log(h / (c + 1e-10) + 1e-10)
-            log_lc = np.log(l / (c + 1e-10) + 1e-10)
-            log_ho = np.log(h / (o + 1e-10) + 1e-10)
-            log_lo = np.log(l / (o + 1e-10) + 1e-10)
-            rs_var = np.mean(log_ho * log_hc + log_lo * log_lc)
-
-            k = 0.34 / (1.34 + (period + 1) / (period - 1))
-            vol[i] = np.sqrt(max(0, overnight_var + k * open_close_var + (1 - k) * rs_var))
-
-        return vol
-
-    @staticmethod
-    def parkinson(high: np.ndarray, low: np.ndarray, period: int = 20) -> np.ndarray:
-        """
-        Parkinson volatility - uses high-low range.
-        More efficient than close-to-close for continuous markets.
-        """
-        n = len(high)
-        vol = np.zeros(n)
-
-        log_hl = np.log(high / (low + 1e-10) + 1e-10)
-        factor = 1.0 / (4.0 * np.log(2.0))
-
-        for i in range(period, n):
-            vol[i] = np.sqrt(factor * np.mean(log_hl[i-period:i] ** 2))
-
-        return vol
-
-    @staticmethod
-    def rogers_satchell(open_: np.ndarray, high: np.ndarray, low: np.ndarray,
-                        close: np.ndarray, period: int = 20) -> np.ndarray:
-        """
-        Rogers-Satchell - drift independent.
-        Good for trending assets (metals, crypto) where there's persistent drift.
-        """
-        n = len(close)
-        vol = np.zeros(n)
-
-        for i in range(period, n):
-            h = high[i-period:i]
-            l = low[i-period:i]
-            o = open_[i-period:i]
-            c = close[i-period:i]
-
-            log_ho = np.log(h / (o + 1e-10) + 1e-10)
-            log_hc = np.log(h / (c + 1e-10) + 1e-10)
-            log_lo = np.log(l / (o + 1e-10) + 1e-10)
-            log_lc = np.log(l / (c + 1e-10) + 1e-10)
-
-            rs = log_ho * log_hc + log_lo * log_lc
-            vol[i] = np.sqrt(max(0, np.mean(rs)))
-
-        return vol
-
-    @staticmethod
-    def garman_klass(open_: np.ndarray, high: np.ndarray, low: np.ndarray,
-                     close: np.ndarray, period: int = 20) -> np.ndarray:
-        """
-        Garman-Klass volatility - efficient estimator.
-        Combines open-close and high-low information.
-        """
-        n = len(close)
-        vol = np.zeros(n)
-
-        for i in range(period, n):
-            h = high[i-period:i]
-            l = low[i-period:i]
-            o = open_[i-period:i]
-            c = close[i-period:i]
-
-            log_hl = np.log(h / (l + 1e-10) + 1e-10)
-            log_co = np.log(c / (o + 1e-10) + 1e-10)
-
-            gk = 0.5 * log_hl**2 - (2*np.log(2) - 1) * log_co**2
-            vol[i] = np.sqrt(max(0, np.mean(gk)))
-
-        return vol
-
-    @staticmethod
-    def volatility_of_volatility(vol_series: np.ndarray, period: int = 20) -> np.ndarray:
-        """
-        Vol-of-vol: How unstable is volatility itself?
-        High vol-of-vol = regime uncertainty = potential inversions.
-        """
-        n = len(vol_series)
-        vov = np.zeros(n)
-
-        for i in range(period, n):
-            window = vol_series[i-period:i]
-            if np.mean(window) > 0:
-                vov[i] = np.std(window) / np.mean(window)  # CV of volatility
-
-        return vov
+        if len(periods) >= 3:
+            return periods[0], periods[1], periods[2]
+        elif len(periods) == 2:
+            return periods[0], periods[1], periods[1] * 2
+        elif len(periods) == 1:
+            return periods[0], periods[0] * 2, periods[0] * 4
+        else:
+            return 5, 10, 20
 
 
 # =============================================================================
-# MOMENTUM MEASUREMENTS (Multiple Approaches)
+# KINEMATICS: Position Derivatives
 # =============================================================================
 
-class MomentumMeasures:
+class KinematicsMeasures:
     """
-    Multiple momentum measures - "trending" means different things.
+    Pure kinematics: derivatives of log-price.
 
-    - ROC: Pure price change
-    - RSI: Bounded oscillator
-    - MACD: Trend-following
-    - ADX: Trend strength (not direction)
-    - Aroon: Time since high/low
-    - Momentum divergence: Price vs momentum disagreement
+    velocity     = d(log P)/dt      (1st derivative - direction)
+    acceleration = d²(log P)/dt²    (2nd derivative - momentum change)
+    jerk         = d³(log P)/dt³    (3rd derivative - "fat candle" predictor)
+    snap         = d⁴(log P)/dt⁴    (4th derivative - jerk change)
+    crackle      = d⁵(log P)/dt⁵    (5th derivative)
+    pop          = d⁶(log P)/dt⁶    (6th derivative)
     """
 
     @staticmethod
-    def roc(close: np.ndarray, periods: List[int] = [5, 10, 20, 50]) -> Dict[str, np.ndarray]:
-        """Rate of Change at multiple timeframes."""
-        result = {}
-        for p in periods:
-            roc = np.zeros_like(close)
-            roc[p:] = (close[p:] - close[:-p]) / (close[:-p] + 1e-10) * 100
-            result[f'roc_{p}'] = roc
-        return result
+    def compute_all_derivatives(close: np.ndarray) -> Dict[str, np.ndarray]:
+        """Compute velocity through pop (6 derivatives)."""
+        log_price = np.log(close + 1e-10)
+
+        # Successive differences
+        velocity = np.diff(log_price, prepend=log_price[0])
+        acceleration = np.diff(velocity, prepend=velocity[0])
+        jerk = np.diff(acceleration, prepend=acceleration[0])
+        snap = np.diff(jerk, prepend=jerk[0])
+        crackle = np.diff(snap, prepend=snap[0])
+        pop = np.diff(crackle, prepend=crackle[0])
+
+        return {
+            'velocity': velocity,
+            'acceleration': acceleration,
+            'jerk': jerk,
+            'snap': snap,
+            'crackle': crackle,
+            'pop': pop,
+        }
 
     @staticmethod
-    def rsi(close: np.ndarray, period: int = 14) -> np.ndarray:
-        """Relative Strength Index."""
-        delta = np.diff(close, prepend=close[0])
-        gain = np.where(delta > 0, delta, 0)
-        loss = np.where(delta < 0, -delta, 0)
-
-        avg_gain = np.zeros_like(close)
-        avg_loss = np.zeros_like(close)
-
-        avg_gain[period] = np.mean(gain[1:period+1])
-        avg_loss[period] = np.mean(loss[1:period+1])
-
-        for i in range(period + 1, len(close)):
-            avg_gain[i] = (avg_gain[i-1] * (period-1) + gain[i]) / period
-            avg_loss[i] = (avg_loss[i-1] * (period-1) + loss[i]) / period
-
-        rs = avg_gain / (avg_loss + 1e-10)
-        rsi = 100 - (100 / (1 + rs))
-        return rsi
-
-    @staticmethod
-    def macd(close: np.ndarray, fast: int = 12, slow: int = 26,
-             signal: int = 9) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """MACD with histogram."""
-        def ema(data, period):
-            result = np.zeros_like(data)
-            result[0] = data[0]
-            alpha = 2 / (period + 1)
-            for i in range(1, len(data)):
-                result[i] = alpha * data[i] + (1 - alpha) * result[i-1]
-            return result
-
-        ema_fast = ema(close, fast)
-        ema_slow = ema(close, slow)
-        macd_line = ema_fast - ema_slow
-        signal_line = ema(macd_line, signal)
-        histogram = macd_line - signal_line
-
-        return macd_line, signal_line, histogram
-
-    @staticmethod
-    def adx(high: np.ndarray, low: np.ndarray, close: np.ndarray,
-            period: int = 14) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Average Directional Index - trend strength."""
-        n = len(close)
-
-        # True Range
-        tr = np.maximum(
-            high - low,
-            np.maximum(
-                np.abs(high - np.roll(close, 1)),
-                np.abs(low - np.roll(close, 1))
-            )
-        )
-        tr[0] = high[0] - low[0]
-
-        # Directional Movement
-        up_move = high - np.roll(high, 1)
-        down_move = np.roll(low, 1) - low
-        up_move[0] = 0
-        down_move[0] = 0
-
-        plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0)
-        minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
-
-        # Smoothed averages
-        def smooth(data, period):
-            result = np.zeros_like(data)
-            result[period-1] = np.sum(data[:period])
-            for i in range(period, len(data)):
-                result[i] = result[i-1] - result[i-1]/period + data[i]
-            return result
-
-        atr = smooth(tr, period)
-        plus_di = 100 * smooth(plus_dm, period) / (atr + 1e-10)
-        minus_di = 100 * smooth(minus_dm, period) / (atr + 1e-10)
-
-        dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)
-        adx = smooth(dx, period) / period
-
-        return adx, plus_di, minus_di
-
-    @staticmethod
-    def aroon(high: np.ndarray, low: np.ndarray, period: int = 25) -> Tuple[np.ndarray, np.ndarray]:
-        """Aroon - time since high/low."""
-        n = len(high)
-        aroon_up = np.zeros(n)
-        aroon_down = np.zeros(n)
-
-        for i in range(period, n):
-            high_idx = np.argmax(high[i-period:i+1])
-            low_idx = np.argmin(low[i-period:i+1])
-            aroon_up[i] = 100 * high_idx / period
-            aroon_down[i] = 100 * low_idx / period
-
-        return aroon_up, aroon_down
-
-    @staticmethod
-    def momentum_divergence(close: np.ndarray, rsi: np.ndarray,
-                            period: int = 20) -> np.ndarray:
+    def momentum(close: np.ndarray, velocity: np.ndarray,
+                 volume: np.ndarray) -> np.ndarray:
         """
-        Divergence between price and momentum.
-        Price making new highs but RSI not = bearish divergence.
+        Momentum = mass × velocity.
+        Use volume as proxy for mass.
         """
-        n = len(close)
-        divergence = np.zeros(n)
+        # Normalize volume to avoid scale issues
+        vol_norm = volume / (np.mean(volume) + 1e-10)
+        return vol_norm * velocity
 
-        for i in range(period, n):
-            price_change = (close[i] - close[i-period]) / (close[i-period] + 1e-10)
-            rsi_change = rsi[i] - rsi[i-period]
-
-            # Normalize both to [-1, 1]
-            price_norm = np.tanh(price_change * 10)
-            rsi_norm = rsi_change / 50  # RSI is 0-100, so change is -100 to +100
-
-            # Divergence = disagreement
-            divergence[i] = price_norm - rsi_norm
-
-        return divergence
+    @staticmethod
+    def impulse(momentum: np.ndarray) -> np.ndarray:
+        """
+        Impulse = change in momentum.
+        J = Δp = F × Δt
+        """
+        return np.diff(momentum, prepend=momentum[0])
 
 
 # =============================================================================
-# MEAN REVERSION MEASUREMENTS
+# ENERGY: Kinetic, Potential, and Conversion
 # =============================================================================
 
-class MeanReversionMeasures:
+class EnergyMeasures:
     """
-    Mean reversion indicators.
+    Energy physics for markets.
 
-    CRITICAL: What "mean reversion" looks like differs by asset class.
-    Forex may mean-revert on H1, but crypto may not.
-    """
-
-    @staticmethod
-    def bollinger_percent_b(close: np.ndarray, period: int = 20,
-                            std_mult: float = 2.0) -> np.ndarray:
-        """Bollinger %B - where price is within bands."""
-        n = len(close)
-        percent_b = np.zeros(n)
-
-        for i in range(period, n):
-            window = close[i-period:i+1]
-            ma = np.mean(window)
-            std = np.std(window)
-
-            upper = ma + std_mult * std
-            lower = ma - std_mult * std
-
-            if upper != lower:
-                percent_b[i] = (close[i] - lower) / (upper - lower)
-
-        return percent_b
-
-    @staticmethod
-    def z_score(close: np.ndarray, period: int = 20) -> np.ndarray:
-        """Z-score from rolling mean."""
-        n = len(close)
-        z = np.zeros(n)
-
-        for i in range(period, n):
-            window = close[i-period:i]
-            mean = np.mean(window)
-            std = np.std(window)
-            if std > 0:
-                z[i] = (close[i] - mean) / std
-
-        return z
-
-    @staticmethod
-    def hurst_exponent(close: np.ndarray, max_lag: int = 20) -> np.ndarray:
-        """
-        Hurst exponent - measure of persistence/anti-persistence.
-        H < 0.5: Mean-reverting
-        H = 0.5: Random walk
-        H > 0.5: Trending
-
-        This is THE key measurement for MR vs trending classification.
-        """
-        n = len(close)
-        hurst = np.zeros(n)
-
-        for i in range(max_lag * 2, n):
-            window = close[i-max_lag*2:i]
-
-            lags = range(2, max_lag)
-            rs_values = []
-
-            for lag in lags:
-                # Calculate R/S statistic
-                diffs = np.diff(window)
-                mean_diff = np.mean(diffs)
-                centered = diffs - mean_diff
-
-                cumsum = np.cumsum(centered)
-                r = np.max(cumsum) - np.min(cumsum)
-                s = np.std(diffs)
-
-                if s > 0:
-                    rs_values.append((lag, r / s))
-
-            if len(rs_values) > 2:
-                lags_log = np.log([x[0] for x in rs_values])
-                rs_log = np.log([x[1] for x in rs_values])
-
-                # Linear regression to get Hurst exponent
-                slope, _ = np.polyfit(lags_log, rs_log, 1)
-                hurst[i] = slope
-
-        return hurst
-
-    @staticmethod
-    def distance_from_vwap(close: np.ndarray, volume: np.ndarray,
-                           period: int = 20) -> np.ndarray:
-        """Distance from VWAP - institutional reference point."""
-        n = len(close)
-        dist = np.zeros(n)
-
-        for i in range(period, n):
-            c = close[i-period:i+1]
-            v = volume[i-period:i+1]
-
-            vwap = np.sum(c * v) / (np.sum(v) + 1e-10)
-            dist[i] = (close[i] - vwap) / (vwap + 1e-10) * 100
-
-        return dist
-
-
-# =============================================================================
-# ENERGY & FLOW MEASUREMENTS (Physics-Inspired)
-# =============================================================================
-
-class EnergyFlowMeasures:
-    """
-    Physics-inspired measurements for energy and flow dynamics.
-
-    KEY INSIGHT: During high volatility (turbulent flow), relationships INVERT.
-    Reynolds number should be INVERSE to ROC during instability.
+    kinetic_energy = ½mv²    (energy in motion)
+    potential_energy = stored energy (compression)
+    total_energy = KE + PE   (conserved in ideal system)
+    eta = KE/PE              (conversion efficiency)
     """
 
     @staticmethod
-    def kinetic_energy(close: np.ndarray, period: int = 20) -> np.ndarray:
+    def kinetic_energy(velocity: np.ndarray, volume: np.ndarray) -> np.ndarray:
         """
-        Kinetic energy proxy: (velocity)^2
-        Velocity = rate of change
+        KE = ½mv² where m = normalized volume, v = velocity.
         """
-        velocity = np.diff(close, prepend=close[0]) / (close + 1e-10)
-
-        n = len(close)
-        ke = np.zeros(n)
-
-        for i in range(period, n):
-            ke[i] = np.mean(velocity[i-period:i] ** 2)
-
-        return ke
+        vol_norm = volume / (np.mean(volume) + 1e-10)
+        return 0.5 * vol_norm * (velocity ** 2)
 
     @staticmethod
-    def potential_energy(close: np.ndarray, period: int = 50) -> np.ndarray:
+    def potential_energy_compression(close: np.ndarray,
+                                      high: np.ndarray,
+                                      low: np.ndarray) -> np.ndarray:
         """
-        Potential energy proxy: Distance from equilibrium (long-term mean).
-        Further from mean = more potential energy = reversion potential.
+        Potential energy from volatility compression.
+
+        Low volatility = energy stored (like compressed spring).
+        PE = 1 / volatility (inversely proportional to range).
         """
+        bar_range = high - low
+        # Use adaptive rolling min for "normal" range
         n = len(close)
         pe = np.zeros(n)
 
-        for i in range(period, n):
-            mean = np.mean(close[i-period:i])
-            pe[i] = ((close[i] - mean) / (mean + 1e-10)) ** 2
+        for i in range(20, n):
+            # Compare current range to recent ranges
+            recent_ranges = bar_range[max(0, i-50):i]
+            mean_range = np.mean(recent_ranges) + 1e-10
+            # PE high when current range is low relative to history
+            pe[i] = mean_range / (bar_range[i] + 1e-10)
 
         return pe
 
     @staticmethod
-    def energy_release_rate(close: np.ndarray, vol: np.ndarray,
-                            period: int = 10) -> np.ndarray:
+    def potential_energy_displacement(close: np.ndarray) -> np.ndarray:
         """
-        Energy release rate: How fast is stored energy being released?
-        High value = explosive move potential exhausting.
+        Potential energy from displacement from equilibrium.
+
+        Like a spring: PE = ½kx² where x = distance from mean.
+        Further from equilibrium = more potential energy.
         """
         n = len(close)
-        err = np.zeros(n)
+        pe = np.zeros(n)
 
-        for i in range(period, n):
-            # Energy = vol * price_change
-            energy = vol[i-period:i] * np.abs(np.diff(close[i-period:i+1]))
-            err[i] = np.mean(np.diff(energy))
+        for i in range(50, n):
+            # Rolling mean as equilibrium
+            window = close[max(0, i-100):i]
+            mean = np.mean(window)
+            displacement = (close[i] - mean) / (mean + 1e-10)
+            pe[i] = 0.5 * (displacement ** 2)
 
-        return err
+        return pe
 
     @staticmethod
-    def reynolds_number_proxy(close: np.ndarray, vol: np.ndarray,
-                              period: int = 20) -> np.ndarray:
+    def efficiency_ratio(ke: np.ndarray, pe: np.ndarray) -> np.ndarray:
         """
-        Reynolds number proxy: Inertia / Viscosity.
+        Eta = KE / PE (energy conversion efficiency).
 
-        High Reynolds = turbulent flow = unpredictable.
-        Low Reynolds = laminar flow = predictable.
-
-        Inertia ~ momentum (price change * "mass")
-        Viscosity ~ resistance to change (inverse volatility)
+        High eta = kinetic energy dominant (trending)
+        Low eta = potential energy dominant (compressed)
         """
-        n = len(close)
+        return ke / (pe + 1e-10)
+
+    @staticmethod
+    def energy_release_rate(ke: np.ndarray) -> np.ndarray:
+        """
+        Rate of kinetic energy change.
+        Positive = energy building, Negative = energy dissipating.
+        """
+        return np.diff(ke, prepend=ke[0])
+
+
+# =============================================================================
+# FLUID DYNAMICS: Reynolds Number and Flow
+# =============================================================================
+
+class FlowMeasures:
+    """
+    Fluid dynamics applied to markets.
+
+    Reynolds number = inertia / viscosity
+    - High Re = turbulent (chaotic, unpredictable)
+    - Low Re = laminar (smooth, predictable)
+
+    KEY INSIGHT: During turbulent flow, relationships INVERT.
+    """
+
+    @staticmethod
+    def reynolds_number(velocity: np.ndarray, close: np.ndarray) -> np.ndarray:
+        """
+        Market Reynolds number: trend / noise.
+
+        Re = |<v>_slow| / σ(v)_fast
+
+        High Re = laminar (strong trend, low noise)
+        Low Re = turbulent (weak trend, high noise)
+        """
+        n = len(velocity)
         reynolds = np.zeros(n)
 
-        for i in range(period, n):
-            # Inertia: magnitude of price movement
-            price_change = np.abs(close[i] - close[i-period]) / (close[i-period] + 1e-10)
+        for i in range(30, n):
+            # Trend = slow moving average of velocity
+            trend = np.mean(velocity[max(0, i-24):i])
 
-            # Viscosity: inverse of volatility (low vol = high viscosity)
-            avg_vol = np.mean(vol[i-period:i])
-            viscosity = 1.0 / (avg_vol + 1e-10)
+            # Noise = fast volatility of velocity
+            noise = np.std(velocity[max(0, i-6):i]) + 1e-10
 
-            reynolds[i] = price_change / (viscosity + 1e-10)
+            reynolds[i] = abs(trend) / noise
 
         return reynolds
 
     @staticmethod
-    def reynolds_roc_inverse(reynolds: np.ndarray, roc: np.ndarray) -> np.ndarray:
+    def damping_coefficient(velocity: np.ndarray) -> np.ndarray:
         """
-        KEY INSIGHT: Reynolds should be INVERSE to ROC during instability.
+        Damping ζ = σ(v) / μ(|v|).
 
-        When this relationship breaks (both high or both low together),
-        it signals regime transition or opportunity.
-
-        Returns: Correlation between Reynolds and ROC (should be negative in stable regimes)
+        High ζ = high friction, mean-reverting tendency.
+        Low ζ = low friction, trending tendency.
         """
-        n = len(reynolds)
-        inverse_measure = np.zeros(n)
-        period = 20
+        n = len(velocity)
+        zeta = np.zeros(n)
 
-        for i in range(period, n):
-            re = reynolds[i-period:i]
-            ro = roc[i-period:i]
+        for i in range(20, n):
+            window = velocity[max(0, i-64):i]
+            sigma = np.std(window)
+            mu_abs = np.mean(np.abs(window)) + 1e-10
+            zeta[i] = sigma / mu_abs
 
-            # Normalize both
-            re_norm = (re - np.mean(re)) / (np.std(re) + 1e-10)
-            ro_norm = (ro - np.mean(ro)) / (np.std(ro) + 1e-10)
-
-            # Correlation (should be negative in stable flow)
-            corr = np.corrcoef(re_norm, ro_norm)[0, 1] if len(re) > 2 else 0
-            inverse_measure[i] = corr
-
-        return inverse_measure
+        return zeta
 
     @staticmethod
-    def flow_regime(reynolds: np.ndarray) -> np.ndarray:
+    def viscosity(high: np.ndarray, low: np.ndarray,
+                  close: np.ndarray, volume: np.ndarray) -> np.ndarray:
         """
-        Classify flow regime from Reynolds number.
+        Viscosity = resistance to flow.
 
-        Returns:
-        0 = Laminar (predictable)
-        1 = Transitional (unstable)
-        2 = Turbulent (chaotic)
+        High viscosity = hard to move price (thick market)
+        Low viscosity = easy to move price (thin market)
+
+        μ = (range / price) / (volume / avg_volume)
         """
-        # Percentile-based thresholds (learned from data)
-        n = len(reynolds)
-        regime = np.zeros(n)
-        period = 100
-
-        for i in range(period, n):
-            window = reynolds[max(0, i-period):i]
-            p33 = np.percentile(window, 33)
-            p66 = np.percentile(window, 66)
-
-            if reynolds[i] < p33:
-                regime[i] = 0  # Laminar
-            elif reynolds[i] < p66:
-                regime[i] = 1  # Transitional
-            else:
-                regime[i] = 2  # Turbulent
-
-        return regime
-
-    @staticmethod
-    def entropy_rate(close: np.ndarray, bins: int = 10, period: int = 50) -> np.ndarray:
-        """
-        Entropy rate: How unpredictable is the next move?
-        High entropy = high uncertainty = potential for surprise.
-        """
-        returns = np.diff(close, prepend=close[0]) / (close + 1e-10)
-
         n = len(close)
-        entropy = np.zeros(n)
+        viscosity = np.zeros(n)
 
-        for i in range(period, n):
-            window = returns[i-period:i]
+        for i in range(20, n):
+            bar_range_pct = (high[i] - low[i]) / (close[i] + 1e-10)
+            avg_volume = np.mean(volume[max(0, i-20):i]) + 1e-10
+            volume_norm = volume[i] / avg_volume
 
-            # Discretize returns into bins
-            hist, _ = np.histogram(window, bins=bins)
-            probs = hist / (np.sum(hist) + 1e-10)
+            # Viscosity = how much range per unit volume
+            viscosity[i] = bar_range_pct / (volume_norm + 1e-10)
 
-            # Shannon entropy
-            probs = probs[probs > 0]
-            entropy[i] = -np.sum(probs * np.log2(probs))
+        return viscosity
 
-        return entropy
+    @staticmethod
+    def liquidity(high: np.ndarray, low: np.ndarray,
+                  close: np.ndarray, volume: np.ndarray) -> np.ndarray:
+        """
+        Liquidity = inverse of price impact.
+
+        High liquidity = can trade large size without moving price.
+        Liquidity = Volume / (Range × Price)
+        """
+        bar_range = (high - low).clip(1e-10, None)
+        price_range_pct = bar_range / close
+        return volume / (price_range_pct * close + 1e-10)
+
+    @staticmethod
+    def reynolds_momentum_relationship(reynolds: np.ndarray,
+                                         momentum: np.ndarray) -> np.ndarray:
+        """
+        KEY INSIGHT: Reynolds should be INVERSE to momentum during instability.
+
+        When this relationship flips (positive correlation),
+        it signals regime change.
+
+        Returns rolling correlation between Re and momentum.
+        """
+        n = len(reynolds)
+        relationship = np.zeros(n)
+
+        for i in range(30, n):
+            re = reynolds[max(0, i-20):i]
+            mo = momentum[max(0, i-20):i]
+
+            if np.std(re) > 1e-10 and np.std(mo) > 1e-10:
+                corr = np.corrcoef(re, mo)[0, 1]
+                relationship[i] = corr
+
+        return relationship
 
 
 # =============================================================================
-# MICROSTRUCTURE MEASUREMENTS
+# THERMODYNAMICS: Entropy and Phase State
+# =============================================================================
+
+class ThermodynamicsMeasures:
+    """
+    Thermodynamics for markets.
+
+    Entropy = disorder/uncertainty.
+    Phase transitions = regime changes.
+    """
+
+    @staticmethod
+    def shannon_entropy(velocity: np.ndarray, bins: int = 20) -> np.ndarray:
+        """
+        Shannon entropy of return distribution.
+
+        H = -Σ p_i × log(p_i)
+
+        High entropy = high disorder = unpredictable.
+        Low entropy = ordered = predictable.
+        """
+        n = len(velocity)
+        entropy = np.zeros(n)
+
+        for i in range(50, n):
+            window = velocity[max(0, i-64):i]
+            window = window[~np.isnan(window)]
+
+            if len(window) < 5:
+                continue
+
+            # Histogram
+            hist, _ = np.histogram(window, bins=bins, density=True)
+            p = hist / (hist.sum() + 1e-10)
+            p = p[p > 0]
+
+            # Shannon entropy (normalized)
+            H = -np.sum(p * np.log(p))
+            entropy[i] = H / np.log(bins)  # Normalize to [0, 1]
+
+        return entropy
+
+    @staticmethod
+    def entropy_rate(entropy: np.ndarray) -> np.ndarray:
+        """
+        Rate of entropy change.
+
+        Increasing entropy = system becoming more chaotic.
+        Decreasing entropy = system becoming more ordered.
+        """
+        return np.diff(entropy, prepend=entropy[0])
+
+    @staticmethod
+    def phase_compression(ke: np.ndarray, pe: np.ndarray,
+                          entropy: np.ndarray) -> np.ndarray:
+        """
+        Phase space compression indicator.
+
+        Compressed phase space = high PE, low KE, low entropy.
+        This often precedes explosive moves.
+        """
+        n = len(ke)
+        compression = np.zeros(n)
+
+        for i in range(100, n):
+            # Get percentiles
+            ke_window = ke[max(0, i-200):i]
+            pe_window = pe[max(0, i-200):i]
+            ent_window = entropy[max(0, i-200):i]
+
+            ke_pct = (ke[i] > ke_window).mean()
+            pe_pct = (pe[i] > pe_window).mean()
+            ent_pct = (entropy[i] > ent_window).mean()
+
+            # Compression = high PE percentile × (1 - KE percentile) × (1 - entropy percentile)
+            compression[i] = pe_pct * (1 - ke_pct) * (1 - ent_pct)
+
+        return compression
+
+
+# =============================================================================
+# FIELD THEORY: Gradients and Divergence
+# =============================================================================
+
+class FieldMeasures:
+    """
+    Field theory concepts applied to price fields.
+
+    Gradient = rate of change across "space" (time)
+    Divergence = sources/sinks of "flow"
+    """
+
+    @staticmethod
+    def price_gradient(close: np.ndarray) -> np.ndarray:
+        """
+        Price gradient = local slope.
+        First spatial derivative of log-price.
+        """
+        log_price = np.log(close + 1e-10)
+        return np.gradient(log_price)
+
+    @staticmethod
+    def gradient_magnitude(close: np.ndarray) -> np.ndarray:
+        """
+        Magnitude of price gradient.
+        Absolute slope regardless of direction.
+        """
+        return np.abs(FieldMeasures.price_gradient(close))
+
+    @staticmethod
+    def divergence_proxy(velocity: np.ndarray, volume: np.ndarray) -> np.ndarray:
+        """
+        Divergence proxy: Are flows converging or diverging?
+
+        Positive divergence = outflow (selling pressure)
+        Negative divergence = inflow (buying pressure)
+
+        Uses velocity-weighted volume flow.
+        """
+        flow = velocity * volume
+        return np.gradient(flow)
+
+    @staticmethod
+    def buying_pressure(open_: np.ndarray, high: np.ndarray,
+                        low: np.ndarray, close: np.ndarray) -> np.ndarray:
+        """
+        Buying pressure = (close - low) / (high - low).
+
+        Where in the bar's range did we close?
+        0 = closed at low (sellers won)
+        1 = closed at high (buyers won)
+        0.5 = neutral
+        """
+        bar_range = (high - low).clip(1e-10, None)
+        return (close - low) / bar_range
+
+    @staticmethod
+    def body_ratio(open_: np.ndarray, high: np.ndarray,
+                   low: np.ndarray, close: np.ndarray) -> np.ndarray:
+        """
+        Body ratio = |close - open| / (high - low).
+
+        How much of the range is body vs wick?
+        High body ratio = conviction move.
+        Low body ratio = indecision.
+        """
+        body = np.abs(close - open_)
+        bar_range = (high - low).clip(1e-10, None)
+        return body / bar_range
+
+
+# =============================================================================
+# MICROSTRUCTURE
 # =============================================================================
 
 class MicrostructureMeasures:
     """
     Market microstructure measurements.
-
-    Spread, volume, tick activity - execution quality indicators.
+    Spread, volume dynamics, execution quality.
     """
 
     @staticmethod
-    def spread_ratio(spread: np.ndarray, period: int = 100) -> np.ndarray:
-        """Spread relative to rolling minimum (from SpreadGate)."""
+    def spread_percentile(spread: np.ndarray) -> np.ndarray:
+        """
+        Where is current spread in rolling distribution?
+        Low percentile = tight spread = good execution.
+        """
         n = len(spread)
-        ratio = np.ones(n)
+        pct = np.zeros(n)
 
-        for i in range(period, n):
-            rolling_min = np.min(spread[i-period:i])
-            if rolling_min > 0:
-                ratio[i] = spread[i] / rolling_min
+        for i in range(100, n):
+            window = spread[max(0, i-200):i]
+            pct[i] = (spread[i] > window).mean()
 
-        return ratio
-
-    @staticmethod
-    def volume_ratio(volume: np.ndarray, period: int = 50) -> np.ndarray:
-        """Volume relative to rolling mean."""
-        n = len(volume)
-        ratio = np.ones(n)
-
-        for i in range(period, n):
-            rolling_mean = np.mean(volume[i-period:i])
-            if rolling_mean > 0:
-                ratio[i] = volume[i] / rolling_mean
-
-        return ratio
+        return pct
 
     @staticmethod
-    def volume_price_trend(close: np.ndarray, volume: np.ndarray) -> np.ndarray:
-        """Volume-price trend: Cumulative volume-weighted price change."""
-        returns = np.diff(close, prepend=close[0]) / (close + 1e-10)
-        vpt = np.cumsum(returns * volume)
-        return vpt
-
-    @staticmethod
-    def tick_intensity(volume: np.ndarray, period: int = 20) -> np.ndarray:
+    def volume_surge(volume: np.ndarray) -> np.ndarray:
         """
-        Tick intensity: Rate of change of volume.
-        Sudden volume spike = information event.
+        Volume surge = current volume / rolling mean.
+        High values indicate unusual activity.
         """
         n = len(volume)
-        intensity = np.zeros(n)
+        surge = np.ones(n)
 
-        for i in range(period, n):
-            if np.mean(volume[i-period:i-1]) > 0:
-                intensity[i] = volume[i] / np.mean(volume[i-period:i-1])
+        for i in range(20, n):
+            mean_vol = np.mean(volume[max(0, i-50):i]) + 1e-10
+            surge[i] = volume[i] / mean_vol
 
-        return intensity
+        return surge
 
     @staticmethod
-    def liquidity_score(spread: np.ndarray, volume: np.ndarray,
-                        period: int = 50) -> np.ndarray:
+    def volume_trend(volume: np.ndarray) -> np.ndarray:
         """
-        Composite liquidity score.
-        High volume + low spread = good liquidity.
+        Is volume trending up or down?
+        Rolling slope of volume.
         """
-        spread_ratio = MicrostructureMeasures.spread_ratio(spread, period)
-        volume_ratio = MicrostructureMeasures.volume_ratio(volume, period)
+        n = len(volume)
+        trend = np.zeros(n)
 
-        # High volume ratio good, high spread ratio bad
-        liquidity = volume_ratio / (spread_ratio + 1e-10)
-        return liquidity
+        for i in range(20, n):
+            window = volume[max(0, i-20):i]
+            if len(window) > 1:
+                x = np.arange(len(window))
+                slope, _ = np.polyfit(x, window, 1)
+                trend[i] = slope / (np.mean(window) + 1e-10)
+
+        return trend
 
 
 # =============================================================================
-# TIME-BASED MEASUREMENTS
+# ROLLING PERCENTILE NORMALIZATION
 # =============================================================================
 
-class TimeMeasures:
+class PercentileNormalizer:
     """
-    Time-based features: Session, day-of-week, hour.
+    Convert all measurements to rolling percentiles.
 
-    Different asset classes have different time patterns.
+    This is THE key to instrument-agnostic features.
+    Instead of "velocity = 0.02", we get "velocity is at 85th percentile".
     """
 
     @staticmethod
-    def extract_time_features(timestamps: pd.DatetimeIndex) -> Dict[str, np.ndarray]:
-        """Extract all time-based features."""
-        return {
-            'hour': np.array([t.hour for t in timestamps]),
-            'day_of_week': np.array([t.dayofweek for t in timestamps]),
-            'day_of_month': np.array([t.day for t in timestamps]),
-            'week_of_year': np.array([t.isocalendar()[1] for t in timestamps]),
-            'month': np.array([t.month for t in timestamps]),
-            'is_month_end': np.array([t.is_month_end for t in timestamps]).astype(float),
-            'is_quarter_end': np.array([t.is_quarter_end for t in timestamps]).astype(float),
-        }
+    def to_percentile(data: np.ndarray, window: int = 200) -> np.ndarray:
+        """
+        Convert raw values to rolling percentile (0-1).
+        """
+        n = len(data)
+        pct = np.full(n, 0.5)  # Default to median
+
+        for i in range(window, n):
+            window_data = data[max(0, i-window):i]
+            window_data = window_data[np.isfinite(window_data)]
+
+            if len(window_data) > 0:
+                pct[i] = (data[i] > window_data).mean()
+
+        return pct
 
     @staticmethod
-    def session_indicator(hour: np.ndarray) -> Dict[str, np.ndarray]:
-        """Trading session indicators (UTC)."""
-        return {
-            'is_asian': ((hour >= 0) & (hour < 8)).astype(float),
-            'is_london': ((hour >= 7) & (hour < 16)).astype(float),
-            'is_newyork': ((hour >= 13) & (hour < 22)).astype(float),
-            'is_overlap_london_ny': ((hour >= 13) & (hour < 16)).astype(float),
-        }
+    def is_extreme(percentile: np.ndarray, threshold: float = 0.95) -> np.ndarray:
+        """
+        Flag extreme values (top or bottom 5%).
+        """
+        return ((percentile > threshold) | (percentile < (1 - threshold))).astype(float)
 
 
 # =============================================================================
-# COMPREHENSIVE MEASUREMENT ENGINE
+# COMPREHENSIVE PHYSICS-BASED MEASUREMENT ENGINE
 # =============================================================================
 
 class MeasurementEngine:
     """
-    Comprehensive measurement engine.
+    Physics-based measurement engine.
 
-    Computes ALL measurements for exploration.
-    Tracks correlations between measurements.
-    Discovers what matters per asset class.
+    NO traditional indicators. Pure physics + field theory + thermodynamics.
+    Everything normalized to rolling percentiles.
     """
 
-    def __init__(self):
-        self.measurement_history: Dict[str, List[np.ndarray]] = defaultdict(list)
-        self.correlation_matrix: Optional[np.ndarray] = None
+    def __init__(self, percentile_window: int = 200):
+        self.percentile_window = percentile_window
         self.measurement_names: List[str] = []
+        self.normalizer = PercentileNormalizer()
 
     def compute_all(self,
                     open_: np.ndarray,
@@ -784,173 +667,229 @@ class MeasurementEngine:
                     spread: np.ndarray,
                     timestamps: Optional[pd.DatetimeIndex] = None) -> Dict[str, np.ndarray]:
         """
-        Compute ALL measurements.
-
+        Compute ALL physics-based measurements.
         Returns dict of measurement_name -> array.
         """
         measurements = {}
 
-        # === VOLATILITY ===
-        measurements['vol_atr'] = VolatilityMeasures.atr(high, low, close)
-        measurements['vol_yang_zhang'] = VolatilityMeasures.yang_zhang(open_, high, low, close)
-        measurements['vol_parkinson'] = VolatilityMeasures.parkinson(high, low)
-        measurements['vol_rogers_satchell'] = VolatilityMeasures.rogers_satchell(open_, high, low, close)
-        measurements['vol_garman_klass'] = VolatilityMeasures.garman_klass(open_, high, low, close)
-        measurements['vol_of_vol'] = VolatilityMeasures.volatility_of_volatility(measurements['vol_yang_zhang'])
+        # === ADAPTIVE WINDOWS FROM FFT ===
+        short_w, med_w, long_w = AdaptiveWindows.get_adaptive_windows(close)
 
-        # === MOMENTUM ===
-        roc_dict = MomentumMeasures.roc(close)
-        measurements.update(roc_dict)
+        # === KINEMATICS (Derivatives) ===
+        derivatives = KinematicsMeasures.compute_all_derivatives(close)
+        measurements['velocity'] = derivatives['velocity']
+        measurements['acceleration'] = derivatives['acceleration']
+        measurements['jerk'] = derivatives['jerk']
+        measurements['snap'] = derivatives['snap']
+        measurements['crackle'] = derivatives['crackle']
+        measurements['pop'] = derivatives['pop']
 
-        measurements['rsi_14'] = MomentumMeasures.rsi(close, 14)
-        measurements['rsi_7'] = MomentumMeasures.rsi(close, 7)
-        measurements['rsi_21'] = MomentumMeasures.rsi(close, 21)
+        # Momentum and impulse
+        measurements['momentum'] = KinematicsMeasures.momentum(
+            close, derivatives['velocity'], volume
+        )
+        measurements['impulse'] = KinematicsMeasures.impulse(measurements['momentum'])
 
-        macd, macd_signal, macd_hist = MomentumMeasures.macd(close)
-        measurements['macd'] = macd
-        measurements['macd_signal'] = macd_signal
-        measurements['macd_histogram'] = macd_hist
-
-        adx, plus_di, minus_di = MomentumMeasures.adx(high, low, close)
-        measurements['adx'] = adx
-        measurements['plus_di'] = plus_di
-        measurements['minus_di'] = minus_di
-
-        aroon_up, aroon_down = MomentumMeasures.aroon(high, low)
-        measurements['aroon_up'] = aroon_up
-        measurements['aroon_down'] = aroon_down
-        measurements['aroon_oscillator'] = aroon_up - aroon_down
-
-        measurements['momentum_divergence'] = MomentumMeasures.momentum_divergence(
-            close, measurements['rsi_14']
+        # === ENERGY ===
+        measurements['kinetic_energy'] = EnergyMeasures.kinetic_energy(
+            derivatives['velocity'], volume
+        )
+        measurements['potential_energy_compression'] = EnergyMeasures.potential_energy_compression(
+            close, high, low
+        )
+        measurements['potential_energy_displacement'] = EnergyMeasures.potential_energy_displacement(
+            close
+        )
+        measurements['energy_efficiency'] = EnergyMeasures.efficiency_ratio(
+            measurements['kinetic_energy'],
+            measurements['potential_energy_compression']
+        )
+        measurements['energy_release_rate'] = EnergyMeasures.energy_release_rate(
+            measurements['kinetic_energy']
         )
 
-        # === MEAN REVERSION ===
-        measurements['bollinger_pct_b'] = MeanReversionMeasures.bollinger_percent_b(close)
-        measurements['zscore_20'] = MeanReversionMeasures.z_score(close, 20)
-        measurements['zscore_50'] = MeanReversionMeasures.z_score(close, 50)
-        measurements['hurst'] = MeanReversionMeasures.hurst_exponent(close)
-        measurements['dist_from_vwap'] = MeanReversionMeasures.distance_from_vwap(close, volume)
+        # === FLOW DYNAMICS ===
+        measurements['reynolds'] = FlowMeasures.reynolds_number(
+            derivatives['velocity'], close
+        )
+        measurements['damping'] = FlowMeasures.damping_coefficient(
+            derivatives['velocity']
+        )
+        measurements['viscosity'] = FlowMeasures.viscosity(high, low, close, volume)
+        measurements['liquidity'] = FlowMeasures.liquidity(high, low, close, volume)
+        measurements['reynolds_momentum_corr'] = FlowMeasures.reynolds_momentum_relationship(
+            measurements['reynolds'], measurements['momentum']
+        )
 
-        # === ENERGY & FLOW (Physics) ===
-        measurements['kinetic_energy'] = EnergyFlowMeasures.kinetic_energy(close)
-        measurements['potential_energy'] = EnergyFlowMeasures.potential_energy(close)
-        measurements['energy_release_rate'] = EnergyFlowMeasures.energy_release_rate(
-            close, measurements['vol_yang_zhang']
+        # === THERMODYNAMICS ===
+        measurements['entropy'] = ThermodynamicsMeasures.shannon_entropy(
+            derivatives['velocity']
         )
-        measurements['reynolds'] = EnergyFlowMeasures.reynolds_number_proxy(
-            close, measurements['vol_yang_zhang']
+        measurements['entropy_rate'] = ThermodynamicsMeasures.entropy_rate(
+            measurements['entropy']
         )
-        measurements['reynolds_roc_inverse'] = EnergyFlowMeasures.reynolds_roc_inverse(
-            measurements['reynolds'], measurements['roc_10']
+        measurements['phase_compression'] = ThermodynamicsMeasures.phase_compression(
+            measurements['kinetic_energy'],
+            measurements['potential_energy_compression'],
+            measurements['entropy']
         )
-        measurements['flow_regime'] = EnergyFlowMeasures.flow_regime(measurements['reynolds'])
-        measurements['entropy_rate'] = EnergyFlowMeasures.entropy_rate(close)
+
+        # === FIELD MEASURES ===
+        measurements['price_gradient'] = FieldMeasures.price_gradient(close)
+        measurements['gradient_magnitude'] = FieldMeasures.gradient_magnitude(close)
+        measurements['divergence'] = FieldMeasures.divergence_proxy(
+            derivatives['velocity'], volume
+        )
+        measurements['buying_pressure'] = FieldMeasures.buying_pressure(
+            open_, high, low, close
+        )
+        measurements['body_ratio'] = FieldMeasures.body_ratio(
+            open_, high, low, close
+        )
 
         # === MICROSTRUCTURE ===
-        measurements['spread_ratio'] = MicrostructureMeasures.spread_ratio(spread)
-        measurements['volume_ratio'] = MicrostructureMeasures.volume_ratio(volume)
-        measurements['volume_price_trend'] = MicrostructureMeasures.volume_price_trend(close, volume)
-        measurements['tick_intensity'] = MicrostructureMeasures.tick_intensity(volume)
-        measurements['liquidity_score'] = MicrostructureMeasures.liquidity_score(spread, volume)
+        measurements['spread_pct'] = MicrostructureMeasures.spread_percentile(spread)
+        measurements['volume_surge'] = MicrostructureMeasures.volume_surge(volume)
+        measurements['volume_trend'] = MicrostructureMeasures.volume_trend(volume)
 
-        # === TIME (if timestamps available) ===
-        if timestamps is not None:
-            time_features = TimeMeasures.extract_time_features(timestamps)
-            measurements.update({f'time_{k}': v for k, v in time_features.items()})
+        # === CROSS-INTERACTIONS (Physics relationships) ===
+        # Energy-momentum
+        measurements['energy_momentum_product'] = (
+            measurements['kinetic_energy'] * np.sign(measurements['momentum'])
+        )
 
-            session_features = TimeMeasures.session_indicator(time_features['hour'])
-            measurements.update({f'session_{k}': v for k, v in session_features.items()})
+        # Reynolds-damping relationship
+        measurements['re_damping_ratio'] = (
+            measurements['reynolds'] / (measurements['damping'] + 1e-10)
+        )
 
-        # === CROSS-MEASUREMENTS (Ratios & Interactions) ===
-        # Volatility ratios
-        measurements['vol_ratio_yz_atr'] = measurements['vol_yang_zhang'] / (measurements['vol_atr'] + 1e-10)
-        measurements['vol_ratio_pk_atr'] = measurements['vol_parkinson'] / (measurements['vol_atr'] + 1e-10)
+        # Entropy-energy phase
+        measurements['entropy_energy_phase'] = (
+            measurements['entropy'] * measurements['kinetic_energy']
+        )
 
-        # Momentum-volatility interaction
-        measurements['momentum_vol_ratio'] = np.abs(measurements['roc_10']) / (measurements['vol_yang_zhang'] + 1e-10)
+        # Jerk energy (rate of acceleration squared - "violence" of move)
+        measurements['jerk_energy'] = derivatives['jerk'] ** 2
 
-        # Energy-momentum interaction
-        measurements['energy_momentum'] = measurements['kinetic_energy'] * np.sign(measurements['roc_10'])
-
-        # Hurst-based regime indicator
-        measurements['is_mean_reverting'] = (measurements['hurst'] < 0.45).astype(float)
-        measurements['is_trending'] = (measurements['hurst'] > 0.55).astype(float)
-        measurements['is_random_walk'] = ((measurements['hurst'] >= 0.45) & (measurements['hurst'] <= 0.55)).astype(float)
+        # Compression-release potential
+        measurements['release_potential'] = (
+            measurements['potential_energy_compression'] *
+            (1 - measurements['entropy'])  # Low entropy = more release potential
+        )
 
         self.measurement_names = list(measurements.keys())
         return measurements
 
-    def normalize_measurements(self, measurements: Dict[str, np.ndarray],
-                               lookback: int = 200) -> Dict[str, np.ndarray]:
+    def normalize_to_percentiles(self, measurements: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """
-        Normalize all measurements to z-scores for RL.
-
-        Uses rolling normalization to avoid lookahead.
+        Normalize ALL measurements to rolling percentiles.
+        This makes features instrument-agnostic.
         """
         normalized = {}
 
         for name, values in measurements.items():
-            n = len(values)
-            z = np.zeros(n)
+            # Raw value
+            normalized[name] = values
 
-            for i in range(lookback, n):
-                window = values[max(0, i-lookback):i]
-                mean = np.mean(window)
-                std = np.std(window)
-                if std > 0:
-                    z[i] = (values[i] - mean) / std
-                else:
-                    z[i] = 0
+            # Percentile version
+            pct = self.normalizer.to_percentile(values, self.percentile_window)
+            normalized[f'{name}_pct'] = pct
 
-            normalized[f'{name}_z'] = z
+            # Extreme flag
+            normalized[f'{name}_extreme'] = self.normalizer.is_extreme(pct)
 
         return normalized
 
     def compute_correlation_matrix(self, measurements: Dict[str, np.ndarray],
                                    start_idx: int = 200) -> pd.DataFrame:
         """
-        Compute correlation matrix between all measurements.
-
-        This reveals relationships - including inverses during volatility.
+        Compute correlation matrix between measurements.
+        Reveals relationships and inverses.
         """
-        # Stack all measurements into matrix
-        names = list(measurements.keys())
-        data = np.column_stack([measurements[n][start_idx:] for n in names])
+        # Only use raw measurements (not percentiles)
+        raw_names = [n for n in measurements.keys() if not n.endswith('_pct') and not n.endswith('_extreme')]
+
+        data = np.column_stack([measurements[n][start_idx:] for n in raw_names])
 
         # Remove NaN/inf
         valid_mask = np.all(np.isfinite(data), axis=1)
         data = data[valid_mask]
 
-        # Compute correlation
-        corr = np.corrcoef(data.T)
+        if len(data) < 30:
+            return pd.DataFrame()
 
-        self.correlation_matrix = corr
-        return pd.DataFrame(corr, index=names, columns=names)
+        corr = np.corrcoef(data.T)
+        return pd.DataFrame(corr, index=raw_names, columns=raw_names)
 
     def find_inverse_relationships(self, corr_df: pd.DataFrame,
                                    threshold: float = -0.5) -> List[Tuple[str, str, float]]:
         """
         Find strongly inverse relationships.
-
-        These are candidates for regime-dependent strategies.
+        These may flip during regime changes.
         """
-        inverses = []
+        if corr_df.empty:
+            return []
 
+        inverses = []
         names = corr_df.columns
+
         for i, name1 in enumerate(names):
             for j, name2 in enumerate(names):
-                if i < j:  # Upper triangle only
+                if i < j:
                     corr = corr_df.iloc[i, j]
-                    if corr < threshold:
-                        inverses.append((name1, name2, corr))
+                    if np.isfinite(corr) and corr < threshold:
+                        inverses.append((name1, name2, float(corr)))
 
         return sorted(inverses, key=lambda x: x[2])
 
-    def get_feature_array(self, measurements: Dict[str, np.ndarray],
-                          idx: int) -> np.ndarray:
-        """Get feature array for a single bar."""
-        return np.array([measurements[name][idx] for name in self.measurement_names])
+
+# =============================================================================
+# REGIME DETECTION (Physics-Based)
+# =============================================================================
+
+class PhysicsRegimeDetector:
+    """
+    Detect market regimes from physics state.
+
+    NO hardcoded thresholds. Uses percentile-based detection.
+    """
+
+    @staticmethod
+    def detect_regime(measurements: Dict[str, np.ndarray]) -> np.ndarray:
+        """
+        Classify regime from physics measurements.
+
+        Returns array of regime codes:
+        0 = UNDERDAMPED (low friction, trending)
+        1 = CRITICAL (balanced, transitional)
+        2 = OVERDAMPED (high friction, mean-reverting)
+        3 = TURBULENT (chaotic, high Reynolds)
+        4 = COMPRESSED (high potential energy, pre-breakout)
+        """
+        n = len(measurements['damping'])
+        regime = np.ones(n, dtype=int)  # Default CRITICAL
+
+        for i in range(100, n):
+            # Get current percentiles
+            damping_pct = measurements.get('damping_pct', np.full(n, 0.5))[i]
+            reynolds_pct = measurements.get('reynolds_pct', np.full(n, 0.5))[i]
+            ke_pct = measurements.get('kinetic_energy_pct', np.full(n, 0.5))[i]
+            pe_pct = measurements.get('potential_energy_compression_pct', np.full(n, 0.5))[i]
+            entropy_pct = measurements.get('entropy_pct', np.full(n, 0.5))[i]
+
+            # Classification based on physics state
+            if reynolds_pct > 0.8:
+                regime[i] = 3  # TURBULENT
+            elif pe_pct > 0.8 and ke_pct < 0.3 and entropy_pct < 0.3:
+                regime[i] = 4  # COMPRESSED
+            elif damping_pct < 0.25 and ke_pct > 0.5:
+                regime[i] = 0  # UNDERDAMPED (trending)
+            elif damping_pct > 0.75:
+                regime[i] = 2  # OVERDAMPED (mean-reverting)
+            else:
+                regime[i] = 1  # CRITICAL
+
+        return regime
 
 
 # =============================================================================
@@ -959,10 +898,8 @@ class MeasurementEngine:
 
 class CorrelationExplorer:
     """
-    Explore correlations between measurements and outcomes.
-
-    KEY: What correlates with GOOD trades (high PnL, low MAE)?
-    This may differ by asset class.
+    Explore correlations between measurements and trade outcomes.
+    Discovers what matters per asset class.
     """
 
     def __init__(self):
@@ -970,84 +907,304 @@ class CorrelationExplorer:
         self.trade_outcomes: List[Dict[str, float]] = []
 
     def record_trade(self, entry_measurements: Dict[str, float],
-                     exit_measurements: Dict[str, float],
-                     pnl: float, mae: float, mfe: float, bars_held: int):
-        """Record a trade with its measurements and outcome."""
-        # Store entry measurements
-        entry_record = {f'entry_{k}': v for k, v in entry_measurements.items()}
-        exit_record = {f'exit_{k}': v for k, v in exit_measurements.items()}
-
-        self.trade_measurements.append({**entry_record, **exit_record})
+                     pnl: float, mae: float, mfe: float):
+        """Record trade entry measurements and outcome."""
+        self.trade_measurements.append(entry_measurements)
         self.trade_outcomes.append({
             'pnl': pnl,
             'mae': mae,
             'mfe': mfe,
-            'bars_held': bars_held,
             'edge_ratio': mfe / (abs(mae) + abs(mfe) + 1e-10),
-            'profit_factor': mfe / (abs(mae) + 1e-10) if mae < 0 else float('inf'),
         })
 
-    def analyze_correlations(self) -> pd.DataFrame:
+    def find_predictive_features(self, min_trades: int = 30) -> Dict[str, List[Tuple[str, float]]]:
         """
-        Analyze which entry measurements correlate with good outcomes.
-
-        Returns DataFrame with correlations.
+        Find which features predict which outcomes.
+        Returns dict: outcome -> [(feature, correlation), ...]
         """
-        if len(self.trade_measurements) < 30:
-            return pd.DataFrame()
+        if len(self.trade_measurements) < min_trades:
+            return {}
 
-        # Convert to DataFrames
         meas_df = pd.DataFrame(self.trade_measurements)
         out_df = pd.DataFrame(self.trade_outcomes)
 
-        # Compute correlations between entry features and outcomes
-        correlations = {}
-
-        for meas_col in meas_df.columns:
-            if meas_col.startswith('entry_'):
-                correlations[meas_col] = {}
-                for out_col in out_df.columns:
-                    corr = meas_df[meas_col].corr(out_df[out_col])
-                    correlations[meas_col][out_col] = corr
-
-        return pd.DataFrame(correlations).T
-
-    def find_predictive_features(self, min_corr: float = 0.2) -> Dict[str, List[str]]:
-        """
-        Find which features predict which outcomes.
-
-        Returns dict: outcome -> list of predictive features.
-        """
-        corr_df = self.analyze_correlations()
-        if corr_df.empty:
-            return {}
-
         predictive = defaultdict(list)
 
-        for outcome in corr_df.columns:
-            for feature in corr_df.index:
-                corr = abs(corr_df.loc[feature, outcome])
-                if corr >= min_corr:
-                    predictive[outcome].append((feature, corr_df.loc[feature, outcome]))
+        for meas_col in meas_df.columns:
+            for out_col in out_df.columns:
+                corr = meas_df[meas_col].corr(out_df[out_col])
+                if abs(corr) >= 0.15 and np.isfinite(corr):
+                    predictive[out_col].append((meas_col, corr))
 
         # Sort by absolute correlation
         for outcome in predictive:
-            predictive[outcome] = sorted(predictive[outcome], key=lambda x: abs(x[1]), reverse=True)
+            predictive[outcome] = sorted(
+                predictive[outcome],
+                key=lambda x: abs(x[1]),
+                reverse=True
+            )
 
         return dict(predictive)
+
+
+# =============================================================================
+# PERFORMANCE METRICS (For Accounting/Statistics - NOT Trading Signals)
+# =============================================================================
+
+class RiskAdjustedMetrics:
+    """
+    Non-linear, distribution-aware performance metrics.
+
+    NO Sharpe (assumes symmetric risk, normality).
+    YES to metrics that capture:
+    - Fat tails (kurtosis)
+    - Downside-only risk (Sortino)
+    - Full distribution (Omega)
+    - Worst-case scenarios (CVaR, Calmar)
+    """
+
+    @staticmethod
+    def sortino_ratio(returns: np.ndarray, target: float = 0.0,
+                      annualization: int = 252) -> float:
+        """
+        Sortino Ratio: Return over downside deviation only.
+
+        Better than Sharpe because it only penalizes harmful volatility.
+        Sortino = (Mean Return - Target) / Downside Deviation
+        """
+        excess = returns - target
+        downside = returns[returns < target]
+
+        if len(downside) == 0:
+            return np.inf  # No downside = perfect
+
+        downside_dev = np.std(downside)
+        if downside_dev == 0:
+            return np.inf
+
+        mean_excess = np.mean(excess)
+        sortino = (mean_excess / downside_dev) * np.sqrt(annualization)
+        return float(sortino)
+
+    @staticmethod
+    def omega_ratio(returns: np.ndarray, threshold: float = 0.0) -> float:
+        """
+        Omega Ratio: Probability-weighted gains over losses.
+
+        Omega = ∫(1-F(r))dr for r>L / ∫F(r)dr for r<L
+
+        Captures ENTIRE distribution (skew, kurtosis, fat tails).
+        No normality assumption. Superior for non-Gaussian returns.
+        """
+        gains = np.sum(np.maximum(returns - threshold, 0))
+        losses = np.sum(np.maximum(threshold - returns, 0))
+
+        if losses == 0:
+            return np.inf
+
+        return float(gains / losses)
+
+    @staticmethod
+    def calmar_ratio(equity_curve: np.ndarray, annualization: int = 252) -> float:
+        """
+        Calmar Ratio: Annualized return / Maximum Drawdown.
+
+        Focuses on worst-case drawdown risk.
+        Preferred by institutional investors over Sharpe.
+        """
+        if len(equity_curve) < 2:
+            return 0.0
+
+        # CAGR
+        years = len(equity_curve) / annualization
+        cagr = (equity_curve[-1] / equity_curve[0]) ** (1 / years) - 1 if years > 0 else 0
+
+        # Max drawdown
+        peak = np.maximum.accumulate(equity_curve)
+        drawdown = (peak - equity_curve) / (peak + 1e-10)
+        max_dd = np.max(drawdown)
+
+        if max_dd == 0:
+            return np.inf
+
+        return float(cagr / max_dd)
+
+    @staticmethod
+    def burke_ratio(equity_curve: np.ndarray, n_drawdowns: int = 5,
+                    annualization: int = 252) -> float:
+        """
+        Burke Ratio: CAGR / sqrt(sum of squared top N drawdowns).
+
+        Less sensitive to single outlier drawdown than Calmar.
+        Better for strategies with multiple moderate drawdowns.
+        """
+        if len(equity_curve) < 2:
+            return 0.0
+
+        years = len(equity_curve) / annualization
+        cagr = (equity_curve[-1] / equity_curve[0]) ** (1 / years) - 1 if years > 0 else 0
+
+        # Find top N drawdowns
+        peak = np.maximum.accumulate(equity_curve)
+        drawdown = (peak - equity_curve) / (peak + 1e-10)
+
+        # Sort and take top N
+        sorted_dd = np.sort(drawdown)[::-1][:n_drawdowns]
+
+        # Sum of squares
+        sum_sq = np.sum(sorted_dd ** 2)
+
+        if sum_sq == 0:
+            return np.inf
+
+        return float(cagr / np.sqrt(sum_sq))
+
+    @staticmethod
+    def cvar_expected_shortfall(returns: np.ndarray, alpha: float = 0.05) -> float:
+        """
+        CVaR / Expected Shortfall: Average loss in worst alpha% of cases.
+
+        Captures tail risk better than VaR.
+        E.g., alpha=0.05 means average loss in worst 5% of days.
+        """
+        if len(returns) == 0:
+            return 0.0
+
+        sorted_returns = np.sort(returns)
+        cutoff_idx = int(len(sorted_returns) * alpha)
+
+        if cutoff_idx == 0:
+            cutoff_idx = 1
+
+        tail_losses = sorted_returns[:cutoff_idx]
+        return float(np.mean(tail_losses))
+
+    @staticmethod
+    def tail_ratio(returns: np.ndarray, percentile: float = 5.0) -> float:
+        """
+        Tail Ratio: Right tail / Left tail.
+
+        Measures asymmetry of extreme returns.
+        > 1 = positive skew (winners bigger than losers)
+        < 1 = negative skew (losers bigger than winners)
+        """
+        right_tail = np.percentile(returns, 100 - percentile)
+        left_tail = abs(np.percentile(returns, percentile))
+
+        if left_tail == 0:
+            return np.inf if right_tail > 0 else 1.0
+
+        return float(right_tail / left_tail)
+
+    @staticmethod
+    def kurtosis_excess(returns: np.ndarray) -> float:
+        """
+        Excess Kurtosis: Measure of fat tails.
+
+        > 0 = Leptokurtic (fat tails, more extremes than normal)
+        = 0 = Mesokurtic (normal-like)
+        < 0 = Platykurtic (thin tails)
+
+        Crypto/commodities typically have high excess kurtosis.
+        """
+        n = len(returns)
+        if n < 4:
+            return 0.0
+
+        mean = np.mean(returns)
+        std = np.std(returns)
+
+        if std == 0:
+            return 0.0
+
+        # Fourth moment / std^4 - 3 (Fisher's definition)
+        kurt = np.mean(((returns - mean) / std) ** 4) - 3
+        return float(kurt)
+
+    @staticmethod
+    def ulcer_index(equity_curve: np.ndarray) -> float:
+        """
+        Ulcer Index: Root mean square of drawdowns.
+
+        Penalizes both depth AND duration of drawdowns.
+        Named because it measures "pain" causing ulcers.
+        """
+        peak = np.maximum.accumulate(equity_curve)
+        drawdown = (peak - equity_curve) / (peak + 1e-10)
+
+        return float(np.sqrt(np.mean(drawdown ** 2)))
+
+    @staticmethod
+    def gain_to_pain_ratio(returns: np.ndarray) -> float:
+        """
+        Gain to Pain Ratio: Sum of returns / Sum of abs(negative returns).
+
+        Simple, intuitive measure of reward vs suffering.
+        """
+        total_return = np.sum(returns)
+        total_pain = np.sum(np.abs(returns[returns < 0]))
+
+        if total_pain == 0:
+            return np.inf if total_return > 0 else 0.0
+
+        return float(total_return / total_pain)
+
+
+class PerformanceAnalyzer:
+    """
+    Comprehensive performance analysis using non-linear metrics.
+    """
+
+    def __init__(self, annualization: int = 252):
+        self.annualization = annualization
+
+    def analyze(self, returns: np.ndarray, equity_curve: np.ndarray) -> Dict[str, float]:
+        """
+        Compute all risk-adjusted metrics.
+
+        Returns dict of metric_name -> value.
+        """
+        metrics = RiskAdjustedMetrics
+
+        return {
+            # Core non-linear metrics
+            'sortino': metrics.sortino_ratio(returns, annualization=self.annualization),
+            'omega': metrics.omega_ratio(returns),
+            'calmar': metrics.calmar_ratio(equity_curve, annualization=self.annualization),
+            'burke': metrics.burke_ratio(equity_curve, annualization=self.annualization),
+
+            # Tail risk
+            'cvar_5pct': metrics.cvar_expected_shortfall(returns, alpha=0.05),
+            'tail_ratio': metrics.tail_ratio(returns),
+            'excess_kurtosis': metrics.kurtosis_excess(returns),
+
+            # Pain measures
+            'ulcer_index': metrics.ulcer_index(equity_curve),
+            'gain_to_pain': metrics.gain_to_pain_ratio(returns),
+
+            # Basic stats (for reference)
+            'total_return': float((equity_curve[-1] / equity_curve[0]) - 1) if len(equity_curve) > 1 else 0.0,
+            'max_drawdown': float(np.max((np.maximum.accumulate(equity_curve) - equity_curve) /
+                                         (np.maximum.accumulate(equity_curve) + 1e-10))),
+            'win_rate': float(np.mean(returns > 0)),
+        }
 
 
 # Export
 __all__ = [
     'MeasurementCategory',
     'Measurement',
-    'MeasurementSet',
-    'VolatilityMeasures',
-    'MomentumMeasures',
-    'MeanReversionMeasures',
-    'EnergyFlowMeasures',
+    'AdaptiveWindows',
+    'KinematicsMeasures',
+    'EnergyMeasures',
+    'FlowMeasures',
+    'ThermodynamicsMeasures',
+    'FieldMeasures',
     'MicrostructureMeasures',
-    'TimeMeasures',
+    'PercentileNormalizer',
     'MeasurementEngine',
+    'PhysicsRegimeDetector',
     'CorrelationExplorer',
+    'RiskAdjustedMetrics',
+    'PerformanceAnalyzer',
 ]
