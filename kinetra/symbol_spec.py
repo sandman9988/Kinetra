@@ -9,37 +9,41 @@ Complete instrument cost modeling for accurate backtesting:
 - Contract specifications (lot size, tick value, margin)
 """
 
-import pandas as pd
-import numpy as np
-from dataclasses import dataclass, field
-from typing import Dict, Optional, List, Tuple
-from enum import Enum
-from datetime import datetime, time
 import json
+from dataclasses import dataclass, field
+from datetime import datetime, time
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 
 class SwapType(Enum):
     """Swap calculation type."""
-    POINTS = "points"           # Swap in points
-    MONEY = "money"             # Swap in account currency
-    INTEREST = "interest"       # Swap as annual interest rate
+
+    POINTS = "points"  # Swap in points
+    MONEY = "money"  # Swap in account currency
+    INTEREST = "interest"  # Swap as annual interest rate
     MARGIN_CURRENCY = "margin"  # Swap in margin currency
 
 
 class CommissionType(Enum):
     """Commission calculation type."""
-    PER_LOT = "per_lot"         # Fixed $ per lot
-    PER_DEAL = "per_deal"       # Fixed $ per trade
-    PERCENTAGE = "percentage"   # % of trade value
+
+    PER_LOT = "per_lot"  # Fixed $ per lot
+    PER_DEAL = "per_deal"  # Fixed $ per trade
+    PERCENTAGE = "percentage"  # % of trade value
 
 
 @dataclass
 class SwapSpec:
     """Swap/rollover specification."""
-    long_rate: float = 0.0      # Swap for long positions
-    short_rate: float = 0.0     # Swap for short positions
+
+    long_rate: float = 0.0  # Swap for long positions
+    short_rate: float = 0.0  # Swap for short positions
     swap_type: SwapType = SwapType.POINTS
-    triple_swap_day: int = 3    # Wednesday = 3 (Mon=1, Sun=7)
+    triple_swap_day: int = 3  # Wednesday = 3 (Mon=1, Sun=7)
 
     def calculate_swap(
         self,
@@ -48,47 +52,77 @@ class SwapSpec:
         contract_size: float,
         tick_value: float,
         days_held: int = 1,
-        day_of_week: int = 1
+        day_of_week: int = 1,
+        price: float = 0.0,
     ) -> float:
         """
         Calculate swap cost for holding position overnight.
 
-        Returns negative value for cost, positive for credit.
+        MT5 swap calculation modes:
+        - POINTS: Swap = rate * tick_value * lots * days
+        - MONEY: Swap = rate * lots * days (direct currency value)
+        - INTEREST: Swap = (rate / 100 / 360) * lots * contract_size * price * days
+        - MARGIN_CURRENCY: Swap = rate * lots * days (in margin currency)
+
+        Args:
+            position_type: "long" or "short"
+            lots: Position size in lots
+            contract_size: Contract size per lot
+            tick_value: Value of one tick per lot
+            days_held: Number of overnight rollovers (1 = single night)
+            day_of_week: Day when position was opened (1=Mon, 7=Sun)
+            price: Current price (required for INTEREST swap type)
+
+        Returns:
+            Swap cost (negative = cost, positive = credit)
         """
         rate = self.long_rate if position_type == "long" else self.short_rate
 
-        # Apply triple swap on triple swap day
-        multiplier = days_held
-        if day_of_week == self.triple_swap_day:
-            multiplier = 3  # Weekend rollover
+        # Calculate effective swap days including triple swap
+        swap_days = 0
+        for d in range(days_held):
+            current_day = ((day_of_week - 1 + d) % 7) + 1  # Cycle through days
+            if current_day == self.triple_swap_day:
+                swap_days += 3  # Weekend rollover
+            else:
+                swap_days += 1
 
         if self.swap_type == SwapType.POINTS:
-            # Swap in points * tick value * lots
-            return rate * tick_value * lots * multiplier
+            # Swap in points: rate * tick_value * lots
+            return rate * tick_value * lots * swap_days
+
         elif self.swap_type == SwapType.MONEY:
-            # Direct money value per lot
-            return rate * lots * multiplier
+            # Direct money value per lot per day
+            return rate * lots * swap_days
+
         elif self.swap_type == SwapType.INTEREST:
-            # Annual interest rate converted to daily
-            # This is simplified - real calculation depends on notional
-            daily_rate = rate / 365
-            return daily_rate * lots * contract_size * multiplier
+            # Annual interest rate as percentage
+            # Swap = (rate% / 100 / 360) * notional_value * days
+            # notional = lots * contract_size * price
+            if price <= 0:
+                return 0.0
+            notional = lots * contract_size * price
+            daily_rate = rate / 100 / 360  # Rate is in percentage, 360-day convention
+            return notional * daily_rate * swap_days
+
+        elif self.swap_type == SwapType.MARGIN_CURRENCY:
+            # Swap in margin currency per lot
+            return rate * lots * swap_days
+
         else:
-            return rate * lots * multiplier
+            return rate * lots * swap_days
 
 
 @dataclass
 class CommissionSpec:
     """Commission specification."""
+
     rate: float = 0.0
     commission_type: CommissionType = CommissionType.PER_LOT
-    minimum: float = 0.0        # Minimum commission per trade
+    minimum: float = 0.0  # Minimum commission per trade
 
     def calculate_commission(
-        self,
-        lots: float,
-        trade_value: float,
-        is_round_trip: bool = False
+        self, lots: float, trade_value: float, is_round_trip: bool = False
     ) -> float:
         """Calculate commission for a trade."""
         multiplier = 2 if is_round_trip else 1
@@ -113,9 +147,10 @@ class SymbolSpec:
     All costs that affect P&L:
     - Spread (entry/exit slippage)
     - Commission (broker fees)
-    - Swap (overnight financing)
+    - Swap (overnight financing at rollover)
     - Slippage (execution quality)
     """
+
     # Basic info
     symbol: str
     description: str = ""
@@ -123,26 +158,33 @@ class SymbolSpec:
     quote_currency: str = ""
 
     # Contract specifications
-    contract_size: float = 100000.0    # Units per lot (forex = 100k)
-    tick_size: float = 0.00001         # Minimum price movement
-    tick_value: float = 1.0            # Value per tick per lot in account currency
-    digits: int = 5                     # Price decimal places
+    contract_size: float = 100000.0  # Units per lot (forex = 100k)
+    tick_size: float = 0.00001  # Minimum price movement
+    tick_value: float = 1.0  # Value per tick per lot in account currency
+    digits: int = 5  # Price decimal places
 
     # Margin requirements
-    margin_initial: float = 0.01       # Initial margin as % (1% = 100:1 leverage)
+    margin_initial: float = 0.01  # Initial margin as % (1% = 100:1 leverage)
     margin_maintenance: float = 0.005  # Maintenance margin %
-    margin_hedged: float = 0.5         # Margin for hedged positions (50% = half)
+    margin_hedged: float = 0.5  # Margin for hedged positions (50% = half)
+    margin_rate_long: float = 1.0  # Margin rate multiplier for long positions
+    margin_rate_short: float = 1.0  # Margin rate multiplier for short positions
+    stop_out_level: float = 0.5  # Stop out at 50% margin level
 
     # Lot constraints
-    volume_min: float = 0.01           # Minimum lot size
-    volume_max: float = 100.0          # Maximum lot size
-    volume_step: float = 0.01          # Lot size increment
+    volume_min: float = 0.01  # Minimum lot size
+    volume_max: float = 100.0  # Maximum lot size
+    volume_step: float = 0.01  # Lot size increment
 
     # Spread
-    spread_points: float = 10.0        # Typical spread in points
-    spread_variable: bool = True       # Is spread variable?
-    spread_min: float = 5.0            # Minimum spread
-    spread_max: float = 50.0           # Maximum spread (news/low liquidity)
+    spread_points: float = 10.0  # Typical spread in points
+
+    # Server time settings (for swap rollover calculation)
+    server_gmt_offset: int = 2  # Server GMT offset in hours (e.g., 2 for GMT+2)
+    rollover_hour: int = 0  # Hour when swap is charged (server time, typically 0)
+    spread_variable: bool = True  # Is spread variable?
+    spread_min: float = 5.0  # Minimum spread
+    spread_max: float = 50.0  # Maximum spread (news/low liquidity)
 
     # Commission
     commission: CommissionSpec = field(default_factory=CommissionSpec)
@@ -151,12 +193,81 @@ class SymbolSpec:
     swap: SwapSpec = field(default_factory=SwapSpec)
 
     # Execution
-    slippage_avg: float = 0.5          # Average slippage in points
-    slippage_max: float = 5.0          # Max slippage in points
+    slippage_avg: float = 0.5  # Average slippage in points
+    slippage_max: float = 5.0  # Max slippage in points
 
     # Trading hours (simplified)
     trading_hours_start: time = time(0, 0)
     trading_hours_end: time = time(23, 59)
+
+    def calculate_margin(self, lots: float, price: float, position_type: str = "long") -> float:
+        """
+        Calculate required margin for a position.
+
+        Margin = Lots * ContractSize * Price * MarginRate * MarginInitial
+
+        Args:
+            lots: Position size in lots
+            price: Current price
+            position_type: "long" or "short"
+
+        Returns:
+            Required margin in account currency
+        """
+        margin_rate = self.margin_rate_long if position_type == "long" else self.margin_rate_short
+        notional = lots * self.contract_size * price
+        return notional * self.margin_initial * margin_rate
+
+    def calculate_margin_level(self, equity: float, used_margin: float) -> float:
+        """
+        Calculate margin level percentage.
+
+        Margin Level = (Equity / Used Margin) * 100
+
+        Args:
+            equity: Current account equity
+            used_margin: Total margin used by open positions
+
+        Returns:
+            Margin level as percentage (e.g., 150.0 = 150%)
+        """
+        if used_margin <= 0:
+            return float("inf")
+        return (equity / used_margin) * 100
+
+    def is_stop_out(self, equity: float, used_margin: float) -> bool:
+        """Check if margin level triggers stop-out."""
+        margin_level = self.calculate_margin_level(equity, used_margin)
+        return margin_level < (self.stop_out_level * 100)
+
+    def max_lots_for_margin(
+        self, free_margin: float, price: float, position_type: str = "long"
+    ) -> float:
+        """
+        Calculate maximum lot size given available margin.
+
+        Args:
+            free_margin: Available margin
+            price: Current price
+            position_type: "long" or "short"
+
+        Returns:
+            Maximum lots (rounded to volume_step)
+        """
+        margin_rate = self.margin_rate_long if position_type == "long" else self.margin_rate_short
+        margin_per_lot = self.contract_size * price * self.margin_initial * margin_rate
+
+        if margin_per_lot <= 0:
+            return 0.0
+
+        max_lots = free_margin / margin_per_lot
+        max_lots = min(max_lots, self.volume_max)
+        max_lots = max(0, max_lots)
+
+        # Round down to volume_step
+        max_lots = (max_lots // self.volume_step) * self.volume_step
+
+        return max_lots
 
     def spread_cost(self, lots: float, price: float) -> float:
         """Calculate spread cost for entry."""
@@ -166,39 +277,114 @@ class SymbolSpec:
     def total_entry_cost(self, lots: float, price: float) -> float:
         """Total cost to enter a position."""
         spread = self.spread_cost(lots, price)
-        commission = self.commission.calculate_commission(
-            lots,
-            lots * self.contract_size * price
-        )
+        commission = self.commission.calculate_commission(lots, lots * self.contract_size * price)
         slippage = self.slippage_avg * self.tick_value * lots
         return spread + commission + slippage
 
     def total_exit_cost(self, lots: float, price: float) -> float:
         """Total cost to exit a position."""
         # No spread on exit (already paid on entry via bid/ask)
-        commission = self.commission.calculate_commission(
-            lots,
-            lots * self.contract_size * price
-        )
+        commission = self.commission.calculate_commission(lots, lots * self.contract_size * price)
         slippage = self.slippage_avg * self.tick_value * lots
         return commission + slippage
+
+    def count_rollovers(self, entry_time: datetime, exit_time: datetime) -> Tuple[int, List[int]]:
+        """
+        Count number of rollover events between entry and exit.
+
+        Rollover occurs at rollover_hour in server time (adjusted by server_gmt_offset).
+
+        Args:
+            entry_time: Position entry time (UTC or local - should be consistent)
+            exit_time: Position exit time
+
+        Returns:
+            Tuple of (rollover_count, list of day_of_week for each rollover)
+        """
+        from datetime import timedelta
+
+        # Convert rollover hour to UTC
+        rollover_hour_utc = (self.rollover_hour - self.server_gmt_offset) % 24
+
+        rollovers = []
+        current = entry_time.replace(hour=rollover_hour_utc, minute=0, second=0, microsecond=0)
+
+        # If entry is after rollover time, start from next day's rollover
+        if entry_time.hour >= rollover_hour_utc or (
+            entry_time.hour == rollover_hour_utc and entry_time.minute > 0
+        ):
+            current += timedelta(days=1)
+
+        # Count each rollover crossed
+        while current < exit_time:
+            rollovers.append(current.isoweekday())  # 1=Mon, 7=Sun
+            current += timedelta(days=1)
+
+        return len(rollovers), rollovers
 
     def holding_cost(
         self,
         position_type: str,
         lots: float,
         days: int,
-        day_of_week: int = 1
+        day_of_week: int = 1,
+        price: float = 0.0,
     ) -> float:
-        """Calculate overnight holding cost."""
+        """Calculate overnight holding cost (legacy method for simple calculation)."""
         return self.swap.calculate_swap(
             position_type,
             lots,
             self.contract_size,
             self.tick_value,
             days,
-            day_of_week
+            day_of_week,
+            price,
         )
+
+    def calculate_swap_cost(
+        self,
+        position_type: str,
+        lots: float,
+        entry_time: datetime,
+        exit_time: datetime,
+        price: float = 0.0,
+    ) -> float:
+        """
+        Calculate swap cost based on actual rollover events.
+
+        Args:
+            position_type: "long" or "short"
+            lots: Position size
+            entry_time: When position was opened
+            exit_time: When position was closed
+            price: Position price (required for INTEREST swap type)
+
+        Returns:
+            Total swap cost (negative = cost, positive = credit)
+        """
+        rollover_count, rollover_days = self.count_rollovers(entry_time, exit_time)
+
+        if rollover_count == 0:
+            return 0.0
+
+        # Calculate swap for each rollover, applying triple swap on the right day
+        total_swap = 0.0
+        for dow in rollover_days:
+            if dow == self.swap.triple_swap_day:
+                multiplier = 3  # Triple swap (covers weekend)
+            else:
+                multiplier = 1
+            total_swap += self.swap.calculate_swap(
+                position_type,
+                lots,
+                self.contract_size,
+                self.tick_value,
+                days_held=multiplier,
+                day_of_week=dow,
+                price=price,
+            )
+
+        return total_swap
 
     def round_trip_cost(
         self,
@@ -206,7 +392,7 @@ class SymbolSpec:
         entry_price: float,
         exit_price: float,
         position_type: str = "long",
-        holding_days: int = 0
+        holding_days: int = 0,
     ) -> Dict[str, float]:
         """
         Calculate complete round-trip costs.
@@ -224,19 +410,23 @@ class SymbolSpec:
                     position_type,
                     lots,
                     1,
-                    (day % 7) + 1  # Simplified day rotation
+                    (day % 7) + 1,  # Simplified day rotation
                 )
 
         total = entry_cost + exit_cost + abs(swap_cost)
 
         return {
             "spread_cost": self.spread_cost(lots, entry_price),
-            "commission_entry": self.commission.calculate_commission(lots, lots * self.contract_size * entry_price),
-            "commission_exit": self.commission.calculate_commission(lots, lots * self.contract_size * exit_price),
+            "commission_entry": self.commission.calculate_commission(
+                lots, lots * self.contract_size * entry_price
+            ),
+            "commission_exit": self.commission.calculate_commission(
+                lots, lots * self.contract_size * exit_price
+            ),
             "slippage": self.slippage_avg * self.tick_value * lots * 2,
             "swap_cost": swap_cost,
             "total_cost": total,
-            "cost_in_points": total / (self.tick_value * lots) if lots > 0 else 0
+            "cost_in_points": total / (self.tick_value * lots) if lots > 0 else 0,
         }
 
     def to_dict(self) -> Dict:
@@ -257,16 +447,16 @@ class SymbolSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'SymbolSpec':
+    def from_dict(cls, data: Dict) -> "SymbolSpec":
         """Deserialize from dictionary."""
         commission = CommissionSpec(
             rate=data.get("commission_rate", 0),
-            commission_type=CommissionType(data.get("commission_type", "per_lot"))
+            commission_type=CommissionType(data.get("commission_type", "per_lot")),
         )
         swap = SwapSpec(
             long_rate=data.get("swap_long", 0),
             short_rate=data.get("swap_short", 0),
-            swap_type=SwapType(data.get("swap_type", "points"))
+            swap_type=SwapType(data.get("swap_type", "points")),
         )
         return cls(
             symbol=data["symbol"],
@@ -291,16 +481,16 @@ BTCUSD_SPEC = SymbolSpec(
     description="Bitcoin vs US Dollar",
     base_currency="BTC",
     quote_currency="USD",
-    contract_size=1.0,              # 1 BTC per lot
-    tick_size=0.01,                 # $0.01 minimum move
-    tick_value=0.01,                # $0.01 per tick per lot
+    contract_size=1.0,  # 1 BTC per lot
+    tick_size=0.01,  # $0.01 minimum move
+    tick_value=0.01,  # $0.01 per tick per lot
     digits=2,
-    spread_points=5000,             # $50 typical spread
+    spread_points=5000,  # $50 typical spread
     spread_min=2000,
     spread_max=20000,
     commission=CommissionSpec(rate=0, commission_type=CommissionType.PER_LOT),
     swap=SwapSpec(long_rate=-15.0, short_rate=-15.0, swap_type=SwapType.POINTS),
-    slippage_avg=100,               # $1 avg slippage
+    slippage_avg=100,  # $1 avg slippage
 )
 
 EURUSD_SPEC = SymbolSpec(
@@ -310,9 +500,9 @@ EURUSD_SPEC = SymbolSpec(
     quote_currency="USD",
     contract_size=100000,
     tick_size=0.00001,
-    tick_value=1.0,                 # $1 per pip for 1 lot
+    tick_value=1.0,  # $1 per pip for 1 lot
     digits=5,
-    spread_points=10,               # 1 pip typical
+    spread_points=10,  # 1 pip typical
     spread_min=5,
     spread_max=30,
     commission=CommissionSpec(rate=3.5, commission_type=CommissionType.PER_LOT),
@@ -324,15 +514,15 @@ XAUUSD_SPEC = SymbolSpec(
     description="Gold vs US Dollar",
     base_currency="XAU",
     quote_currency="USD",
-    contract_size=100,              # 100 oz per lot
+    contract_size=100,  # 100 oz per lot
     tick_size=0.01,
-    tick_value=1.0,                 # $1 per tick for 1 lot
+    tick_value=1.0,  # $1 per tick for 1 lot
     digits=2,
-    spread_points=30,               # 30 cents typical
+    spread_points=30,  # 30 cents typical
     spread_min=15,
     spread_max=100,
     commission=CommissionSpec(rate=0, commission_type=CommissionType.PER_LOT),
-    swap=SwapSpec(long_rate=-25.0, short_rate=5.0, swap_type=SwapType.POINTS),
+    swap=SwapSpec(long_rate=-68.09, short_rate=47.91, swap_type=SwapType.POINTS),
 )
 
 COPPER_SPEC = SymbolSpec(
@@ -340,9 +530,9 @@ COPPER_SPEC = SymbolSpec(
     description="Copper CFD",
     base_currency="COPPER",
     quote_currency="USD",
-    contract_size=25000,            # 25000 lbs per lot
+    contract_size=25000,  # 25000 lbs per lot
     tick_size=0.0001,
-    tick_value=2.5,                 # $2.50 per tick for 1 lot
+    tick_value=2.5,  # $2.50 per tick for 1 lot
     digits=4,
     spread_points=30,
     spread_min=15,
@@ -386,7 +576,7 @@ def fetch_mt5_symbol_spec(symbol: str) -> Optional[SymbolSpec]:
             long_rate=info.swap_long,
             short_rate=info.swap_short,
             swap_type=SwapType.POINTS,  # MT5 typically uses points
-            triple_swap_day=info.swap_rollover3days + 1  # MT5 uses 0-indexed
+            triple_swap_day=info.swap_rollover3days + 1,  # MT5 uses 0-indexed
         )
 
         # Commission (if available)
@@ -431,11 +621,7 @@ if __name__ == "__main__":
 
     # Calculate round trip for 0.1 lot, held 3 days
     costs = btc.round_trip_cost(
-        lots=0.1,
-        entry_price=95000,
-        exit_price=96000,
-        position_type="long",
-        holding_days=3
+        lots=0.1, entry_price=95000, exit_price=96000, position_type="long", holding_days=3
     )
 
     print(f"\nRound-trip costs (0.1 lot, 3 days):")
@@ -447,4 +633,4 @@ if __name__ == "__main__":
     net_pnl = gross_pnl - costs["total_cost"]
     print(f"\nGross P&L: ${gross_pnl:.2f}")
     print(f"Net P&L: ${net_pnl:.2f}")
-    print(f"Cost as % of gross: {(costs['total_cost']/gross_pnl)*100:.1f}%")
+    print(f"Cost as % of gross: {(costs['total_cost'] / gross_pnl) * 100:.1f}%")

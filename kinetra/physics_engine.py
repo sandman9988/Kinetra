@@ -12,214 +12,400 @@ Models markets as kinetic energy systems with:
 - Buying Pressure: Directional order flow proxy
 - Reynolds Number: Turbulent vs laminar flow indicator
 - Viscosity: Internal friction / resistance to flow
+
+Layer-1 Sensor Set:
+- Base physics + normalized percentiles
+- GMM regime clustering with cluster, regime, regime_age_frac
 """
+
+from __future__ import annotations
+
+from enum import Enum
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-from typing import Tuple, Optional
-from enum import Enum
+
+# Optional sklearn import for GMM clustering
+try:
+    from sklearn.mixture import GaussianMixture
+
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
 
 
 class RegimeType(Enum):
     """Market regime classifications based on physics state."""
+
     UNDERDAMPED = "underdamped"  # High energy, low friction -> trending
-    CRITICAL = "critical"          # Balanced -> transitional
-    OVERDAMPED = "overdamped"      # Low energy, high friction -> ranging
+    CRITICAL = "critical"  # Balanced -> transitional
+    OVERDAMPED = "overdamped"  # Low energy, high friction -> ranging
+    LAMINAR = "laminar"  # Smooth, predictable trends
+    BREAKOUT = "breakout"  # High energy burst
+
+
+import numpy as np
+from hmmlearn import hmm
+from sklearn import svm
+from sklearn.preprocessing import StandardScaler
 
 
 class PhysicsEngine:
     """
-    Physics-based market state calculator.
-    
-    Uses first principles to compute:
-    - Kinetic Energy: E_t = 0.5 * m * (ΔP_t / Δt)²
-    - Damping Coefficient: ζ = friction / (2 * √(spring_constant * mass))
-    - Entropy: H = -Σ p_i * log(p_i) for price distribution
+    Physics-based feature extractor for price series.
+
+    Given a close price series (one symbol, one timeframe), it computes:
+
+    Base signals (per bar):
+        - velocity       : log-return
+        - acceleration   : Δ velocity
+        - jerk           : Δ acceleration
+        - energy         : kinetic energy ~ v^2
+        - damping        : rolling friction proxy (ζ)
+        - entropy        : rolling return-distribution entropy
+        - reynolds       : market Reynolds number (trend / noise)
+        - potential      : potential energy proxy (1 / long vol)
+        - eta            : KE / PE (local efficiency)
+
+    Normalised Layer-1 sensors (0–1 percentiles):
+        - KE_pct, Re_m_pct, zeta_pct, Hs_pct, PE_pct, eta_pct
+
+    Regime clustering:
+        - cluster        : integer cluster from GMM
+        - regime         : UNDERDAMPED / OVERDAMPED / LAMINAR / BREAKOUT
+        - regime_age_frac: 0–1, age within current regime segment
+
+    Attributes:
+        - lookback       : min bars before signals are trustworthy
     """
-    
-    def __init__(self, mass: float = 1.0, lookback: int = 20):
-        """
-        Initialize physics engine.
-        
-        Args:
-            mass: Virtual mass for kinetic energy calculation (default: 1.0)
-            lookback: Window for rolling calculations (default: 20 bars)
-        """
+
+    def __init__(
+        self,
+        vel_window: int = 1,
+        damping_window: int = 64,
+        entropy_window: int = 64,
+        re_slow: int = 24,
+        re_fast: int = 6,
+        pe_window: int = 72,
+        pct_window: int = 500,
+        n_clusters: int = 3,
+        random_state: int = 42,
+        mass: float = 1.0,
+        lookback: int = 20,
+    ) -> None:
+        self.vel_window = vel_window
+        self.damping_window = damping_window
+        self.entropy_window = entropy_window
+        self.re_slow = re_slow
+        self.re_fast = re_fast
+        self.pe_window = pe_window
+        self.pct_window = pct_window
+        self.n_clusters = n_clusters
+        self.random_state = random_state
         self.mass = mass
-        self.lookback = lookback
-    
-    def calculate_energy(self, prices: pd.Series) -> pd.Series:
-        """
-        Calculate kinetic energy from price momentum.
-        
-        E_t = 0.5 * m * (ΔP_t / Δt)²
-        
-        Args:
-            prices: Time series of prices
-            
-        Returns:
-            Series of kinetic energy values (always >= 0)
-        """
-        # Calculate velocity (price change rate)
-        velocity = prices.diff() / 1.0  # Δt = 1 bar
-        
-        # Kinetic energy formula
-        energy = 0.5 * self.mass * velocity ** 2
-        
-        # NaN shield: first value is NaN due to diff()
-        energy = energy.fillna(0.0)
-        
-        # Ensure non-negative (physics constraint)
-        assert (energy >= 0).all(), "Energy cannot be negative (physics violation)"
-        
-        return energy
-    
-    def calculate_damping(self, prices: pd.Series, volume: Optional[pd.Series] = None) -> pd.Series:
-        """
-        Calculate damping coefficient (friction).
-        
-        Uses volatility as proxy for friction:
-        ζ = rolling_std(returns) / rolling_mean(|returns|)
-        
-        Args:
-            prices: Time series of prices
-            volume: Optional volume data (for liquidity-based friction)
-            
-        Returns:
-            Series of damping coefficients (always >= 0)
-        """
-        returns = prices.pct_change()
-        
-        # Rolling statistics
-        volatility = returns.rolling(self.lookback).std()
-        mean_abs_return = returns.abs().rolling(self.lookback).mean()
-        
-        # Damping = noise-to-signal ratio
-        damping = volatility / (mean_abs_return + 1e-10)  # Avoid division by zero
-        
-        # Optional: incorporate volume (low volume -> higher friction)
-        if volume is not None:
-            volume_factor = 1.0 / (volume.rolling(self.lookback).mean() + 1e-10)
-            damping = damping * volume_factor
-        
-        # NaN shield
-        damping = damping.fillna(damping.mean())
-        
-        # Ensure non-negative
-        damping = damping.clip(lower=0.0)
-        
-        return damping
-    
-    def calculate_entropy(self, prices: pd.Series, bins: int = 10) -> pd.Series:
-        """
-        Calculate Shannon entropy of price distribution.
 
-        H = -Σ p_i * log(p_i)
+        # BacktestEngine uses this to avoid using early noisy bars
+        self.lookback = max(
+            lookback,
+            damping_window,
+            entropy_window,
+            re_slow,
+            re_fast,
+            pe_window,
+            pct_window // 4,
+        )
 
-        Higher entropy = more disorder/uncertainty
+        # Hybrid HMM-SVM components
+        self.hmm = hmm.GaussianHMM(
+            n_components=self.n_clusters, covariance_type="full", random_state=self.random_state
+        )
+        self.svm = svm.SVC(kernel="rbf", random_state=self.random_state, probability=True)
+
+    # ---------- public API ----------
+
+    def compute_physics_state(
+        self,
+        prices: pd.Series,
+        volume: Optional[pd.Series] = None,
+        high: Optional[pd.Series] = None,
+        low: Optional[pd.Series] = None,
+        open_price: Optional[pd.Series] = None,
+        include_percentiles: bool = True,
+        include_kinematics: bool = True,
+        include_flow: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Main entry point - compute complete Layer-1 physics state.
 
         Args:
-            prices: Time series of prices
-            bins: Number of bins for discretization
+            prices: pd.Series of close prices (indexed by datetime)
+            volume: Optional volume data (enables liquidity metrics)
+            high: Optional high prices (enables range-based metrics)
+            low: Optional low prices (enables range-based metrics)
+            open_price: Optional open prices (enables buying pressure)
+            include_percentiles: Include rolling percentile ranks
+            include_kinematics: Include velocity, acceleration, jerk
+            include_flow: Include Reynolds number (requires volume)
 
         Returns:
-            Series of entropy values
+            pd.DataFrame aligned to 'prices' index with physics / regime columns.
         """
-        returns = prices.pct_change().dropna()
+        prices = prices.astype(float)
+        idx = prices.index
 
-        def rolling_entropy(window_returns):
-            if len(window_returns) < 5:
-                return 0.0
+        # 1) basic kinematics
+        x = np.log(prices.replace(0, np.nan)).ffill()
+        v = x.diff(self.vel_window)  # velocity = log-return
+        a = v.diff()
+        j = a.diff()
 
-            # Create histogram
-            counts, _ = np.histogram(window_returns, bins=bins)
+        # 2) kinetic energy
+        energy = 0.5 * self.mass * (v**2)
 
-            # Convert to probabilities
-            total = counts.sum()
-            if total == 0:
-                return 0.0
+        # 3) damping (friction proxy, ζ)
+        damping = self._rolling_damping(v, self.damping_window)
 
-            probabilities = counts / total
+        # 4) entropy (return-distribution entropy)
+        entropy = self._rolling_entropy(v, self.entropy_window)
 
-            # Shannon entropy (with NaN shield for log(0))
-            probabilities = probabilities[probabilities > 0]
-            if len(probabilities) == 0:
-                return 0.0
+        # 5) Reynolds number: trend / noise
+        reynolds = self._reynolds(v, self.re_slow, self.re_fast)
 
-            entropy = -np.sum(probabilities * np.log(probabilities))
+        # 6) potential energy proxy: 1 / long-window volatility
+        potential = self._potential_energy(v, self.pe_window)
 
-            # Ensure non-negative (numerical stability)
-            entropy = max(0.0, entropy)
+        # 7) efficiency: KE / PE
+        eta = self._efficiency(energy, potential)
 
-            return entropy
+        # Assemble core DF
+        df = pd.DataFrame(
+            {
+                "close": prices,
+                "log_price": x,
+                "velocity": v.fillna(0.0),
+                "acceleration": a.fillna(0.0),
+                "jerk": j.fillna(0.0),
+                "energy": energy.fillna(0.0),
+                "damping": damping,
+                "entropy": entropy,
+                "reynolds": reynolds,
+                "potential": potential,
+                "eta": eta,
+            },
+            index=idx,
+        )
 
-        # Apply rolling window
-        entropy_series = returns.rolling(self.lookback).apply(rolling_entropy, raw=False)
+        # Force non-negative values (numerical stability)
+        df["energy"] = df["energy"].clip(lower=0.0)
+        df["damping"] = df["damping"].clip(lower=0.0)
+        df["entropy"] = df["entropy"].clip(lower=0.0)
 
-        # NaN shield
-        entropy_series = entropy_series.fillna(0.0)
+        # 8) Buying pressure if OHLC available
+        if high is not None and low is not None:
+            bar_range = (high - low).clip(lower=1e-10)
+            bp = (prices - low) / bar_range
+            df["BP"] = bp.fillna(0.5)
 
-        # Ensure all values are non-negative
-        entropy_series = entropy_series.clip(lower=0.0)
+            # PE from volatility compression
+            atr = bar_range.rolling(self.lookback).mean().clip(lower=1e-10)
+            pe = 1.0 - (bar_range / atr).clip(upper=2.0) / 2.0
+            df["pe"] = pe.clip(lower=0.0, upper=1.0).fillna(0.5)
+        else:
+            df["BP"] = 0.5
+            df["pe"] = 0.5
 
-        return entropy_series
+        # 9) Liquidity if volume available
+        if volume is not None and high is not None and low is not None:
+            liquidity = self._liquidity(high, low, prices, volume)
+            df["liquidity"] = liquidity
 
-    def calculate_acceleration(self, prices: pd.Series) -> pd.Series:
+            # Viscosity
+            viscosity = self._viscosity(high, low, prices, volume)
+            df["viscosity"] = viscosity
+        else:
+            df["liquidity"] = 0.0
+            df["viscosity"] = 1.0
+
+        # 10) Layer-1 normalised sensors (0–1 rolling percentiles)
+        if include_percentiles:
+            df["KE_pct"] = self._rolling_percentile(df["energy"], self.pct_window)
+            df["Re_m_pct"] = self._rolling_percentile(df["reynolds"], self.pct_window)
+            df["zeta_pct"] = self._rolling_percentile(df["damping"], self.pct_window)
+            df["Hs_pct"] = self._rolling_percentile(df["entropy"], self.pct_window)
+            df["PE_pct"] = self._rolling_percentile(df["potential"], self.pct_window)
+            df["eta_pct"] = self._rolling_percentile(df["eta"], self.pct_window)
+            df["velocity_pct"] = self._rolling_percentile(df["velocity"].abs(), self.pct_window)
+            df["jerk_pct"] = self._rolling_percentile(df["jerk"].abs(), self.pct_window)
+
+            # Legacy aliases for backward compatibility
+            df["energy_pct"] = df["KE_pct"]
+            df["damping_pct"] = df["zeta_pct"]
+            df["entropy_pct"] = df["Hs_pct"]
+
+        # 11) regime clustering (Hybrid HMM-SVM for temporal smoothing and discriminative power)
+        # Prepare features (similar to original GMM)
+        if include_percentiles:
+            feature_cols = ["KE_pct", "Re_m_pct", "zeta_pct", "Hs_pct", "PE_pct", "eta_pct"]
+        else:
+            feature_cols = ["energy", "damping", "entropy", "reynolds", "potential", "eta"]
+        df_raw = df[feature_cols]
+        df_clean = df_raw.replace([np.inf, -np.inf], np.nan).dropna()
+
+        if len(df_clean) == 0:
+            df["cluster"] = -1
+            df["regime"] = "UNKNOWN"
+            df["regime_age_frac"] = 0.0
+        else:
+            scaler = StandardScaler()
+            X = scaler.fit_transform(df_clean)
+
+            # Generative: HMM for temporal dependencies
+            self.hmm.fit(X)
+            hmm_states = self.hmm.predict(X)
+            hmm_states_full = np.full(len(df_raw), -1, dtype=int)
+            positions = df_raw.index.get_indexer(df_clean.index)
+            hmm_states_full[positions] = hmm_states
+            df["hmm_state"] = pd.Series(hmm_states_full, index=df.index)
+
+            # Discriminative: SVM to refine HMM states
+            self.svm.fit(X, hmm_states)
+            svm_predictions = self.svm.predict(X)
+            svm_predictions_full = np.full(len(df_raw), -1, dtype=int)
+            svm_predictions_full[positions] = svm_predictions
+            df["cluster"] = pd.Series(svm_predictions_full, index=df.index)
+
+            # Map to regimes using existing method, but with hybrid clusters
+            df["regime"] = self._map_clusters_to_regimes(df, include_percentiles)
+            df["regime_age_frac"] = self._compute_regime_age(df["cluster"])
+
+        return df
+
+    def compute_physics_state_from_ohlcv(
+        self,
+        df: pd.DataFrame,
+        include_percentiles: bool = True,
+        include_kinematics: bool = True,
+        include_flow: bool = True,
+    ) -> pd.DataFrame:
         """
-        Calculate acceleration (second derivative of price).
-
-        a = d²P/dt² = d(velocity)/dt
-
-        Positive acceleration = momentum building
-        Negative acceleration = momentum fading (potential reversal)
-
-        Returns:
-            Series of acceleration values (can be negative)
-        """
-        velocity = prices.pct_change()
-        acceleration = velocity.diff()
-        return acceleration.fillna(0.0)
-
-    def calculate_jerk(self, prices: pd.Series) -> pd.Series:
-        """
-        Calculate jerk (third derivative - rate of acceleration change).
-
-        j = d³P/dt³ = d(acceleration)/dt
-
-        High jerk = abrupt momentum changes = FAT CANDLE predictor (1.37x lift)
-
-        Returns:
-            Series of jerk values
-        """
-        acceleration = self.calculate_acceleration(prices)
-        jerk = acceleration.diff()
-        return jerk.fillna(0.0)
-
-    def calculate_impulse(self, prices: pd.Series, window: int = 5) -> pd.Series:
-        """
-        Calculate impulse (momentum change over time window).
-
-        I = Δ(momentum) over window
-
-        Strong impulse = directional bias (1.30x lift for fat candles)
+        Convenience method to compute physics state from OHLCV DataFrame.
 
         Args:
-            prices: Price series
-            window: Time window for momentum change
+            df: DataFrame with columns: open, high, low, close, volume (volume optional)
+            include_percentiles: Include rolling percentile ranks
+            include_kinematics: Include velocity, acceleration, jerk
+            include_flow: Include Reynolds number, viscosity (requires volume)
 
         Returns:
-            Series of impulse values
+            DataFrame with all Layer-1 sensor columns
         """
-        momentum = prices.pct_change(self.lookback)
-        impulse = momentum.diff(window)
-        return impulse.fillna(0.0)
+        if "close" not in df.columns:
+            raise ValueError("DataFrame must contain 'close' column")
 
-    def calculate_liquidity(
+        close_series: pd.Series = df["close"]
+        high_series: Optional[pd.Series] = df["high"] if "high" in df.columns else None
+        low_series: Optional[pd.Series] = df["low"] if "low" in df.columns else None
+        open_series: Optional[pd.Series] = df["open"] if "open" in df.columns else None
+        volume_series: Optional[pd.Series] = df["volume"] if "volume" in df.columns else None
+
+        return self.compute_physics_state(
+            prices=close_series,
+            volume=volume_series,
+            high=high_series,
+            low=low_series,
+            open_price=open_series,
+            include_percentiles=include_percentiles,
+            include_kinematics=include_kinematics,
+            include_flow=include_flow,
+        )
+
+    # ---------- core computations ----------
+
+    @staticmethod
+    def _rolling_damping(v: pd.Series, window: int) -> pd.Series:
+        """
+        ζ ~ sigma(returns) / mean(|returns|) over rolling window.
+
+        High ζ = high friction, mean-reverting.
+        Low ζ = low friction, trend-following.
+        """
+        abs_v = v.abs()
+        sigma = v.rolling(window, min_periods=2).std()
+        mu = abs_v.rolling(window, min_periods=2).mean()
+        zeta = sigma / (mu + 1e-12)
+        return zeta.bfill().fillna(0.0)
+
+    @staticmethod
+    def _rolling_entropy(v: pd.Series, window: int, bins: int = 20) -> pd.Series:
+        """
+        Shannon entropy of return distribution in a rolling window.
+
+        H = - Σ p_i log(p_i)
+        Normalised by log(bins) to map roughly to [0,1].
+        """
+
+        def ent(x: np.ndarray) -> float:
+            x = x[~np.isnan(x)]
+            n = x.size
+            if n < 5:
+                return np.nan
+            hist, _ = np.histogram(x, bins=bins, density=True)
+            p = hist / (hist.sum() + 1e-12)
+            p = p[p > 0]
+            H = -np.sum(p * np.log(p))
+            return float(H / np.log(bins))
+
+        return (
+            v.rolling(window, min_periods=5)
+            .apply(lambda s: ent(s.values), raw=False)
+            .bfill()
+            .fillna(0.0)
+        )
+
+    @staticmethod
+    def _reynolds(v: pd.Series, slow: int, fast: int) -> pd.Series:
+        """
+        Market Reynolds number: trend / noise.
+
+        Re_m = | <v>_slow | / (sigma_v_fast + eps)
+        High Re_m → laminar, low Re_m → turbulent/noisy.
+        """
+        trend = v.rolling(slow, min_periods=2).mean()
+        noise = v.rolling(fast, min_periods=2).std()
+        Re = trend.abs() / (noise + 1e-12)
+        return Re.bfill().fillna(0.0)
+
+    @staticmethod
+    def _potential_energy(v: pd.Series, window: int) -> pd.Series:
+        """
+        Potential energy proxy: inverse of long-window volatility.
+
+        High PE → compressed / squeezed (stored energy).
+        """
+        vol = v.rolling(window, min_periods=5).std()
+        pe = 1.0 / (vol + 1e-12)
+        return pe.bfill().fillna(0.0)
+
+    @staticmethod
+    def _efficiency(energy: pd.Series, potential: pd.Series) -> pd.Series:
+        """
+        Local energy conversion efficiency: KE / PE.
+
+        High when kinetic energy is high relative to stored potential (PE).
+        """
+        eta = energy / (potential + 1e-12)
+        # Avoid insane spikes
+        q = eta.quantile(0.9999) if len(eta) > 0 else 1e6
+        eta = eta.clip(lower=0.0, upper=q)
+        return eta.fillna(0.0)
+
+    def _liquidity(
         self,
         high: pd.Series,
         low: pd.Series,
         close: pd.Series,
-        volume: pd.Series
+        volume: pd.Series,
     ) -> pd.Series:
         """
         Calculate liquidity proxy from OHLCV.
@@ -228,278 +414,281 @@ class PhysicsEngine:
 
         Higher = more liquid (big volume, small price move)
         Lower = thin market (small volume, big move)
-
-        High liquidity at berserker = 1.34x lift for fat candles
-
-        Returns:
-            Series of liquidity values (higher = more liquid)
         """
         bar_range = (high - low).clip(lower=1e-10)
         price_range_pct = bar_range / close
         liquidity = volume / (price_range_pct * close + 1e-10)
         return liquidity.fillna(0.0)
 
-    def calculate_buying_pressure(
+    def _viscosity(
         self,
-        open_price: pd.Series,
         high: pd.Series,
         low: pd.Series,
         close: pd.Series,
-        lookback: int = 5
-    ) -> pd.Series:
-        """
-        Calculate buying pressure from OHLC (order flow proxy).
-
-        BP = (Close - Low) / (High - Low)
-
-        1.0 = closed at high (buyers dominated)
-        0.0 = closed at low (sellers dominated)
-
-        Best direction signal:
-        - High BP (>0.6) at berserker → 62% DOWN fat candle (+12% edge)
-        - Low BP (<0.4) at berserker → 57% UP fat candle (+7% edge)
-
-        Returns:
-            Series of buying pressure [0, 1]
-        """
-        bar_range = (high - low).clip(lower=1e-10)
-        bp = (close - low) / bar_range
-        return bp.rolling(lookback).mean().fillna(0.5)
-
-    def calculate_reynolds(
-        self,
-        prices: pd.Series,
         volume: pd.Series,
-        high: pd.Series,
-        low: pd.Series
-    ) -> pd.Series:
-        """
-        Calculate Reynolds number (turbulent vs laminar flow indicator).
-
-        In fluid dynamics: Re = ρvL/μ = inertial forces / viscous forces
-        - High Re = turbulent (chaotic, unpredictable)
-        - Low Re = laminar (smooth, predictable trends)
-
-        Market analog:
-        Re = (momentum * characteristic_length) / (viscosity * density)
-           = (velocity * range) / (volatility * 1/volume)
-           = (velocity * range * volume) / volatility
-           = kinetic_energy / damping (simplified)
-
-        Low Re (<2000 in fluids) = laminar = trending
-        High Re (>4000 in fluids) = turbulent = ranging/chaotic
-
-        Returns:
-            Series of Reynolds numbers (higher = more turbulent)
-        """
-        # Velocity (momentum)
-        velocity = prices.pct_change()
-
-        # Characteristic length (price range)
-        bar_range = (high - low) / prices
-
-        # Viscosity proxy (volatility)
-        volatility = velocity.rolling(self.lookback).std().clip(lower=1e-10)
-
-        # Density proxy (inverse of volume normalized)
-        volume_norm = volume / volume.rolling(self.lookback).mean().clip(lower=1e-10)
-
-        # Reynolds number: (velocity * length * density) / viscosity
-        # = (abs(velocity) * range * volume_norm) / volatility
-        reynolds = (velocity.abs() * bar_range * volume_norm) / volatility
-
-        # Smooth it
-        reynolds = reynolds.rolling(self.lookback).mean()
-
-        return reynolds.fillna(1.0)
-
-    def calculate_reynolds_regime(
-        self,
-        reynolds: pd.Series
-    ) -> pd.Series:
-        """
-        Classify flow regime based on Reynolds number percentile.
-
-        Returns:
-            Series with values:
-            - 'laminar' (Re < 25th percentile) - smooth trending
-            - 'transitional' (25-75th percentile) - mixed
-            - 'turbulent' (Re > 75th percentile) - chaotic
-        """
-        window = min(500, len(reynolds))
-
-        # Adaptive percentile thresholds
-        re_pct = reynolds.rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-            raw=False
-        ).fillna(0.5)
-
-        def classify(pct):
-            if pct < 0.25:
-                return 'laminar'
-            elif pct > 0.75:
-                return 'turbulent'
-            else:
-                return 'transitional'
-
-        return re_pct.apply(classify)
-
-    def calculate_viscosity(
-        self,
-        high: pd.Series,
-        low: pd.Series,
-        close: pd.Series,
-        volume: pd.Series
     ) -> pd.Series:
         """
         Calculate viscosity (internal friction / resistance to flow).
 
-        In fluid dynamics: μ = shear stress / velocity gradient
-        Higher viscosity = more resistance to flow
-
-        Market analog:
-        μ = spread_proxy / volume_normalized
-          = (range / close) / (volume / avg_volume)
-          = range * avg_volume / (close * volume)
-
         Higher viscosity = harder to move price (thick, resistant)
         Lower viscosity = easier to move price (thin, fluid)
-
-        Combined with Reynolds: Re = ρvL/μ
-        - High viscosity → Low Re → Laminar (smooth trends)
-        - Low viscosity → High Re → Turbulent (chaotic)
-
-        Returns:
-            Series of viscosity values (higher = more resistance)
         """
-        # Spread proxy (range as % of price)
         bar_range_pct = (high - low) / close.clip(lower=1e-10)
-
-        # Volume normalized
         avg_volume = volume.rolling(self.lookback).mean().clip(lower=1e-10)
         volume_norm = volume / avg_volume
-
-        # Viscosity = spread / volume_flow
-        # High spread + low volume = high viscosity
         viscosity = bar_range_pct / volume_norm.clip(lower=1e-10)
-
-        # Smooth it
         viscosity = viscosity.rolling(self.lookback).mean()
-
         return viscosity.fillna(1.0)
 
-    def classify_regime(
-        self, 
-        energy: float, 
-        damping: float, 
-        history_energy: pd.Series,
-        history_damping: pd.Series
-    ) -> RegimeType:
+    @staticmethod
+    def _rolling_percentile(x: pd.Series, window: int) -> pd.Series:
         """
-        Classify market regime using rolling percentiles (NO FIXED THRESHOLDS).
-        
-        Args:
-            energy: Current kinetic energy
-            damping: Current damping coefficient
-            history_energy: Historical energy values for percentile calculation
-            history_damping: Historical damping values for percentile calculation
-            
+        Rolling percentile (0–1) of current value within last 'window' samples.
+        """
+
+        def pct_last(w: pd.Series) -> float:
+            val = w.iloc[-1]
+            w = w.dropna()
+            if w.empty:
+                return np.nan
+            return float((w <= val).mean())
+
+        return x.rolling(window, min_periods=10).apply(pct_last, raw=False).bfill().fillna(0.5)
+
+    # ---------- clustering & regimes ----------
+
+    def _cluster_regimes(self, df: pd.DataFrame, include_percentiles: bool) -> pd.Series:
+        """
+        Run GMM on Layer-1 sensors to get discrete clusters.
+
         Returns:
-            RegimeType classification
+            pd.Series of ints in [0, n_clusters-1] (or -1 for early NaNs).
         """
-        # Calculate dynamic thresholds from history
+        if not include_percentiles:
+            # Fallback to simple threshold-based clustering
+            return self._simple_cluster(df)
+
+        if not SKLEARN_AVAILABLE:
+            # Fallback if sklearn not installed
+            return self._simple_cluster(df)
+
+        cols = ["KE_pct", "Re_m_pct", "zeta_pct", "Hs_pct", "PE_pct", "eta_pct"]
+
+        # Check all columns exist
+        missing = [c for c in cols if c not in df.columns]
+        if missing:
+            return self._simple_cluster(df)
+
+        X = df[cols].values
+
+        # Mask out rows with NaNs (early window warmup)
+        mask = np.isfinite(X).all(axis=1)
+        clusters = np.full(len(df), -1, dtype=int)
+
+        if mask.sum() < self.n_clusters * 20:
+            # Not enough data; fallback to simple
+            return self._simple_cluster(df)
+
+        X_valid = X[mask]
+
+        try:
+            gmm = GaussianMixture(
+                n_components=self.n_clusters,
+                covariance_type="full",
+                random_state=self.random_state,
+            )
+            labels = gmm.fit_predict(X_valid)
+            clusters[mask] = labels
+        except Exception:
+            return self._simple_cluster(df)
+
+        return pd.Series(clusters, index=df.index)
+
+    def _simple_cluster(self, df: pd.DataFrame) -> pd.Series:
+        """
+        Fallback threshold-based clustering when GMM unavailable.
+        """
+        clusters = np.ones(len(df), dtype=int)  # Default to CRITICAL (1)
+
+        if "KE_pct" not in df.columns or "zeta_pct" not in df.columns:
+            return pd.Series(clusters, index=df.index)
+
+        ke_pct = df["KE_pct"].values
+        zeta_pct = df["zeta_pct"].values
+        jerk_pct = df.get("jerk_pct", pd.Series(np.zeros(len(df)))).values
+
+        for i in range(len(df)):
+            if np.isnan(ke_pct[i]) or np.isnan(zeta_pct[i]):
+                clusters[i] = 1  # CRITICAL
+            elif ke_pct[i] > 0.75 and zeta_pct[i] < 0.25:
+                clusters[i] = 0  # UNDERDAMPED
+            elif zeta_pct[i] > 0.75 and ke_pct[i] < 0.25:
+                clusters[i] = 2  # OVERDAMPED
+            elif ke_pct[i] > 0.8 and jerk_pct[i] > 0.8:
+                clusters[i] = 3  # BREAKOUT
+            else:
+                clusters[i] = 1  # CRITICAL
+
+        return pd.Series(clusters, index=df.index)
+
+    def _map_clusters_to_regimes(self, df: pd.DataFrame, include_percentiles: bool) -> pd.Series:
+        """
+        Map integer clusters to physical regime labels.
+
+        Heuristic mapping based on cluster means:
+            - OVERDAMPED   : high zeta_pct, low Re_m_pct
+            - UNDERDAMPED  : low zeta_pct, high Re_m_pct
+            - LAMINAR      : high Re_m_pct, low Hs_pct (ordered trend)
+            - BREAKOUT     : high KE_pct + high eta_pct + high Hs_pct
+        """
+        clusters = df["cluster"].values
+        regimes = np.array(["critical"] * len(df), dtype=object)
+
+        if not include_percentiles or "KE_pct" not in df.columns:
+            # Simple mapping
+            regime_map = {
+                0: "underdamped",
+                1: "critical",
+                2: "overdamped",
+                3: "breakout",
+                -1: "critical",
+            }
+            for i, c in enumerate(clusters):
+                regimes[i] = regime_map.get(int(c), "critical")
+            return pd.Series(regimes, index=df.index)
+
+        valid_mask = clusters >= 0
+        if not valid_mask.any():
+            return pd.Series(regimes, index=df.index)
+
+        tmp = df.loc[
+            valid_mask, ["cluster", "KE_pct", "Re_m_pct", "zeta_pct", "Hs_pct", "eta_pct"]
+        ].copy()
+
+        if tmp.empty:
+            return pd.Series(regimes, index=df.index)
+
+        stats = (
+            tmp.groupby("cluster")
+            .mean()[["KE_pct", "Re_m_pct", "zeta_pct", "Hs_pct", "eta_pct"]]
+            .copy()
+        )
+
+        # Pre-compute scores per cluster
+        labels_for_cluster: dict[int, str] = {}
+        for c, row in stats.iterrows():
+            ke = row["KE_pct"]
+            Re = row["Re_m_pct"]
+            zeta = row["zeta_pct"]
+            Hs = row["Hs_pct"]
+            eta = row["eta_pct"]
+
+            # Simple rule priority order
+            if zeta > 0.66 and Re < 0.5:
+                lab = "overdamped"
+            elif Re > 0.66 and zeta < 0.33:
+                lab = "underdamped"
+            elif Re > 0.66 and Hs < 0.33:
+                lab = "laminar"
+            elif ke > 0.66 and eta > 0.5 and Hs > 0.5:
+                lab = "breakout"
+            else:
+                # Fallback: choose the strongest tendency
+                scores = {
+                    "overdamped": zeta - Re,
+                    "underdamped": Re - zeta,
+                    "laminar": Re - Hs,
+                    "breakout": ke + eta + Hs,
+                }
+                lab = max(scores, key=lambda k: scores[k])
+
+            labels_for_cluster[int(c)] = lab
+
+        # Apply mapping
+        for i, c in enumerate(clusters):
+            if c >= 0:
+                regimes[i] = labels_for_cluster.get(int(c), "critical")
+
+        return pd.Series(regimes, index=df.index)
+
+    @staticmethod
+    def _compute_regime_age(cluster_series: pd.Series) -> pd.Series:
+        """
+        Normalised age in current cluster/regime: 0 at switch, →1 as streak length grows.
+
+        Works even when cluster = -1 initially.
+        """
+        clusters = cluster_series.values
+        age = np.zeros(len(clusters), dtype=float)
+        current_cluster = None
+        run_length = 0
+
+        for i, c in enumerate(clusters):
+            if c == current_cluster:
+                run_length += 1
+            else:
+                current_cluster = c
+                run_length = 1
+            age[i] = run_length
+
+        # Normalise by rolling max age to [0,1]
+        age_series = pd.Series(age, index=cluster_series.index)
+        max_age = age_series.rolling(500, min_periods=1).max()
+        age_frac = age_series / (max_age + 1e-9)
+        return age_frac.fillna(0.0)
+
+    # ---------- legacy methods for backward compatibility ----------
+
+    def calculate_energy(self, prices: pd.Series) -> pd.Series:
+        """Calculate kinetic energy from price momentum."""
+        velocity = prices.pct_change().fillna(0.0)
+        energy = 0.5 * self.mass * velocity**2
+        return energy.clip(lower=0.0)
+
+    def calculate_damping(self, prices: pd.Series, volume: Optional[pd.Series] = None) -> pd.Series:
+        """Calculate damping coefficient (friction)."""
+        returns = prices.pct_change()
+        volatility = returns.rolling(self.lookback).std()
+        mean_abs_return = returns.abs().rolling(self.lookback).mean()
+        damping = volatility / (mean_abs_return + 1e-10)
+        return damping.clip(lower=0.0).fillna(0.0)
+
+    def calculate_entropy(self, prices: pd.Series, bins: int = 10) -> pd.Series:
+        """Calculate Shannon entropy of price distribution."""
+        returns = prices.pct_change().dropna()
+        return self._rolling_entropy(returns, self.entropy_window, bins).reindex(
+            prices.index, fill_value=0.0
+        )
+
+    def calculate_acceleration(self, prices: pd.Series) -> pd.Series:
+        """Calculate acceleration (second derivative of price)."""
+        velocity = prices.pct_change()
+        acceleration = velocity.diff()
+        return acceleration.fillna(0.0)
+
+    def calculate_jerk(self, prices: pd.Series) -> pd.Series:
+        """Calculate jerk (third derivative - rate of acceleration change)."""
+        acceleration = self.calculate_acceleration(prices)
+        jerk = acceleration.diff()
+        return jerk.fillna(0.0)
+
+    def classify_regime(
+        self, energy: float, damping: float, history_energy: pd.Series, history_damping: pd.Series
+    ) -> RegimeType:
+        """Classify market regime using rolling percentiles."""
+        if len(history_energy.dropna()) < 10 or len(history_damping.dropna()) < 10:
+            return RegimeType.CRITICAL
+
         energy_75pct = np.percentile(history_energy.dropna(), 75)
         damping_25pct = np.percentile(history_damping.dropna(), 25)
         damping_75pct = np.percentile(history_damping.dropna(), 75)
-        
-        # Physics-based classification
+
         if energy > energy_75pct and damping < damping_25pct:
-            return RegimeType.UNDERDAMPED  # High energy, low friction -> trending
+            return RegimeType.UNDERDAMPED
         elif damping_25pct <= damping <= damping_75pct:
-            return RegimeType.CRITICAL  # Balanced -> transitional
+            return RegimeType.CRITICAL
         else:
-            return RegimeType.OVERDAMPED  # High friction -> ranging
-    
-    def compute_physics_state(
-        self,
-        prices: pd.Series,
-        volume: Optional[pd.Series] = None,
-        include_percentiles: bool = True
-    ) -> pd.DataFrame:
-        """
-        Compute complete physics state for market data.
-
-        Args:
-            prices: Time series of prices
-            volume: Optional volume data
-            include_percentiles: Include rolling percentile ranks (adaptive per instrument)
-
-        Returns:
-            DataFrame with columns: energy, damping, entropy, regime, and optionally
-            energy_pct, damping_pct, entropy_pct (rolling percentile ranks 0-1)
-        """
-        energy = self.calculate_energy(prices)
-        damping = self.calculate_damping(prices, volume)
-        entropy = self.calculate_entropy(prices)
-
-        # Ensure all series have same index
-        energy = energy.reindex(prices.index, fill_value=0.0)
-        damping = damping.reindex(prices.index, fill_value=0.0)
-        entropy = entropy.reindex(prices.index, fill_value=0.0)
-
-        # Create state DataFrame
-        state = pd.DataFrame({
-            'energy': energy,
-            'damping': damping,
-            'entropy': entropy
-        }, index=prices.index)
-
-        # Force non-negative values (numerical stability)
-        state['energy'] = state['energy'].clip(lower=0.0)
-        state['damping'] = state['damping'].clip(lower=0.0)
-        state['entropy'] = state['entropy'].clip(lower=0.0)
-
-        # Add rolling percentile ranks (ADAPTIVE PER INSTRUMENT)
-        # These are the key features for RL - no fixed thresholds
-        if include_percentiles:
-            window = min(500, len(state))  # Rolling window for percentiles
-            state['energy_pct'] = state['energy'].rolling(window, min_periods=self.lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-                raw=False
-            ).fillna(0.5)
-            state['damping_pct'] = state['damping'].rolling(window, min_periods=self.lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-                raw=False
-            ).fillna(0.5)
-            state['entropy_pct'] = state['entropy'].rolling(window, min_periods=self.lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-                raw=False
-            ).fillna(0.5)
-
-        # Classify regime for each timestep (human-readable label, not for trading)
-        regimes = []
-        for i in range(len(state)):
-            if i < self.lookback:
-                regimes.append(RegimeType.CRITICAL)  # Not enough history
-            else:
-                history_energy = state['energy'].iloc[:i]
-                history_damping = state['damping'].iloc[:i]
-                regime = self.classify_regime(
-                    state['energy'].iloc[i],
-                    state['damping'].iloc[i],
-                    history_energy,
-                    history_damping
-                )
-                regimes.append(regime)
-
-        state['regime'] = [r.value for r in regimes]
-
-        # Validate physics constraints
-        assert (state['energy'] >= 0).all(), "Energy must be non-negative"
-        assert (state['damping'] >= 0).all(), "Damping must be non-negative"
-        assert (state['entropy'] >= 0).all(), "Entropy must be non-negative"
-
-        return state
+            return RegimeType.OVERDAMPED
 
 
 # Standalone functions for convenience

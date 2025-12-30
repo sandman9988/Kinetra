@@ -16,7 +16,6 @@ dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
     "scipy>=1.10.0",
-    "torch>=2.0.0",
     "pydantic>=2.0.0",
 ]
 
@@ -46,3 +45,8 @@ target-version = ["py310", "py311", "py312"]
 line-length = 100
 select = ["E", "F", "I", "W"]
 ignore = ["E501"]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)"
+]
