@@ -76,8 +76,32 @@ def atomic_write_csv(df: pd.DataFrame, filepath: Path, sep: str = '\t'):
         raise e
 
 
+# Symbol aliases - map common names to broker-specific symbols
+SYMBOL_ALIASES = {
+    # Indices
+    'US30': ['DJ30', 'DJI30', 'DJ30ft', 'DOW30', 'DJIA', 'US30Cash'],
+    'US500': ['SP500', 'SPX500', 'S&P500', 'US500Cash', 'SPX'],
+    'JP225': ['Nikkei225', 'JPN225', 'NI225', 'NIKKEI', 'JP225Cash'],
+    'NAS100': ['NASDAQ', 'NDX100', 'USTEC', 'NAS100Cash'],
+    'GER40': ['DAX40', 'DE40', 'GER30', 'DAX', 'GER40Cash'],
+    'UK100': ['FTSE100', 'UK100Cash', 'FTSE', 'UKX'],
+    # Energy
+    'USOIL': ['WTI', 'CRUDEOIL', 'USOUSD', 'CL', 'OIL', 'OILUSD', 'WTIUSD'],
+    'UKOIL': ['BRENT', 'UKOUSD', 'BRN', 'BRENTOIL', 'BRNUSD'],
+    'NGAS': ['NATGAS', 'NATURALGAS', 'NG', 'NGASUSD'],
+    'BRENT': ['UKOIL', 'UKOUSD', 'BRN', 'BRNUSD'],
+    'WTI': ['USOIL', 'WTIUSD', 'CL', 'USOUSD'],
+    'HEATING': ['HO', 'HEATINGOIL', 'HOUSD'],
+    # Crypto alternatives
+    'BTCUSD': ['BITCOIN', 'BTC', 'XBTUSD'],
+    'ETHUSD': ['ETHEREUM', 'ETH'],
+    # Metals
+    'COPPER': ['COPPER-C', 'HG', 'XCUUSD'],
+}
+
+
 def find_symbol_match(target: str, available: list) -> str:
-    """Find matching symbol from available list."""
+    """Find matching symbol from available list with comprehensive alias support."""
     target_upper = target.upper()
 
     # Try exact match first
@@ -85,7 +109,7 @@ def find_symbol_match(target: str, available: list) -> str:
         return target
 
     # Try with common suffixes
-    for suffix in ['', '+', 'm', '.pro', '_SB']:
+    for suffix in ['', '+', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']:
         candidate = target + suffix
         if candidate in available:
             return candidate
@@ -94,9 +118,25 @@ def find_symbol_match(target: str, available: list) -> str:
         if matches:
             return matches[0]
 
-    # Try partial match
+    # Try aliases
+    aliases = SYMBOL_ALIASES.get(target_upper, [])
+    for alias in aliases:
+        if alias in available:
+            return alias
+        # Try alias with suffixes
+        for suffix in ['', '+', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']:
+            candidate = alias + suffix
+            if candidate in available:
+                return candidate
+            matches = [s for s in available if s.upper() == (alias.upper() + suffix.upper())]
+            if matches:
+                return matches[0]
+
+    # Try partial match (last resort)
     matches = [s for s in available if target_upper in s.upper()]
     if matches:
+        # Prefer shorter matches (more specific)
+        matches.sort(key=len)
         return matches[0]
 
     return None
@@ -147,8 +187,9 @@ async def download_all():
 
     print(f"\n    Total to download: {len(symbols_to_download)} symbols × {len(TIMEFRAMES)} timeframes")
 
-    # Date range (2 years)
-    end_time = datetime.now()
+    # Date range (2 years) - use UTC for consistency with MetaAPI
+    from datetime import timezone
+    end_time = datetime.now(timezone.utc)
     start_time = end_time - timedelta(days=730)
 
     # Download
@@ -174,6 +215,8 @@ async def download_all():
                     existing_df = pd.read_csv(existing[0], sep='\t')
                     existing_df.columns = [c.lower().replace('<', '').replace('>', '') for c in existing_df.columns]
                     last_date = pd.to_datetime(existing_df['date'] + ' ' + existing_df['time']).max()
+                    # Make timezone-aware (UTC) for comparison with MetaAPI
+                    last_date = last_date.replace(tzinfo=timezone.utc)
                     chunk_start = last_date + timedelta(hours=1 if tf == '1h' else 4)
                     print(f"\n    [{task_num}/{total_tasks}] {symbol} {tf_label} (resume from {last_date.date()})...", end=" ", flush=True)
                 except Exception:
@@ -214,8 +257,10 @@ async def download_all():
 
                     all_candles.extend(candles)
 
-                    # Move to next chunk
+                    # Move to next chunk - ensure timezone-aware
                     last_time = pd.to_datetime(candles[-1]['time'])
+                    if last_time.tzinfo is None:
+                        last_time = last_time.replace(tzinfo=timezone.utc)
                     chunk_start = last_time + timedelta(hours=1 if tf == '1h' else 4)
 
                     # Rate limit between chunks
