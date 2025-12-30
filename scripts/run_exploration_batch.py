@@ -10,8 +10,9 @@ from pathlib import Path
 
 import numpy as np
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add parent and tests to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "tests"))
 
 from rl_exploration_framework import (
     MultiInstrumentLoader,
