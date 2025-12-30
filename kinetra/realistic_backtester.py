@@ -705,8 +705,11 @@ class RealisticBacktester:
         drawdown_abs = peak - equity_arr
         max_dd = float(np.max(drawdown_abs))
 
-        # Costs
-        total_spread = sum(t.entry_spread + t.exit_spread for t in trades)
+        # Costs (convert spread points to dollars)
+        total_spread = sum(
+            (t.entry_spread + t.exit_spread) * self.spec.point * t.volume * self.spec.contract_size
+            for t in trades
+        )
         total_commission = sum(t.commission for t in trades)
         total_swap = sum(t.swap for t in trades)
         total_slippage = sum(abs(t.entry_slippage) + abs(t.exit_slippage) for t in trades)
