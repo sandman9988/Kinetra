@@ -72,4 +72,25 @@ performance_metrics/
 mlruns/
 wandb/
 .neptune/
+<<<<<<< HEAD
 data/master_standardized/
+=======
+
+# Binary/installer files
+*.deb
+*.rpm
+*.exe
+*.msi
+
+# Generated images
+*.png
+*.jpg
+*.jpeg
+*.gif
+!assets/*.png
+!docs/*.png
+
+# Large data directories
+data/master/*.csv
+rl_exploration_framework/data/*.csv
+>>>>>>> origin/main
