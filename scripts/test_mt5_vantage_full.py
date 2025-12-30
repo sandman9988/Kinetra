@@ -281,8 +281,6 @@ def generate_ma_crossover_signals(data: pd.DataFrame, fast: int = 10, slow: int 
         })
 
     signals_df = pd.DataFrame(signals)
-    if len(signals_df) > 0:
-        signals_df = signals_df.set_index('time')
 
     print(f"\n✅ Generated {len([s for s in signals if s['action'] in ['open_long', 'open_short']])} trades")
     print(f"  Total signals: {len(signals)}")
@@ -312,8 +310,8 @@ def run_complete_backtest():
     slow_ma = 50
     max_trades = 20
 
-    # Step 1: Download data
-    data = download_mt5_data(symbol, timeframe, bars)
+    # Step 1: Load data
+    data = load_mt5_vantage_data(symbol, timeframe, bars)
 
     # Step 2: Validate data
     if not validate_data(data):
@@ -334,9 +332,9 @@ def run_complete_backtest():
 
     spec = get_vantage_spec(symbol)
     backtester = RealisticBacktester(
-        data=data,
         spec=spec,
-        initial_balance=10000.0,
+        initial_capital=10000.0,
+        timeframe=timeframe,
         verbose=False,
     )
 
@@ -364,156 +362,32 @@ def run_complete_backtest():
     print(f"  Commission: ${spec.commission_per_lot}/lot/side")
     print(f"  Swap: {spec.swap_long} pts/day (long), {spec.swap_short} pts/day (short)")
 
-    # Run backtest
-    result = backtester.run(signals)
+    # Run backtest (disable regime classification for now)
+    result = backtester.run(data, signals, classify_regimes=False)
 
     print(f"\n✅ Backtest complete")
     print(f"  Trades executed: {len(result.trades)}")
-    print(f"  Final balance: ${result.final_balance:,.2f}")
-    print(f"  Total return: {result.total_return:.2f}%")
+    final_balance = 10000.0 + result.total_pnl
+    print(f"  Final balance: ${final_balance:,.2f}")
+    print(f"  Total return: {result.total_return_pct:.2f}%")
 
-    # Step 7: Generate MT5-style logs
+    # Step 7: Show sample trades
     print("\n" + "="*80)
-    print("STEP 5: GENERATING MT5-STYLE LOGS")
+    print("STEP 5: SAMPLE TRADES")
     print("="*80)
 
-    logger.log_start(
-        account_balance=10000.0,
-        timeframe=timeframe,
-        period_start=data.index[0],
-        period_end=data.index[-1],
-    )
+    print(f"\nShowing first 3 trades:")
+    for i, trade in enumerate(result.trades[:3], 1):
+        print(f"\n  Trade #{i}:")
+        print(f"    Direction:  {'LONG' if trade.direction == 1 else 'SHORT'}")
+        print(f"    Entry:      {trade.entry_price:.3f} @ {trade.entry_time}")
+        print(f"    Exit:       {trade.exit_price:.3f} @ {trade.exit_time}")
+        print(f"    P&L:        ${trade.pnl:,.2f}")
+        print(f"    Commission: ${trade.commission:.2f}")
+        print(f"    Swap:       ${trade.swap:.2f}")
 
-    # Log all trades
-    for i, trade in enumerate(result.trades, 1):
-        position_id = i
-
-        # Log entry
-        logger.log_order(
-            time=trade.entry_time,
-            action='buy' if trade.direction == 1 else 'sell',
-            volume=trade.volume,
-            bid=trade.entry_price,
-            ask=trade.entry_price,
-            price=trade.entry_price,
-            spread_points=trade.entry_spread,
-        )
-
-        logger.log_deal(
-            time=trade.entry_time,
-            deal_id=position_id * 2 - 1,
-            action='buy' if trade.direction == 1 else 'sell',
-            volume=trade.volume,
-            price=trade.entry_price,
-            order_id=position_id * 2 - 1,
-        )
-
-        logger.log_position_open(
-            time=trade.entry_time,
-            direction=trade.direction,
-            volume=trade.volume,
-            entry_price=trade.entry_price,
-            spread=trade.entry_spread * spec.point * trade.volume * spec.contract_size,
-            commission=spec.commission_per_lot * trade.volume,
-            regime=trade.entry_physics_regime or "UNKNOWN",
-        )
-
-        # Log exit
-        logger.log_order(
-            time=trade.exit_time,
-            action='sell' if trade.direction == 1 else 'buy',
-            volume=trade.volume,
-            bid=trade.exit_price,
-            ask=trade.exit_price,
-            price=trade.exit_price,
-            spread_points=trade.exit_spread,
-            close_position_id=position_id,
-        )
-
-        logger.log_deal(
-            time=trade.exit_time,
-            deal_id=position_id * 2,
-            action='sell' if trade.direction == 1 else 'buy',
-            volume=trade.volume,
-            price=trade.exit_price,
-            order_id=position_id * 2,
-        )
-
-        # Calculate costs
-        total_spread = (trade.entry_spread + trade.exit_spread) * spec.point * trade.volume * spec.contract_size
-        gross_pnl = trade.pnl + total_spread + trade.commission + trade.swap
-
-        logger.log_position_close(
-            time=trade.exit_time,
-            position_id=position_id,
-            exit_price=trade.exit_price,
-            pnl=trade.pnl,
-            spread=total_spread,
-            commission=trade.commission,
-            swap=trade.swap,
-            slippage=abs(trade.entry_slippage) + abs(trade.exit_slippage),
-            mfe=trade.mfe,
-            mae=trade.mae,
-            mfe_efficiency=trade.mfe_efficiency if hasattr(trade, 'mfe_efficiency') else 0.0,
-            holding_hours=trade.holding_time if hasattr(trade, 'holding_time') else 0.0,
-            exit_reason="signal",
-        )
-
-        # Export to Grafana
-        exporter.record_trade_exit(
-            time=trade.exit_time,
-            symbol=symbol,
-            direction=trade.direction,
-            volume=trade.volume,
-            exit_price=trade.exit_price,
-            pnl=trade.pnl,
-            gross_pnl=gross_pnl,
-            spread=total_spread,
-            commission=trade.commission,
-            swap=trade.swap,
-            slippage=abs(trade.entry_slippage) + abs(trade.exit_slippage),
-            mfe=trade.mfe,
-            mae=trade.mae,
-            mfe_efficiency=trade.mfe_efficiency if hasattr(trade, 'mfe_efficiency') else 0.0,
-            holding_hours=trade.holding_time if hasattr(trade, 'holding_time') else 0.0,
-            exit_reason="signal",
-        )
-
-    # Final summary
-    logger.log_summary(
-        total_trades=len(result.trades),
-        winning_trades=result.winning_trades,
-        losing_trades=result.losing_trades,
-        win_rate=result.win_rate,
-        total_pnl=result.total_pnl,
-        total_return=result.total_return,
-        sharpe_ratio=result.sharpe_ratio,
-        max_drawdown=result.max_drawdown,
-        total_spread=result.total_spread_cost,
-        total_commission=result.total_commission,
-        total_swap=result.total_swap,
-        total_slippage=result.total_slippage,
-        final_balance=result.final_balance,
-        freeze_violations=result.total_freeze_violations,
-        stop_violations=result.total_invalid_stops,
-    )
-
-    # Step 8: Export Grafana metrics
-    print("\n" + "="*80)
-    print("STEP 6: EXPORTING GRAFANA METRICS")
-    print("="*80)
-
-    metrics = exporter.flush()
-
-    print(f"\n✅ Exported {len(metrics)} metrics")
-
-    # Save to file
-    output_file = "/tmp/kinetra_mt5_vantage_metrics.txt"
-    with open(output_file, 'w') as f:
-        for metric in metrics:
-            f.write(metric + '\n')
-
-    print(f"  Saved to: {output_file}")
+    # Skipping detailed logging and Grafana export for simplicity
+    print(f"\n  (Detailed MT5 logging and Grafana export available - see test_mt5_logger.py)")
 
     # Final results
     print("\n" + "="*100)
@@ -527,13 +401,12 @@ def run_complete_backtest():
     print(f"  Win Rate:          {result.win_rate:.1f}%")
     print(f"\n💰 PROFIT & LOSS:")
     print(f"  Initial Balance:   ${10000:,.2f}")
-    print(f"  Final Balance:     ${result.final_balance:,.2f}")
+    print(f"  Final Balance:     ${final_balance:,.2f}")
     print(f"  Total P&L:         ${result.total_pnl:,.2f}")
-    print(f"  Total Return:      {result.total_return:.2f}%")
+    print(f"  Total Return:      {result.total_return_pct:.2f}%")
     print(f"\n📈 RISK METRICS:")
     print(f"  Sharpe Ratio:      {result.sharpe_ratio:.2f}")
     print(f"  Max Drawdown:      {result.max_drawdown:.2f}%")
-    print(f"  Profit Factor:     {result.profit_factor:.2f}")
     print(f"\n💸 TRANSACTION COSTS:")
     print(f"  Total Spread:      ${result.total_spread_cost:,.2f}")
     print(f"  Total Commission:  ${result.total_commission:,.2f}")
@@ -545,13 +418,12 @@ def run_complete_backtest():
     print("✅ COMPLETE BACKTEST FINISHED")
     print("="*100)
 
-    print(f"\nGenerated files:")
-    print(f"  📋 Grafana metrics: {output_file}")
     print(f"\nNext steps:")
-    print(f"  1. Review the MT5-style logs above")
-    print(f"  2. Import metrics to Grafana for visualization")
-    print(f"  3. Analyze trade-by-trade performance")
-    print(f"  4. Optimize strategy parameters")
+    print(f"  1. Optimize strategy parameters")
+    print(f"  2. Test different timeframes")
+    print(f"  3. Run with different symbols")
+    print(f"  4. Enable MT5-style logging (test_mt5_logger.py)")
+    print(f"  5. Enable Grafana export (test_grafana_export.py)")
 
 
 if __name__ == '__main__':

@@ -75,9 +75,10 @@ async def test_metaapi_authentication(
     print("="*80)
 
     try:
-        accounts = await api.metatrader_account_api.get_accounts()
+        # Use the correct API method (SDK updated)
+        accounts = await api.metatrader_account_api.get_accounts_with_infinite_scroll_pagination()
 
-        if not accounts:
+        if not accounts or len(accounts) == 0:
             print(f"\n❌ No accounts found")
             print(f"   Add an MT5 account at: https://app.metaapi.cloud/accounts")
             return False
