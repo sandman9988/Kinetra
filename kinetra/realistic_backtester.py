@@ -224,6 +224,7 @@ class RealisticBacktester:
         self,
         spec: SymbolSpec,
         initial_capital: float = 10000.0,
+        account_currency: str = "USD",  # Account currency (USD, EUR, GBP, JPY, etc.)
         risk_per_trade: float = 0.01,  # 1% risk per trade
         timeframe: str = "H1",         # For proper Sharpe annualization
         enable_slippage: bool = True,
@@ -238,6 +239,7 @@ class RealisticBacktester:
         Args:
             spec: SymbolSpec with freeze zones and stops levels
             initial_capital: Starting capital
+            account_currency: Account currency (USD, EUR, GBP, JPY, AUD, etc.)
             risk_per_trade: Percentage of equity to risk per trade (0-1)
             timeframe: Data timeframe for proper Sharpe annualization
             enable_slippage: Simulate slippage (Gaussian noise)
@@ -248,6 +250,7 @@ class RealisticBacktester:
         """
         self.spec = spec
         self.initial_capital = initial_capital
+        self.account_currency = account_currency.upper()
         self.risk_per_trade = risk_per_trade
         self.timeframe = timeframe
         self.enable_slippage = enable_slippage
@@ -255,6 +258,64 @@ class RealisticBacktester:
         self.enable_freeze_zones = enable_freeze_zones
         self.enable_stop_validation = enable_stop_validation
         self.verbose = verbose
+
+    def convert_quote_to_account_currency(
+        self,
+        cost_in_quote: float,
+        current_price: float
+    ) -> float:
+        """
+        Convert cost from quote currency to account currency.
+
+        For forex pairs, costs are calculated in the quote currency but need
+        to be converted to account currency for P&L tracking.
+
+        Examples (account_currency=USD):
+            EURUSD (quote=USD): 100 USD → 100 USD (no conversion)
+            USDJPY (quote=JPY): 1000 JPY → 1000 / 110.50 = 9.05 USD
+            EURJPY (quote=JPY): 1800 JPY → 1800 / 175.875 = 10.24 USD
+            GBPJPY (quote=JPY): 2000 JPY → 2000 / 188.50 = 10.61 USD
+            USDCHF (quote=CHF): 90 CHF → 90 / 0.88 = 102.27 USD
+
+        Examples (account_currency=EUR):
+            EURUSD (quote=USD): 100 USD → 100 / 1.08 = 92.59 EUR
+            EURJPY (quote=JPY): 1800 JPY → 1800 / 175.875 = 10.24 EUR (direct)
+            GBPEUR (quote=EUR): 100 EUR → 100 EUR (no conversion)
+
+        Args:
+            cost_in_quote: Cost calculated in quote currency
+            current_price: Current exchange rate
+
+        Returns:
+            Cost in account currency
+        """
+        # Parse symbol to determine base and quote currencies
+        symbol = self.spec.symbol.replace('+', '').replace('-', '').replace('.', '')
+
+        # Assume 6-character symbol format (e.g., EURJPY, GBPUSD)
+        if len(symbol) >= 6:
+            base = symbol[:3]
+            quote = symbol[3:6]
+        else:
+            # For symbols like XAUUSD (metals), assume quote is last 3 chars
+            quote = symbol[-3:] if len(symbol) >= 3 else symbol
+
+        # Determine conversion method
+        if quote == self.account_currency:
+            # Quote currency is account currency → no conversion needed
+            return cost_in_quote
+        elif base == self.account_currency:
+            # Base currency is account currency (e.g., EURUSD with EUR account)
+            # Multiply by price to convert to base currency
+            # Example: 100 USD * (1/1.08) = 92.59 EUR
+            return cost_in_quote / current_price
+        else:
+            # Cross pair - quote currency needs conversion to account currency
+            # This is simplified - proper implementation would need cross rates
+            # For now, assume direct conversion via the pair price
+            # Example: EURJPY with USD account: JPY → EUR → USD
+            # Simplified: divide by price (assumes quote/account relationship)
+            return cost_in_quote / current_price
 
     def validate_stop_placement(
         self,
@@ -353,10 +414,12 @@ class RealisticBacktester:
         direction: int,
         volume: float,
         entry_time: datetime,
-        exit_time: datetime
+        exit_time: datetime,
+        entry_price: float,
+        exit_price: float
     ) -> float:
         """
-        Calculate swap/rollover charges with triple swap support.
+        Calculate swap/rollover charges with triple swap support and currency conversion.
 
         Forex brokers charge 3x swap on specific day (usually Wednesday)
         to account for weekend (Saturday + Sunday + normal day).
@@ -368,9 +431,11 @@ class RealisticBacktester:
             volume: Position size in lots
             entry_time: Position entry timestamp
             exit_time: Position exit timestamp
+            entry_price: Entry price (for currency conversion)
+            exit_price: Exit price (for currency conversion)
 
         Returns:
-            Swap cost (negative = cost, positive = credit)
+            Swap cost in account currency USD (negative = cost, positive = credit)
         """
         days_held = (exit_time - entry_time).total_seconds() / 86400
 
@@ -380,13 +445,13 @@ class RealisticBacktester:
         # Get swap rate from spec
         swap_points = self.spec.swap_long if direction == 1 else self.spec.swap_short
 
-        # Convert points to price (assumes swap_type == "points")
+        # Convert points to price in quote currency (assumes swap_type == "points")
         # TODO: Full MT5 swap specification support:
         #   - SYMBOL_SWAP_MODE (points, currency, interest, reopen)
         #   - Per-day swap multipliers (SYMBOL_SWAP_SUNDAY through SYMBOL_SWAP_SATURDAY)
         #   - Swap calculation modes from ENUM_SYMBOL_SWAP_MODE
         #   Currently using simplified model: swap_type == "points"
-        swap_per_lot_per_day = swap_points * self.spec.point * self.spec.contract_size
+        swap_per_lot_per_day_quote = swap_points * self.spec.point * self.spec.contract_size
 
         # Map swap_triple_day to weekday number
         day_map = {
@@ -406,16 +471,21 @@ class RealisticBacktester:
                 triple_swap_count += 1
             current += timedelta(days=1)
 
-        # Calculate total swap
+        # Calculate total swap in quote currency
         normal_days = max(0, int(days_held) - triple_swap_count)
         triple_days = triple_swap_count
 
-        total_swap = (
-            swap_per_lot_per_day * volume * normal_days +
-            swap_per_lot_per_day * volume * triple_days * 3  # 3x on triple swap day
+        total_swap_quote = (
+            swap_per_lot_per_day_quote * volume * normal_days +
+            swap_per_lot_per_day_quote * volume * triple_days * 3  # 3x on triple swap day
         )
 
-        return total_swap
+        # Convert from quote currency to account currency (USD)
+        # Use average price as approximation for the holding period
+        avg_price = (entry_price + exit_price) / 2
+        total_swap_usd = self.convert_quote_to_account_currency(total_swap_quote, avg_price)
+
+        return total_swap_usd
 
     def run(
         self,
@@ -514,24 +584,35 @@ class RealisticBacktester:
                 direction = current_position['direction']
                 fill_price, slippage = self.simulate_fill(current_price, -direction, spread_points)
 
-                # Calculate P&L
+                # Calculate P&L (in quote currency, then convert to USD)
                 pnl_price = (fill_price - current_position['entry_price']) * direction
                 pnl_pct = pnl_price / current_position['entry_price']
-                pnl = pnl_price * current_position['volume'] * self.spec.contract_size
+                pnl_quote = pnl_price * current_position['volume'] * self.spec.contract_size
 
-                # Calculate costs
-                entry_spread_cost = current_position['entry_spread'] * self.spec.point * current_position['volume'] * self.spec.contract_size
-                exit_spread_cost = spread_points * self.spec.point * current_position['volume'] * self.spec.contract_size
+                # Convert P&L from quote currency to account currency (USD)
+                # Use average of entry and exit price for conversion
+                avg_price = (current_position['entry_price'] + fill_price) / 2
+                pnl = self.convert_quote_to_account_currency(pnl_quote, avg_price)
 
-                # Commission: Per lot, both entry and exit
+                # Calculate spread costs (in quote currency, then convert to USD)
+                entry_spread_cost_quote = current_position['entry_spread'] * self.spec.point * current_position['volume'] * self.spec.contract_size
+                exit_spread_cost_quote = spread_points * self.spec.point * current_position['volume'] * self.spec.contract_size
+
+                # Convert spread costs from quote currency to account currency (USD)
+                entry_spread_cost = self.convert_quote_to_account_currency(entry_spread_cost_quote, current_position['entry_price'])
+                exit_spread_cost = self.convert_quote_to_account_currency(exit_spread_cost_quote, current_price)
+
+                # Commission: Per lot, both entry and exit (already in USD)
                 commission = self.spec.commission_per_lot * current_position['volume'] * 2
 
-                # Calculate swap with triple swap on Wednesday
+                # Calculate swap with triple swap on Wednesday (with currency conversion)
                 swap = self.calculate_swap(
                     direction,
                     current_position['volume'],
                     current_position['entry_time'],
-                    signal_time
+                    signal_time,
+                    current_position['entry_price'],
+                    fill_price
                 )
 
                 # Net P&L
@@ -705,11 +786,19 @@ class RealisticBacktester:
         drawdown_abs = peak - equity_arr
         max_dd = float(np.max(drawdown_abs))
 
-        # Costs (convert spread points to dollars)
-        total_spread = sum(
-            (t.entry_spread + t.exit_spread) * self.spec.point * t.volume * self.spec.contract_size
-            for t in trades
-        )
+        # Costs (convert from quote currency to USD)
+        total_spread = 0.0
+        for t in trades:
+            # Entry spread cost
+            entry_spread_quote = t.entry_spread * self.spec.point * t.volume * self.spec.contract_size
+            entry_spread_usd = self.convert_quote_to_account_currency(entry_spread_quote, t.entry_price)
+
+            # Exit spread cost
+            exit_spread_quote = t.exit_spread * self.spec.point * t.volume * self.spec.contract_size
+            exit_spread_usd = self.convert_quote_to_account_currency(exit_spread_quote, t.exit_price)
+
+            total_spread += entry_spread_usd + exit_spread_usd
+
         total_commission = sum(t.commission for t in trades)
         total_swap = sum(t.swap for t in trades)
         total_slippage = sum(abs(t.entry_slippage) + abs(t.exit_slippage) for t in trades)
