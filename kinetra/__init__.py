@@ -129,6 +129,16 @@ from .doppelganger_triad import (
     AgentPerformance,
 )
 
+# Portfolio Health Monitoring (4-pillar health scoring)
+from .portfolio_health import (
+    PortfolioHealthMonitor,
+    CompositeHealthScore,
+    PillarScore,
+    HealthState,
+    HealthAction,
+    HEALTH_ACTIONS,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -233,4 +243,11 @@ __all__ = [
     "ShadowAgent",
     "ShadowAgentState",
     "AgentPerformance",
+    # Portfolio Health Monitoring
+    "PortfolioHealthMonitor",
+    "CompositeHealthScore",
+    "PillarScore",
+    "HealthState",
+    "HealthAction",
+    "HEALTH_ACTIONS",
 ]
