@@ -15,7 +15,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from enum import IntEnum
 
 from .market_microstructure import SymbolSpec, AssetClass
@@ -352,33 +352,68 @@ class RealisticBacktester:
         self,
         direction: int,
         volume: float,
-        days_held: float
+        entry_time: datetime,
+        exit_time: datetime
     ) -> float:
         """
-        Calculate swap/rollover charges.
+        Calculate swap/rollover charges with triple swap support.
+
+        Forex brokers charge 3x swap on specific day (usually Wednesday)
+        to account for weekend (Saturday + Sunday + normal day).
+
+        Uses spec.swap_triple_day to determine which day gets 3x swap.
 
         Args:
             direction: 1=long, -1=short
             volume: Position size in lots
-            days_held: Number of days position held
+            entry_time: Position entry timestamp
+            exit_time: Position exit timestamp
 
         Returns:
             Swap cost (negative = cost, positive = credit)
         """
+        days_held = (exit_time - entry_time).total_seconds() / 86400
+
         if days_held < 1:
             return 0.0  # No swap for intraday
 
         # Get swap rate from spec
         swap_points = self.spec.swap_long if direction == 1 else self.spec.swap_short
 
-        # Convert points to price
+        # Convert points to price (assumes swap_type == "points")
+        # TODO: Full MT5 swap specification support:
+        #   - SYMBOL_SWAP_MODE (points, currency, interest, reopen)
+        #   - Per-day swap multipliers (SYMBOL_SWAP_SUNDAY through SYMBOL_SWAP_SATURDAY)
+        #   - Swap calculation modes from ENUM_SYMBOL_SWAP_MODE
+        #   Currently using simplified model: swap_type == "points"
         swap_per_lot_per_day = swap_points * self.spec.point * self.spec.contract_size
 
-        # Total swap
-        total_swap = swap_per_lot_per_day * volume * days_held
+        # Map swap_triple_day to weekday number
+        day_map = {
+            'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+            'friday': 4, 'saturday': 5, 'sunday': 6
+        }
+        triple_day = day_map.get(self.spec.swap_triple_day.lower(), 2)  # Default: Wednesday
 
-        # Check for triple swap day (Wednesday by default)
-        # TODO: Implement day-of-week check for triple swap
+        # Count triple swap days
+        # MT5 applies swap at 00:00 server time (usually GMT+2/+3)
+        triple_swap_count = 0
+        current = entry_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = exit_time.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        while current < end:
+            if current.weekday() == triple_day:
+                triple_swap_count += 1
+            current += timedelta(days=1)
+
+        # Calculate total swap
+        normal_days = max(0, int(days_held) - triple_swap_count)
+        triple_days = triple_swap_count
+
+        total_swap = (
+            swap_per_lot_per_day * volume * normal_days +
+            swap_per_lot_per_day * volume * triple_days * 3  # 3x on triple swap day
+        )
 
         return total_swap
 
@@ -487,11 +522,17 @@ class RealisticBacktester:
                 # Calculate costs
                 entry_spread_cost = current_position['entry_spread'] * self.spec.point * current_position['volume'] * self.spec.contract_size
                 exit_spread_cost = spread_points * self.spec.point * current_position['volume'] * self.spec.contract_size
-                commission = abs(pnl) * 0.0  # From spec (if available)
 
-                # Calculate swap
-                days_held = (signal_time - current_position['entry_time']).total_seconds() / 86400
-                swap = self.calculate_swap(direction, current_position['volume'], days_held)
+                # Commission: Per lot, both entry and exit
+                commission = self.spec.commission_per_lot * current_position['volume'] * 2
+
+                # Calculate swap with triple swap on Wednesday
+                swap = self.calculate_swap(
+                    direction,
+                    current_position['volume'],
+                    current_position['entry_time'],
+                    signal_time
+                )
 
                 # Net P&L
                 net_pnl = pnl - entry_spread_cost - exit_spread_cost - commission - swap
