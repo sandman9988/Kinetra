@@ -30,52 +30,35 @@ from kinetra.realistic_backtester import RealisticBacktester
 from kinetra.trade_logger import MT5Logger
 from kinetra.grafana_exporter import GrafanaExporter
 
+# Import MetaAPI fetcher
+from fetch_broker_spec_from_metaapi import fetch_symbol_spec_from_metaapi
+import asyncio
 
-def get_vantage_spec(symbol: str) -> SymbolSpec:
-    """Get accurate Vantage Markets symbol specification."""
 
-    # Vantage EURJPY specifications (accurate)
-    if symbol == "EURJPY+":
-        return SymbolSpec(
-            symbol="EURJPY+",
-            asset_class=AssetClass.FOREX,
-            digits=3,
-            point=0.001,
-            contract_size=100000.0,
-            volume_min=0.01,
-            volume_max=100.0,
-            volume_step=0.01,
-            # Vantage realistic costs
-            spread_typical=18,  # ~1.8 pips typical
-            commission_per_lot=3.0,  # $3/lot/side = $6/lot round trip (Vantage International Demo)
-            swap_long=-0.3,
-            swap_short=0.1,
-            swap_triple_day="wednesday",
-            # MT5 constraints
-            trade_freeze_level=50,
-            trade_stops_level=100,
-        )
-    elif symbol == "XAUUSD+":
-        return SymbolSpec(
-            symbol="XAUUSD+",
-            asset_class=AssetClass.METAL,
-            digits=2,
-            point=0.01,
-            contract_size=100.0,
-            volume_min=0.01,
-            volume_max=100.0,
-            volume_step=0.01,
-            # Gold costs
-            spread_typical=25,  # ~25 cents typical
-            commission_per_lot=3.0,  # $3/lot/side = $6/lot round trip (Vantage International Demo)
-            swap_long=-0.15,
-            swap_short=-0.10,
-            swap_triple_day="wednesday",
-            trade_freeze_level=100,
-            trade_stops_level=200,
-        )
-    else:
-        raise ValueError(f"Unknown symbol: {symbol}")
+async def get_spec_from_metaapi(
+    api_token: str,
+    account_id: str,
+    symbol: str,
+    commission_per_lot: float = 3.0
+) -> SymbolSpec:
+    """
+    Get symbol specification from MetaAPI (no hardcoding).
+
+    Args:
+        api_token: MetaAPI token
+        account_id: MetaAPI account ID
+        symbol: Symbol to fetch
+        commission_per_lot: Commission per lot per side (broker-specific, not in API)
+
+    Returns:
+        SymbolSpec from real broker via MetaAPI
+    """
+    spec = await fetch_symbol_spec_from_metaapi(api_token, account_id, symbol)
+
+    # Commission not available from MetaAPI - set from broker config or user input
+    spec.commission_per_lot = commission_per_lot
+
+    return spec
 
 
 def load_mt5_vantage_data(symbol: str, timeframe: str, bars: int = 5000) -> pd.DataFrame:
@@ -288,29 +271,49 @@ def generate_ma_crossover_signals(data: pd.DataFrame, fast: int = 10, slow: int 
     return signals_df
 
 
-def run_complete_backtest():
-    """Run complete end-to-end backtest with MT5 Vantage data."""
+async def run_complete_backtest_async():
+    """Run complete end-to-end backtest with MetaAPI broker specs."""
 
     print("\n" + "="*100)
-    print(" "*30 + "MT5 VANTAGE COMPLETE BACKTEST")
+    print(" "*30 + "METAAPI COMPLETE BACKTEST")
     print("="*100)
     print("\nThis is a GENUINE backtest with:")
-    print("  ✅ Real MT5 data from Vantage terminal")
+    print("  ✅ Real broker specs from MetaAPI")
+    print("  ✅ Real MT5 data from broker terminal")
     print("  ✅ Real MA crossover strategy")
     print("  ✅ Real friction costs (spread, commission, swap)")
     print("  ✅ MT5-style enhanced logging")
     print("  ✅ Grafana metrics export")
     print("="*100)
 
-    # Configuration
+    # ===========================
+    # METAAPI CONFIGURATION
+    # ===========================
+    API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJjMTdhODAwNThhOWE3OWE0NDNkZjBlOGM1NDZjZjlmMSIsImFjY2Vzc1J1bGVzIjpbeyJpZCI6InRyYWRpbmctYWNjb3VudC1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVzdC1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcnBjLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVhbC10aW1lLXN0cmVhbWluZy1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOndzOnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtZXRhc3RhdHMtYXBpIiwibWV0aG9kcyI6WyJtZXRhc3RhdHMtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6InJpc2stbWFuYWdlbWVudC1hcGkiLCJtZXRob2RzIjpbInJpc2stbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoiY29weWZhY3RvcnktYXBpIiwibWV0aG9kcyI6WyJjb3B5ZmFjdG9yeS1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibXQtbWFuYWdlci1hcGkiLCJtZXRob2RzIjpbIm10LW1hbmFnZXItYXBpOnJlc3Q6ZGVhbGluZzoqOioiLCJtdC1tYW5hZ2VyLWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJiaWxsaW5nLWFwaSIsIm1ldGhvZHMiOlsiYmlsbGluZy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfV0sImlnbm9yZVJhdGVMaW1pdHMiOmZhbHNlLCJ0b2tlbklkIjoiMjAyMTAyMTMiLCJpbXBlcnNvbmF0ZWQiOmZhbHNlLCJyZWFsVXNlcklkIjoiYzE3YTgwMDU4YTlhNzlhNDQzZGYwZThjNTQ2Y2Y5ZjEiLCJpYXQiOjE3NjcxMjE0MDYsImV4cCI6MTc3NDg5NzQwNn0.oHB_5iSe2nm_lWbIRTvFKDy1sXkq1xMXaROHvoJjgXAa2n8OkjJuj6bYbqAO4F_xHrEEKykjEgWN6Vfm7tMG9AU1o-XoHf3ayUMro90NLq-kUTcMBoE6GkAPugQenj3-1oySJ7nlnZdH-luqSRhpcnHob91O4kO670gzKUbWO2jCTpr_9d8ZzRHHqTQbukW-JdNQ53C0KSR7RGg50MBGr55IlyDmMsstqznsmCms7vDkbtoxRfUWssMOZ-4eKA-wtJJz47jQUAnJEDwGFWwoKweIhK_WnjJgFfJoOP7S_7rLBr6elkhQbzd5xENGJqmNj1I0CdiiQpNuDX5sLCt2PLvQ-Owll3LdBDpRGlb-rWJR4gaAPY3nZzCaMakfjRmZtQsCN9FGvOphG0b0IQAD3sQKZ2FzO08IenPWiZS90s4mP88vmafnC-lybMWWXKT8CnQu4YSgFsY-v74lJ_xGi6Ye-4nwzECrkGam9WceD5cGnk8bDchH-4WN68LAjPnKg0XxABd1AYnops89qcmzupoiM34BfaigMLYin5Ea81YgvGcSEwF8UQ070SDdGL2NptuznhMA2iCJoGwF0FN-uKA-jBQvPcyUEDUTjl3cbV9JECry7uAk_HeQKPzF2l0KQBOqENAytnNyWYwaq9lY3XsH7d5ZG35jFzeFCCdrokA"
+    ACCOUNT_ID = None  # Set to your MetaAPI account ID
+
+    # Trading configuration
     symbol = "EURJPY+"
     timeframe = "M15"
     bars = 5000
     fast_ma = 10
     slow_ma = 50
     max_trades = 20
+    commission_per_lot = 3.0  # Vantage: $3/side (not available from API)
 
-    # Step 1: Load data
+    if ACCOUNT_ID is None:
+        print("\n❌ Please set ACCOUNT_ID in this script")
+        print("   Run test_metaapi_auth.py to find your account ID")
+        return
+
+    # Step 0: Fetch broker specs from MetaAPI
+    print("\n" + "="*80)
+    print("STEP 0: FETCHING BROKER SPECS FROM METAAPI")
+    print("="*80)
+
+    spec = await get_spec_from_metaapi(API_TOKEN, ACCOUNT_ID, symbol, commission_per_lot)
+
+    # Step 1: Load data (from local CSV for now - could also fetch from MetaAPI)
     data = load_mt5_vantage_data(symbol, timeframe, bars)
 
     # Step 2: Validate data
@@ -325,14 +328,13 @@ def run_complete_backtest():
         print("\n❌ No signals generated. Aborting.")
         return
 
-    # Step 4: Setup backtester
+    # Step 4: Setup backtester (using fetched spec)
     print("\n" + "="*80)
     print("STEP 4: RUNNING REALISTIC BACKTEST")
     print("="*80)
 
-    spec = get_vantage_spec(symbol)
     backtester = RealisticBacktester(
-        spec=spec,
+        spec=spec,  # Using spec fetched from MetaAPI
         initial_capital=10000.0,
         timeframe=timeframe,
         verbose=False,
@@ -424,6 +426,11 @@ def run_complete_backtest():
     print(f"  3. Run with different symbols")
     print(f"  4. Enable MT5-style logging (test_mt5_logger.py)")
     print(f"  5. Enable Grafana export (test_grafana_export.py)")
+
+
+def run_complete_backtest():
+    """Wrapper to run async backtest."""
+    asyncio.run(run_complete_backtest_async())
 
 
 if __name__ == '__main__':
