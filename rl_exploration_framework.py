@@ -1640,6 +1640,69 @@ class MultiInstrumentLoader:
                 trimmed_count += 1
                 self._log(f"  [TRIM] {key}: {data.bar_count} bars")
 
+    def get_train_test_split(self, train_ratio: float = 0.7) -> Tuple[Dict[str, 'InstrumentData'], Dict[str, 'InstrumentData']]:
+        """
+        Temporal train/test split - NO lookahead bias.
+
+        Returns (train_instruments, test_instruments) with data split at the same
+        calendar date across all instruments.
+
+        MIT-style: Proper out-of-sample validation.
+        """
+        if not self.instruments:
+            return {}, {}
+
+        # Find the split date based on the common date range
+        all_dates = []
+        for data in self.instruments.values():
+            all_dates.extend(data.df.index.tolist())
+
+        all_dates = sorted(set(all_dates))
+        split_idx = int(len(all_dates) * train_ratio)
+        split_date = all_dates[split_idx]
+
+        self._log(f"\n[SPLIT] Train/Test split at {split_date} ({train_ratio:.0%}/{1-train_ratio:.0%})")
+
+        train_instruments = {}
+        test_instruments = {}
+
+        for key, data in self.instruments.items():
+            # Split by date
+            train_mask = data.df.index < split_date
+            test_mask = data.df.index >= split_date
+
+            train_df = data.df.loc[train_mask].copy()
+            test_df = data.df.loc[test_mask].copy()
+            train_physics = data.physics_state.loc[train_mask].copy()
+            test_physics = data.physics_state.loc[test_mask].copy()
+
+            if len(train_df) >= self.min_bars:
+                train_instruments[key] = InstrumentData(
+                    instrument=data.instrument,
+                    timeframe=data.timeframe,
+                    asset_class=data.asset_class,
+                    df=train_df,
+                    physics_state=train_physics,
+                    file_path=data.file_path,
+                    bar_count=len(train_df),
+                )
+                self._log(f"  [TRAIN] {key}: {len(train_df)} bars")
+
+            if len(test_df) >= 100:  # Lower threshold for test
+                test_instruments[key] = InstrumentData(
+                    instrument=data.instrument,
+                    timeframe=data.timeframe,
+                    asset_class=data.asset_class,
+                    df=test_df,
+                    physics_state=test_physics,
+                    file_path=data.file_path,
+                    bar_count=len(test_df),
+                )
+                self._log(f"  [TEST]  {key}: {len(test_df)} bars")
+
+        self._log(f"\n[SPLIT] Train: {len(train_instruments)} instruments, Test: {len(test_instruments)} instruments")
+        return train_instruments, test_instruments
+
     def _load_single(
         self, instrument: str, timeframe: str, filepath: str, asset_class: str = "unknown"
     ) -> InstrumentData:
@@ -1881,14 +1944,30 @@ def run_multi_instrument_exploration(
     summary = loader.summary()
     print(f"\n{summary.to_string()}")
 
-    # Calculate episodes
-    n_instruments = len(loader.instruments)
+    # MIT-STYLE: Proper train/test split (70/30 temporal)
+    print(f"\n{'=' * 70}")
+    print("TRAIN/TEST SPLIT (MIT-style, no forward bias)")
+    print("=" * 70)
+
+    train_instruments, test_instruments = loader.get_train_test_split(train_ratio=0.7)
+
+    if not train_instruments:
+        print("[ERROR] No training instruments after split!")
+        return {}
+
+    # Calculate episodes for training set
+    n_instruments = len(train_instruments)
     total_episodes = max(n_episodes, n_instruments * episodes_per_instrument)
 
     print(f"\nTraining plan:")
-    print(f"  Instruments: {n_instruments}")
+    print(f"  Train instruments: {n_instruments}")
+    print(f"  Test instruments: {len(test_instruments)}")
     print(f"  Episodes per instrument: {episodes_per_instrument}")
-    print(f"  Total episodes: {total_episodes}")
+    print(f"  Total training episodes: {total_episodes}")
+
+    # Create TRAINING environment (using train_instruments only)
+    train_loader = MultiInstrumentLoader(data_dir=data_dir, verbose=False)
+    train_loader.instruments = train_instruments  # Use pre-split data
 
     # Create multi-instrument environment
     reward_shaper = RewardShaper(
@@ -1900,7 +1979,7 @@ def run_multi_instrument_exploration(
     )
 
     multi_env = MultiInstrumentEnv(
-        loader=loader,
+        loader=train_loader,  # TRAIN on training data only
         feature_extractor=get_rl_state_features,
         reward_shaper=reward_shaper,
         sampling_mode="round_robin",
@@ -1929,7 +2008,7 @@ def run_multi_instrument_exploration(
 
     # Results per agent and per instrument
     results: Dict[str, Dict] = {}
-    per_instrument_results: Dict[str, Dict[str, Dict]] = {key: {} for key in loader.instruments}
+    per_instrument_results: Dict[str, Dict[str, Dict]] = {key: {} for key in train_instruments}
 
     for agent_name, agent in agents.items():
         print(f"\n{'=' * 70}")
@@ -1944,7 +2023,7 @@ def run_multi_instrument_exploration(
             agent.q_table = defaultdict(lambda: np.zeros(agent.n_actions))
 
         # Track per-instrument metrics
-        instrument_episodes: Dict[str, List[Dict]] = {key: [] for key in loader.instruments}
+        instrument_episodes: Dict[str, List[Dict]] = {key: [] for key in train_instruments}
         all_rewards = []
         all_trades = []
         all_pnl = []
@@ -2059,11 +2138,91 @@ def run_multi_instrument_exploration(
                       f"Trades={stats['avg_trades']:5.1f} | "
                       f"PnL=${stats['avg_pnl']:+10,.0f}")
 
+    # =========================================================================
+    # OUT-OF-SAMPLE TEST EVALUATION (MIT-style rigor)
+    # =========================================================================
+    print(f"\n{'=' * 70}")
+    print("OUT-OF-SAMPLE TEST EVALUATION")
+    print("=" * 70)
+
+    if test_instruments:
+        # Create test environment
+        test_loader = MultiInstrumentLoader(data_dir=data_dir, verbose=False)
+        test_loader.instruments = test_instruments
+
+        test_env = MultiInstrumentEnv(
+            loader=test_loader,
+            feature_extractor=get_rl_state_features,
+            reward_shaper=reward_shaper,
+            sampling_mode="round_robin",
+        )
+
+        test_results: Dict[str, Dict] = {}
+
+        for agent_name, agent in agents.items():
+            print(f"\n[TEST] {agent_name} on unseen data...")
+
+            test_rewards = []
+            test_pnl = []
+            test_trades = []
+
+            # Run 10 test episodes (no learning, just evaluation)
+            for _ in range(10):
+                state, info = test_env.reset()
+                episode_reward = 0
+                episode_trades = 0
+                episode_pnl = 0
+
+                for step in range(test_env.max_steps):
+                    # Greedy action (no exploration)
+                    action = agent.select_action(state, epsilon=0.0)
+                    next_state, reward, done, _, step_info = test_env.step(action)
+
+                    episode_reward += reward
+                    if step_info.get("trade_executed"):
+                        episode_trades += 1
+                        episode_pnl += step_info.get("trade_pnl", 0)
+
+                    state = next_state
+                    if done:
+                        break
+
+                test_rewards.append(episode_reward)
+                test_pnl.append(episode_pnl)
+                test_trades.append(episode_trades)
+
+            test_results[agent_name] = {
+                "avg_reward": float(np.mean(test_rewards)),
+                "avg_pnl": float(np.mean(test_pnl)),
+                "avg_trades": float(np.mean(test_trades)),
+                "std_reward": float(np.std(test_rewards)),
+            }
+
+            print(f"  Avg Reward: {test_results[agent_name]['avg_reward']:+.2f} ± {test_results[agent_name]['std_reward']:.2f}")
+            print(f"  Avg PnL:    ${test_results[agent_name]['avg_pnl']:+,.0f}")
+            print(f"  Avg Trades: {test_results[agent_name]['avg_trades']:.1f}")
+
+        # Compare train vs test (overfitting check)
+        print(f"\n{'=' * 70}")
+        print("TRAIN vs TEST COMPARISON (Overfitting Check)")
+        print("=" * 70)
+        print(f"{'Agent':<12} | {'Train Reward':>12} | {'Test Reward':>12} | {'Δ%':>8}")
+        print("-" * 50)
+        for agent_name in agents.keys():
+            train_r = np.mean(results[agent_name]["episode_rewards"][-20:])
+            test_r = test_results[agent_name]["avg_reward"]
+            delta_pct = ((test_r - train_r) / (abs(train_r) + 1e-8)) * 100
+            overfit = "⚠️ OVERFIT" if delta_pct < -30 else ""
+            print(f"{agent_name:<12} | {train_r:+12.2f} | {test_r:+12.2f} | {delta_pct:+7.1f}% {overfit}")
+    else:
+        print("[WARN] No test instruments available for out-of-sample evaluation")
+        test_results = {}
+
     # Save results
     if persistence:
         persistence.save_results({
             "experiment": experiment_name,
-            "instruments": list(loader.instruments.keys()),
+            "instruments": list(train_instruments.keys()),
             "n_instruments": n_instruments,
             "total_episodes": total_episodes,
             "agents": list(results.keys()),
