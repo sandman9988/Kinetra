@@ -41,6 +41,25 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+# Spread-aware execution filter (import directly to avoid kinetra/__init__ dependencies)
+try:
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location(
+        'spread_gate',
+        Path(__file__).parent / 'kinetra' / 'spread_gate.py'
+    )
+    _spread_gate_module = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_spread_gate_module)
+    SpreadGate = _spread_gate_module.SpreadGate
+    SpreadProfile = _spread_gate_module.SpreadProfile
+    VANTAGE_PROFILES = _spread_gate_module.VANTAGE_PROFILES
+    SPREAD_GATE_AVAILABLE = True
+except Exception:
+    SPREAD_GATE_AVAILABLE = False
+    SpreadGate = None
+    SpreadProfile = None
+    VANTAGE_PROFILES = {}
+
 warnings.filterwarnings("ignore")
 
 
@@ -448,6 +467,10 @@ class TradingEnv:
     Reward: Physics-shaped (not just PnL)
 
     No assumptions about what features matter - agent explores.
+
+    Spread-Aware Execution:
+    - Optionally integrates SpreadGate to block trades during high-spread regimes
+    - Reduces execution cost and improves reward<->PnL alignment
     """
 
     def __init__(
@@ -457,18 +480,30 @@ class TradingEnv:
         feature_extractor: Callable,
         reward_shaper: Optional["RewardShaper"] = None,
         max_position_bars: int = 72,  # Force close after N bars
+        spread_gate: Optional["SpreadGate"] = None,  # Spread-aware execution filter
+        symbol: Optional[str] = None,  # For auto-creating spread gate
     ):
         self.physics_state = physics_state
         self.prices = prices
         self.feature_extractor = feature_extractor
         self.reward_shaper = reward_shaper or RewardShaper()
         self.max_position_bars = max_position_bars
+        self.symbol = symbol
+
+        # Spread-aware execution
+        self.spread_gate = spread_gate
+        self.spread_col = None
+        self._init_spread_gate()
 
         # Environment state
         self.current_bar = 0
         self.trade_state = TradeState()
         self.episode_trades: List[Dict] = []
         self.episode_rewards: List[float] = []
+
+        # Spread gate statistics
+        self.trades_blocked_by_spread: int = 0
+        self.spread_block_ratio: float = 0.0
 
         # Action space
         self.n_actions = 4  # hold, long, short, close
@@ -477,12 +512,36 @@ class TradingEnv:
         # State dimensions
         self.state_dim = 64
 
+    def _init_spread_gate(self):
+        """Initialize spread gate if spread data available."""
+        # Find spread column
+        for col in ['spread', '<SPREAD>', 'SPREAD']:
+            if col in self.prices.columns:
+                self.spread_col = col
+                break
+
+        # Auto-create spread gate if not provided but spread data exists
+        if self.spread_gate is None and self.spread_col is not None and SPREAD_GATE_AVAILABLE:
+            self.spread_gate = SpreadGate(symbol=self.symbol)
+
+        # Pre-compute spread array for fast lookup
+        if self.spread_col is not None:
+            self._spread_array = self.prices[self.spread_col].values
+        else:
+            self._spread_array = None
+
     def reset(self, start_bar: int = 100) -> np.ndarray:
         """Reset environment to starting state."""
         self.current_bar = start_bar
         self.trade_state = TradeState()
         self.episode_trades = []
         self.episode_rewards = []
+
+        # Reset spread gate state
+        if self.spread_gate is not None:
+            self.spread_gate.reset()
+        self.trades_blocked_by_spread = 0
+
         return self._get_state()
 
     def _get_state(self) -> np.ndarray:
@@ -504,12 +563,30 @@ class TradingEnv:
             1: LONG - enter/maintain long
             2: SHORT - enter/maintain short
             3: CLOSE - close any position
+
+        Spread-Aware Execution:
+            If spread gate is active, trade entry (LONG/SHORT when flat) is blocked
+            when current spread exceeds threshold. Closing positions is always allowed.
         """
         info = {"action": self.action_names[action]}
         reward = 0.0
         trade_closed = False
+        spread_blocked = False
 
         current_price = self._get_price(self.current_bar)
+
+        # Check spread gate for trade decisions
+        allow_entry = True
+        current_spread = None
+        spread_info = {}
+
+        if self.spread_gate is not None and self._spread_array is not None:
+            if self.current_bar < len(self._spread_array):
+                current_spread = float(self._spread_array[self.current_bar])
+                allow_entry, threshold, spread_info = self.spread_gate.update(current_spread)
+                info["spread"] = current_spread
+                info["spread_threshold"] = threshold
+                info["spread_regime"] = spread_info.get("spread_regime", "UNKNOWN")
 
         # Update existing position (MAE/MFE tracking in PERCENTAGE terms)
         if self.trade_state.position != 0:
@@ -531,25 +608,35 @@ class TradingEnv:
             self.trade_state.bars_held >= self.max_position_bars
         )
 
-        # Process action
+        # Process action with spread gating
         if action == 0:  # HOLD
             pass
 
         elif action == 1:  # LONG
-            if self.trade_state.position == -1:  # Close short first
+            if self.trade_state.position == -1:  # Close short first (always allowed)
                 reward, trade_closed = self._close_position(current_price)
-            if self.trade_state.position == 0:  # Open long
-                self._open_position(1, current_price)
+            if self.trade_state.position == 0:  # Open long (spread gated)
+                if allow_entry:
+                    self._open_position(1, current_price)
+                else:
+                    spread_blocked = True
+                    self.trades_blocked_by_spread += 1
 
         elif action == 2:  # SHORT
-            if self.trade_state.position == 1:  # Close long first
+            if self.trade_state.position == 1:  # Close long first (always allowed)
                 reward, trade_closed = self._close_position(current_price)
-            if self.trade_state.position == 0:  # Open short
-                self._open_position(-1, current_price)
+            if self.trade_state.position == 0:  # Open short (spread gated)
+                if allow_entry:
+                    self._open_position(-1, current_price)
+                else:
+                    spread_blocked = True
+                    self.trades_blocked_by_spread += 1
 
-        elif action == 3 or force_close:  # CLOSE
+        elif action == 3 or force_close:  # CLOSE (always allowed)
             if self.trade_state.position != 0:
                 reward, trade_closed = self._close_position(current_price)
+
+        info["spread_blocked"] = spread_blocked
 
         # Advance time
         self.current_bar += 1
@@ -622,13 +709,23 @@ class TradingEnv:
         return reward, True
 
     def get_episode_stats(self) -> Dict[str, float]:
-        """Get episode statistics."""
+        """Get episode statistics including spread gating stats."""
         if not self.episode_trades:
-            return {"trades": 0, "total_reward": 0, "avg_reward": 0}
+            return {"trades": 0, "total_reward": 0, "avg_reward": 0, "spread_blocked": 0}
 
         total_pnl = sum(t["raw_pnl"] for t in self.episode_trades)
         total_reward = sum(t["shaped_reward"] for t in self.episode_trades)
         wins = sum(1 for t in self.episode_trades if t["raw_pnl"] > 0)
+
+        # Spread gate stats
+        spread_stats = {}
+        if self.spread_gate is not None:
+            gate_stats = self.spread_gate.get_stats()
+            spread_stats = {
+                "spread_blocked": self.trades_blocked_by_spread,
+                "spread_block_rate": gate_stats.get("block_rate", 0),
+                "avg_spread": gate_stats.get("avg_spread", 0),
+            }
 
         return {
             "trades": len(self.episode_trades),
@@ -638,6 +735,7 @@ class TradingEnv:
             "win_rate": wins / len(self.episode_trades),
             "avg_mae": np.mean([t["mae"] for t in self.episode_trades]),
             "avg_mfe": np.mean([t["mfe"] for t in self.episode_trades]),
+            **spread_stats,
         }
 
 
@@ -1704,7 +1802,7 @@ class MultiInstrumentEnv:
         self.max_position_bars = max_position_bars
         self.sampling_mode = sampling_mode
 
-        # Create per-instrument environments
+        # Create per-instrument environments with spread gate
         self.envs: Dict[str, TradingEnv] = {}
         for key, data in loader.instruments.items():
             self.envs[key] = TradingEnv(
@@ -1713,6 +1811,7 @@ class MultiInstrumentEnv:
                 feature_extractor=feature_extractor,
                 reward_shaper=reward_shaper,
                 max_position_bars=max_position_bars,
+                symbol=data.instrument,  # Pass symbol for SpreadGate auto-creation
             )
 
         # Sampling state
