@@ -27,15 +27,40 @@ from rl_exploration_framework import (
 from test_physics_pipeline import get_rl_state_features, get_rl_feature_names
 
 
-# Asset class mapping
+# Asset class mapping - REVISED TAXONOMY
+# Different classes have fundamentally different market dynamics:
+# - Forex: Mean-reverting, 24/5, session-driven
+# - EquityIndex: Exchange-hour limited, gap risk, VIX-driven
+# - Crypto: 24/7, high volatility, trending
+# - PreciousMetals: Trending, safe-haven, USD inverse, NOT mean-reverting
+# - EnergyCommodities: Inventory cycles, seasonal, macro-sensitive
 ASSET_CLASS = {
+    # Forex (Mean-Reverting, 24/5)
     "AUDJPY+": "Forex", "AUDUSD+": "Forex", "EURJPY+": "Forex",
     "GBPJPY+": "Forex", "GBPUSD+": "Forex",
+
+    # Crypto (24/7, Trending, High Vol)
     "BTCJPY": "Crypto", "BTCUSD": "Crypto", "ETHEUR": "Crypto", "XRPJPY": "Crypto",
-    "DJ30ft": "Index", "NAS100": "Index", "Nikkei225": "Index",
-    "EU50": "Index", "GER40": "Index", "SA40": "Index", "US2000": "Index",
-    "COPPER-C": "Commodity", "UKOUSD": "Commodity",
-    "XAGUSD": "Metals", "XAUAUD+": "Metals", "XAUUSD+": "Metals", "XPTUSD": "Metals",
+
+    # Equity Indices (Exchange Hours, Gap Risk)
+    "DJ30ft": "EquityIndex", "NAS100": "EquityIndex", "Nikkei225": "EquityIndex",
+    "EU50": "EquityIndex", "GER40": "EquityIndex", "SA40": "EquityIndex", "US2000": "EquityIndex",
+
+    # Precious Metals (Trending, NOT Forex despite broker classification)
+    "XAGUSD": "PreciousMetals", "XAUAUD+": "PreciousMetals",
+    "XAUUSD+": "PreciousMetals", "XPTUSD": "PreciousMetals",
+
+    # Energy & Industrial Commodities (Inventory Cycles)
+    "COPPER-C": "EnergyCommodities", "UKOUSD": "EnergyCommodities",
+}
+
+# Leverage caps per asset class (effective, not broker nominal)
+LEVERAGE_CAPS = {
+    "Forex": 100,
+    "EquityIndex": 30,
+    "Crypto": 20,
+    "PreciousMetals": 40,
+    "EnergyCommodities": 30,
 }
 
 
@@ -234,8 +259,18 @@ def run_with_heartbeat(
     print(f"\n[READY] {n_instruments} instruments loaded")
     print("=" * 80)
 
-    # Create reward shaper
-    reward_shaper = RewardShaper(
+    # Create class-specific reward shapers
+    # Each asset class has different market dynamics and needs different reward emphasis
+    reward_shapers = {
+        'Forex': RewardShaper.from_asset_class('Forex'),
+        'EquityIndex': RewardShaper.from_asset_class('EquityIndex'),
+        'Crypto': RewardShaper.from_asset_class('Crypto'),
+        'PreciousMetals': RewardShaper.from_asset_class('PreciousMetals'),
+        'EnergyCommodities': RewardShaper.from_asset_class('EnergyCommodities'),
+    }
+
+    # Default shaper (used for env initialization, but class-specific used per episode)
+    default_shaper = RewardShaper(
         pnl_weight=1.0,
         edge_ratio_weight=0.3,
         mae_penalty_weight=mae_w,
@@ -243,11 +278,16 @@ def run_with_heartbeat(
         entropy_alignment_weight=0.1,
     )
 
+    print(f"\n[AGENTS] Class-specific reward shapers:")
+    for cls, shaper in reward_shapers.items():
+        print(f"  {cls}: MAE_w={shaper.mae_penalty_weight}, "
+              f"trend={shaper.trend_bonus_weight}, hold={shaper.holding_bonus_weight}")
+
     # Create env
     env = MultiInstrumentEnv(
         loader=loader,
         feature_extractor=get_rl_state_features,
-        reward_shaper=reward_shaper,
+        reward_shaper=default_shaper,
         sampling_mode="round_robin",
     )
 
@@ -291,6 +331,12 @@ def run_with_heartbeat(
         state = env.reset()
         total_reward = 0
 
+        # Get current instrument and set class-specific reward shaper
+        current_instrument = env.current_instrument_key
+        asset_class = get_asset_class(current_instrument)
+        if asset_class in reward_shapers:
+            env.reward_shaper = reward_shapers[asset_class]
+
         for step in range(500):
             action = agent.select_action(state, epsilon)
             tracker.record(state, action)
@@ -308,7 +354,7 @@ def run_with_heartbeat(
         instrument = stats["instrument"]
         pnl = stats.get("total_pnl", 0)
         trades = stats["trades"]
-        asset_class = get_asset_class(instrument)
+        # Use already determined asset_class
 
         # Update cumulative
         cumulative['total_reward'] += total_reward

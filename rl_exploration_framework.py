@@ -829,6 +829,13 @@ class RewardShaper:
     IMPORTANT: raw_pnl is now in PERCENTAGE terms (not absolute) for cross-instrument normalization.
     This fixes the currency mismatch issue (BTCJPY in JPY vs BTCUSD in USD).
 
+    CLASS-SPECIFIC PROFILES:
+    - Forex: Balanced, mean-reversion friendly
+    - Index: High regime penalty (avoid non-trading hours)
+    - Crypto: High MAE penalty (control tail risk)
+    - Metals: Trend bonus (reward holding winners)
+    - Energy: Inventory-aware signals
+
     The agent should discover that physics-aligned trades work better.
     """
 
@@ -840,6 +847,8 @@ class RewardShaper:
         regime_bonus_weight: float = 0.2,
         entropy_alignment_weight: float = 0.1,
         risk_adjustment: bool = True,  # NEW: Enable risk-adjusted rewards
+        trend_bonus_weight: float = 0.0,  # For trending assets (metals, crypto)
+        holding_bonus_weight: float = 0.0,  # Reward holding winners
     ):
         self.pnl_weight = pnl_weight
         self.edge_ratio_weight = edge_ratio_weight
@@ -847,6 +856,48 @@ class RewardShaper:
         self.regime_bonus_weight = regime_bonus_weight
         self.entropy_alignment_weight = entropy_alignment_weight
         self.risk_adjustment = risk_adjustment
+        self.trend_bonus_weight = trend_bonus_weight
+        self.holding_bonus_weight = holding_bonus_weight
+
+    @classmethod
+    def from_asset_class(cls, asset_class_name: str) -> 'RewardShaper':
+        """
+        Factory method: Create RewardShaper with class-specific profiles.
+
+        Asset classes have fundamentally different market dynamics:
+        - Forex: Mean-reverting, penalize whipsaw
+        - Index: Avoid non-trading hours, high regime penalty
+        - Crypto: Control tail risk, reward trends
+        - Metals: Trend-following, reward holding through pullbacks
+        - Energy: Inventory-aware, moderate trend following
+        """
+        # Class-specific profiles
+        profiles = {
+            'Forex': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.3, mae_penalty_weight=2.5,
+                regime_bonus_weight=0.2, trend_bonus_weight=0.0, holding_bonus_weight=0.0
+            ),
+            'EquityIndex': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.4, mae_penalty_weight=3.0,
+                regime_bonus_weight=0.5,  # High - avoid non-trading hours
+                trend_bonus_weight=0.0, holding_bonus_weight=0.0
+            ),
+            'Crypto': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.2, mae_penalty_weight=4.0,  # Very high
+                regime_bonus_weight=0.3, trend_bonus_weight=0.2, holding_bonus_weight=0.1
+            ),
+            'PreciousMetals': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.2, mae_penalty_weight=2.0,
+                regime_bonus_weight=0.2, trend_bonus_weight=0.4,  # High - reward trends
+                holding_bonus_weight=0.3  # Reward holding through pullbacks
+            ),
+            'EnergyCommodities': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.3, mae_penalty_weight=2.5,
+                regime_bonus_weight=0.3, trend_bonus_weight=0.2, holding_bonus_weight=0.1
+            ),
+        }
+
+        return profiles.get(asset_class_name, cls())
 
     def shape_reward(
         self,
@@ -917,13 +968,35 @@ class RewardShaper:
             elif raw_pnl < 0 and entropy_change < 0:
                 entropy_bonus = 0.05
 
+        # Trend bonus: reward trades that go with the trend (for metals, crypto)
+        # Positive raw_pnl with consistent direction = trending trade
+        trend_bonus = 0.0
+        if self.trend_bonus_weight > 0 and raw_pnl > 0:
+            # MFE >> MAE indicates trend-following success
+            if mfe_abs > mae_abs * 2:
+                trend_bonus = 0.3  # Strong trend capture
+            elif mfe_abs > mae_abs:
+                trend_bonus = 0.1  # Moderate trend
+
+        # Holding bonus: reward holding winners longer (for trending assets)
+        # Prevents premature exits on metals/crypto trends
+        holding_bonus = 0.0
+        if self.holding_bonus_weight > 0 and raw_pnl > 0:
+            # Longer holds with positive outcome = patience rewarded
+            if bars_held >= 10:
+                holding_bonus = 0.3  # Held through pullback
+            elif bars_held >= 5:
+                holding_bonus = 0.15
+
         # Combine components
         shaped_reward = (
             self.pnl_weight * pnl_normalized +
             self.edge_ratio_weight * edge_bonus +
             self.mae_penalty_weight * mae_penalty +
             self.regime_bonus_weight * regime_bonus +
-            self.entropy_alignment_weight * entropy_bonus
+            self.entropy_alignment_weight * entropy_bonus +
+            self.trend_bonus_weight * trend_bonus +
+            self.holding_bonus_weight * holding_bonus
         )
 
         return shaped_reward
