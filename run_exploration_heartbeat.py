@@ -2,14 +2,18 @@
 """
 Exploration Runner with Live Heartbeat Stats
 Shows real-time progress per instrument, per run, cumulative, and per portfolio.
+
+Automatically standardizes data (temporal alignment) before each run.
 """
 import json
+import shutil
 import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -33,6 +37,117 @@ ASSET_CLASS = {
     "COPPER-C": "Commodity", "UKOUSD": "Commodity",
     "XAGUSD": "Metals", "XAUAUD+": "Metals", "XAUUSD+": "Metals", "XPTUSD": "Metals",
 }
+
+
+def standardize_data(source_dir: str, output_dir: str = None) -> str:
+    """
+    Standardize all data files to the earliest common end date.
+    Returns path to standardized data directory.
+    """
+    source_path = Path(source_dir)
+    if not source_path.exists():
+        raise FileNotFoundError(f"Data directory not found: {source_dir}")
+
+    # Default output is source_standardized
+    if output_dir is None:
+        output_dir = str(source_path) + "_standardized"
+    output_path = Path(output_dir)
+
+    csv_files = list(source_path.glob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files in {source_dir}")
+
+    print(f"\n[STANDARDIZE] Processing {len(csv_files)} files...")
+
+    # Parse filename to get end timestamp
+    def parse_end_timestamp(filename):
+        """Extract end timestamp from filename like AUDJPY+_H1_202401020000_202512262000.csv"""
+        import re
+        match = re.search(r'_(\d{12})\.csv$', filename)
+        if match:
+            ts = match.group(1)
+            return datetime.strptime(ts, "%Y%m%d%H%M")
+        return None
+
+    # Find earliest end date across all files
+    end_dates = []
+    for f in csv_files:
+        end_dt = parse_end_timestamp(f.name)
+        if end_dt:
+            end_dates.append(end_dt)
+
+    if not end_dates:
+        print("[WARN] Could not parse timestamps, using raw data")
+        return source_dir
+
+    cutoff = min(end_dates)
+    print(f"[STANDARDIZE] Cutoff: {cutoff} (earliest end date)")
+
+    # Create output directory
+    output_path.mkdir(exist_ok=True)
+
+    # Clear existing files
+    for old_file in output_path.glob("*.csv"):
+        old_file.unlink()
+
+    truncated = 0
+    copied = 0
+    errors = 0
+
+    for csv_file in csv_files:
+        try:
+            end_dt = parse_end_timestamp(csv_file.name)
+
+            if end_dt and end_dt <= cutoff:
+                # File ends at or before cutoff - copy as-is
+                shutil.copy(csv_file, output_path / csv_file.name)
+                copied += 1
+            else:
+                # Needs truncation - read and filter
+                df = pd.read_csv(csv_file, sep='\t')
+                df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
+
+                if 'date' in df.columns and 'time' in df.columns:
+                    # Handle MT5 date format: 2024.01.02 (dots)
+                    date_str = df['date'].astype(str).str.replace('.', '-', regex=False)
+                    df['datetime'] = pd.to_datetime(date_str + ' ' + df['time'].astype(str))
+                else:
+                    continue  # Skip files without proper datetime
+
+                # Filter by cutoff
+                df_truncated = df[df['datetime'] <= cutoff]
+
+                if len(df_truncated) == 0:
+                    continue
+
+                # Generate new filename with updated end timestamp
+                new_end = df_truncated['datetime'].max()
+                new_end_str = new_end.strftime("%Y%m%d%H%M")
+
+                # Parse instrument and timeframe from original filename
+                parts = csv_file.stem.split('_')
+                if len(parts) >= 3:
+                    instrument = parts[0]
+                    timeframe = parts[1]
+                    start_str = parts[2]
+                    new_filename = f"{instrument}_{timeframe}_{start_str}_{new_end_str}.csv"
+                else:
+                    new_filename = csv_file.name
+
+                # Save in original format
+                df_truncated = df_truncated.drop(columns=['datetime'], errors='ignore')
+                df_truncated.columns = ['<' + c.upper() + '>' for c in df_truncated.columns]
+                df_truncated.to_csv(output_path / new_filename, sep='\t', index=False)
+                truncated += 1
+
+        except Exception as e:
+            print(f"  [WARN] {csv_file.name}: {e}")
+            errors += 1
+
+    print(f"[STANDARDIZE] Done: {truncated} truncated, {copied} copied, {errors} errors")
+    print(f"[STANDARDIZE] Output: {output_path}")
+
+    return str(output_path)
 
 
 def get_asset_class(instrument_key):
@@ -87,12 +202,25 @@ def run_with_heartbeat(
     lr: float = 0.05,
     gamma: float = 0.9,
     episodes: int = 50,
+    skip_standardize: bool = False,
 ):
-    """Run exploration with live heartbeat output."""
+    """Run exploration with live heartbeat output.
+
+    Automatically standardizes data (temporal alignment) before each run
+    unless skip_standardize=True.
+    """
     print("=" * 80)
     print(f"  EXPLORATION WITH HEARTBEAT: {config_name}")
     print(f"  MAE_w={mae_w}, LR={lr}, Gamma={gamma}, Episodes={episodes}")
     print("=" * 80)
+
+    # Step 1: Standardize data (all files to same end date)
+    if not skip_standardize:
+        try:
+            data_dir = standardize_data(data_dir)
+        except FileNotFoundError as e:
+            print(f"[ERROR] {e}")
+            return None
 
     # Load instruments
     loader = MultiInstrumentLoader(data_dir=data_dir, verbose=True)
@@ -288,13 +416,18 @@ def run_with_heartbeat(
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", default="data/master")
+    parser = argparse.ArgumentParser(
+        description="Run RL exploration with automatic data standardization"
+    )
+    parser.add_argument("--data-dir", default="data/master",
+                        help="Source data directory (will be standardized)")
     parser.add_argument("--config", default="Heartbeat_FullDataset")
     parser.add_argument("--mae-w", type=float, default=2.5)
     parser.add_argument("--lr", type=float, default=0.05)
     parser.add_argument("--gamma", type=float, default=0.9)
     parser.add_argument("--episodes", type=int, default=50)
+    parser.add_argument("--skip-standardize", action="store_true",
+                        help="Skip data standardization (use raw data)")
     args = parser.parse_args()
 
     run_with_heartbeat(
@@ -304,4 +437,5 @@ if __name__ == "__main__":
         lr=args.lr,
         gamma=args.gamma,
         episodes=args.episodes,
+        skip_standardize=args.skip_standardize,
     )
