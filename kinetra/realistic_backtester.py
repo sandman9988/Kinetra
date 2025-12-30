@@ -64,9 +64,51 @@ class Trade:
     entry_vol_regime: Optional[str] = None
     entry_momentum_regime: Optional[str] = None
 
+    # Physics state (for energy-based metrics)
+    entry_energy: float = 0.0
+
     # Metadata
     rejected_modifications: int = 0  # How many times SL/TP modification was rejected
     freeze_zone_violations: int = 0  # How many times tried to modify in freeze zone
+
+    @property
+    def total_cost(self) -> float:
+        """Calculate total transaction costs."""
+        return (self.entry_spread + self.exit_spread +
+                self.commission + abs(self.swap) +
+                abs(self.entry_slippage) + abs(self.exit_slippage))
+
+    @property
+    def gross_pnl(self) -> float:
+        """Calculate gross P&L (before costs)."""
+        return self.pnl + self.total_cost
+
+    @property
+    def holding_time(self) -> float:
+        """Calculate holding time in hours."""
+        return (self.exit_time - self.entry_time).total_seconds() / 3600.0
+
+    @property
+    def price_captured(self) -> float:
+        """Calculate price difference captured."""
+        if self.direction == 1:  # Long
+            return self.exit_price - self.entry_price
+        else:  # Short
+            return self.entry_price - self.exit_price
+
+    @property
+    def mfe_efficiency(self) -> float:
+        """MFE efficiency: how much of MFE was captured as profit (0-1)."""
+        if self.mfe > 0:
+            return max(0, min(1.0, self.price_captured / self.mfe))
+        return 0.0
+
+    @property
+    def mae_efficiency(self) -> float:
+        """MAE efficiency: how well adverse excursion was limited (0-1)."""
+        if self.mfe > 0:
+            return max(0, 1 - self.mae / self.mfe)
+        return 0.0
 
 
 @dataclass
@@ -103,6 +145,10 @@ class BacktestResult:
     avg_mae: float
     avg_mfe_mae_ratio: float
     mfe_capture_pct: float = 0.0  # How much MFE was captured as profit
+
+    # Physics-specific metrics
+    z_factor: float = 0.0  # Statistical edge metric
+    energy_captured_pct: float = 0.0  # % of energy captured in winning trades
 
     # Regime breakdown (CRITICAL for detecting overfitting)
     regime_performance: Dict[str, Dict] = field(default_factory=dict)
@@ -419,6 +465,7 @@ class RealisticBacktester:
                     'entry_slippage': slippage,
                     'mfe': 0.0,
                     'mae': 0.0,
+                    'entry_energy': candle.get('energy', 0.0),  # For physics-based metrics
                     'regime': {
                         'physics': candle.get('physics_regime', None),
                         'vol': candle.get('vol_regime', None),
@@ -470,6 +517,7 @@ class RealisticBacktester:
                     entry_physics_regime=current_position['regime']['physics'] if current_position['regime'] else None,
                     entry_vol_regime=current_position['regime']['vol'] if current_position['regime'] else None,
                     entry_momentum_regime=current_position['regime']['momentum'] if current_position['regime'] else None,
+                    entry_energy=current_position['entry_energy'],
                     rejected_modifications=current_position['rejected_modifications'],
                 )
 
@@ -632,6 +680,26 @@ class RealisticBacktester:
         realized_profit = sum(max(0, t.pnl) for t in trades)
         mfe_capture = realized_profit / total_mfe if total_mfe > 0 else 0.0
 
+        # Z-factor (statistical edge metric)
+        z_factor = 0.0
+        if total_trades > 1:
+            win_rate = len(winning_trades) / total_trades
+            avg_win = np.mean([t.pnl for t in winning_trades]) if winning_trades else 0
+            avg_loss = np.mean([abs(t.pnl) for t in losing_trades]) if losing_trades else 0
+
+            if avg_loss > 0:
+                z_factor = (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_loss
+            elif avg_win > 0:
+                z_factor = 999.0  # Infinite edge (no losses)
+
+        # Energy captured % (physics-specific metric)
+        energy_captured = 0.0
+        total_energy_at_entry = sum(t.entry_energy for t in trades)
+        profitable_energy = sum(t.entry_energy for t in winning_trades)
+
+        if total_energy_at_entry > 0:
+            energy_captured = profitable_energy / total_energy_at_entry
+
         # Regime breakdown
         regime_performance = self._compute_regime_breakdown(trades)
 
@@ -657,6 +725,8 @@ class RealisticBacktester:
             avg_mae=avg_mae,
             avg_mfe_mae_ratio=avg_mfe_mae,
             mfe_capture_pct=float(mfe_capture),
+            z_factor=float(z_factor),
+            energy_captured_pct=float(energy_captured),
             regime_performance=regime_performance,
             trades=trades,
             equity_curve=equity,
