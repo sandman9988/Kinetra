@@ -336,36 +336,41 @@ async def download_one(
                 await progress.complete_task(0)
                 return {'status': 'failed', 'symbol': symbol, 'tf': tf_label, 'error': 'insufficient data'}
 
-            # Convert to DataFrame
-            df = pd.DataFrame(all_candles)
-            df['time'] = pd.to_datetime(df['time'])
-            df = df.drop_duplicates(subset=['time']).sort_values('time')
+            # Process and write in thread pool (non-blocking)
+            def process_and_write():
+                df = pd.DataFrame(all_candles)
+                df['time'] = pd.to_datetime(df['time'])
+                df = df.drop_duplicates(subset=['time']).sort_values('time')
 
-            # Naming convention
-            start_str = df['time'].iloc[0].strftime('%Y%m%d%H%M')
-            end_str = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
-            filename = f"{symbol}_{tf_label}_{start_str}_{end_str}.csv"
-            output_file = output_dir / filename
+                # Naming convention
+                start_str = df['time'].iloc[0].strftime('%Y%m%d%H%M')
+                end_str = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
+                filename = f"{symbol}_{tf_label}_{start_str}_{end_str}.csv"
+                output_file = output_dir / filename
 
-            # Remove old files
-            for old in existing:
-                if old != output_file:
-                    old.unlink()
+                # Remove old files
+                for old in existing:
+                    if old != output_file:
+                        old.unlink()
 
-            # Prepare export format
-            df_export = pd.DataFrame({
-                '<DATE>': df['time'].dt.strftime('%Y.%m.%d'),
-                '<TIME>': df['time'].dt.strftime('%H:%M:%S'),
-                '<OPEN>': df['open'],
-                '<HIGH>': df['high'],
-                '<LOW>': df['low'],
-                '<CLOSE>': df['close'],
-                '<TICKVOL>': df['tickVolume'],
-            })
+                # Prepare export format
+                df_export = pd.DataFrame({
+                    '<DATE>': df['time'].dt.strftime('%Y.%m.%d'),
+                    '<TIME>': df['time'].dt.strftime('%H:%M:%S'),
+                    '<OPEN>': df['open'],
+                    '<HIGH>': df['high'],
+                    '<LOW>': df['low'],
+                    '<CLOSE>': df['close'],
+                    '<TICKVOL>': df['tickVolume'],
+                })
 
-            atomic_write_csv(df_export, output_file, sep='\t')
-            await progress.complete_task(len(df))
-            print(f"\n  ✅ {symbol} {tf_label}: {len(df):,} bars saved")
+                atomic_write_csv(df_export, output_file, sep='\t')
+                return len(df), output_file
+
+            # Run in thread pool - doesn't block other downloads
+            bar_count, output_file = await asyncio.to_thread(process_and_write)
+            await progress.complete_task(bar_count)
+            print(f"\n  ✅ {symbol} {tf_label}: {bar_count:,} bars saved")
 
             return {
                 'status': 'success',
@@ -373,9 +378,7 @@ async def download_one(
                 'original': original,
                 'asset_class': asset_class,
                 'timeframe': tf_label,
-                'bars': len(df),
-                'start': str(df['time'].iloc[0]),
-                'end': str(df['time'].iloc[-1]),
+                'bars': bar_count,
                 'file': str(output_file),
             }
 
