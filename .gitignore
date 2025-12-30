@@ -51,7 +51,7 @@ results/
 *.h5
 *.onnx
 models/
-checkpoints/
+checkpoints*/
 logs/
 *.log
 
