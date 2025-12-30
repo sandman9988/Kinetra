@@ -456,7 +456,8 @@ class TradeState:
     mfe: float = 0.0           # Maximum Favorable Excursion
     bars_held: int = 0
     entry_features: Optional[np.ndarray] = None
-    entry_spread_ratio: float = 1.0  # Spread at entry / rolling min (agent learns: high = bad MAE)
+    entry_spread_ratio: float = 1.0   # Spread at entry / rolling min (high = bad MAE)
+    entry_volume_ratio: float = 1.0   # Volume at entry / rolling mean (low = bad liquidity)
 
 
 class TradingEnv:
@@ -514,22 +515,39 @@ class TradingEnv:
         self.state_dim = 64
 
     def _init_spread_gate(self):
-        """Initialize spread gate if spread data available."""
+        """Initialize spread gate and volume tracking if data available."""
         # Find spread column
         for col in ['spread', '<SPREAD>', 'SPREAD']:
             if col in self.prices.columns:
                 self.spread_col = col
                 break
 
+        # Find volume column (for liquidity correlation learning)
+        self.volume_col = None
+        for col in ['tickvol', 'volume', '<TICKVOL>', 'TICKVOL', 'vol']:
+            if col in self.prices.columns:
+                self.volume_col = col
+                break
+
         # Auto-create spread gate if not provided but spread data exists
         if self.spread_gate is None and self.spread_col is not None and SPREAD_GATE_AVAILABLE:
             self.spread_gate = SpreadGate(symbol=self.symbol)
 
-        # Pre-compute spread array for fast lookup
+        # Pre-compute arrays for fast lookup
         if self.spread_col is not None:
             self._spread_array = self.prices[self.spread_col].values
         else:
             self._spread_array = None
+
+        if self.volume_col is not None:
+            self._volume_array = self.prices[self.volume_col].values
+            # Rolling mean volume for ratio calculation
+            self._volume_rolling_mean = pd.Series(self._volume_array).rolling(
+                window=100, min_periods=20
+            ).mean().values
+        else:
+            self._volume_array = None
+            self._volume_rolling_mean = None
 
     def reset(self, start_bar: int = 100) -> np.ndarray:
         """Reset environment to starting state."""
@@ -589,6 +607,18 @@ class TradingEnv:
                 info["spread_threshold"] = threshold
                 info["spread_regime"] = spread_info.get("spread_regime", "UNKNOWN")
 
+        # Calculate volume_ratio (current volume / rolling mean)
+        # Agent learns: low volume ↔ high spread ↔ low liquidity → bad execution
+        volume_ratio = 1.0
+        if self._volume_array is not None and self._volume_rolling_mean is not None:
+            if self.current_bar < len(self._volume_array):
+                current_vol = float(self._volume_array[self.current_bar])
+                rolling_mean = self._volume_rolling_mean[self.current_bar]
+                if rolling_mean > 0 and not np.isnan(rolling_mean):
+                    volume_ratio = current_vol / rolling_mean
+                info["volume"] = current_vol
+                info["volume_ratio"] = volume_ratio  # <1 = low liquidity
+
         # Update existing position (MAE/MFE tracking in PERCENTAGE terms)
         if self.trade_state.position != 0:
             self.trade_state.bars_held += 1
@@ -622,9 +652,10 @@ class TradingEnv:
             if self.trade_state.position == 0:  # Open long
                 if allow_entry:
                     self._open_position(1, current_price)
-                    # Track entry spread_ratio for MAE correlation analysis
+                    # Track entry conditions for correlation analysis
                     if spread_info.get("spread_ratio"):
                         self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
+                    self.trade_state.entry_volume_ratio = volume_ratio
                 else:
                     spread_blocked = True
                     self.trades_blocked_by_spread += 1
@@ -637,6 +668,7 @@ class TradingEnv:
                     self._open_position(-1, current_price)
                     if spread_info.get("spread_ratio"):
                         self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
+                    self.trade_state.entry_volume_ratio = volume_ratio
                 else:
                     spread_blocked = True
                     self.trades_blocked_by_spread += 1
@@ -703,7 +735,8 @@ class TradingEnv:
             bar_index=self.current_bar,
         )
 
-        # Record trade with spread info for correlation analysis
+        # Record trade with market condition info for correlation analysis
+        # Agent learns: high spread_ratio + low volume_ratio → bad execution
         self.episode_trades.append({
             "entry_bar": self.trade_state.entry_bar,
             "exit_bar": self.current_bar,
@@ -713,7 +746,8 @@ class TradingEnv:
             "mae": self.trade_state.mae,
             "mfe": self.trade_state.mfe,
             "bars_held": self.trade_state.bars_held,
-            "entry_spread_ratio": self.trade_state.entry_spread_ratio,  # For learning: high → bad MAE
+            "entry_spread_ratio": self.trade_state.entry_spread_ratio,   # high → bad MAE
+            "entry_volume_ratio": self.trade_state.entry_volume_ratio,   # low → bad liquidity
         })
 
         # Reset position
@@ -722,7 +756,7 @@ class TradingEnv:
         return reward, True
 
     def get_episode_stats(self) -> Dict[str, float]:
-        """Get episode statistics including spread↔MAE correlation."""
+        """Get episode statistics including market condition correlations."""
         if not self.episode_trades:
             return {"trades": 0, "total_reward": 0, "avg_reward": 0, "spread_blocked": 0}
 
@@ -740,15 +774,27 @@ class TradingEnv:
                 "avg_spread": gate_stats.get("avg_spread", 0),
             }
 
-        # Spread↔MAE correlation (agent should learn: high spread_ratio → worse MAE)
+        # Market condition correlations (agent learns these relationships)
         spread_mae_corr = 0.0
+        volume_mae_corr = 0.0
         avg_entry_spread_ratio = 1.0
+        avg_entry_volume_ratio = 1.0
+
         if len(self.episode_trades) >= 3:
             spread_ratios = [t.get("entry_spread_ratio", 1.0) for t in self.episode_trades]
+            volume_ratios = [t.get("entry_volume_ratio", 1.0) for t in self.episode_trades]
             maes = [abs(t["mae"]) for t in self.episode_trades]
+
             avg_entry_spread_ratio = np.mean(spread_ratios)
+            avg_entry_volume_ratio = np.mean(volume_ratios)
+
+            # Spread↔MAE: should be positive (high spread → worse MAE)
             if np.std(spread_ratios) > 0 and np.std(maes) > 0:
                 spread_mae_corr = np.corrcoef(spread_ratios, maes)[0, 1]
+
+            # Volume↔MAE: should be negative (low volume → worse MAE)
+            if np.std(volume_ratios) > 0 and np.std(maes) > 0:
+                volume_mae_corr = np.corrcoef(volume_ratios, maes)[0, 1]
 
         return {
             "trades": len(self.episode_trades),
@@ -759,7 +805,9 @@ class TradingEnv:
             "avg_mae": np.mean([t["mae"] for t in self.episode_trades]),
             "avg_mfe": np.mean([t["mfe"] for t in self.episode_trades]),
             "avg_entry_spread_ratio": avg_entry_spread_ratio,
-            "spread_mae_corr": spread_mae_corr,  # Should be positive (high spread → high MAE)
+            "avg_entry_volume_ratio": avg_entry_volume_ratio,
+            "spread_mae_corr": spread_mae_corr,   # + = high spread → bad MAE (expected)
+            "volume_mae_corr": volume_mae_corr,   # - = low volume → bad MAE (expected)
             **spread_stats,
         }
 
