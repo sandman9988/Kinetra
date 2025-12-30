@@ -31,28 +31,78 @@ API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJjMTdhODAwNThhOWE3OW
 ACCOUNT_ID = "e8f8c21a-32b5-40b0-9bf7-672e8ffab91f"
 
 # =====================================================
-# SYMBOLS BY ASSET CLASS (6 per class)
+# PREFERRED SYMBOLS BY ASSET CLASS (fallback list)
 # =====================================================
-SYMBOLS_BY_CLASS = {
+PREFERRED_SYMBOLS = {
+    'forex': ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURJPY', 'GBPJPY', 'USDCHF', 'USDCAD', 'NZDUSD', 'EURGBP'],
+    'crypto': ['BTCUSD', 'ETHUSD', 'LTCUSD', 'XRPUSD', 'BCHUSD', 'ADAUSD', 'DOTUSD', 'SOLUSD', 'BNBUSD', 'LINKUSD'],
+    'indices': ['US30', 'US500', 'NAS100', 'GER40', 'UK100', 'JP225', 'AUS200', 'FRA40', 'EU50', 'HK50'],
+    'metals': ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD', 'COPPER', 'XAUEUR', 'XAUAUD', 'XAGEUR'],
+    'energy': ['USOIL', 'UKOIL', 'NGAS', 'BRENT', 'WTI', 'HEATING', 'NATGAS'],
+}
+
+# Pattern matchers for auto-discovery
+ASSET_CLASS_PATTERNS = {
     'forex': [
-        'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURJPY', 'GBPJPY',
+        # Major pairs
+        r'^(EUR|GBP|USD|JPY|CHF|CAD|AUD|NZD)(EUR|GBP|USD|JPY|CHF|CAD|AUD|NZD)\+?$',
     ],
     'crypto': [
-        'BTCUSD', 'ETHUSD', 'LTCUSD', 'XRPUSD', 'BCHUSD', 'ADAUSD',
+        r'^(BTC|ETH|LTC|XRP|BCH|ADA|DOT|SOL|BNB|LINK|DOGE|AVAX)(USD|EUR|JPY)\+?$',
+        r'^(BITCOIN|ETHEREUM)',
     ],
     'indices': [
-        'US30', 'US500', 'NAS100', 'GER40', 'UK100', 'JP225',
+        r'^(US30|US500|US2000|NAS100|DJ30|SP500|SPX)',
+        r'^(GER40|GER30|DAX|UK100|FTSE|JP225|Nikkei|NI225)',
+        r'^(AUS200|FRA40|EU50|HK50|CHINA)',
     ],
     'metals': [
-        'XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD', 'COPPER', 'XAUEUR',
+        r'^(XAU|XAG|XPT|XPD|GOLD|SILVER|PLATINUM|PALLADIUM)',
+        r'^COPPER',
     ],
     'energy': [
-        'USOIL', 'UKOIL', 'NGAS', 'BRENT', 'WTI', 'HEATING',
+        r'^(USOIL|UKOIL|WTI|BRENT|NGAS|NATGAS|OIL|CRUDE)',
+        r'^(CL|BRN|NG)',
     ],
 }
 
 # Timeframes to download
 TIMEFRAMES = ['1h', '4h']  # H1 and H4
+
+
+def classify_symbol(symbol: str) -> str:
+    """Classify a symbol into an asset class based on patterns."""
+    import re
+    symbol_upper = symbol.upper().rstrip('+')  # Remove ECN suffix for matching
+
+    for asset_class, patterns in ASSET_CLASS_PATTERNS.items():
+        for pattern in patterns:
+            if re.match(pattern, symbol_upper, re.IGNORECASE):
+                return asset_class
+    return None
+
+
+def discover_available_symbols(available: list, max_per_class: int = 6) -> dict:
+    """
+    Intelligently discover and categorize available symbols.
+
+    Returns dict of {asset_class: [(symbol, is_ecn), ...]}
+    """
+    discovered = {cls: [] for cls in ASSET_CLASS_PATTERNS.keys()}
+
+    for symbol in available:
+        asset_class = classify_symbol(symbol)
+        if asset_class:
+            is_ecn = symbol.endswith('+')
+            discovered[asset_class].append((symbol, is_ecn))
+
+    # Sort each class: ECN first, then alphabetically
+    for cls in discovered:
+        discovered[cls].sort(key=lambda x: (not x[1], x[0]))
+        # Limit to max_per_class
+        discovered[cls] = discovered[cls][:max_per_class]
+
+    return discovered
 
 
 def atomic_write_csv(df: pd.DataFrame, filepath: Path, sep: str = '\t'):
@@ -100,16 +150,22 @@ SYMBOL_ALIASES = {
 }
 
 
-def find_symbol_match(target: str, available: list) -> str:
-    """Find matching symbol from available list with comprehensive alias support."""
+def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> str:
+    """
+    Find matching symbol from available list with comprehensive alias support.
+
+    prefer_ecn: If True, prefer ECN symbols (+ suffix) for tighter spreads
+    """
     target_upper = target.upper()
 
-    # Try exact match first
-    if target in available:
-        return target
+    # ECN suffixes first (tighter spreads), then standard
+    if prefer_ecn:
+        suffix_order = ['+', '', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']
+    else:
+        suffix_order = ['', '+', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']
 
-    # Try with common suffixes
-    for suffix in ['', '+', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']:
+    # Try exact match first (with ECN preference)
+    for suffix in suffix_order:
         candidate = target + suffix
         if candidate in available:
             return candidate
@@ -118,13 +174,10 @@ def find_symbol_match(target: str, available: list) -> str:
         if matches:
             return matches[0]
 
-    # Try aliases
+    # Try aliases (with ECN preference)
     aliases = SYMBOL_ALIASES.get(target_upper, [])
     for alias in aliases:
-        if alias in available:
-            return alias
-        # Try alias with suffixes
-        for suffix in ['', '+', 'm', '.pro', '_SB', 'Cash', '-C', 'ft']:
+        for suffix in suffix_order:
             candidate = alias + suffix
             if candidate in available:
                 return candidate
@@ -132,11 +185,11 @@ def find_symbol_match(target: str, available: list) -> str:
             if matches:
                 return matches[0]
 
-    # Try partial match (last resort)
+    # Try partial match (last resort) - prefer ECN if multiple matches
     matches = [s for s in available if target_upper in s.upper()]
     if matches:
-        # Prefer shorter matches (more specific)
-        matches.sort(key=len)
+        # Sort: ECN first (+), then by length (shorter = more specific)
+        matches.sort(key=lambda x: ('+' not in x, len(x)))
         return matches[0]
 
     return None
@@ -170,22 +223,35 @@ async def download_all():
     print("    ✅ Synchronized")
 
     # Get available symbols
-    print("\n[2] Getting available symbols...")
+    print("\n[2] Discovering available symbols...")
     available_symbols = await connection.get_symbols()
-    print(f"    ✅ {len(available_symbols)} symbols available")
+    print(f"    ✅ {len(available_symbols)} total symbols available")
 
-    # Match our targets
+    # Intelligent auto-discovery: classify and select best symbols per class
+    discovered = discover_available_symbols(available_symbols, max_per_class=6)
+
+    print("\n    AUTO-DISCOVERED SYMBOLS (ECN preferred):")
     symbols_to_download = []
-    for asset_class, targets in SYMBOLS_BY_CLASS.items():
-        for target in targets:
-            match = find_symbol_match(target, available_symbols)
-            if match:
-                symbols_to_download.append((match, asset_class, target))
-                print(f"    ✓ {asset_class}/{target} → {match}")
-            else:
-                print(f"    ✗ {asset_class}/{target} → NOT FOUND")
+    for asset_class in ['forex', 'crypto', 'indices', 'metals', 'energy']:
+        class_symbols = discovered.get(asset_class, [])
+        if class_symbols:
+            symbol_list = ', '.join([f"{s}{'*' if ecn else ''}" for s, ecn in class_symbols])
+            print(f"    {asset_class}: {symbol_list}")
+            for symbol, is_ecn in class_symbols:
+                symbols_to_download.append((symbol, asset_class, symbol))
+        else:
+            # Fallback to preferred list with matching
+            print(f"    {asset_class}: [fallback matching...]")
+            for target in PREFERRED_SYMBOLS.get(asset_class, [])[:6]:
+                match = find_symbol_match(target, available_symbols)
+                if match:
+                    symbols_to_download.append((match, asset_class, target))
+                    print(f"      ✓ {target} → {match}")
+                else:
+                    print(f"      ✗ {target} → NOT FOUND")
 
-    print(f"\n    Total to download: {len(symbols_to_download)} symbols × {len(TIMEFRAMES)} timeframes")
+    print(f"\n    * = ECN (tighter spreads)")
+    print(f"    Total: {len(symbols_to_download)} symbols × {len(TIMEFRAMES)} timeframes = {len(symbols_to_download) * len(TIMEFRAMES)} files")
 
     # Date range (2 years) - use UTC for consistency with MetaAPI
     from datetime import timezone
