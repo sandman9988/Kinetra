@@ -201,7 +201,7 @@ async def download_all():
     print("\n" + "="*70)
     print("METAAPI BULK DATA DOWNLOAD")
     print("="*70)
-    print(f"  Asset classes: {len(SYMBOLS_BY_CLASS)}")
+    print(f"  Asset classes: {len(PREFERRED_SYMBOLS)}")
     print(f"  Instruments per class: 6")
     print(f"  Timeframes: H1, H4")
     print(f"  History: 2 years")
