@@ -100,12 +100,21 @@ async def test_metaapi_authentication(
                 account = accounts[0]
                 print(f"\n✅ Auto-selected account: {account.name} ({account.id})")
             else:
-                print(f"\n⚠️  Multiple accounts available. Using first account.")
+                # Multiple accounts - ask user to choose
+                print(f"\n⚠️  Multiple accounts available.")
+                print(f"\nTo select a specific account, set the ACCOUNT_ID in this script.")
+                print(f"For now, using the first account...")
                 account = accounts[0]
+                print(f"\n✅ Selected: {account.name} ({account.id})")
+                print(f"   Server: {account.server}")
+                print(f"   Login:  {account.login}")
         else:
             account = next((a for a in accounts if a.id == account_id), None)
             if account is None:
                 print(f"\n❌ Account ID {account_id} not found")
+                print(f"\nAvailable account IDs:")
+                for acc in accounts:
+                    print(f"  - {acc.id} ({acc.name})")
                 return False
             print(f"\n✅ Selected account: {account.name} ({account.id})")
 
@@ -367,20 +376,54 @@ async def test_metaapi_authentication(
     # Prepare DataFrame
     df_export = df[['time', 'open', 'high', 'low', 'close', 'volume']].copy()
 
-    # Create filename
+    # Create broker-specific directory structure
+    # Format: data/{broker}/{account_login}/{symbol}_{timeframe}_{dates}.csv
+    broker_name = account_info.get('broker', account.server.split('-')[0] if '-' in account.server else account.server)
+    account_login = account_info.get('login', account.login)
+
+    # Sanitize names for filesystem
+    broker_name = broker_name.replace(' ', '_').replace('/', '_')
+
+    output_dir = project_root / "data" / broker_name / str(account_login)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create filename with broker marker
     start_date = df['time'].iloc[0].strftime('%Y%m%d%H%M')
     end_date = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
-    filename = f"{symbol}_M15_{start_date}_{end_date}_metaapi.csv"
-
-    output_dir = project_root / "data" / "metaapi"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{symbol}_M15_{start_date}_{end_date}.csv"
     output_file = output_dir / filename
+
+    # Also create metadata file to track download info
+    metadata_file = output_dir / f"{symbol}_M15_metadata.json"
+    import json
+    metadata = {
+        "symbol": symbol,
+        "timeframe": "M15",
+        "broker": broker_name,
+        "account_login": account_login,
+        "account_name": account.name,
+        "server": account.server,
+        "downloaded_at": datetime.now().isoformat(),
+        "bars_count": len(df_export),
+        "start_date": df['time'].iloc[0].isoformat(),
+        "end_date": df['time'].iloc[-1].isoformat(),
+        "file": filename,
+    }
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata, f, indent=2)
 
     df_export.to_csv(output_file, index=False)
 
     print(f"\n✅ Data saved to: {output_file}")
     print(f"  Size: {output_file.stat().st_size / 1024:.1f} KB")
     print(f"  Rows: {len(df_export)}")
+    print(f"\n✅ Metadata saved to: {metadata_file}")
+    print(f"\n📁 Directory structure:")
+    print(f"  data/")
+    print(f"  └── {broker_name}/              ← Broker")
+    print(f"      └── {account_login}/         ← Account")
+    print(f"          ├── {filename}")
+    print(f"          └── {symbol}_M15_metadata.json")
 
     # ===========================
     # STEP 10: DISCONNECT
@@ -404,15 +447,24 @@ async def test_metaapi_authentication(
 
     print(f"\n✅ All steps completed successfully!")
     print(f"\n  📊 Data Statistics:")
+    print(f"    Broker:     {broker_name}")
+    print(f"    Account:    {account_login} ({account.name})")
+    print(f"    Server:     {account.server}")
     print(f"    Symbol:     {symbol}")
     print(f"    Timeframe:  M15")
     print(f"    Bars:       {len(df_export)}")
     print(f"    Period:     {df_export['time'].iloc[0]} to {df_export['time'].iloc[-1]}")
-    print(f"    File:       {output_file}")
+    print(f"\n  📁 Files:")
+    print(f"    Data:       {output_file}")
+    print(f"    Metadata:   {metadata_file}")
     print(f"\n  ✅ Authentication:  SUCCESS")
     print(f"  ✅ Data Download:   SUCCESS")
     print(f"  ✅ Data Validation: {checks_passed}/{checks_total} PASS")
     print(f"  ✅ Data Export:     SUCCESS")
+    print(f"\n  💡 Note:")
+    print(f"    Data is organized by broker and account to prevent corruption.")
+    print(f"    Each account's data is stored separately under:")
+    print(f"    data/{broker_name}/{account_login}/")
 
     print("\n" + "="*80)
 
