@@ -269,12 +269,16 @@ class MT5Bridge:
         path = getattr(info, 'path', '').lower()
         if 'crypto' in path or 'btc' in symbol.lower() or 'eth' in symbol.lower():
             asset_class = AssetClass.CRYPTO
-        elif 'index' in path or 'indices' in path:
-            asset_class = AssetClass.INDEX
-        elif 'metal' in path or 'xau' in symbol.lower() or 'xag' in symbol.lower():
-            asset_class = AssetClass.COMMODITY
-        elif 'stock' in path or 'shares' in path:
-            asset_class = AssetClass.STOCK
+        elif 'index' in path or 'indices' in path or any(x in symbol.upper() for x in ['US500', 'NAS100', 'DJ30', 'SPX', 'NDX']):
+            asset_class = AssetClass.INDICES
+        elif 'metal' in path or any(x in symbol.upper() for x in ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER']):
+            asset_class = AssetClass.METALS
+        elif 'energy' in path or any(x in symbol.upper() for x in ['WTI', 'BRENT', 'OIL', 'NGAS', 'XBRUSD', 'XTIUSD']):
+            asset_class = AssetClass.ENERGY
+        elif 'etf' in path or 'etf' in symbol.lower():
+            asset_class = AssetClass.ETFS
+        elif 'stock' in path or 'shares' in path or 'equity' in path:
+            asset_class = AssetClass.SHARES
         else:
             asset_class = AssetClass.FOREX
 
@@ -684,10 +688,14 @@ class MT5Bridge:
             # Detect asset class
             if 'btc' in symbol.lower() or 'eth' in symbol.lower():
                 asset_class = AssetClass.CRYPTO
-            elif 'xau' in symbol.lower() or 'xag' in symbol.lower():
-                asset_class = AssetClass.COMMODITY
+            elif any(x in symbol.upper() for x in ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER']):
+                asset_class = AssetClass.METALS
+            elif any(x in symbol.upper() for x in ['WTI', 'BRENT', 'OIL', 'NGAS', 'XBRUSD', 'XTIUSD']):
+                asset_class = AssetClass.ENERGY
             elif symbol.endswith('500') or symbol.endswith('30') or 'index' in symbol.lower():
-                asset_class = AssetClass.INDEX
+                asset_class = AssetClass.INDICES
+            elif 'etf' in symbol.lower():
+                asset_class = AssetClass.ETFS
             else:
                 asset_class = AssetClass.FOREX
 
@@ -720,12 +728,18 @@ class MT5Bridge:
             return None
 
         # Determine asset class from symbol properties
-        if info.trade_calc_mode == 0:  # Forex mode
-            asset_class = AssetClass.FOREX
-        elif "BTC" in symbol or "ETH" in symbol or "CRYPTO" in info.path:
+        if "BTC" in symbol or "ETH" in symbol or "CRYPTO" in info.path:
             asset_class = AssetClass.CRYPTO
         elif info.trade_calc_mode == 4:  # CFD indices
-            asset_class = AssetClass.INDEX
+            asset_class = AssetClass.INDICES
+        elif any(x in symbol.upper() for x in ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER']):
+            asset_class = AssetClass.METALS
+        elif any(x in symbol.upper() for x in ['WTI', 'BRENT', 'OIL', 'NGAS', 'XBRUSD', 'XTIUSD']):
+            asset_class = AssetClass.ENERGY
+        elif 'ETF' in symbol.upper() or 'ETF' in info.path:
+            asset_class = AssetClass.ETFS
+        elif info.trade_calc_mode == 0:  # Forex mode
+            asset_class = AssetClass.FOREX
         else:
             asset_class = AssetClass.COMMODITY
 

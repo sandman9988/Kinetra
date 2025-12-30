@@ -18,11 +18,31 @@ from enum import Enum
 
 
 class AssetClass(Enum):
+    # Currency markets
     FOREX = "forex"
+
+    # Digital assets
     CRYPTO = "crypto"
-    INDEX = "index"
+
+    # Equity markets
+    SHARES = "shares"
+    STOCK = "stock"  # Alias for shares
+    INDICES = "indices"
+    INDEX = "index"  # Alias for indices (backward compatibility)
+
+    # Commodity markets - Metals
+    METALS = "metals"
+    METAL = "metal"  # Alias for metals
+
+    # Commodity markets - Energy
+    ENERGY = "energy"
+
+    # General commodities (backward compatibility)
     COMMODITY = "commodity"
-    STOCK = "stock"
+
+    # Structured products
+    ETFS = "etfs"
+    ETF = "etf"  # Alias for etfs
 
 
 class Session(Enum):
@@ -98,8 +118,53 @@ class SymbolSpec:
         elif self.asset_class == AssetClass.CRYPTO:
             # Crypto: 24/7 but peaks during US hours
             return {h: 0.7 + 0.3 * np.sin((h - 14) * np.pi / 12) for h in range(24)}
+        elif self.asset_class in (AssetClass.SHARES, AssetClass.STOCK):
+            # Shares: US market hours (9:30-16:00 ET = roughly 14:30-21:00 UTC)
+            return {
+                0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0,      # Pre-market closed
+                6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0, 11: 0.0,    # Pre-market closed
+                12: 0.0, 13: 0.2, 14: 0.6, 15: 0.9, 16: 1.0, 17: 0.95,  # Market open
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.3,                  # Market close
+                22: 0.0, 23: 0.0                                      # After hours
+            }
+        elif self.asset_class in (AssetClass.INDICES, AssetClass.INDEX):
+            # Indices: Extended hours trading, peaks during regular session
+            return {
+                0: 0.2, 1: 0.2, 2: 0.2, 3: 0.2, 4: 0.2, 5: 0.2,      # Asian session
+                6: 0.3, 7: 0.4, 8: 0.5, 9: 0.6, 10: 0.7, 11: 0.75,   # European session
+                12: 0.8, 13: 0.85, 14: 0.9, 15: 0.95, 16: 1.0, 17: 0.95,  # US session peak
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.5,                  # US session close
+                22: 0.3, 23: 0.25                                     # After hours
+            }
+        elif self.asset_class in (AssetClass.METALS, AssetClass.METAL):
+            # Metals (Gold, Silver): 23-hour trading, 1 hour maintenance
+            return {
+                0: 0.7, 1: 0.65, 2: 0.6, 3: 0.6, 4: 0.65, 5: 0.7,    # Asian session
+                6: 0.75, 7: 0.8, 8: 0.85, 9: 0.9, 10: 0.95, 11: 0.95,  # London session
+                12: 0.95, 13: 1.0, 14: 1.0, 15: 0.95, 16: 0.9,       # London/NY overlap
+                17: 0.85, 18: 0.8, 19: 0.75, 20: 0.7, 21: 0.65,      # NY session
+                22: 0.0, 23: 0.6                                      # Maintenance hour (22:00)
+            }
+        elif self.asset_class == AssetClass.ENERGY:
+            # Energy (Oil, Gas): Peaks during London/NY hours
+            return {
+                0: 0.5, 1: 0.45, 2: 0.4, 3: 0.4, 4: 0.45, 5: 0.5,    # Asian session
+                6: 0.6, 7: 0.7, 8: 0.8, 9: 0.85, 10: 0.9, 11: 0.9,   # London open
+                12: 0.95, 13: 1.0, 14: 1.0, 15: 0.95, 16: 0.9,       # London/NY overlap
+                17: 0.85, 18: 0.8, 19: 0.7, 20: 0.6, 21: 0.5,        # NY afternoon
+                22: 0.45, 23: 0.5                                     # After hours
+            }
+        elif self.asset_class in (AssetClass.ETFS, AssetClass.ETF):
+            # ETFs: Follow equity market hours
+            return {
+                0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0,      # Pre-market closed
+                6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0, 11: 0.0,    # Pre-market closed
+                12: 0.0, 13: 0.2, 14: 0.6, 15: 0.9, 16: 1.0, 17: 0.95,  # Market open
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.3,                  # Market close
+                22: 0.0, 23: 0.0                                      # After hours
+            }
         else:
-            # Default flat profile
+            # Default flat profile (COMMODITY and others)
             return {h: 0.8 for h in range(24)}
 
     def spread_in_price(self) -> float:
@@ -180,7 +245,7 @@ SYMBOL_SPECS = {
     # Indices
     "US500": SymbolSpec(
         symbol="US500",
-        asset_class=AssetClass.INDEX,
+        asset_class=AssetClass.INDICES,
         digits=2,
         contract_size=1,
         spread_typical=0.5,
@@ -192,7 +257,7 @@ SYMBOL_SPECS = {
     ),
     "US30": SymbolSpec(
         symbol="US30",
-        asset_class=AssetClass.INDEX,
+        asset_class=AssetClass.INDICES,
         digits=0,
         contract_size=1,
         spread_typical=2.0,
@@ -202,10 +267,22 @@ SYMBOL_SPECS = {
         swap_long=-3.5,
         swap_short=-1.5,
     ),
-    # Gold
+    "NAS100": SymbolSpec(
+        symbol="NAS100",
+        asset_class=AssetClass.INDICES,
+        digits=2,
+        contract_size=1,
+        spread_typical=1.0,
+        spread_min=0.5,
+        spread_max=10.0,
+        commission_per_lot=0.0,
+        swap_long=-2.0,
+        swap_short=-1.0,
+    ),
+    # Metals
     "XAUUSD": SymbolSpec(
         symbol="XAUUSD",
-        asset_class=AssetClass.COMMODITY,
+        asset_class=AssetClass.METALS,
         digits=2,
         contract_size=100,       # 100 oz per lot
         spread_typical=0.30,     # $0.30 typical
@@ -214,6 +291,69 @@ SYMBOL_SPECS = {
         commission_per_lot=0.0,
         swap_long=-5.0,
         swap_short=1.0,
+    ),
+    "XAGUSD": SymbolSpec(
+        symbol="XAGUSD",
+        asset_class=AssetClass.METALS,
+        digits=3,
+        contract_size=5000,      # 5000 oz per lot
+        spread_typical=0.020,    # $0.020 typical
+        spread_min=0.010,
+        spread_max=0.200,
+        commission_per_lot=0.0,
+        swap_long=-4.0,
+        swap_short=1.0,
+    ),
+    # Energy
+    "XTIUSD": SymbolSpec(  # WTI Crude Oil
+        symbol="XTIUSD",
+        asset_class=AssetClass.ENERGY,
+        digits=2,
+        contract_size=1000,      # 1000 barrels per lot
+        spread_typical=0.05,     # $0.05 typical
+        spread_min=0.03,
+        spread_max=0.50,
+        commission_per_lot=0.0,
+        swap_long=-3.0,
+        swap_short=-1.0,
+    ),
+    "XBRUSD": SymbolSpec(  # Brent Crude Oil
+        symbol="XBRUSD",
+        asset_class=AssetClass.ENERGY,
+        digits=2,
+        contract_size=1000,      # 1000 barrels per lot
+        spread_typical=0.05,     # $0.05 typical
+        spread_min=0.03,
+        spread_max=0.50,
+        commission_per_lot=0.0,
+        swap_long=-3.0,
+        swap_short=-1.0,
+    ),
+    # Shares (Example: Major US stocks)
+    "AAPL": SymbolSpec(
+        symbol="AAPL",
+        asset_class=AssetClass.SHARES,
+        digits=2,
+        contract_size=1,         # 1 share per lot
+        spread_typical=0.02,     # $0.02 typical
+        spread_min=0.01,
+        spread_max=0.20,
+        commission_per_lot=0.0,  # Usually commission-free or in spread
+        swap_long=-0.02,
+        swap_short=-0.02,
+    ),
+    # ETFs (Example)
+    "SPY": SymbolSpec(
+        symbol="SPY",
+        asset_class=AssetClass.ETFS,
+        digits=2,
+        contract_size=1,         # 1 share per lot
+        spread_typical=0.01,     # $0.01 typical
+        spread_min=0.01,
+        spread_max=0.10,
+        commission_per_lot=0.0,
+        swap_long=-0.01,
+        swap_short=-0.01,
     ),
 }
 

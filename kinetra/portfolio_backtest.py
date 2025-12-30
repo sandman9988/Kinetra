@@ -26,20 +26,9 @@ from .backtest_engine import (
     TradeDirection,
 )
 from .data_alignment import PointInTimeAligner, TimeframeSpec
+from .market_microstructure import AssetClass
 from .physics_engine import PhysicsEngine
 from .symbol_spec import SymbolSpec
-
-
-class InstrumentClass(Enum):
-    """Classification of trading instruments."""
-
-    FOREX = "forex"
-    CRYPTO = "crypto"
-    INDICES = "indices"
-    COMMODITIES = "commodities"
-    STOCKS = "stocks"
-    BONDS = "bonds"
-    OTHER = "other"
 
 
 @dataclass
@@ -48,7 +37,7 @@ class InstrumentConfig:
 
     symbol: str
     symbol_spec: SymbolSpec
-    instrument_class: InstrumentClass
+    instrument_class: AssetClass
     base_timeframe: str  # Primary timeframe for signals
     feature_timeframes: List[str] = field(default_factory=list)  # Higher TFs for context
     max_positions: int = 1
@@ -79,7 +68,7 @@ class PortfolioTrade(Trade):
     """Extended trade with portfolio context."""
 
     timeframe: str = ""
-    instrument_class: InstrumentClass = InstrumentClass.OTHER
+    instrument_class: AssetClass = AssetClass.COMMODITY
     portfolio_equity_at_entry: float = 0.0
     portfolio_margin_at_entry: float = 0.0
 
@@ -98,7 +87,7 @@ class PortfolioBacktestResult:
     timeframe_results: Dict[str, BacktestResult]
 
     # Per-class results
-    class_results: Dict[InstrumentClass, BacktestResult]
+    class_results: Dict[AssetClass, BacktestResult]
 
     # Portfolio-level metrics
     total_trades: int = 0
@@ -704,7 +693,7 @@ class PortfolioBacktestEngine:
         # Group trades by instrument, timeframe, class
         by_instrument: Dict[str, List[PortfolioTrade]] = {}
         by_timeframe: Dict[str, List[PortfolioTrade]] = {}
-        by_class: Dict[InstrumentClass, List[PortfolioTrade]] = {}
+        by_class: Dict[AssetClass, List[PortfolioTrade]] = {}
 
         for trade in self.all_trades:
             # By instrument
