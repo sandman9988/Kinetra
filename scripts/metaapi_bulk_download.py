@@ -229,7 +229,8 @@ class ProgressTracker:
     def status_line(self) -> str:
         elapsed = (datetime.now() - self.start_time).total_seconds()
         rate = self.bars_fetched / elapsed if elapsed > 0 else 0
-        return f"[{self.completed}/{self.total_tasks}] 🔄{self.in_progress} active | {self.bars_fetched:,} bars | {rate:.0f}/sec"
+        pct = (self.completed / self.total_tasks * 100) if self.total_tasks > 0 else 0
+        return f"[{self.completed}/{self.total_tasks}] {pct:.0f}% | 🔄{self.in_progress} parallel | {self.bars_fetched:,} bars @ {rate:.0f}/sec"
 
 
 class DynamicThrottler:
