@@ -217,22 +217,25 @@ def truncate_to_cutoff(
             else:
                 # File needs truncation
                 if not dry_run:
-                    # Read and truncate
-                    df = pd.read_csv(csv_file)
+                    # Read tab-separated data (MT5 format)
+                    df = pd.read_csv(csv_file, sep='\t')
 
-                    # Find datetime column
-                    time_col = None
-                    for col in ['time', 'datetime', 'date', 'timestamp']:
-                        if col in df.columns:
-                            time_col = col
-                            break
+                    # Normalize column names
+                    df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
 
-                    if time_col is None:
+                    # Combine date + time into datetime
+                    if 'date' in df.columns and 'time' in df.columns:
+                        df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+                        time_col = 'datetime'
+                    elif 'datetime' in df.columns:
+                        df['datetime'] = pd.to_datetime(df['datetime'])
+                        time_col = 'datetime'
+                    else:
                         # Assume first column is time
                         time_col = df.columns[0]
+                        df[time_col] = pd.to_datetime(df[time_col])
 
-                    # Parse and filter
-                    df[time_col] = pd.to_datetime(df[time_col])
+                    # Filter by cutoff
                     df_truncated = df[df[time_col] <= cutoff]
 
                     if len(df_truncated) == 0:
@@ -244,10 +247,13 @@ def truncate_to_cutoff(
                     new_end = df_truncated[time_col].max()
                     new_end_str = new_end.strftime("%Y%m%d%H%M")
                     start_str = start_dt.strftime("%Y%m%d%H%M")
-                    new_filename = f"{instrument}_{timeframe}_{start_str}00_{new_end_str}00.csv"
+                    new_filename = f"{instrument}_{timeframe}_{start_str}_{new_end_str}.csv"
 
-                    # Save
-                    df_truncated.to_csv(output_path / new_filename, index=False)
+                    # Save in same tab-separated format
+                    # Restore original column format
+                    df_truncated = df_truncated.drop(columns=['datetime'], errors='ignore')
+                    df_truncated.columns = ['<' + c.upper() + '>' for c in df_truncated.columns]
+                    df_truncated.to_csv(output_path / new_filename, sep='\t', index=False)
 
                 rows_before = "?" if dry_run else len(pd.read_csv(csv_file))
                 rows_after = "?" if dry_run else len(df_truncated)
@@ -278,6 +284,118 @@ def truncate_to_cutoff(
         print(f"\n  Standardized data saved to: {output_path}")
 
     return results
+
+
+def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
+    """
+    Analyze gaps in data (weekends, holidays, unusual gaps).
+
+    Returns dict with gap statistics and flagged anomalies.
+    """
+    from datetime import timedelta
+
+    data_path = Path(data_dir)
+
+    # Expected gap by timeframe (in hours)
+    expected_gaps = {
+        "M15": 0.25,
+        "M30": 0.5,
+        "H1": 1.0,
+        "H4": 4.0,
+    }
+    expected_gap_hours = expected_gaps.get(timeframe, 1.0)
+
+    # Weekend gap threshold (forex closes Friday 5pm NY, opens Sunday 5pm NY = ~48h)
+    weekend_gap_hours = 48
+
+    # Find matching files
+    pattern = f"*_{timeframe}_*.csv"
+    files = list(data_path.glob(pattern))
+
+    if not files:
+        print(f"No files matching {pattern} in {data_dir}")
+        return {}
+
+    all_gaps = []
+    holiday_gaps = []
+
+    for csv_file in files[:5]:  # Sample 5 files for speed
+        try:
+            df = pd.read_csv(csv_file, sep='\t')
+            df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
+
+            if 'date' in df.columns and 'time' in df.columns:
+                df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+            else:
+                continue
+
+            df = df.sort_values('datetime')
+
+            # Calculate gaps
+            df['gap_hours'] = df['datetime'].diff().dt.total_seconds() / 3600
+
+            # Flag unusual gaps (not weekends)
+            for idx, row in df.iterrows():
+                gap = row['gap_hours']
+                if pd.isna(gap):
+                    continue
+
+                dt = row['datetime']
+
+                # Skip normal weekend gaps (Friday evening to Sunday evening)
+                is_weekend_gap = (
+                    dt.weekday() == 6 and  # Sunday
+                    gap >= 40 and gap <= 60
+                )
+
+                if gap > expected_gap_hours * 2 and not is_weekend_gap:
+                    all_gaps.append({
+                        "file": csv_file.name,
+                        "datetime": dt,
+                        "gap_hours": gap,
+                        "weekday": dt.strftime("%A"),
+                    })
+
+                    # Flag potential holidays (gap > 24h on weekday)
+                    if gap > 24 and dt.weekday() < 5:
+                        holiday_gaps.append({
+                            "datetime": dt,
+                            "gap_hours": gap,
+                            "likely_holiday": True,
+                        })
+
+        except Exception as e:
+            print(f"  [ERROR] {csv_file.name}: {e}")
+
+    return {
+        "total_gaps_found": len(all_gaps),
+        "holiday_gaps": len(holiday_gaps),
+        "gaps": all_gaps[:20],  # First 20
+        "holidays": holiday_gaps,
+    }
+
+
+def print_gap_analysis(gaps: Dict):
+    """Print gap analysis results."""
+    print("\n" + "=" * 60)
+    print("  GAP ANALYSIS (Holidays, Unusual Gaps)")
+    print("=" * 60)
+
+    print(f"\nTotal unusual gaps found: {gaps.get('total_gaps_found', 0)}")
+    print(f"Potential holiday gaps: {gaps.get('holiday_gaps', 0)}")
+
+    if gaps.get('holidays'):
+        print("\n[LIKELY HOLIDAYS]")
+        print("-" * 40)
+        for h in gaps['holidays'][:10]:
+            dt = h['datetime']
+            print(f"  {dt.strftime('%Y-%m-%d %A')}: {h['gap_hours']:.1f}h gap")
+
+    if gaps.get('gaps'):
+        print("\n[UNUSUAL GAPS (sample)]")
+        print("-" * 40)
+        for g in gaps['gaps'][:10]:
+            print(f"  {g['datetime']}: {g['gap_hours']:.1f}h ({g['weekday']})")
 
 
 def main():
@@ -314,8 +432,24 @@ def main():
         action="store_true",
         help="Actually apply changes (default is dry run)"
     )
+    parser.add_argument(
+        "--gaps",
+        action="store_true",
+        help="Analyze gaps in data (holidays, weekends, unusual gaps)"
+    )
+    parser.add_argument(
+        "--timeframe",
+        default="H1",
+        help="Timeframe for gap analysis (default: H1)"
+    )
 
     args = parser.parse_args()
+
+    # Gap analysis
+    if args.gaps:
+        gaps = analyze_gaps(args.data_dir, args.timeframe)
+        print_gap_analysis(gaps)
+        return
 
     # Always analyze first
     analysis = analyze_cutoffs(args.data_dir)
