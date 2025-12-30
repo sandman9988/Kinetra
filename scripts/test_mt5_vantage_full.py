@@ -290,7 +290,7 @@ async def run_complete_backtest_async():
     # METAAPI CONFIGURATION
     # ===========================
     API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJjMTdhODAwNThhOWE3OWE0NDNkZjBlOGM1NDZjZjlmMSIsImFjY2Vzc1J1bGVzIjpbeyJpZCI6InRyYWRpbmctYWNjb3VudC1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVzdC1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcnBjLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVhbC10aW1lLXN0cmVhbWluZy1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOndzOnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtZXRhc3RhdHMtYXBpIiwibWV0aG9kcyI6WyJtZXRhc3RhdHMtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6InJpc2stbWFuYWdlbWVudC1hcGkiLCJtZXRob2RzIjpbInJpc2stbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoiY29weWZhY3RvcnktYXBpIiwibWV0aG9kcyI6WyJjb3B5ZmFjdG9yeS1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibXQtbWFuYWdlci1hcGkiLCJtZXRob2RzIjpbIm10LW1hbmFnZXItYXBpOnJlc3Q6ZGVhbGluZzoqOioiLCJtdC1tYW5hZ2VyLWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJiaWxsaW5nLWFwaSIsIm1ldGhvZHMiOlsiYmlsbGluZy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfV0sImlnbm9yZVJhdGVMaW1pdHMiOmZhbHNlLCJ0b2tlbklkIjoiMjAyMTAyMTMiLCJpbXBlcnNvbmF0ZWQiOmZhbHNlLCJyZWFsVXNlcklkIjoiYzE3YTgwMDU4YTlhNzlhNDQzZGYwZThjNTQ2Y2Y5ZjEiLCJpYXQiOjE3NjcxMjE0MDYsImV4cCI6MTc3NDg5NzQwNn0.oHB_5iSe2nm_lWbIRTvFKDy1sXkq1xMXaROHvoJjgXAa2n8OkjJuj6bYbqAO4F_xHrEEKykjEgWN6Vfm7tMG9AU1o-XoHf3ayUMro90NLq-kUTcMBoE6GkAPugQenj3-1oySJ7nlnZdH-luqSRhpcnHob91O4kO670gzKUbWO2jCTpr_9d8ZzRHHqTQbukW-JdNQ53C0KSR7RGg50MBGr55IlyDmMsstqznsmCms7vDkbtoxRfUWssMOZ-4eKA-wtJJz47jQUAnJEDwGFWwoKweIhK_WnjJgFfJoOP7S_7rLBr6elkhQbzd5xENGJqmNj1I0CdiiQpNuDX5sLCt2PLvQ-Owll3LdBDpRGlb-rWJR4gaAPY3nZzCaMakfjRmZtQsCN9FGvOphG0b0IQAD3sQKZ2FzO08IenPWiZS90s4mP88vmafnC-lybMWWXKT8CnQu4YSgFsY-v74lJ_xGi6Ye-4nwzECrkGam9WceD5cGnk8bDchH-4WN68LAjPnKg0XxABd1AYnops89qcmzupoiM34BfaigMLYin5Ea81YgvGcSEwF8UQ070SDdGL2NptuznhMA2iCJoGwF0FN-uKA-jBQvPcyUEDUTjl3cbV9JECry7uAk_HeQKPzF2l0KQBOqENAytnNyWYwaq9lY3XsH7d5ZG35jFzeFCCdrokA"
-    ACCOUNT_ID = None  # Set to your MetaAPI account ID
+    ACCOUNT_ID = "10916362"  # MT5-10916362
 
     # Trading configuration
     symbol = "EURJPY+"
@@ -301,9 +301,27 @@ async def run_complete_backtest_async():
     max_trades = 20
     commission_per_lot = 3.0  # Vantage: $3/side (not available from API)
 
-    if ACCOUNT_ID is None:
-        print("\n⚠️  ACCOUNT_ID not set - using fallback manual spec (NOT from MetaAPI)")
-        print("   For real broker specs, set ACCOUNT_ID and run test_metaapi_auth.py")
+    # Try to fetch spec from MetaAPI, fall back to manual if it fails
+    spec = None
+
+    if ACCOUNT_ID is not None:
+        # Step 0: Fetch broker specs from MetaAPI
+        print("\n" + "="*80)
+        print("STEP 0: FETCHING BROKER SPECS FROM METAAPI")
+        print("="*80)
+
+        try:
+            spec = await get_spec_from_metaapi(API_TOKEN, ACCOUNT_ID, symbol, commission_per_lot)
+            print(f"✅ Successfully fetched real broker specs for {symbol}")
+        except Exception as e:
+            print(f"\n⚠️  Failed to fetch from MetaAPI: {str(e)[:100]}")
+            print("   Falling back to manual spec")
+            spec = None
+
+    if spec is None:
+        print("\n⚠️  Using fallback manual spec (NOT from MetaAPI)")
+        print("   For real broker specs, run: python scripts/test_metaapi_auth.py")
+        print("   to find the correct account ID")
 
         # Fallback: Create manual spec for testing (NOT from broker API)
         spec = SymbolSpec(
@@ -324,13 +342,6 @@ async def run_complete_backtest_async():
             trade_stops_level=0,
         )
         print(f"✅ Using manual spec for {symbol} (fallback mode)")
-    else:
-        # Step 0: Fetch broker specs from MetaAPI
-        print("\n" + "="*80)
-        print("STEP 0: FETCHING BROKER SPECS FROM METAAPI")
-        print("="*80)
-
-        spec = await get_spec_from_metaapi(API_TOKEN, ACCOUNT_ID, symbol, commission_per_lot)
 
     # Step 1: Load data (from local CSV for now - could also fetch from MetaAPI)
     data = load_mt5_vantage_data(symbol, timeframe, bars)
