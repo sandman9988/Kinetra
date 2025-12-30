@@ -127,6 +127,9 @@ class PhysicsEngine:
         # Estimate dominant cycle from price (data-driven period)
         cycle_period = self._estimate_dominant_cycle(close, min_period=5, max_period=100)
 
+        # Adaptive percentile window (for rolling percentile calculations)
+        pct_window = max(50, min(500, n // 10))  # 10% of data, bounded
+
         # Damping (zeta) - uses adaptive medium window
         # Compute with expanding then trim to adaptive
         abs_v = v.abs()
@@ -209,7 +212,7 @@ class PhysicsEngine:
             for col in ["energy", "damping", "entropy", "PE", "reynolds", "eta"]:
                 result[f"{col}_pct"] = (
                     result[col]
-                    .rolling(self.pct_window, min_periods=10)
+                    .rolling(pct_window, min_periods=10)
                     .apply(lambda w: (w <= w[-1]).mean(), raw=True)
                     .fillna(0.5)
                 )
