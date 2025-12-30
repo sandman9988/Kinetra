@@ -18,30 +18,65 @@ from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 from dataclasses import dataclass, field
 
-# Import our measurement modules
-from .measurements import (
-    MeasurementEngine,
-    VolatilityMeasures,
-    MomentumMeasures,
-    MeanReversionMeasures,
-    EnergyFlowMeasures,
-    MicrostructureMeasures,
-    CorrelationExplorer,
-)
+# Import our measurement modules - handle both package and direct loading
+import importlib.util
+from pathlib import Path
 
-from .composite_stacking import (
-    ExplorationEngine,
-    CompositeStacker,
-    ClassDiscoveryEngine,
-    InverseRelationshipTracker,
-)
+def _load_sibling_module(name: str):
+    """Load a sibling module from the same directory."""
+    spec = importlib.util.spec_from_file_location(
+        name, Path(__file__).parent / f'{name}.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
-from .multi_agent_design import (
-    AssetClass,
-    get_asset_class,
-    get_instrument_profile,
-    INSTRUMENT_PROFILES,
-)
+try:
+    from .measurements import (
+        MeasurementEngine,
+        VolatilityMeasures,
+        MomentumMeasures,
+        MeanReversionMeasures,
+        EnergyFlowMeasures,
+        MicrostructureMeasures,
+        CorrelationExplorer,
+    )
+except ImportError:
+    _meas = _load_sibling_module('measurements')
+    MeasurementEngine = _meas.MeasurementEngine
+    VolatilityMeasures = _meas.VolatilityMeasures
+    MomentumMeasures = _meas.MomentumMeasures
+    MeanReversionMeasures = _meas.MeanReversionMeasures
+    EnergyFlowMeasures = _meas.EnergyFlowMeasures
+    MicrostructureMeasures = _meas.MicrostructureMeasures
+    CorrelationExplorer = _meas.CorrelationExplorer
+
+try:
+    from .composite_stacking import (
+        ExplorationEngine,
+        CompositeStacker,
+        ClassDiscoveryEngine,
+        InverseRelationshipTracker,
+    )
+except ImportError:
+    _comp = _load_sibling_module('composite_stacking')
+    ExplorationEngine = _comp.ExplorationEngine
+    CompositeStacker = _comp.CompositeStacker
+    ClassDiscoveryEngine = _comp.ClassDiscoveryEngine
+    InverseRelationshipTracker = _comp.InverseRelationshipTracker
+
+try:
+    from .multi_agent_design import (
+        AssetClass,
+        get_asset_class,
+        get_instrument_profile,
+        INSTRUMENT_PROFILES,
+    )
+except ImportError:
+    _multi = _load_sibling_module('multi_agent_design')
+    AssetClass = _multi.AssetClass
+    get_asset_class = _multi.get_asset_class
+    get_instrument_profile = _multi.get_instrument_profile
+    INSTRUMENT_PROFILES = _multi.INSTRUMENT_PROFILES
 
 
 @dataclass

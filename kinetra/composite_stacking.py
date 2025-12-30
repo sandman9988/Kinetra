@@ -621,7 +621,19 @@ class ExplorationEngine:
     """
 
     def __init__(self):
-        from .measurements import MeasurementEngine
+        # Import MeasurementEngine - handle both package and direct loading
+        try:
+            from .measurements import MeasurementEngine
+        except ImportError:
+            # Fallback for direct module loading
+            import importlib.util
+            from pathlib import Path
+            spec = importlib.util.spec_from_file_location(
+                'measurements', Path(__file__).parent / 'measurements.py')
+            _meas = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(_meas)
+            MeasurementEngine = _meas.MeasurementEngine
+
         self.measurement_engine = MeasurementEngine()
         self.discovery_engine = ClassDiscoveryEngine()
         self.inverse_tracker = InverseRelationshipTracker()

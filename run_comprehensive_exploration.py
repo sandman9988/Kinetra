@@ -27,27 +27,54 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Import measurement framework
+# Import measurement framework using direct file imports to avoid kinetra/__init__.py
+# which requires backtesting library
+import importlib.util
+
+def _load_module(name: str, file_path: str):
+    """Load a module directly from file path."""
+    spec = importlib.util.spec_from_file_location(name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
 try:
-    from kinetra.measurements import MeasurementEngine, CorrelationExplorer
-    from kinetra.composite_stacking import (
-        ExplorationEngine, CompositeStacker, ClassDiscoveryEngine
-    )
-    from kinetra.exploration_integration import (
-        ExplorationDataLoader, ExplorationFeatureExtractor,
-        DiscoveryReporter, create_exploration_components
-    )
-    from kinetra.multi_agent_design import (
-        AssetClass, get_asset_class, get_instrument_profile,
-        INSTRUMENT_PROFILES, RewardProfile, REWARD_PROFILES,
-        TradeValidator, VolatilityEstimator
-    )
-    from kinetra.trend_discovery import (
-        UnifiedStrategyLearner, TrendDefinitionLearner
-    )
+    _kinetra_path = Path(__file__).parent / 'kinetra'
+
+    # Load modules directly
+    _measurements = _load_module('measurements', _kinetra_path / 'measurements.py')
+    _composite = _load_module('composite_stacking', _kinetra_path / 'composite_stacking.py')
+    _integration = _load_module('exploration_integration', _kinetra_path / 'exploration_integration.py')
+    _multi_agent = _load_module('multi_agent_design', _kinetra_path / 'multi_agent_design.py')
+    _trend_discovery = _load_module('trend_discovery', _kinetra_path / 'trend_discovery.py')
+
+    # Import classes
+    MeasurementEngine = _measurements.MeasurementEngine
+    CorrelationExplorer = _measurements.CorrelationExplorer
+
+    ExplorationEngine = _composite.ExplorationEngine
+    CompositeStacker = _composite.CompositeStacker
+    ClassDiscoveryEngine = _composite.ClassDiscoveryEngine
+
+    ExplorationDataLoader = _integration.ExplorationDataLoader
+    ExplorationFeatureExtractor = _integration.ExplorationFeatureExtractor
+    DiscoveryReporter = _integration.DiscoveryReporter
+
+    AssetClass = _multi_agent.AssetClass
+    get_asset_class = _multi_agent.get_asset_class
+    get_instrument_profile = _multi_agent.get_instrument_profile
+    INSTRUMENT_PROFILES = _multi_agent.INSTRUMENT_PROFILES
+    TradeValidator = _multi_agent.TradeValidator
+    VolatilityEstimator = _multi_agent.VolatilityEstimator
+
+    UnifiedStrategyLearner = _trend_discovery.UnifiedStrategyLearner
+    TrendDefinitionLearner = _trend_discovery.TrendDefinitionLearner
+
     MEASUREMENT_FRAMEWORK_AVAILABLE = True
-except ImportError as e:
+except Exception as e:
     print(f"[WARN] Measurement framework not fully available: {e}")
+    import traceback
+    traceback.print_exc()
     MEASUREMENT_FRAMEWORK_AVAILABLE = False
 
 from rl_exploration_framework import (
