@@ -195,43 +195,30 @@ def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> 
     return None
 
 
-# Concurrency control with dynamic throttling
-MAX_CONCURRENT_DOWNLOADS = 4  # Initial parallel downloads
-MIN_CONCURRENT_DOWNLOADS = 1  # Minimum when rate limited
+# Concurrency control - start aggressive, back off on rate limits
+MAX_CONCURRENT_DOWNLOADS = 6  # Higher parallelism
+
 
 class DynamicThrottler:
-    """Adjusts concurrency based on rate limit responses."""
+    """Simple bounded semaphore with rate limit detection."""
 
-    def __init__(self, initial: int = 4, min_val: int = 1, max_val: int = 6):
-        self.current = initial
-        self.min_val = min_val
-        self.max_val = max_val
-        self.semaphore = asyncio.Semaphore(initial)
-        self.rate_limit_count = 0
-        self.success_count = 0
+    def __init__(self, max_concurrent: int = 6):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.rate_limited = False
         self._lock = asyncio.Lock()
 
     async def on_rate_limit(self):
-        """Reduce concurrency when rate limited."""
+        """Signal rate limit hit - adds global delay."""
         async with self._lock:
-            self.rate_limit_count += 1
-            if self.current > self.min_val:
-                self.current -= 1
-                print(f"\n    ⚡ Throttling down to {self.current} concurrent", flush=True)
-
-    async def on_success(self):
-        """Consider increasing concurrency after successes."""
-        async with self._lock:
-            self.success_count += 1
-            # Every 10 successes without rate limit, try increasing
-            if self.success_count >= 10 and self.rate_limit_count == 0:
-                if self.current < self.max_val:
-                    self.current += 1
-                    print(f"\n    ⚡ Throttling up to {self.current} concurrent", flush=True)
-                self.success_count = 0
+            if not self.rate_limited:
+                self.rate_limited = True
+                print(f"\n    ⚡ Rate limit detected - adding delays", flush=True)
 
     async def acquire(self):
         await self.semaphore.acquire()
+        # If rate limited, add small delay before each request
+        if self.rate_limited:
+            await asyncio.sleep(0.5)
 
     def release(self):
         self.semaphore.release()
@@ -305,7 +292,7 @@ async def download_one(
                     last_time = last_time.replace(tzinfo=timezone.utc)
                 chunk_start = last_time + timedelta(hours=1 if tf == '1h' else 4)
 
-                await asyncio.sleep(0.3)  # Rate limit between chunks
+                await asyncio.sleep(0.1)  # Brief pause between chunks
 
             if not all_candles or len(all_candles) < 100:
                 print(f"⚠️ {len(all_candles) if all_candles else 0} bars")
@@ -341,7 +328,6 @@ async def download_one(
             atomic_write_csv(df_export, output_file, sep='\t')
             print(f"✅ {len(df):,}")
 
-            await throttler.on_success()
             return {
                 'status': 'success',
                 'symbol': symbol,
@@ -431,8 +417,8 @@ async def download_all():
     total_tasks = len(symbols_to_download) * len(TIMEFRAMES)
     print(f"    Launching {total_tasks} downloads with dynamic throttling...")
 
-    # Create dynamic throttler
-    throttler = DynamicThrottler(initial=MAX_CONCURRENT_DOWNLOADS, min_val=1, max_val=6)
+    # Create throttler (6 parallel downloads)
+    throttler = DynamicThrottler(max_concurrent=MAX_CONCURRENT_DOWNLOADS)
 
     # Build task list
     tasks = []
