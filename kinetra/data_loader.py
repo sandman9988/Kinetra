@@ -13,7 +13,7 @@ Returns standardized DataPackage ready for any backtest engine.
 """
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 import re
 
 import pandas as pd
