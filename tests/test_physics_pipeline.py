@@ -227,7 +227,7 @@ class PhysicsEngine:
         # Percentile of composite
         result["composite_pct"] = (
             result["composite_jerk_entropy"].abs()
-            .rolling(self.pct_window, min_periods=10)
+            .rolling(pct_window, min_periods=10)
             .apply(lambda w: (w <= w[-1]).mean(), raw=True)
             .fillna(0.5)
         )
@@ -336,7 +336,7 @@ class PhysicsEngine:
         for col in ["stack_jerk_entropy", "stack_jerk_lyap", "triple_stack"]:
             result[f"{col}_pct"] = (
                 result[col].abs()
-                .rolling(self.pct_window, min_periods=10)
+                .rolling(pct_window, min_periods=10)
                 .apply(lambda w: (w <= w[-1]).mean(), raw=True)
                 .fillna(0.5)
             )
