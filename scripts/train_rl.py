@@ -43,11 +43,16 @@ from kinetra import (
     MT5Bridge,
 )
 
-from kinetra.physics_v7 import (
-    compute_oscillator_state,
-    compute_fractal_dimension_katz,
-    compute_sample_entropy,
-    compute_ftle_fast,
+# Physics-only measurements (NO traditional indicators)
+from kinetra.measurements import (
+    MeasurementEngine,
+    KinematicsMeasures,
+    EnergyMeasures,
+    FlowMeasures,
+    ThermodynamicsMeasures,
+    FieldMeasures,
+    MicrostructureMeasures,
+    PercentileNormalizer,
 )
 
 # Try to import PyTorch
@@ -196,63 +201,120 @@ def generate_synthetic_episode(
     }, index=dates)
 
 
+# Physics state dimension: 30 core features (percentile normalized)
+PHYSICS_STATE_DIM = 30
+
+# Global measurement cache per episode
+_measurement_cache = {}
+
+def compute_physics_measurements_for_episode(df: pd.DataFrame) -> Dict[str, np.ndarray]:
+    """
+    Compute ALL physics measurements for the entire episode upfront.
+    Returns dict of measurement_name -> array (length = len(df)).
+    """
+    engine = MeasurementEngine(percentile_window=100)
+
+    open_ = df['Open'].values
+    high = df['High'].values
+    low = df['Low'].values
+    close = df['Close'].values
+    volume = df['Volume'].values
+
+    # Spread approximation (high - low as proxy if not available)
+    spread = (high - low) * 0.001  # Approximate spread
+
+    # Compute all raw measurements
+    raw = engine.compute_all(open_, high, low, close, volume, spread)
+
+    # Normalize to percentiles (instrument-agnostic)
+    normalized = engine.normalize_to_percentiles(raw)
+
+    return normalized
+
+
 def compute_state(df: pd.DataFrame, idx: int, lookback: int = 50) -> np.ndarray:
-    """Compute state vector for a given bar."""
-    start = max(0, idx - lookback + 1)
-    window = df.iloc[start:idx+1]
+    """
+    Compute physics-only state vector for a given bar.
 
-    if len(window) < 10:
-        return np.zeros(20)
+    Uses ONLY:
+    - Kinematics (velocity, acceleration, jerk, snap, crackle, pop)
+    - Energy (kinetic, potential_compression, potential_displacement, efficiency)
+    - Flow dynamics (reynolds, damping, viscosity, liquidity)
+    - Thermodynamics (entropy, entropy_rate, phase_compression)
+    - Field theory (gradient, divergence, buying_pressure, body_ratio)
+    - Microstructure (volume_surge, volume_trend)
 
-    close = window['Close'].values
-    high = window['High'].values
-    low = window['Low'].values
-    volume = window['Volume'].values
+    NO traditional indicators (RSI, MACD, etc.)
+    """
+    global _measurement_cache
 
-    # Oscillator state
-    osc = compute_oscillator_state(high, low, close, volume, lookback=min(20, len(window)))
+    # Get or compute measurements for this episode
+    episode_id = id(df)
+    if episode_id not in _measurement_cache:
+        _measurement_cache[episode_id] = compute_physics_measurements_for_episode(df)
 
-    # Features
-    mass = osc['mass'][-1] if len(osc['mass']) > 0 else 0
-    force = osc['force'][-1] if len(osc['force']) > 0 else 0
-    accel = osc['acceleration'][-1] if len(osc['acceleration']) > 0 else 0
-    velocity = osc['velocity'][-1] if len(osc['velocity']) > 0 else 0
-    displacement = osc['displacement'][-1] if len(osc['displacement']) > 0 else 0
-    symc = osc['symc'][-1] if len(osc['symc']) > 0 else 1.0
+    m = _measurement_cache[episode_id]
 
-    fd = compute_fractal_dimension_katz(close)[-1] if len(close) >= 10 else 1.5
-    se = compute_sample_entropy(close, m=2)[-1] if len(close) >= 20 else 0.5
-    ftle = compute_ftle_fast(close, window=min(20, len(close)))[-1] if len(close) >= 20 else 0
+    if idx < 50:
+        return np.zeros(PHYSICS_STATE_DIM)
 
-    returns = np.diff(close) / close[:-1] if len(close) > 1 else [0]
-    ret_mean = np.mean(returns)
-    ret_std = np.std(returns) + 1e-10
-    vol_ratio = volume[-1] / np.mean(volume) if np.mean(volume) > 0 else 1
+    # Extract percentile features at current index (all normalized 0-1)
+    try:
+        state = np.array([
+            # === KINEMATICS (6 derivatives) ===
+            m['velocity_pct'][idx],           # 0: velocity percentile
+            m['acceleration_pct'][idx],       # 1: acceleration percentile
+            m['jerk_pct'][idx],               # 2: jerk percentile (fat candle predictor)
+            m['snap_pct'][idx],               # 3: snap percentile
+            m['crackle_pct'][idx],            # 4: crackle percentile
+            m['pop_pct'][idx],                # 5: pop percentile
 
-    state = np.array([
-        np.clip(mass / 1e6, -5, 5),
-        np.clip(force / 1e3, -5, 5),
-        np.clip(accel * 100, -5, 5),
-        np.clip(velocity * 100, -5, 5),
-        np.clip(displacement * 10, -5, 5),
-        np.clip(symc, 0, 5),
-        np.clip(fd - 1.5, -1, 1),
-        np.clip(se, 0, 3),
-        np.clip(ftle * 10, -2, 2),
-        np.clip(ret_mean * 1000, -5, 5),
-        np.clip(ret_std * 100, 0, 5),
-        np.clip(vol_ratio - 1, -2, 2),
-        1.0 if symc < 0.8 else 0.0,
-        1.0 if 0.8 <= symc <= 1.2 else 0.0,
-        1.0 if symc > 1.2 else 0.0,
-        np.clip(np.sum(returns[-5:]) * 100 if len(returns) >= 5 else 0, -5, 5),
-        np.clip(np.sum(returns[-10:]) * 100 if len(returns) >= 10 else 0, -5, 5),
-        np.clip((np.mean(high - low) / close[-1]) * 100, 0, 5),
-        np.clip((close[-1] - np.min(low)) / (np.max(high) - np.min(low) + 1e-10), 0, 1),
-        0.0,  # Placeholder
-    ])
+            # === MOMENTUM & IMPULSE ===
+            m['momentum_pct'][idx],           # 6: momentum percentile
+            m['impulse_pct'][idx],            # 7: impulse percentile
 
-    return state
+            # === ENERGY ===
+            m['kinetic_energy_pct'][idx],             # 8: kinetic energy
+            m['potential_energy_compression_pct'][idx],  # 9: compression PE
+            m['potential_energy_displacement_pct'][idx], # 10: displacement PE
+            m['energy_efficiency_pct'][idx],          # 11: KE/PE ratio
+            m['energy_release_rate_pct'][idx],        # 12: rate of energy change
+
+            # === FLOW DYNAMICS ===
+            m['reynolds_pct'][idx],           # 13: Reynolds number (laminar vs turbulent)
+            m['damping_pct'][idx],            # 14: damping coefficient
+            m['viscosity_pct'][idx],          # 15: market viscosity
+            m['liquidity_pct'][idx],          # 16: liquidity measure
+            m['reynolds_momentum_corr'][idx], # 17: Re-momentum relationship
+
+            # === THERMODYNAMICS ===
+            m['entropy_pct'][idx],            # 18: Shannon entropy
+            m['entropy_rate_pct'][idx],       # 19: rate of entropy change
+            m['phase_compression_pct'][idx],  # 20: phase space compression
+
+            # === FIELD MEASURES ===
+            m['price_gradient_pct'][idx],     # 21: price gradient
+            m['gradient_magnitude_pct'][idx], # 22: |gradient|
+            m['divergence_pct'][idx],         # 23: flow divergence
+            m['buying_pressure'][idx],        # 24: buying pressure (already 0-1)
+            m['body_ratio'][idx],             # 25: body ratio (already 0-1)
+
+            # === MICROSTRUCTURE ===
+            m['volume_surge_pct'][idx],       # 26: volume surge
+            m['volume_trend_pct'][idx],       # 27: volume trend
+
+            # === CROSS-INTERACTIONS ===
+            m['jerk_energy_pct'][idx],        # 28: jerk energy
+            m['release_potential_pct'][idx],  # 29: release potential
+        ])
+
+        # Replace any NaN/inf with 0.5 (neutral percentile)
+        state = np.nan_to_num(state, nan=0.5, posinf=1.0, neginf=0.0)
+
+        return state
+
+    except (KeyError, IndexError):
+        return np.full(PHYSICS_STATE_DIM, 0.5)
 
 
 # =============================================================================
@@ -265,7 +327,7 @@ class RLTrainer:
     def __init__(
         self,
         checkpoint_dir: str = "./checkpoints",
-        state_dim: int = 20,
+        state_dim: int = PHYSICS_STATE_DIM,  # 30 physics features
         action_dim: int = 4,
         gamma: float = 0.99,
         epsilon_start: float = 1.0,
@@ -458,6 +520,12 @@ class RLTrainer:
 
         self.episode += 1
 
+        # Clear measurement cache to free memory
+        global _measurement_cache
+        episode_id = id(df)
+        if episode_id in _measurement_cache:
+            del _measurement_cache[episode_id]
+
         return {
             'episode': self.episode,
             'reward': episode_reward,
@@ -543,8 +611,9 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("KINETRA RL TRAINER")
-    print("VIRTUAL MODE - Exploring freely")
+    print("KINETRA RL TRAINER - PHYSICS ONLY")
+    print("NO RSI/MACD/Bollinger - Pure kinematics, energy, flow, entropy")
+    print(f"State dimension: {PHYSICS_STATE_DIM} physics features")
     print("=" * 60)
 
     if args.live:
