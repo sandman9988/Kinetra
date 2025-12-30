@@ -456,6 +456,7 @@ class TradeState:
     mfe: float = 0.0           # Maximum Favorable Excursion
     bars_held: int = 0
     entry_features: Optional[np.ndarray] = None
+    entry_spread_ratio: float = 1.0  # Spread at entry / rolling min (agent learns: high = bad MAE)
 
 
 class TradingEnv:
@@ -608,35 +609,46 @@ class TradingEnv:
             self.trade_state.bars_held >= self.max_position_bars
         )
 
-        # Process action with spread gating
+        # Process action
+        # In exploration mode: SpreadGate allows all trades (allow_entry=True always)
+        # Agent learns: high spread_ratio → worse MAE → lower Omega → avoid
+        # In live mode: SpreadGate hard-blocks based on percentile threshold
         if action == 0:  # HOLD
             pass
 
         elif action == 1:  # LONG
-            if self.trade_state.position == -1:  # Close short first (always allowed)
+            if self.trade_state.position == -1:  # Close short first
                 reward, trade_closed = self._close_position(current_price)
-            if self.trade_state.position == 0:  # Open long (spread gated)
+            if self.trade_state.position == 0:  # Open long
                 if allow_entry:
                     self._open_position(1, current_price)
+                    # Track entry spread_ratio for MAE correlation analysis
+                    if spread_info.get("spread_ratio"):
+                        self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
                 else:
                     spread_blocked = True
                     self.trades_blocked_by_spread += 1
 
         elif action == 2:  # SHORT
-            if self.trade_state.position == 1:  # Close long first (always allowed)
+            if self.trade_state.position == 1:  # Close long first
                 reward, trade_closed = self._close_position(current_price)
-            if self.trade_state.position == 0:  # Open short (spread gated)
+            if self.trade_state.position == 0:  # Open short
                 if allow_entry:
                     self._open_position(-1, current_price)
+                    if spread_info.get("spread_ratio"):
+                        self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
                 else:
                     spread_blocked = True
                     self.trades_blocked_by_spread += 1
 
-        elif action == 3 or force_close:  # CLOSE (always allowed)
+        elif action == 3 or force_close:  # CLOSE
             if self.trade_state.position != 0:
                 reward, trade_closed = self._close_position(current_price)
 
         info["spread_blocked"] = spread_blocked
+        # Provide spread_ratio for agent observation (key learning signal)
+        info["spread_ratio"] = spread_info.get("spread_ratio", 1.0)
+        info["spread_percentile"] = spread_info.get("percentile_rank", 50.0)
 
         # Advance time
         self.current_bar += 1
@@ -691,7 +703,7 @@ class TradingEnv:
             bar_index=self.current_bar,
         )
 
-        # Record trade
+        # Record trade with spread info for correlation analysis
         self.episode_trades.append({
             "entry_bar": self.trade_state.entry_bar,
             "exit_bar": self.current_bar,
@@ -701,6 +713,7 @@ class TradingEnv:
             "mae": self.trade_state.mae,
             "mfe": self.trade_state.mfe,
             "bars_held": self.trade_state.bars_held,
+            "entry_spread_ratio": self.trade_state.entry_spread_ratio,  # For learning: high → bad MAE
         })
 
         # Reset position
@@ -709,7 +722,7 @@ class TradingEnv:
         return reward, True
 
     def get_episode_stats(self) -> Dict[str, float]:
-        """Get episode statistics including spread gating stats."""
+        """Get episode statistics including spread↔MAE correlation."""
         if not self.episode_trades:
             return {"trades": 0, "total_reward": 0, "avg_reward": 0, "spread_blocked": 0}
 
@@ -727,6 +740,16 @@ class TradingEnv:
                 "avg_spread": gate_stats.get("avg_spread", 0),
             }
 
+        # Spread↔MAE correlation (agent should learn: high spread_ratio → worse MAE)
+        spread_mae_corr = 0.0
+        avg_entry_spread_ratio = 1.0
+        if len(self.episode_trades) >= 3:
+            spread_ratios = [t.get("entry_spread_ratio", 1.0) for t in self.episode_trades]
+            maes = [abs(t["mae"]) for t in self.episode_trades]
+            avg_entry_spread_ratio = np.mean(spread_ratios)
+            if np.std(spread_ratios) > 0 and np.std(maes) > 0:
+                spread_mae_corr = np.corrcoef(spread_ratios, maes)[0, 1]
+
         return {
             "trades": len(self.episode_trades),
             "total_pnl": total_pnl,
@@ -735,6 +758,8 @@ class TradingEnv:
             "win_rate": wins / len(self.episode_trades),
             "avg_mae": np.mean([t["mae"] for t in self.episode_trades]),
             "avg_mfe": np.mean([t["mfe"] for t in self.episode_trades]),
+            "avg_entry_spread_ratio": avg_entry_spread_ratio,
+            "spread_mae_corr": spread_mae_corr,  # Should be positive (high spread → high MAE)
             **spread_stats,
         }
 

@@ -142,10 +142,17 @@ DEFAULT_PROFILE = SpreadProfile(
 
 class SpreadGate:
     """
-    Dynamic spread-aware execution filter.
+    Spread-aware execution filter with two modes:
 
-    Only allows trade entry when current spread is acceptable
-    relative to recent historical minimum.
+    Modes:
+    - "exploration": NO hard gates. Provides spread_ratio as observation feature.
+                     Agent learns: high spread → worse MAE → lower Omega → avoid.
+                     First principles: agent discovers the relationship.
+
+    - "live": Hard gates using learned/calibrated thresholds for production.
+
+    Key insight: Don't impose rules during exploration. Let the agent learn
+    that trading at 3x min spread results in 3x worse entry, destroying MAE.
     """
 
     def __init__(
@@ -153,7 +160,12 @@ class SpreadGate:
         profile: Optional[SpreadProfile] = None,
         symbol: Optional[str] = None,
         broker: str = "Vantage",
+        mode: str = "exploration",  # "exploration" or "live"
+        percentile_threshold: float = 25.0,  # For live mode: allow trades <= this percentile
     ):
+        self.mode = mode
+        self.percentile_threshold = percentile_threshold
+
         if profile is not None:
             self.profile = profile
         elif symbol is not None:
@@ -180,6 +192,9 @@ class SpreadGate:
         self.current_threshold: float = float('inf')
         self.bars_processed: int = 0
 
+        # Rolling distribution stats (for exploration mode)
+        self.rolling_percentiles: Dict[str, float] = {}
+
         # Statistics
         self.trades_allowed: int = 0
         self.trades_blocked: int = 0
@@ -199,6 +214,14 @@ class SpreadGate:
 
         Returns:
             (allow_trade, threshold, info_dict)
+
+        In exploration mode:
+            - allow_trade is ALWAYS True (no hard gates)
+            - spread_ratio is provided for agent to learn from
+            - Agent will learn: high spread_ratio → poor MAE → low reward
+
+        In live mode:
+            - Hard gates based on rolling percentile threshold
         """
         self.bars_processed += 1
 
@@ -209,57 +232,77 @@ class SpreadGate:
         if len(self.spread_history) > window:
             self.spread_history = self.spread_history[-window:]
 
-        # Calculate rolling minimum
-        if len(self.spread_history) >= min(100, window // 5):
+        # Calculate rolling statistics from distribution
+        min_periods = min(50, window // 10)
+        if len(self.spread_history) >= min_periods:
             self.rolling_min = min(self.spread_history)
+            self.rolling_percentiles = {
+                "p10": float(np.percentile(self.spread_history, 10)),
+                "p25": float(np.percentile(self.spread_history, 25)),
+                "p50": float(np.percentile(self.spread_history, 50)),
+                "p75": float(np.percentile(self.spread_history, 75)),
+                "p90": float(np.percentile(self.spread_history, 90)),
+            }
         else:
-            # Not enough history - use profile default
-            self.rolling_min = self.profile.tight_spread
+            # Not enough history - use neutral values
+            self.rolling_min = current_spread
+            self.rolling_percentiles = {}
 
-        # Calculate dynamic k multiplier
-        k = self.profile.k_multiplier
+        # Calculate spread_ratio: how many times min spread is current spread?
+        # This is the KEY feature for agent learning
+        spread_ratio = current_spread / self.rolling_min if self.rolling_min > 0 else 1.0
 
-        if self.profile.adaptive_k and atr is not None:
-            # Scale k with relative volatility
-            avg_spread = np.mean(self.spread_history) if self.spread_history else self.profile.normal_spread
-            vol_ratio = current_spread / avg_spread if avg_spread > 0 else 1.0
+        # Calculate percentile rank of current spread
+        if len(self.spread_history) >= min_periods:
+            percentile_rank = (np.sum(np.array(self.spread_history) <= current_spread) /
+                              len(self.spread_history)) * 100
+        else:
+            percentile_rank = 50.0  # Neutral when insufficient data
 
-            # k increases when volatility is high
-            k = self.profile.k_min + (self.profile.k_max - self.profile.k_min) * min(vol_ratio, 2.0) / 2.0
-            k = np.clip(k, self.profile.k_min, self.profile.k_max)
-
-        # Calculate threshold
-        self.current_threshold = k * self.rolling_min
-
-        # Hard cap: never trade above max_acceptable
-        hard_cap = self.profile.max_acceptable
-
-        # Decision
-        allow_trade = (
-            current_spread <= self.current_threshold and
-            current_spread <= hard_cap
-        )
+        # Mode-dependent gating
+        if self.mode == "exploration":
+            # NO HARD GATES in exploration - let agent learn
+            allow_trade = True
+            self.current_threshold = float('inf')  # No threshold in exploration
+        else:
+            # Live mode: apply percentile-based threshold
+            threshold_value = self.rolling_percentiles.get(
+                f"p{int(self.percentile_threshold)}",
+                self.rolling_min * 1.5  # Fallback
+            )
+            self.current_threshold = threshold_value
+            allow_trade = current_spread <= threshold_value
 
         if allow_trade:
             self.trades_allowed += 1
         else:
             self.trades_blocked += 1
 
-        # Info dict
+        # Info dict with features for observation space
         info = {
             "current_spread": current_spread,
             "rolling_min": self.rolling_min,
+            "spread_ratio": spread_ratio,  # KEY: agent learns from this
+            "percentile_rank": percentile_rank,  # Where in distribution is current spread
             "threshold": self.current_threshold,
-            "k_multiplier": k,
-            "hard_cap": hard_cap,
             "allow_trade": allow_trade,
-            "block_reason": None if allow_trade else (
-                "above_hard_cap" if current_spread > hard_cap else "above_threshold"
-            ),
-            "spread_regime": self._classify_regime(current_spread),
+            "mode": self.mode,
+            "spread_regime": self._classify_regime_dynamic(percentile_rank),
+            **{f"rolling_{k}": v for k, v in self.rolling_percentiles.items()},
         }
 
         return allow_trade, self.current_threshold, info
+
+    def _classify_regime_dynamic(self, percentile_rank: float) -> str:
+        """Classify spread regime based on percentile rank (distribution-based)."""
+        if percentile_rank <= 25:
+            return "TIGHT"
+        elif percentile_rank <= 50:
+            return "NORMAL"
+        elif percentile_rank <= 75:
+            return "WIDE"
+        else:
+            return "EXTREME"
 
     def _classify_regime(self, spread: float) -> str:
         """Classify current spread regime."""
