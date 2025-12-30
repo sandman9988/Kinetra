@@ -43,6 +43,9 @@ import pandas as pd
 
 warnings.filterwarnings("ignore")
 
+# Add tests directory to path for test_physics_pipeline imports
+sys.path.insert(0, str(Path(__file__).parent / "tests"))
+
 
 # =============================================================================
 # PERSISTENCE & LOGGING: Atomic saves, graceful failure
