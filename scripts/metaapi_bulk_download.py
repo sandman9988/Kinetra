@@ -199,6 +199,39 @@ def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> 
 MAX_CONCURRENT_DOWNLOADS = 6  # Higher parallelism
 
 
+class ProgressTracker:
+    """Global progress tracker with heartbeat."""
+
+    def __init__(self, total_tasks: int):
+        self.total_tasks = total_tasks
+        self.completed = 0
+        self.in_progress = 0
+        self.chunks_fetched = 0
+        self.bars_fetched = 0
+        self.start_time = datetime.now()
+        self._lock = asyncio.Lock()
+
+    async def start_task(self):
+        async with self._lock:
+            self.in_progress += 1
+
+    async def complete_task(self, bars: int = 0):
+        async with self._lock:
+            self.in_progress -= 1
+            self.completed += 1
+            self.bars_fetched += bars
+
+    async def chunk_done(self, bars: int):
+        async with self._lock:
+            self.chunks_fetched += 1
+            self.bars_fetched += bars
+
+    def status_line(self) -> str:
+        elapsed = (datetime.now() - self.start_time).total_seconds()
+        rate = self.bars_fetched / elapsed if elapsed > 0 else 0
+        return f"[{self.completed}/{self.total_tasks}] 🔄{self.in_progress} active | {self.bars_fetched:,} bars | {rate:.0f}/sec"
+
+
 class DynamicThrottler:
     """Simple bounded semaphore with rate limit detection."""
 
@@ -226,12 +259,13 @@ class DynamicThrottler:
 
 async def download_one(
     account, symbol: str, tf: str, asset_class: str, original: str,
-    start_time, end_time, throttler: DynamicThrottler, task_id: int, total_tasks: int
+    start_time, end_time, throttler: DynamicThrottler, progress: ProgressTracker
 ) -> dict:
-    """Download a single symbol/timeframe with dynamic throttling."""
+    """Download a single symbol/timeframe with dynamic throttling and heartbeat."""
     from datetime import timezone
 
     await throttler.acquire()
+    await progress.start_task()
     try:
         tf_label = 'H1' if tf == '1h' else 'H4'
         output_dir = project_root / "data" / "master" / asset_class
@@ -246,15 +280,12 @@ async def download_one(
                 last_date = pd.to_datetime(existing_df['date'] + ' ' + existing_df['time']).max()
                 last_date = last_date.replace(tzinfo=timezone.utc)
                 chunk_start = last_date + timedelta(hours=1 if tf == '1h' else 4)
-                print(f"  [{task_id}/{total_tasks}] {symbol} {tf_label} (resume)...", end=" ", flush=True)
             except Exception:
                 chunk_start = start_time
                 existing_df = None
-                print(f"  [{task_id}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
         else:
             chunk_start = start_time
             existing_df = None
-            print(f"  [{task_id}/{total_tasks}] {symbol} {tf_label}...", end=" ", flush=True)
 
         try:
             # Chunk through history
@@ -262,6 +293,7 @@ async def download_one(
             chunk_end = end_time
             max_retries = 5
             backoff = 1.0
+            chunk_num = 0
 
             while chunk_start < chunk_end:
                 for retry in range(max_retries):
@@ -285,6 +317,10 @@ async def download_one(
                     break
 
                 all_candles.extend(candles)
+                chunk_num += 1
+
+                # HEARTBEAT: Print progress every chunk
+                print(f"\r  💓 {progress.status_line()} | {symbol} {tf_label} chunk {chunk_num}", end="", flush=True)
 
                 # Move to next chunk
                 last_time = pd.to_datetime(candles[-1]['time'])
@@ -292,10 +328,11 @@ async def download_one(
                     last_time = last_time.replace(tzinfo=timezone.utc)
                 chunk_start = last_time + timedelta(hours=1 if tf == '1h' else 4)
 
-                await asyncio.sleep(0.1)  # Brief pause between chunks
+                await asyncio.sleep(0.05)  # Faster chunk delay
 
             if not all_candles or len(all_candles) < 100:
-                print(f"⚠️ {len(all_candles) if all_candles else 0} bars")
+                print(f"\n  ⚠️ {symbol} {tf_label}: only {len(all_candles) if all_candles else 0} bars")
+                await progress.complete_task(0)
                 return {'status': 'failed', 'symbol': symbol, 'tf': tf_label, 'error': 'insufficient data'}
 
             # Convert to DataFrame
@@ -326,7 +363,8 @@ async def download_one(
             })
 
             atomic_write_csv(df_export, output_file, sep='\t')
-            print(f"✅ {len(df):,}")
+            await progress.complete_task(len(df))
+            print(f"\n  ✅ {symbol} {tf_label}: {len(df):,} bars saved")
 
             return {
                 'status': 'success',
@@ -341,7 +379,8 @@ async def download_one(
             }
 
         except Exception as e:
-            print(f"❌ {e}")
+            await progress.complete_task(0)
+            print(f"\n  ❌ {symbol} {tf_label}: {e}")
             return {'status': 'failed', 'symbol': symbol, 'tf': tf_label, 'error': str(e)}
     finally:
         throttler.release()
@@ -416,25 +455,26 @@ async def download_all():
 
     total_tasks = len(symbols_to_download) * len(TIMEFRAMES)
     print(f"    Launching {total_tasks} downloads with dynamic throttling...")
+    print(f"    💓 Heartbeat shows real-time progress\n")
 
-    # Create throttler (6 parallel downloads)
+    # Create throttler and progress tracker
     throttler = DynamicThrottler(max_concurrent=MAX_CONCURRENT_DOWNLOADS)
+    progress = ProgressTracker(total_tasks)
 
     # Build task list
     tasks = []
-    task_id = 0
     for symbol, asset_class, original in symbols_to_download:
         for tf in TIMEFRAMES:
-            task_id += 1
             tasks.append(
                 download_one(
                     account, symbol, tf, asset_class, original,
-                    start_time, end_time, throttler, task_id, total_tasks
+                    start_time, end_time, throttler, progress
                 )
             )
 
     # Run all downloads in parallel (throttler limits concurrency)
     results = await asyncio.gather(*tasks, return_exceptions=True)
+    print()  # Newline after heartbeat
 
     # Process results
     downloaded = []
