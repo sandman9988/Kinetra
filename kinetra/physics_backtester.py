@@ -11,6 +11,8 @@ Empirically tests thermodynamics/physics/kinematics trading strategies:
 import numpy as np
 import pandas as pd
 from typing import Optional, Dict, Any, List, Tuple
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
 
@@ -750,14 +752,33 @@ class PhysicsBacktestRunner:
         if strategies is None:
             strategies = list_strategies()
 
-        results = []
-        for strategy_name in strategies:
+        def run_strategy(strategy_name: str) -> Optional[Dict]:
+            """Run single strategy for parallel execution."""
             try:
                 result = self.run(data, strategy=strategy_name)
                 result["strategy"] = strategy_name
-                results.append(result)
+                return result
             except Exception as e:
                 print(f"Error running {strategy_name}: {e}")
+                return None
+
+        results = []
+        n_workers = min(mp.cpu_count(), len(strategies), 32)
+
+        if n_workers > 1 and len(strategies) >= 3:
+            # Parallel strategy comparison
+            with ProcessPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(run_strategy, name): name for name in strategies}
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result is not None:
+                        results.append(result)
+        else:
+            # Sequential for small comparisons
+            for strategy_name in strategies:
+                result = run_strategy(strategy_name)
+                if result is not None:
+                    results.append(result)
 
         return pd.DataFrame(results)
 

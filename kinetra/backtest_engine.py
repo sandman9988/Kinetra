@@ -15,6 +15,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Union
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
 
 import numpy as np
 import pandas as pd
@@ -757,20 +759,33 @@ class BacktestEngine:
         Raises:
             ValueError: If shuffle method is not supported
         """
-        results = []
+        # Parallel Monte Carlo - use all available cores
+        n_workers = min(mp.cpu_count(), n_runs, 32)  # Cap at 32 for AMD 5950
 
-        for i in range(n_runs):
-            # Create shuffled data
+        def run_single_mc(run_id: int):
+            """Single MC run for parallel execution."""
+            np.random.seed(run_id)  # Reproducible per-run
             if shuffle_method == "returns":
                 shuffled = self._shuffle_returns(data)
             elif shuffle_method == "bootstrap":
                 shuffled = self._bootstrap_sample(data)
             else:
                 raise ValueError(f"Unsupported shuffle method: {shuffle_method}")
-
-            # Run backtest
             result = self.run_backtest(shuffled, symbol_spec)
-            results.append(result.to_dict())
+            return result.to_dict()
+
+        results = []
+
+        if n_workers > 1 and n_runs >= 4:
+            # Parallel execution for significant workloads
+            with ProcessPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(run_single_mc, i): i for i in range(n_runs)}
+                for future in as_completed(futures):
+                    results.append(future.result())
+        else:
+            # Sequential for small runs
+            for i in range(n_runs):
+                results.append(run_single_mc(i))
 
         return pd.DataFrame(results)
 
