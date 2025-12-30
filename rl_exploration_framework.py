@@ -1599,7 +1599,46 @@ class MultiInstrumentLoader:
                 self._log(f"  [ERROR] {instrument}_{timeframe}: {e}")
 
         self._log(f"\n[LOADED] {len(self.instruments)} datasets ready")
+
+        # Align all instruments to common date range (avoid forward bias from disparate dates)
+        self._align_to_common_dates()
+
         return self.instruments
+
+    def _align_to_common_dates(self):
+        """Trim all instruments to the common overlapping date range."""
+        if not self.instruments:
+            return
+
+        # Find common date range
+        starts = []
+        ends = []
+        for data in self.instruments.values():
+            starts.append(data.df.index.min())
+            ends.append(data.df.index.max())
+
+        common_start = max(starts)
+        common_end = min(ends)
+
+        if common_start >= common_end:
+            self._log(f"[WARN] No common date range found! Skipping alignment.")
+            return
+
+        self._log(f"\n[ALIGN] Common date range: {common_start} to {common_end}")
+
+        # Trim each instrument
+        trimmed_count = 0
+        for key, data in list(self.instruments.items()):
+            mask = (data.df.index >= common_start) & (data.df.index <= common_end)
+            if mask.sum() < self.min_bars:
+                self._log(f"  [DROP] {key}: only {mask.sum()} bars in common range")
+                del self.instruments[key]
+            else:
+                data.df = data.df.loc[mask]
+                data.physics_state = data.physics_state.loc[mask]
+                data.bar_count = len(data.df)
+                trimmed_count += 1
+                self._log(f"  [TRIM] {key}: {data.bar_count} bars")
 
     def _load_single(
         self, instrument: str, timeframe: str, filepath: str, asset_class: str = "unknown"
