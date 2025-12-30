@@ -1490,13 +1490,23 @@ def run_exploration_test(
 
 @dataclass
 class InstrumentData:
-    """Container for instrument/timeframe data."""
+    """
+    Container for instrument/timeframe data.
+
+    Enhanced with DataPackage integration:
+    - market_type: Auto-detected from symbol (forex/crypto/shares/metals/energy/etfs)
+    - symbol_spec: Real MT5 specs if available (swaps, margins, spreads)
+    - data_package: Full DataPackage for advanced use cases
+    """
     instrument: str
     timeframe: str
     df: pd.DataFrame
     physics_state: pd.DataFrame
     file_path: str
     bar_count: int
+    market_type: str = "unknown"  # Asset class (forex/crypto/shares/etc)
+    symbol_spec: Optional[Any] = None  # SymbolSpec from MT5
+    data_package: Optional[Any] = None  # Full DataPackage
 
     @property
     def key(self) -> str:
@@ -1509,9 +1519,13 @@ class MultiInstrumentLoader:
 
     Features:
     - Auto-discovery of CSV files by filename pattern
+    - Uses UnifiedDataLoader for instrument-agnostic loading
+    - Auto-loads real MT5 specs from instrument_specs.json
     - Per-instrument physics state computation
     - Normalized features (z-scored per instrument for fair comparison)
     - Unified interface for multi-instrument training
+
+    INTEGRATION: Uses DataPackage pipeline (MT5 specs → UnifiedDataLoader → DataPackage)
     """
 
     # Pattern matches: BTCUSD_H1_..., GBPUSD+_M15_..., Nikkei225_H4_..., NAS100_M30_..., DJ30ft_H1_...
@@ -1522,12 +1536,23 @@ class MultiInstrumentLoader:
         data_dir: str = "data/master",
         min_bars: int = 1000,
         verbose: bool = True,
+        compute_physics: bool = True,
+        validate_data: bool = True,
     ):
         self.data_dir = Path(data_dir)
         self.min_bars = min_bars
         self.verbose = verbose
+        self.compute_physics = compute_physics
+        self.validate_data = validate_data
         self.instruments: Dict[str, InstrumentData] = {}
-        self._physics_engine = None
+
+        # Initialize UnifiedDataLoader (auto-loads instrument_specs.json)
+        from kinetra.data_loader import UnifiedDataLoader
+        self.data_loader = UnifiedDataLoader(
+            validate=validate_data,
+            compute_physics=compute_physics,
+            verbose=verbose
+        )
 
     def _log(self, msg: str):
         if self.verbose:
@@ -1558,24 +1583,32 @@ class MultiInstrumentLoader:
         return discovered
 
     def load_all(self) -> Dict[str, InstrumentData]:
-        """Load all discovered instruments and compute physics state."""
-        from test_physics_pipeline import PhysicsEngine
+        """
+        Load all discovered instruments using UnifiedDataLoader.
 
-        self._physics_engine = PhysicsEngine()
+        Uses DataPackage pipeline:
+        - Auto-loads real MT5 specs from instrument_specs.json
+        - Market-type-specific preprocessing (forex vs crypto vs metals etc.)
+        - Optional physics state computation
+        - Data quality validation
+        """
         discovered = self.discover()
 
-        self._log(f"\n[LOADING] {len(discovered)} datasets...")
+        self._log(f"\n[LOADING] {len(discovered)} datasets using DataPackage pipeline...")
 
         for instrument, timeframe, filepath in discovered:
             try:
                 data = self._load_single(instrument, timeframe, filepath)
                 if data.bar_count >= self.min_bars:
                     self.instruments[data.key] = data
-                    self._log(f"  [OK] {data.key}: {data.bar_count} bars")
+                    self._log(f"  [OK] {data.key}: {data.bar_count} bars (market: {data.market_type})")
                 else:
                     self._log(f"  [SKIP] {data.key}: {data.bar_count} bars < {self.min_bars}")
             except Exception as e:
                 self._log(f"  [ERROR] {instrument}_{timeframe}: {e}")
+                import traceback
+                if self.verbose:
+                    traceback.print_exc()
 
         self._log(f"\n[LOADED] {len(self.instruments)} datasets ready")
         return self.instruments
@@ -1583,30 +1616,47 @@ class MultiInstrumentLoader:
     def _load_single(
         self, instrument: str, timeframe: str, filepath: str
     ) -> InstrumentData:
-        """Load single instrument and compute physics state."""
-        # Load raw data
-        df = self._load_csv(filepath)
+        """
+        Load single instrument using UnifiedDataLoader (DataPackage pipeline).
 
-        # Compute full physics state
-        physics = self._physics_engine
-        physics_state = physics.compute_physics_state(df["close"])
+        Returns enhanced InstrumentData with:
+        - Real MT5 specs (if available)
+        - Market-type-specific preprocessing
+        - Physics state (if compute_physics=True)
+        - Quality validation
+        """
+        # Load via UnifiedDataLoader → DataPackage
+        data_package = self.data_loader.load(filepath)
 
-        # Add all advanced features
-        vol_state = physics.compute_advanced_volatility(df)
-        for col in vol_state.columns:
-            physics_state[col] = vol_state[col].values
+        # Extract prices in lowercase OHLCV format
+        df = data_package.to_backtest_engine_format()
 
-        dsp_state = physics.compute_dsp_features(df["close"])
-        for col in dsp_state.columns:
-            physics_state[col] = dsp_state[col].values
+        # Get or compute physics state
+        if data_package.physics_state is not None:
+            # Already computed by UnifiedDataLoader
+            physics_state = data_package.physics_state
+        else:
+            # Fallback: compute manually (for backward compatibility)
+            from test_physics_pipeline import PhysicsEngine
+            physics = PhysicsEngine()
+            physics_state = physics.compute_physics_state(df["close"])
 
-        vpin_state = physics.compute_vpin_proxy(df)
-        for col in vpin_state.columns:
-            physics_state[col] = vpin_state[col].values
+            # Add all advanced features
+            vol_state = physics.compute_advanced_volatility(df)
+            for col in vol_state.columns:
+                physics_state[col] = vol_state[col].values
 
-        moments_state = physics.compute_higher_moments(df["close"])
-        for col in moments_state.columns:
-            physics_state[col] = moments_state[col].values
+            dsp_state = physics.compute_dsp_features(df["close"])
+            for col in dsp_state.columns:
+                physics_state[col] = dsp_state[col].values
+
+            vpin_state = physics.compute_vpin_proxy(df)
+            for col in vpin_state.columns:
+                physics_state[col] = vpin_state[col].values
+
+            moments_state = physics.compute_higher_moments(df["close"])
+            for col in moments_state.columns:
+                physics_state[col] = moments_state[col].values
 
         return InstrumentData(
             instrument=instrument,
@@ -1615,23 +1665,10 @@ class MultiInstrumentLoader:
             physics_state=physics_state,
             file_path=filepath,
             bar_count=len(df),
+            market_type=data_package.market_type.value if data_package.market_type else "unknown",
+            symbol_spec=data_package.symbol_spec,
+            data_package=data_package,
         )
-
-    def _load_csv(self, filepath: str) -> pd.DataFrame:
-        """Load CSV with standard preprocessing."""
-        df = pd.read_csv(filepath, sep="\t")
-        df.columns = [c.lower().replace("<", "").replace(">", "") for c in df.columns]
-
-        # Combine date and time
-        df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"])
-        df.set_index("datetime", inplace=True)
-
-        # Ensure numeric
-        for col in ["open", "high", "low", "close"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-        df.dropna(subset=["close"], inplace=True)
-        return df
 
     def get_instrument(self, key: str) -> Optional[InstrumentData]:
         """Get instrument by key (e.g., 'BTCUSD_H1')."""
