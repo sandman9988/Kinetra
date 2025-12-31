@@ -15,10 +15,9 @@ Reference: https://www.mql5.com/en/docs/constants
 """
 
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta
-from enum import IntEnum, Enum
-from typing import Dict, List, Optional, Tuple, Any
-
+from datetime import datetime, time
+from enum import IntEnum
+from typing import Any, Dict, List, Tuple
 
 # ============================================================================
 # MQL5 ENUM Constants
@@ -478,23 +477,23 @@ def validate_volume(
 ) -> Tuple[bool, str, float]:
     """
     Validate and normalize volume according to MT5 rules.
-    
+
     Returns:
         (is_valid, error_message, normalized_volume)
     """
     if volume < volume_min:
         return False, f"Volume {volume} below minimum {volume_min}", volume_min
-    
+
     if volume > volume_max:
         return False, f"Volume {volume} above maximum {volume_max}", volume_max
-    
+
     # Normalize to volume_step
     if volume_step > 0:
         normalized = round(volume / volume_step) * volume_step
         normalized = round(normalized, 8)  # Avoid floating point issues
     else:
         normalized = volume
-    
+
     return True, "", normalized
 
 
@@ -508,7 +507,7 @@ def validate_stops(
 ) -> Tuple[bool, ENUM_TRADE_RETCODE, str]:
     """
     Validate SL/TP placement according to MT5 rules.
-    
+
     Args:
         order_type: Buy or Sell
         price: Entry/current price
@@ -516,19 +515,19 @@ def validate_stops(
         tp: Take Profit price
         stops_level: Minimum distance in points (from SYMBOL_TRADE_STOPS_LEVEL)
         point: Symbol point value
-    
+
     Returns:
         (is_valid, retcode, error_message)
     """
     min_distance = stops_level * point
-    
-    if order_type in [ENUM_ORDER_TYPE.ORDER_TYPE_BUY, ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT, 
+
+    if order_type in [ENUM_ORDER_TYPE.ORDER_TYPE_BUY, ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT,
                       ENUM_ORDER_TYPE.ORDER_TYPE_BUY_STOP]:
         # For buy orders: SL below price, TP above price
         if sl > 0 and price - sl < min_distance:
             return False, ENUM_TRADE_RETCODE.TRADE_RETCODE_INVALID_STOPS, \
                    f"SL too close: {(price - sl) / point:.1f} points, minimum {stops_level}"
-        
+
         if tp > 0 and tp - price < min_distance:
             return False, ENUM_TRADE_RETCODE.TRADE_RETCODE_INVALID_STOPS, \
                    f"TP too close: {(tp - price) / point:.1f} points, minimum {stops_level}"
@@ -537,11 +536,11 @@ def validate_stops(
         if sl > 0 and sl - price < min_distance:
             return False, ENUM_TRADE_RETCODE.TRADE_RETCODE_INVALID_STOPS, \
                    f"SL too close: {(sl - price) / point:.1f} points, minimum {stops_level}"
-        
+
         if tp > 0 and price - tp < min_distance:
             return False, ENUM_TRADE_RETCODE.TRADE_RETCODE_INVALID_STOPS, \
                    f"TP too close: {(price - tp) / point:.1f} points, minimum {stops_level}"
-    
+
     return True, ENUM_TRADE_RETCODE.TRADE_RETCODE_DONE, ""
 
 
@@ -561,7 +560,7 @@ def calculate_swap(
 ) -> float:
     """
     Calculate swap according to MT5 swap modes.
-    
+
     MT5 swap calculation modes:
     - POINTS: Swap = rate * point * contract_size * lots
     - CURRENCY_SYMBOL: Swap = rate * lots (directly in symbol currency)
@@ -574,32 +573,32 @@ def calculate_swap(
     """
     is_long = position_type in [ENUM_ORDER_TYPE.ORDER_TYPE_BUY]
     swap_rate = swap_long if is_long else swap_short
-    
+
     # Account for triple swap day (weekend rollover)
     effective_days = days
     if day_of_week == swap_rollover3days:
         effective_days = days * 3
-    
+
     if swap_mode == ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_DISABLED:
         return 0.0
-    
+
     elif swap_mode == ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_POINTS:
         # Swap in points
         return swap_rate * point * contract_size * lots * effective_days
-    
+
     elif swap_mode in [ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_SYMBOL,
                        ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_MARGIN,
                        ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT]:
         # Direct currency value per lot
         return swap_rate * lots * effective_days
-    
+
     elif swap_mode in [ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_INTEREST_CURRENT,
                        ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_INTEREST_OPEN]:
         # Annual interest rate as percentage
         position_value = lots * contract_size * price
         daily_rate = swap_rate / 100 / 360  # Annual rate to daily
         return position_value * daily_rate * effective_days
-    
+
     else:
         # Default: treat as points
         return swap_rate * tick_value * lots * effective_days
@@ -619,24 +618,24 @@ def is_market_open(
 ) -> bool:
     """
     Check if market is open based on trading hours.
-    
+
     Args:
         current_time: Current server time
         trading_hours: List of (start_time, end_time) tuples
         day_of_week: Optional day filter (0=Sunday, 6=Saturday)
-    
+
     Returns:
         True if market is open
     """
     if day_of_week is None:
         day_of_week = current_time.weekday()
-    
+
     # Most forex markets closed on weekends
     if day_of_week in [5, 6]:  # Saturday, Sunday
         return False
-    
+
     current_t = current_time.time()
-    
+
     for start, end in trading_hours:
         if start <= end:
             # Normal session (e.g., 09:00 - 17:00)
@@ -646,7 +645,7 @@ def is_market_open(
             # Overnight session (e.g., 22:00 - 06:00)
             if current_t >= start or current_t <= end:
                 return True
-    
+
     return False
 
 
@@ -657,14 +656,14 @@ def is_market_open(
 class MetaAPICompliance:
     """
     Ensures compliance with MetaAPI SDK standards.
-    
+
     MetaAPI differences from direct MT5:
     - Async by default
     - Different authentication flow
     - Rate limiting
     - Cloud-specific error codes
     """
-    
+
     # MetaAPI-specific error codes
     METAAPI_ERROR_CODES = {
         "E_AUTH": "Authentication failed",
@@ -675,28 +674,28 @@ class MetaAPICompliance:
         "E_VALIDATION": "Validation error",
         "E_FORBIDDEN": "Access forbidden",
     }
-    
+
     # Rate limits (requests per second)
     RATE_LIMITS = {
         "rpc": 60,  # RPC requests
         "streaming": 100,  # Streaming subscriptions
         "history": 10,  # Historical data requests
     }
-    
+
     @staticmethod
     def validate_account_id(account_id: str) -> bool:
         """Validate MetaAPI account ID format (UUID)."""
         import re
         uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
         return bool(re.match(uuid_pattern, account_id.lower()))
-    
+
     @staticmethod
     def validate_token(token: str) -> bool:
         """Basic validation of MetaAPI token format."""
         # MetaAPI tokens are JWT format
         parts = token.split('.')
         return len(parts) == 3 and all(len(p) > 10 for p in parts)
-    
+
     @staticmethod
     def map_mt5_retcode_to_metaapi(retcode: ENUM_TRADE_RETCODE) -> Dict[str, Any]:
         """Map MT5 return code to MetaAPI error format."""

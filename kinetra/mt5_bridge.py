@@ -4,42 +4,51 @@ MetaTrader 5 Python Bridge
 Interfaces with MT5 terminal to get live symbol specifications,
 account info, and market data for accurate friction calculation.
 
-Three modes:
-1. Direct mode (Windows): Import MetaTrader5 directly
-2. MetaAPI mode (Cloud): Use MetaAPI cloud service (works from anywhere)
-3. Bridge mode (WSL2): Connect via socket to Windows MT5
-4. Offline mode: Use cached/config specs
+Connection Priority (auto mode):
+1. MetaAPI mode (DEFAULT): Cloud API - works from anywhere (Linux/Mac/Windows/WSL2)
+2. Direct mode (FALLBACK): Import MetaTrader5 directly (Windows only)
+3. Bridge mode (FALLBACK): Connect via socket to Windows MT5 from WSL2
+4. Offline mode (FINAL FALLBACK): Use cached/config specs
 
 Usage:
-    # Direct (Windows with MT5 installed)
-    bridge = MT5Bridge(mode="direct")
+    # Auto mode (MetaAPI default, MT5 direct fallback)
+    bridge = MT5Bridge()  # Uses METAAPI_TOKEN/METAAPI_ACCOUNT_ID env vars
     bridge.connect()
     spec = bridge.get_symbol_spec("EURUSD")
 
-    # MetaAPI (Cloud - works from WSL2/Linux)
+    # Explicit MetaAPI (Cloud - works from anywhere)
     bridge = MT5Bridge(mode="metaapi", token="your-token", account_id="your-account")
     bridge.connect()
     spec = bridge.get_symbol_spec("EURUSD")
 
-    # Bridge (WSL2 -> Windows socket server)
+    # Explicit Direct (Windows with MT5 installed)
+    bridge = MT5Bridge(mode="direct")
+    bridge.connect()
+    spec = bridge.get_symbol_spec("EURUSD")
+
+    # Explicit Bridge (WSL2 -> Windows socket server)
     bridge = MT5Bridge(mode="bridge", host="localhost", port=5555)
     bridge.connect()
     spec = bridge.get_symbol_spec("EURUSD")
 
 Install dependencies:
-    Windows: pip install MetaTrader5
-    Cloud:   pip install metaapi-cloud-sdk
+    Cloud (recommended): pip install metaapi-cloud-sdk
+    Windows direct:      pip install MetaTrader5
+
+Environment variables:
+    METAAPI_TOKEN=your-metaapi-token
+    METAAPI_ACCOUNT_ID=your-account-uuid
 """
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, List, Tuple, Any
-from datetime import datetime, time
+from typing import Dict, List, Optional
+
 import numpy as np
 
-from .market_microstructure import SymbolSpec, AssetClass, SYMBOL_SPECS
+from .market_microstructure import SYMBOL_SPECS, AssetClass, SymbolSpec
 
 
 class MT5Bridge:
@@ -90,28 +99,48 @@ class MT5Bridge:
             self._auto_detect_mode()
 
     def _auto_detect_mode(self):
-        """Auto-detect best available mode."""
-        # Try direct MT5 first (Windows only)
-        try:
-            import MetaTrader5 as mt5
-            self.mt5 = mt5
-            self.mode = "direct"
-            print("Auto-detected: Direct MT5 mode (Windows)")
-            return
-        except ImportError:
-            pass
+        """
+        Auto-detect best available mode.
 
-        # Try MetaAPI if token is available
+        Priority order:
+        1. MetaAPI (DEFAULT) - Cloud-based, works everywhere
+        2. Direct MT5 (FALLBACK) - Windows only, requires MT5 terminal
+        3. Bridge (FALLBACK) - Socket to Windows from WSL2
+        4. Offline (FINAL FALLBACK) - Cached/built-in specs
+        """
+        # PRIORITY 1: Try MetaAPI first (DEFAULT - works from anywhere)
         if self.token and self.account_id:
             try:
-                from metaapi_cloud_sdk import MetaApi
-                self.mode = "metaapi"
-                print("Auto-detected: MetaAPI cloud mode")
-                return
-            except ImportError:
-                print("MetaAPI token found but SDK not installed. Run: pip install metaapi-cloud-sdk")
+                import importlib.util
+                if importlib.util.find_spec("metaapi_cloud_sdk") is not None:
+                    self.mode = "metaapi"
+                    print("✓ Auto-detected: MetaAPI cloud mode (DEFAULT)")
+                    print(f"  Account ID: {self.account_id[:8]}...{self.account_id[-4:]}")
+                    return
+                else:
+                    print("⚠ MetaAPI credentials found but SDK not installed.")
+                    print("  Run: pip install metaapi-cloud-sdk")
+            except Exception as e:
+                print(f"⚠ MetaAPI detection error: {e}")
+        elif self.token or self.account_id:
+            missing = "METAAPI_ACCOUNT_ID" if self.token else "METAAPI_TOKEN"
+            print(f"⚠ Partial MetaAPI config: missing {missing}")
 
-        # Try bridge mode (socket to Windows)
+        # PRIORITY 2: Try direct MT5 (FALLBACK - Windows only)
+        try:
+            import importlib.util
+            if importlib.util.find_spec("MetaTrader5") is not None:
+                import MetaTrader5 as mt5
+                self.mt5 = mt5
+                self.mode = "direct"
+                print("✓ Auto-detected: Direct MT5 mode (Windows fallback)")
+                return
+        except ImportError:
+            pass
+        except Exception as e:
+            print(f"⚠ MT5 direct detection error: {e}")
+
+        # PRIORITY 3: Try bridge mode (FALLBACK - socket to Windows from WSL2)
         try:
             import socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,61 +149,90 @@ class MT5Bridge:
             sock.close()
             if result == 0:
                 self.mode = "bridge"
-                print(f"Auto-detected: Bridge mode ({self.host}:{self.port})")
+                print(f"✓ Auto-detected: Bridge mode ({self.host}:{self.port})")
                 return
-        except:
+        except Exception:
             pass
 
-        # Fall back to offline
+        # PRIORITY 4: Fall back to offline (FINAL FALLBACK)
         self.mode = "offline"
-        print("Auto-detected: Offline mode (using cached/built-in specs)")
+        print("✓ Auto-detected: Offline mode (using cached/built-in specs)")
+        print("  To enable live data, set METAAPI_TOKEN and METAAPI_ACCOUNT_ID")
 
     def connect(self) -> bool:
         """
-        Connect to MT5 terminal.
+        Connect to MT5 terminal with automatic fallback.
+
+        Connection priority:
+        1. MetaAPI (default) -> 2. Direct MT5 (fallback) -> 3. Bridge -> 4. Offline
 
         Returns:
             True if connected successfully
         """
+        original_mode = self.mode
+
+        if self.mode == "metaapi":
+            if self._connect_metaapi():
+                return True
+            print("⚠ MetaAPI connection failed, trying fallback...")
+            # Fallback to direct MT5
+            self.mode = "direct"
+
         if self.mode == "direct":
-            return self._connect_direct()
-        elif self.mode == "metaapi":
-            return self._connect_metaapi()
-        elif self.mode == "bridge":
-            return self._connect_bridge()
-        else:
-            return self._load_offline_config()
+            if self._connect_direct():
+                return True
+            if original_mode == "direct":
+                print("⚠ Direct MT5 connection failed, trying fallback...")
+            # Fallback to bridge
+            self.mode = "bridge"
+
+        if self.mode == "bridge":
+            if self._connect_bridge():
+                return True
+            if original_mode == "bridge":
+                print("⚠ Bridge connection failed, trying fallback...")
+            # Fallback to offline
+            self.mode = "offline"
+
+        # Final fallback: offline mode
+        return self._load_offline_config()
 
     async def _connect_metaapi_async(self) -> bool:
         """Async connection to MetaAPI (internal)."""
         try:
             from metaapi_cloud_sdk import MetaApi
 
+            print("Connecting to MetaAPI cloud service...")
             self.metaapi = MetaApi(token=self.token)
-            account = await self.metaapi.metatrader_account_api.get_account(self.account_id)
+
+            # Store account reference for later use
+            self.metaapi_account = await self.metaapi.metatrader_account_api.get_account(self.account_id)
 
             # Wait for deployment if needed
-            if account.state != 'DEPLOYED':
-                print(f"Deploying account {self.account_id}...")
-                await account.deploy()
-                await account.wait_deployed()
+            if self.metaapi_account.state != 'DEPLOYED':
+                print(f"  Deploying account {self.account_id[:8]}...")
+                await self.metaapi_account.deploy()
+                await self.metaapi_account.wait_deployed()
 
-            # Connect to RPC
-            self.metaapi_connection = account.get_rpc_connection()
+            # Connect to RPC for real-time data
+            self.metaapi_connection = self.metaapi_account.get_rpc_connection()
             await self.metaapi_connection.connect()
             await self.metaapi_connection.wait_synchronized()
 
             # Get account info
             info = await self.metaapi_connection.get_account_information()
-            print(f"Connected to MetaAPI: {info['broker']} - {info['server']}")
-            print(f"Account: {info['login']} ({info['name']})")
-            print(f"Balance: {info['balance']} {info['currency']}")
+            print(f"✓ Connected to MetaAPI: {info['broker']} - {info['server']}")
+            print(f"  Account: {info['login']} ({info['name']})")
+            print(f"  Balance: {info['balance']} {info['currency']}")
+            print(f"  Leverage: 1:{info.get('leverage', 'N/A')}")
 
+            # Cache account info
+            self._metaapi_account_info = info
             self.connected = True
             return True
 
         except Exception as e:
-            print(f"MetaAPI connection failed: {e}")
+            print(f"✗ MetaAPI connection failed: {e}")
             return False
 
     def _connect_metaapi(self) -> bool:
@@ -182,21 +240,123 @@ class MT5Bridge:
         import asyncio
 
         try:
-            # Run async connection
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If we're in an async context, create a new task
+            # Check if SDK is available
+            import importlib.util
+            if importlib.util.find_spec("metaapi_cloud_sdk") is None:
+                print("✗ MetaAPI SDK not installed. Run: pip install metaapi-cloud-sdk")
+                return False
+
+            # Run async connection with proper event loop handling
+            try:
+                asyncio.get_running_loop()
+                # We're in an async context - use thread pool
                 import concurrent.futures
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(asyncio.run, self._connect_metaapi_async())
-                    return future.result()
-            else:
-                return loop.run_until_complete(self._connect_metaapi_async())
+                    return future.result(timeout=60)
+            except RuntimeError:
+                # No running loop - create one
+                return asyncio.run(self._connect_metaapi_async())
+
+        except asyncio.TimeoutError:
+            print("✗ MetaAPI connection timed out")
+            return False
         except Exception as e:
-            print(f"MetaAPI connection error: {e}")
-            print("Falling back to offline mode...")
-            self.mode = "offline"
-            return self._load_offline_config()
+            print(f"✗ MetaAPI connection error: {e}")
+            return False
+
+    async def _get_metaapi_symbol_spec_async(self, symbol: str) -> Optional[Dict]:
+        """Get symbol specification via MetaAPI (async)."""
+        if not self.metaapi_connection:
+            return None
+        try:
+            spec = await self.metaapi_connection.get_symbol_specification(symbol)
+            price = await self.metaapi_connection.get_symbol_price(symbol)
+            return {**spec, **price} if spec else None
+        except Exception as e:
+            print(f"Error getting MetaAPI spec for {symbol}: {e}")
+            return None
+
+    async def _get_metaapi_candles_async(
+        self,
+        symbol: str,
+        timeframe: str,
+        start_time: datetime,
+        limit: int = 1000
+    ) -> Optional[List[Dict]]:
+        """Get historical candles via MetaAPI (async)."""
+        if not self.metaapi_account:
+            return None
+        try:
+            # MetaAPI timeframe format: 1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w
+            tf_map = {
+                'M1': '1m', 'M5': '5m', 'M15': '15m', 'M30': '30m',
+                'H1': '1h', 'H4': '4h', 'D1': '1d', 'W1': '1w'
+            }
+            mt_tf = tf_map.get(timeframe.upper(), timeframe.lower())
+
+            candles = await self.metaapi_account.get_historical_candles(
+                symbol=symbol,
+                timeframe=mt_tf,
+                start_time=start_time,
+                limit=limit
+            )
+            return candles
+        except Exception as e:
+            print(f"Error getting MetaAPI candles for {symbol}: {e}")
+            return None
+
+    def get_metaapi_symbol_spec(self, symbol: str) -> Optional[Dict]:
+        """Get symbol specification via MetaAPI (sync wrapper)."""
+        if self.mode != "metaapi" or not self.metaapi_connection:
+            return None
+
+        import asyncio
+        try:
+            try:
+                asyncio.get_running_loop()
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        asyncio.run,
+                        self._get_metaapi_symbol_spec_async(symbol)
+                    )
+                    return future.result(timeout=30)
+            except RuntimeError:
+                return asyncio.run(self._get_metaapi_symbol_spec_async(symbol))
+        except Exception as e:
+            print(f"Error in get_metaapi_symbol_spec: {e}")
+            return None
+
+    def get_metaapi_candles(
+        self,
+        symbol: str,
+        timeframe: str,
+        start_time: datetime,
+        limit: int = 1000
+    ) -> Optional[List[Dict]]:
+        """Get historical candles via MetaAPI (sync wrapper)."""
+        if self.mode != "metaapi" or not self.metaapi_account:
+            return None
+
+        import asyncio
+        try:
+            try:
+                asyncio.get_running_loop()
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        asyncio.run,
+                        self._get_metaapi_candles_async(symbol, timeframe, start_time, limit)
+                    )
+                    return future.result(timeout=60)
+            except RuntimeError:
+                return asyncio.run(
+                    self._get_metaapi_candles_async(symbol, timeframe, start_time, limit)
+                )
+        except Exception as e:
+            print(f"Error in get_metaapi_candles: {e}")
+            return None
 
     def _connect_direct(self) -> bool:
         """Connect directly to MT5 (Windows only)."""
@@ -245,7 +405,7 @@ class MT5Bridge:
             try:
                 spec = self._mt5_info_to_spec(info)
                 self.cached_specs[info.name] = spec
-            except Exception as e:
+            except Exception:
                 # Skip symbols we can't parse
                 pass
 
@@ -329,6 +489,16 @@ class MT5Bridge:
         Returns:
             Current spread in points or None
         """
+        # MetaAPI mode (default)
+        if self.mode == "metaapi" and self.connected:
+            data = self.get_metaapi_symbol_spec(symbol)
+            if data and "bid" in data and "ask" in data:
+                spec = self.get_symbol_spec(symbol)
+                point = data.get('point', spec.point if spec else 0.00001)
+                if point > 0:
+                    return (data["ask"] - data["bid"]) / point
+
+        # Direct MT5 mode
         if self.mode == "direct" and self.mt5:
             tick = self.mt5.symbol_info_tick(symbol)
             if tick:
@@ -336,6 +506,7 @@ class MT5Bridge:
                 point = spec.point if spec else 0.00001
                 return (tick.ask - tick.bid) / point
 
+        # Bridge mode
         elif self.mode == "bridge":
             data = self._bridge_request("tick", symbol=symbol)
             if data and "bid" in data and "ask" in data:
@@ -420,7 +591,8 @@ class MT5Bridge:
             'total_friction_pct': total_friction,
             'spread_stress': spread_stress,
             'current_price': current_price,
-            'is_live': self.mode in ["direct", "bridge"],
+            'is_live': self.mode in ["direct", "bridge", "metaapi"],
+            'data_source': self.mode,
         }
 
     def get_swap_cost(self, symbol: str, lots: float, is_long: bool, days: int = 1) -> float:
@@ -588,7 +760,7 @@ class MT5Bridge:
             return True
 
         except socket.timeout:
-            print(f"Bridge connection timed out - is the server running on Windows?")
+            print("Bridge connection timed out - is the server running on Windows?")
             print("Run: python mt5_bridge_server.py on Windows")
             self.mode = "offline"
             return self._load_offline_config()
@@ -637,10 +809,53 @@ class MT5Bridge:
         return True
 
     def disconnect(self):
-        """Disconnect from MT5."""
+        """Disconnect from MT5/MetaAPI."""
+        import asyncio
+
+        # MetaAPI disconnect
+        if self.mode == "metaapi":
+            if self.metaapi_connection:
+                try:
+                    try:
+                        asyncio.get_running_loop()
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            executor.submit(asyncio.run, self.metaapi_connection.close())
+                    except RuntimeError:
+                        asyncio.run(self.metaapi_connection.close())
+                except Exception:
+                    pass
+            if self.metaapi:
+                try:
+                    try:
+                        asyncio.get_running_loop()
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            executor.submit(asyncio.run, self.metaapi.close())
+                    except RuntimeError:
+                        asyncio.run(self.metaapi.close())
+                except Exception:
+                    pass
+            self.metaapi = None
+            self.metaapi_connection = None
+            self.metaapi_account = None
+
+        # Direct MT5 disconnect
         if self.mode == "direct" and self.mt5:
-            self.mt5.shutdown()
+            try:
+                self.mt5.shutdown()
+            except Exception:
+                pass
+
+        # Bridge disconnect
+        if self.mode == "bridge" and hasattr(self, 'bridge_socket'):
+            try:
+                self.bridge_socket.close()
+            except Exception:
+                pass
+
         self.connected = False
+        print(f"Disconnected from {self.mode} mode")
 
     def get_symbol_spec(self, symbol: str) -> Optional[SymbolSpec]:
         """
@@ -657,6 +872,15 @@ class MT5Bridge:
         # Check cache first
         if symbol in self.cached_specs:
             return self.cached_specs[symbol]
+
+        # Try MetaAPI (priority for cloud mode)
+        if self.mode == "metaapi" and self.connected:
+            data = self.get_metaapi_symbol_spec(symbol)
+            if data:
+                spec = self._metaapi_data_to_spec(data)
+                if spec:
+                    self.cached_specs[symbol] = spec
+                    return spec
 
         # Try to get from MT5 (direct mode)
         if self.mode == "direct" and self.mt5 and self.connected:
@@ -679,6 +903,57 @@ class MT5Bridge:
             return SYMBOL_SPECS[symbol]
 
         return None
+
+    def _metaapi_data_to_spec(self, data: Dict) -> Optional[SymbolSpec]:
+        """Convert MetaAPI response to SymbolSpec."""
+        try:
+            symbol = data.get('symbol', 'UNKNOWN')
+            description = data.get('description', '')
+
+            # Detect asset class from symbol/description
+            if 'btc' in symbol.lower() or 'eth' in symbol.lower() or 'crypto' in description.lower():
+                asset_class = AssetClass.CRYPTO
+            elif any(x in symbol.upper() for x in ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER']):
+                asset_class = AssetClass.METALS
+            elif any(x in symbol.upper() for x in ['WTI', 'BRENT', 'OIL', 'NGAS', 'XBRUSD', 'XTIUSD']):
+                asset_class = AssetClass.ENERGY
+            elif any(x in symbol.upper() for x in ['US500', 'US30', 'NAS100', 'SPX', 'NDX', 'DAX', 'FTSE']):
+                asset_class = AssetClass.INDICES
+            elif 'etf' in symbol.lower() or 'etf' in description.lower():
+                asset_class = AssetClass.ETFS
+            else:
+                asset_class = AssetClass.FOREX
+
+            # Get prices for spread calculation
+            bid = data.get('bid', 0)
+            ask = data.get('ask', 0)
+            point = data.get('point', 0.00001)
+
+            if bid > 0 and ask > 0 and point > 0:
+                current_spread = (ask - bid) / point
+            else:
+                current_spread = data.get('spread', 2.0)
+
+            return SymbolSpec(
+                symbol=symbol,
+                asset_class=asset_class,
+                digits=data.get('digits', 5),
+                point=point,
+                contract_size=data.get('contractSize', 100000),
+                volume_min=data.get('minVolume', 0.01),
+                volume_max=data.get('maxVolume', 100),
+                volume_step=data.get('volumeStep', 0.01),
+                margin_initial=data.get('marginInitial', 0.01) or 0.01,
+                spread_typical=current_spread,
+                spread_min=max(1, current_spread * 0.5),
+                spread_max=current_spread * 10,
+                commission_per_lot=0.0,
+                swap_long=data.get('swapLong', 0.0),
+                swap_short=data.get('swapShort', 0.0),
+            )
+        except Exception as e:
+            print(f"Error converting MetaAPI data to spec: {e}")
+            return None
 
     def _bridge_data_to_spec(self, data: Dict) -> Optional[SymbolSpec]:
         """Convert bridge response to SymbolSpec."""
@@ -782,6 +1057,24 @@ class MT5Bridge:
         spec = self.get_symbol_spec(symbol)
         point = spec.point if spec else 0.00001
 
+        # MetaAPI mode (default)
+        if self.mode == "metaapi" and self.connected:
+            data = self.get_metaapi_symbol_spec(symbol)
+            if data and "bid" in data and "ask" in data:
+                bid = data['bid']
+                ask = data['ask']
+                return {
+                    'bid': bid,
+                    'ask': ask,
+                    'spread': (ask - bid) / point if point > 0 else 0,
+                    'spread_price': ask - bid,
+                    'time': datetime.now(),  # MetaAPI returns server time
+                    'volume': data.get('volume', 0),
+                    'last': data.get('last', 0),
+                    'source': 'metaapi'
+                }
+
+        # Direct MT5 mode
         if self.mode == "direct" and self.mt5:
             tick = self.mt5.symbol_info_tick(symbol)
             if tick is None:
@@ -795,8 +1088,10 @@ class MT5Bridge:
                 'time': datetime.fromtimestamp(tick.time),
                 'volume': tick.volume,
                 'last': tick.last,
+                'source': 'mt5_direct'
             }
 
+        # Bridge mode
         elif self.mode == "bridge":
             data = self._bridge_request("tick", symbol=symbol)
             if data and "bid" in data and "ask" in data:
@@ -808,70 +1103,139 @@ class MT5Bridge:
                     'time': datetime.now(),  # Bridge doesn't send time
                     'volume': data.get('volume', 0),
                     'last': data.get('last', 0),
+                    'source': 'bridge'
                 }
 
         return None
 
     def get_account_info(self) -> Optional[Dict]:
         """Get account information."""
-        if self.mode != "direct" or not self.mt5:
-            return None
+        # MetaAPI mode (default)
+        if self.mode == "metaapi" and self.connected:
+            if hasattr(self, '_metaapi_account_info') and self._metaapi_account_info:
+                info = self._metaapi_account_info
+                return {
+                    'login': info.get('login', ''),
+                    'server': info.get('server', ''),
+                    'name': info.get('name', ''),
+                    'balance': info.get('balance', 0),
+                    'equity': info.get('equity', 0),
+                    'margin': info.get('margin', 0),
+                    'margin_free': info.get('freeMargin', 0),
+                    'margin_level': info.get('marginLevel', 0),
+                    'currency': info.get('currency', 'USD'),
+                    'leverage': info.get('leverage', 100),
+                    'profit': info.get('profit', 0),
+                    'broker': info.get('broker', ''),
+                    'source': 'metaapi'
+                }
 
-        info = self.mt5.account_info()
-        if info is None:
-            return None
+        # Direct MT5 mode (fallback)
+        if self.mode == "direct" and self.mt5:
+            info = self.mt5.account_info()
+            if info is None:
+                return None
 
-        return {
-            'login': info.login,
-            'server': info.server,
-            'name': info.name,
-            'balance': info.balance,
-            'equity': info.equity,
-            'margin': info.margin,
-            'margin_free': info.margin_free,
-            'margin_level': info.margin_level,
-            'currency': info.currency,
-            'leverage': info.leverage,
-            'profit': info.profit,
-        }
+            return {
+                'login': info.login,
+                'server': info.server,
+                'name': info.name,
+                'balance': info.balance,
+                'equity': info.equity,
+                'margin': info.margin,
+                'margin_free': info.margin_free,
+                'margin_level': info.margin_level,
+                'currency': info.currency,
+                'leverage': info.leverage,
+                'profit': info.profit,
+                'source': 'mt5_direct'
+            }
+
+        return None
 
     def get_rates(
         self,
         symbol: str,
         timeframe: str,
-        count: int = 1000
+        count: int = 1000,
+        start_time: datetime = None
     ) -> Optional[np.ndarray]:
         """
-        Get historical OHLCV rates from MT5.
+        Get historical OHLCV rates.
+
+        Works with both MetaAPI (default) and direct MT5 (fallback).
 
         Args:
             symbol: Symbol name
             timeframe: Timeframe string (M1, M5, H1, D1, etc.)
             count: Number of bars to get
+            start_time: Start time for historical data (default: count bars back from now)
 
         Returns:
             Numpy structured array with OHLCV data
         """
-        if self.mode != "direct" or not self.mt5:
-            return None
+        from datetime import timedelta
 
-        # Map timeframe string to MT5 constant
-        tf_map = {
-            'M1': self.mt5.TIMEFRAME_M1,
-            'M5': self.mt5.TIMEFRAME_M5,
-            'M15': self.mt5.TIMEFRAME_M15,
-            'M30': self.mt5.TIMEFRAME_M30,
-            'H1': self.mt5.TIMEFRAME_H1,
-            'H4': self.mt5.TIMEFRAME_H4,
-            'D1': self.mt5.TIMEFRAME_D1,
-            'W1': self.mt5.TIMEFRAME_W1,
-            'MN1': self.mt5.TIMEFRAME_MN1,
-        }
+        # Calculate start time if not provided
+        if start_time is None:
+            # Estimate minutes per bar
+            tf_minutes = {
+                'M1': 1, 'M5': 5, 'M15': 15, 'M30': 30,
+                'H1': 60, 'H4': 240, 'D1': 1440, 'W1': 10080
+            }
+            minutes = tf_minutes.get(timeframe.upper(), 60)
+            start_time = datetime.now() - timedelta(minutes=minutes * count)
 
-        tf = tf_map.get(timeframe.upper(), self.mt5.TIMEFRAME_H1)
-        rates = self.mt5.copy_rates_from_pos(symbol, tf, 0, count)
+        # MetaAPI mode (default)
+        if self.mode == "metaapi" and self.connected:
+            candles = self.get_metaapi_candles(symbol, timeframe, start_time, count)
+            if candles:
+                # Convert to numpy structured array (MT5 format)
+                dtype = np.dtype([
+                    ('time', 'datetime64[s]'),
+                    ('open', 'f8'),
+                    ('high', 'f8'),
+                    ('low', 'f8'),
+                    ('close', 'f8'),
+                    ('tick_volume', 'i8'),
+                    ('spread', 'i4'),
+                    ('real_volume', 'i8')
+                ])
 
-        return rates
+                rates = np.zeros(len(candles), dtype=dtype)
+                for i, c in enumerate(candles):
+                    rates[i] = (
+                        np.datetime64(c.get('time', datetime.now()), 's'),
+                        c.get('open', 0),
+                        c.get('high', 0),
+                        c.get('low', 0),
+                        c.get('close', 0),
+                        c.get('tickVolume', 0),
+                        c.get('spread', 0),
+                        c.get('realVolume', 0)
+                    )
+                return rates
+
+        # Direct MT5 mode (fallback)
+        if self.mode == "direct" and self.mt5:
+            # Map timeframe string to MT5 constant
+            tf_map = {
+                'M1': self.mt5.TIMEFRAME_M1,
+                'M5': self.mt5.TIMEFRAME_M5,
+                'M15': self.mt5.TIMEFRAME_M15,
+                'M30': self.mt5.TIMEFRAME_M30,
+                'H1': self.mt5.TIMEFRAME_H1,
+                'H4': self.mt5.TIMEFRAME_H4,
+                'D1': self.mt5.TIMEFRAME_D1,
+                'W1': self.mt5.TIMEFRAME_W1,
+                'MN1': self.mt5.TIMEFRAME_MN1,
+            }
+
+            tf = tf_map.get(timeframe.upper(), self.mt5.TIMEFRAME_H1)
+            rates = self.mt5.copy_rates_from_pos(symbol, tf, 0, count)
+            return rates
+
+        return None
 
     def save_specs_to_config(self, symbols: List[str] = None):
         """
