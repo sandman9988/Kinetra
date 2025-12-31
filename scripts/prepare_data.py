@@ -22,6 +22,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, time
 import json
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -52,6 +54,84 @@ class DataPreparer:
         # Create output directories
         self.train_dir.mkdir(parents=True, exist_ok=True)
         self.test_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _prepare_file_worker(filepath: Path, test_ratio: float, train_dir: Path, test_dir: Path) -> Dict:
+        """
+        Worker function for parallel file preparation.
+        Must be static for multiprocessing pickle compatibility.
+        """
+        # Parse filename
+        parts = filepath.stem.split('_')
+        if len(parts) < 2:
+            return None
+
+        symbol = parts[0]
+        timeframe = parts[1]
+        original_filename = filepath.name
+
+        try:
+            # Read data
+            df = pd.read_csv(filepath)
+            df['time'] = pd.to_datetime(df['time'])
+            df = df.sort_values('time')
+            initial_bars = len(df)
+
+            # Classify market type
+            def classify_market_type(symbol: str) -> str:
+                symbol_upper = symbol.upper().replace('+', '').replace('-', '')
+                if any(x in symbol_upper for x in ['BTC', 'ETH', 'XRP', 'LTC']):
+                    return 'crypto'
+                if len(symbol_upper) == 6 and symbol_upper.isalpha():
+                    return 'forex'
+                if any(x in symbol_upper for x in ['XAU', 'XAG', 'GOLD', 'SILVER', 'XPT', 'XPD']):
+                    return 'metals'
+                if any(x in symbol_upper for x in ['OIL', 'WTI', 'BRENT', 'GAS', 'COPPER']):
+                    return 'commodities'
+                if any(x in symbol_upper for x in ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US', 'GER', 'UK', 'SA', 'EU']):
+                    return 'indices'
+                return 'unknown'
+
+            market_type = classify_market_type(symbol)
+
+            # Filter to trading hours (simplified - crypto is 24/7)
+            if market_type != 'crypto':
+                # Remove weekends for non-crypto
+                df = df[~((df['time'].dt.weekday == 5) | (df['time'].dt.weekday == 6))]
+
+            # Handle missing data
+            df = df.sort_values('time').ffill(limit=5).dropna()
+
+            # Split train/test (NO PEEKING)
+            split_idx = int(len(df) * (1 - test_ratio))
+            train = df.iloc[:split_idx].copy()
+            test = df.iloc[split_idx:].copy()
+
+            # Save train data
+            train_file = train_dir / original_filename
+            train.to_csv(train_file, index=False)
+
+            # Save test data
+            test_file = test_dir / original_filename
+            test.to_csv(test_file, index=False)
+
+            return {
+                'symbol': symbol,
+                'timeframe': timeframe,
+                'market_type': market_type,
+                'initial_bars': initial_bars,
+                'after_filtering': len(df),
+                'train_bars': len(train),
+                'test_bars': len(test),
+                'train_start': str(train['time'].min()),
+                'train_end': str(train['time'].max()),
+                'test_start': str(test['time'].min()),
+                'test_end': str(test['time'].max()),
+            }
+
+        except Exception as e:
+            print(f"\n❌ Error preparing {filepath.name}: {e}")
+            return None
 
     def classify_market_type(self, symbol: str) -> str:
         """Classify symbol into market type."""
@@ -239,27 +319,48 @@ class DataPreparer:
             traceback.print_exc()
             return None
 
-    def prepare_all(self, test_ratio: float = 0.2):
-        """Prepare all files."""
+    def prepare_all(self, test_ratio: float = 0.2, n_workers: int = None):
+        """Prepare all files in parallel."""
         csv_files = sorted(self.master_dir.glob('*.csv'))
 
         if not csv_files:
             print(f"\n❌ No CSV files found in {self.master_dir}")
             return
 
+        # Use all but 2 cores by default
+        if n_workers is None:
+            n_workers = max(1, mp.cpu_count() - 2)
+
         print(f"\n📊 Preparing {len(csv_files)} files...")
+        print(f"  Workers: {n_workers} parallel processes")
         print(f"  Train/Test split: {int((1-test_ratio)*100)}% / {int(test_ratio*100)}%")
         print(f"  Test ratio: {test_ratio:.1%} (chronologically AFTER train)")
 
         results = []
+        completed = 0
 
-        for i, filepath in enumerate(csv_files, 1):
-            if i % 10 == 0 or i == len(csv_files):
-                print(f"  Progress: {i}/{len(csv_files)}", end='\r')
+        # Process files in parallel
+        with ProcessPoolExecutor(max_workers=n_workers) as executor:
+            # Submit all tasks
+            future_to_file = {
+                executor.submit(self._prepare_file_worker, filepath, test_ratio,
+                              self.train_dir, self.test_dir): filepath
+                for filepath in csv_files
+            }
 
-            result = self.prepare_file(filepath, test_ratio)
-            if result:
-                results.append(result)
+            # Collect results as they complete
+            for future in as_completed(future_to_file):
+                completed += 1
+                if completed % 10 == 0 or completed == len(csv_files):
+                    print(f"  Progress: {completed}/{len(csv_files)}", end='\r')
+
+                try:
+                    result = future.result()
+                    if result:
+                        results.append(result)
+                except Exception as e:
+                    filepath = future_to_file[future]
+                    print(f"\n❌ Error preparing {filepath.name}: {e}")
 
         print(f"\n✅ Prepared {len(results)} files")
 
