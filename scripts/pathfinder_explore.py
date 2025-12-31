@@ -71,7 +71,7 @@ def compute_simple_physics(df: pd.DataFrame, lookback: int = 20) -> pd.DataFrame
     # Volatility
     physics['vol_rs'] = pd.Series(returns).rolling(lookback).std().fillna(0).values
     physics['vol_yz'] = physics['vol_rs'] * np.sqrt(252)  # Annualized
-    physics['vol_gk'] = (np.log(high / low + 1e-10) ** 2).rolling(lookback).mean().values
+    physics['vol_gk'] = pd.Series(np.log(high / low + 1e-10) ** 2).rolling(lookback).mean().fillna(0).values
     
     # Z-scores
     for col in ['vol_rs', 'vol_yz']:
@@ -99,7 +99,7 @@ def compute_simple_physics(df: pd.DataFrame, lookback: int = 20) -> pd.DataFrame
     physics['cvar_95'] = pd.Series(returns).rolling(lookback).apply(lambda x: x[x < x.quantile(0.05)].mean() if len(x[x < x.quantile(0.05)]) > 0 else 0, raw=False).fillna(0).values
     down_returns = np.minimum(returns, 0)
     up_returns = np.maximum(returns, 0)
-    physics['cvar_asymmetry'] = (np.abs(down_returns).rolling(lookback).mean()) / (np.abs(up_returns).rolling(lookback).mean() + 1e-10)
+    physics['cvar_asymmetry'] = pd.Series(np.abs(down_returns)).rolling(lookback).mean().fillna(0).values / (pd.Series(np.abs(up_returns)).rolling(lookback).mean().fillna(1e-10).values + 1e-10)
     
     # Higher moments
     physics['skewness'] = pd.Series(returns).rolling(lookback).skew().fillna(0).values
@@ -144,7 +144,8 @@ def compute_simple_physics(df: pd.DataFrame, lookback: int = 20) -> pd.DataFrame
     physics['dsp_cycle_period'] = 24
     
     # VPIN proxy (volume imbalance)
-    physics['vpin'] = 0.5 + 0.5 * np.sign(returns) * (volume / (volume.rolling(lookback).mean() + 1e-10))
+    vol_ma = pd.Series(volume).rolling(lookback).mean().fillna(1).values
+    physics['vpin'] = 0.5 + 0.5 * np.sign(returns) * (volume / (vol_ma + 1e-10))
     physics['vpin_z'] = (physics['vpin'] - 0.5) / 0.1
     physics['vpin_pct'] = physics['vpin'].rolling(500, min_periods=50).rank(pct=True).fillna(0.5).values
     physics['buy_pressure'] = (physics['vpin'] > 0.5).astype(float)
@@ -167,12 +168,14 @@ class LinearQAgent:
         self.state_dim = state_dim
         self.n_actions = n_actions
         self.lr = lr
-        self.W = np.random.randn(state_dim, n_actions) * 0.01
+        self.W = np.random.randn(state_dim, n_actions) * 0.1  # Larger initial weights
         self.b = np.zeros(n_actions)
-        self.epsilon = 1.0
-        self.epsilon_decay = 0.995
-        self.epsilon_min = 0.01
-        self.gamma = 0.99
+        self.b[1] = 0.1  # Slight bias toward buy
+        self.b[2] = 0.1  # Slight bias toward sell
+        self.epsilon = 0.5  # Start with more exploration
+        self.epsilon_decay = 0.99
+        self.epsilon_min = 0.05
+        self.gamma = 0.95
         self.name = "LinearQ"
         
         # Track feature importance
@@ -241,8 +244,13 @@ class PPOAgent:
         self.log_probs = []
     
     def _softmax(self, x):
+        x = np.nan_to_num(x, nan=0.0, posinf=10, neginf=-10)
+        x = np.clip(x, -10, 10)
         exp_x = np.exp(x - np.max(x))
-        return exp_x / exp_x.sum()
+        result = exp_x / (exp_x.sum() + 1e-10)
+        if np.any(np.isnan(result)) or np.any(result < 0):
+            return np.ones(len(x)) / len(x)
+        return result
     
     def get_action_probs(self, state: np.ndarray) -> np.ndarray:
         logits = state @ self.policy_W + self.policy_b
@@ -341,8 +349,14 @@ class SACAgent:
         self.buffer_size = 10000
     
     def _softmax(self, x):
+        x = np.nan_to_num(x, nan=0.0, posinf=10, neginf=-10)
+        x = np.clip(x, -10, 10)  # Prevent overflow
         exp_x = np.exp(x - np.max(x))
-        return exp_x / exp_x.sum()
+        result = exp_x / (exp_x.sum() + 1e-10)
+        # Ensure valid probabilities
+        if np.any(np.isnan(result)) or np.any(result < 0):
+            return np.ones(len(x)) / len(x)  # Uniform fallback
+        return result
     
     def act(self, state: np.ndarray, training: bool = True) -> int:
         logits = state @ self.policy_W + self.policy_b
@@ -422,7 +436,8 @@ class TradingEnv:
         self.entry_price = 0
         self.balance = 10000
         self.trades = []
-        return get_rl_state_features(self.physics_state, self.current_bar)
+        state = get_rl_state_features(self.physics_state, self.current_bar)
+        return np.nan_to_num(state, nan=0.0, posinf=0.0, neginf=0.0)
     
     def step(self, action: int) -> tuple:
         """Actions: 0=hold, 1=buy, 2=sell, 3=close"""
@@ -475,6 +490,7 @@ class TradingEnv:
                 self.balance += self.balance * 0.1 * pnl_pct
         
         next_state = get_rl_state_features(self.physics_state, self.current_bar)
+        next_state = np.nan_to_num(next_state, nan=0.0, posinf=0.0, neginf=0.0)
         return next_state, reward, done, {}
 
 
