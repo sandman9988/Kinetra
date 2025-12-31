@@ -64,6 +64,49 @@ def print_step(step_num, text):
     print("-" * 80)
 
 
+def check_data_quality(csv_files, symbols):
+    """Check data quality and detect issues."""
+    issues = []
+
+    # Expected timeframes
+    expected_tfs = {'M15', 'M30', 'H1', 'H4'}
+
+    # Check for missing timeframes
+    incomplete_symbols = []
+    for symbol, tfs in symbols.items():
+        tfs_set = set(tfs)
+        missing_tfs = expected_tfs - tfs_set
+        if missing_tfs:
+            incomplete_symbols.append((symbol, missing_tfs))
+
+    if incomplete_symbols:
+        issues.append(('missing_timeframes', incomplete_symbols))
+
+    # Check for gaps in data (sample a few files)
+    files_with_gaps = []
+    for csv_file in csv_files[:20]:  # Check first 20 files
+        try:
+            df = pd.read_csv(csv_file)
+            if 'time' in df.columns:
+                df['time'] = pd.to_datetime(df['time'])
+                df = df.sort_values('time')
+
+                # Check for large gaps (more than 2x expected interval)
+                time_diffs = df['time'].diff()
+                median_diff = time_diffs.median()
+                large_gaps = (time_diffs > median_diff * 2).sum()
+
+                if large_gaps > 0:
+                    files_with_gaps.append((csv_file.name, large_gaps))
+        except:
+            pass
+
+    if files_with_gaps:
+        issues.append(('data_gaps', files_with_gaps))
+
+    return issues
+
+
 def main():
     """Run interactive exploration training."""
 
@@ -108,6 +151,51 @@ def main():
 
     if len(symbols) > 20:
         print(f"  ... and {len(symbols) - 20} more symbols")
+
+    # ========================================================================
+    # STEP 1.5: CHECK DATA QUALITY
+    # ========================================================================
+    print(f"\n🔍 Checking data quality...")
+
+    issues = check_data_quality(csv_files, symbols)
+
+    if issues:
+        print(f"\n⚠️  Data quality issues detected:\n")
+
+        for issue_type, details in issues:
+            if issue_type == 'missing_timeframes':
+                print(f"  📊 Missing timeframes ({len(details)} symbols):")
+                for symbol, missing in details[:10]:
+                    print(f"     {symbol}: missing {', '.join(sorted(missing))}")
+                if len(details) > 10:
+                    print(f"     ... and {len(details) - 10} more symbols")
+
+            elif issue_type == 'data_gaps':
+                print(f"\n  ⏱️  Data gaps detected ({len(details)} files):")
+                for filename, gap_count in details[:5]:
+                    print(f"     {filename}: {gap_count} gaps")
+                if len(details) > 5:
+                    print(f"     ... and {len(details) - 5} more files")
+
+        print(f"\n💡 Recommendations:")
+        print(f"  1. Fetch missing data: python scripts/download_metaapi.py")
+        print(f"  2. Run data preparation to handle:")
+        print(f"     • Public holidays")
+        print(f"     • Trading hours (forex 24/5, indices market hours)")
+        print(f"     • Missing data interpolation")
+        print(f"     • Timezone alignment")
+
+        response = input(f"\nContinue with existing data anyway? [y/N]: ").strip().lower()
+        if response not in ['y', 'yes']:
+            print(f"\n⚠️  Exploration cancelled")
+            print(f"\nNext steps:")
+            print(f"  1. Fix data issues (download missing data, run data prep)")
+            print(f"  2. Run this script again")
+            return
+
+        print(f"\n⚠️  Proceeding with existing data (may have gaps/issues)")
+    else:
+        print(f"✅ No major data quality issues detected")
 
     # ========================================================================
     # STEP 2: CONFIRM TO PROCEED
