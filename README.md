@@ -116,6 +116,32 @@ python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 python scripts/batch_backtest.py --runs 100
 ```
 
+### Run Comprehensive Testing Framework
+
+**NEW**: Scientific testing framework with unknown dimension exploration
+
+```bash
+# Quick validation test (~10 min)
+python scripts/unified_test_framework.py --quick
+
+# Full test suite (core + RL + specialization)
+python scripts/unified_test_framework.py --full
+
+# EXTREME mode - explore ALL dimensions
+# Includes: Hidden features, chaos theory, quantum-inspired, meta-learning, etc.
+python scripts/unified_test_framework.py --extreme
+
+# Run specific discovery suite
+python scripts/unified_test_framework.py --suite chaos
+python scripts/unified_test_framework.py --suite hidden
+python scripts/unified_test_framework.py --suite quantum
+
+# Compare approaches
+python scripts/unified_test_framework.py --compare control physics rl chaos
+```
+
+See `docs/TESTING_FRAMEWORK.md` for full documentation.
+
 ### Docker Deployment
 
 ```bash
@@ -140,6 +166,7 @@ Kinetra/
 │   ├── reward_shaping.py   # Adaptive reward (ARS)
 │   ├── backtest_engine.py  # Monte Carlo validation
 │   ├── health_monitor.py   # Real-time monitoring
+│   ├── testing_framework.py # Comprehensive testing system
 │   └── mt5_connector.py    # MetaTrader 5 integration
 ├── tests/                   # Comprehensive testing
 │   ├── test_physics.py
@@ -148,12 +175,17 @@ Kinetra/
 ├── docs/                    # Design Bible
 │   ├── architecture.md
 │   ├── theorem_proofs.md
-│   └── deployment.md
+│   ├── deployment.md
+│   └── TESTING_FRAMEWORK.md  # Testing framework docs
 ├── scripts/                 # Automation & setup
 │   ├── setup_dev_env.sh    # Python environment setup
 │   ├── setup_mt5_wine.sh   # MT5 Wine installation
 │   ├── run_mt5.sh          # Launch MT5
-│   └── batch_backtest.py   # Batch backtesting
+│   ├── batch_backtest.py   # Batch backtesting
+│   ├── unified_test_framework.py  # Main testing interface
+│   └── example_testing_framework.py  # Testing examples
+├── configs/                 # Configuration files
+│   └── example_test_config.yaml  # Example test config
 ├── data/                    # Market data (gitignored)
 ├── Dockerfile              # Production container
 └── Makefile                # Dev commands

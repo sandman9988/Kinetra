@@ -55,6 +55,11 @@ checkpoints*/
 logs/
 *.log
 
+# Testing Framework Results
+test_results/
+test_results*/
+*.test_results.json
+
 # Data files (too large for git)
 data/*.csv
 data/*.parquet
