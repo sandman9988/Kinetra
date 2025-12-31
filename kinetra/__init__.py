@@ -166,6 +166,9 @@ from .regime_discovery import (
     discover_regimes,
 )
 
+# Workflow Management
+from .workflow_manager import WorkflowManager
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -298,4 +301,6 @@ __all__ = [
     "TransitionPrecursor",
     "CrossAssetRegimeAnalyzer",
     "discover_regimes",
+    # Workflow Management
+    "WorkflowManager",
 ]
