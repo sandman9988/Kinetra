@@ -56,16 +56,18 @@ def classify_symbol(symbol: str) -> str:
     """Classify symbol into asset class."""
     symbol_upper = symbol.upper().replace('+', '').replace('-', '')
 
-    if 'BTC' in symbol_upper or 'ETH' in symbol_upper or 'XRP' in symbol_upper:
+    if 'BTC' in symbol_upper or 'ETH' in symbol_upper or 'XRP' in symbol_upper or 'LTC' in symbol_upper:
         return 'crypto'
     elif len(symbol_upper) == 6 and symbol_upper.isalpha():
         return 'forex'
-    elif any(x in symbol_upper for x in ['XAU', 'XAG', 'XPT', 'SILVER', 'GOLD']):
+    elif any(x in symbol_upper for x in ['XAU', 'XAG', 'XPT', 'XPD', 'SILVER', 'GOLD']):
         return 'metals'
-    elif any(x in symbol_upper for x in ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US', 'GER', 'UK', 'SA']):
-        return 'indices'
+    # Commodities - check before indices to avoid UKOUSD matching 'UK'
     elif any(x in symbol_upper for x in ['OIL', 'WTI', 'BRENT', 'GAS', 'COPPER']):
         return 'commodities'
+    # EU50 = Euro Stoxx 50, UK indices, SA40 = South Africa 40
+    elif any(x in symbol_upper for x in ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US', 'GER', 'UK', 'SA', 'EU']):
+        return 'indices'
     else:
         return 'unknown'
 

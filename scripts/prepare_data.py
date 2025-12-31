@@ -69,13 +69,14 @@ class DataPreparer:
         if any(x in symbol_upper for x in ['XAU', 'XAG', 'GOLD', 'SILVER', 'XPT', 'XPD']):
             return 'metals'
 
-        # Indices - market hours specific
-        if any(x in symbol_upper for x in ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US', 'GER', 'UK', 'SA']):
-            return 'indices'
-
-        # Commodities - varies
+        # Commodities - check before indices to avoid UKOUSD matching 'UK'
         if any(x in symbol_upper for x in ['OIL', 'WTI', 'BRENT', 'GAS', 'COPPER']):
             return 'commodities'
+
+        # Indices - market hours specific
+        # EU50 = Euro Stoxx 50, UK indices, SA40 = South Africa 40, etc.
+        if any(x in symbol_upper for x in ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US', 'GER', 'UK', 'SA', 'EU']):
+            return 'indices'
 
         return 'unknown'
 

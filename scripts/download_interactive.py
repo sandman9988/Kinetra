@@ -36,6 +36,7 @@ except ImportError:
 
 
 # Market classifications
+# Order matters: commodities before indices to avoid UKOUSD matching 'UK'
 ASSET_CLASSES = {
     'forex': {
         'name': 'Forex (Currency Pairs)',
@@ -47,11 +48,6 @@ ASSET_CLASSES = {
         'patterns': ['BTC', 'ETH', 'XRP', 'LTC', 'ADA', 'DOT'],
         'examples': ['BTCUSD', 'ETHUSD', 'BTCJPY', 'ETHEUR']
     },
-    'indices': {
-        'name': 'Stock Indices',
-        'patterns': ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US30', 'US500', 'GER40', 'UK100'],
-        'examples': ['US500', 'NAS100', 'GER40', 'DJ30ft']
-    },
     'metals': {
         'name': 'Precious Metals',
         'patterns': ['XAU', 'XAG', 'GOLD', 'SILVER', 'XPT', 'XPD'],
@@ -61,6 +57,11 @@ ASSET_CLASSES = {
         'name': 'Commodities',
         'patterns': ['OIL', 'WTI', 'BRENT', 'GAS', 'COPPER'],
         'examples': ['UKOUSD', 'COPPER-C']
+    },
+    'indices': {
+        'name': 'Stock Indices',
+        'patterns': ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US30', 'US500', 'GER40', 'UK100', 'EU50', 'SA40'],
+        'examples': ['US500', 'NAS100', 'GER40', 'DJ30ft', 'EU50']
     }
 }
 
