@@ -83,11 +83,51 @@ Import `kinetra_dashboard.json` for:
 
 ## Security
 
+### Credential Management
+
+**IMPORTANT**: Never commit credentials to version control.
+
+All API keys, tokens, and secrets must be stored in environment variables:
+
+```bash
+# .env file (NEVER commit this file)
+METAAPI_TOKEN=your_metaapi_token_here
+METAAPI_ACCOUNT_ID=your_account_id_here
+BROKER_API_KEY=your_broker_api_key
+BROKER_API_SECRET=your_broker_secret
+```
+
+The `.env.example` file provides a template:
+
+```bash
+# Copy and fill in your credentials
+cp .env.example .env
+# Edit .env with your actual credentials
+```
+
+**Best Practices**:
+1. Use `.env` files for local development (already in `.gitignore`)
+2. Use cloud secret managers for production (AWS Secrets Manager, GCP Secret Manager, Azure Key Vault)
+3. Use GitHub OIDC for CI/CD authentication (no long-lived API keys)
+4. Rotate credentials regularly
+5. Use read-only credentials where possible
+
 ### Environment Variables
 
+Required for MetaAPI integration:
+```bash
+METAAPI_TOKEN=<your_metaapi_token>
+METAAPI_ACCOUNT_ID=<your_account_id>
+```
+
+Required for broker integration:
 ```bash
 BROKER_API_KEY=<your_broker_api_key>
 BROKER_API_SECRET=<your_broker_secret>
+```
+
+Optional monitoring:
+```bash
 PROMETHEUS_PORT=9090
 GRAFANA_PORT=3000
 ```
