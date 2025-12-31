@@ -41,6 +41,25 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+# Spread-aware execution filter (import directly to avoid kinetra/__init__ dependencies)
+try:
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location(
+        'spread_gate',
+        Path(__file__).parent / 'kinetra' / 'spread_gate.py'
+    )
+    _spread_gate_module = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_spread_gate_module)
+    SpreadGate = _spread_gate_module.SpreadGate
+    SpreadProfile = _spread_gate_module.SpreadProfile
+    VANTAGE_PROFILES = _spread_gate_module.VANTAGE_PROFILES
+    SPREAD_GATE_AVAILABLE = True
+except Exception:
+    SPREAD_GATE_AVAILABLE = False
+    SpreadGate = None
+    SpreadProfile = None
+    VANTAGE_PROFILES = {}
+
 warnings.filterwarnings("ignore")
 
 # Add tests directory to path for test_physics_pipeline imports
@@ -448,6 +467,8 @@ class TradeState:
     mfe: float = 0.0           # Maximum Favorable Excursion
     bars_held: int = 0
     entry_features: Optional[np.ndarray] = None
+    entry_spread_ratio: float = 1.0   # Spread at entry / rolling min (high = bad MAE)
+    entry_volume_ratio: float = 1.0   # Volume at entry / rolling mean (low = bad liquidity)
 
 
 class TradingEnv:
@@ -459,6 +480,10 @@ class TradingEnv:
     Reward: Physics-shaped (not just PnL)
 
     No assumptions about what features matter - agent explores.
+
+    Spread-Aware Execution:
+    - Optionally integrates SpreadGate to block trades during high-spread regimes
+    - Reduces execution cost and improves reward<->PnL alignment
     """
 
     def __init__(
@@ -468,18 +493,30 @@ class TradingEnv:
         feature_extractor: Callable,
         reward_shaper: Optional["RewardShaper"] = None,
         max_position_bars: int = 72,  # Force close after N bars
+        spread_gate: Optional["SpreadGate"] = None,  # Spread-aware execution filter
+        symbol: Optional[str] = None,  # For auto-creating spread gate
     ):
         self.physics_state = physics_state
         self.prices = prices
         self.feature_extractor = feature_extractor
         self.reward_shaper = reward_shaper or RewardShaper()
         self.max_position_bars = max_position_bars
+        self.symbol = symbol
+
+        # Spread-aware execution
+        self.spread_gate = spread_gate
+        self.spread_col = None
+        self._init_spread_gate()
 
         # Environment state
         self.current_bar = 0
         self.trade_state = TradeState()
         self.episode_trades: List[Dict] = []
         self.episode_rewards: List[float] = []
+
+        # Spread gate statistics
+        self.trades_blocked_by_spread: int = 0
+        self.spread_block_ratio: float = 0.0
 
         # Action space
         self.n_actions = 4  # hold, long, short, close
@@ -488,12 +525,53 @@ class TradingEnv:
         # State dimensions
         self.state_dim = 64
 
+    def _init_spread_gate(self):
+        """Initialize spread gate and volume tracking if data available."""
+        # Find spread column
+        for col in ['spread', '<SPREAD>', 'SPREAD']:
+            if col in self.prices.columns:
+                self.spread_col = col
+                break
+
+        # Find volume column (for liquidity correlation learning)
+        self.volume_col = None
+        for col in ['tickvol', 'volume', '<TICKVOL>', 'TICKVOL', 'vol']:
+            if col in self.prices.columns:
+                self.volume_col = col
+                break
+
+        # Auto-create spread gate if not provided but spread data exists
+        if self.spread_gate is None and self.spread_col is not None and SPREAD_GATE_AVAILABLE:
+            self.spread_gate = SpreadGate(symbol=self.symbol)
+
+        # Pre-compute arrays for fast lookup
+        if self.spread_col is not None:
+            self._spread_array = self.prices[self.spread_col].values
+        else:
+            self._spread_array = None
+
+        if self.volume_col is not None:
+            self._volume_array = self.prices[self.volume_col].values
+            # Rolling mean volume for ratio calculation
+            self._volume_rolling_mean = pd.Series(self._volume_array).rolling(
+                window=100, min_periods=20
+            ).mean().values
+        else:
+            self._volume_array = None
+            self._volume_rolling_mean = None
+
     def reset(self, start_bar: int = 100) -> np.ndarray:
         """Reset environment to starting state."""
         self.current_bar = start_bar
         self.trade_state = TradeState()
         self.episode_trades = []
         self.episode_rewards = []
+
+        # Reset spread gate state
+        if self.spread_gate is not None:
+            self.spread_gate.reset()
+        self.trades_blocked_by_spread = 0
+
         return self._get_state()
 
     def _get_state(self) -> np.ndarray:
@@ -515,24 +593,56 @@ class TradingEnv:
             1: LONG - enter/maintain long
             2: SHORT - enter/maintain short
             3: CLOSE - close any position
+
+        Spread-Aware Execution:
+            If spread gate is active, trade entry (LONG/SHORT when flat) is blocked
+            when current spread exceeds threshold. Closing positions is always allowed.
         """
         info = {"action": self.action_names[action]}
         reward = 0.0
         trade_closed = False
+        spread_blocked = False
 
         current_price = self._get_price(self.current_bar)
 
-        # Update existing position (MAE/MFE tracking)
+        # Check spread gate for trade decisions
+        allow_entry = True
+        current_spread = None
+        spread_info = {}
+
+        if self.spread_gate is not None and self._spread_array is not None:
+            if self.current_bar < len(self._spread_array):
+                current_spread = float(self._spread_array[self.current_bar])
+                allow_entry, threshold, spread_info = self.spread_gate.update(current_spread)
+                info["spread"] = current_spread
+                info["spread_threshold"] = threshold
+                info["spread_regime"] = spread_info.get("spread_regime", "UNKNOWN")
+
+        # Calculate volume_ratio (current volume / rolling mean)
+        # Agent learns: low volume ↔ high spread ↔ low liquidity → bad execution
+        volume_ratio = 1.0
+        if self._volume_array is not None and self._volume_rolling_mean is not None:
+            if self.current_bar < len(self._volume_array):
+                current_vol = float(self._volume_array[self.current_bar])
+                rolling_mean = self._volume_rolling_mean[self.current_bar]
+                if rolling_mean > 0 and not np.isnan(rolling_mean):
+                    volume_ratio = current_vol / rolling_mean
+                info["volume"] = current_vol
+                info["volume_ratio"] = volume_ratio  # <1 = low liquidity
+
+        # Update existing position (MAE/MFE tracking in PERCENTAGE terms)
         if self.trade_state.position != 0:
             self.trade_state.bars_held += 1
+            entry_price = self.trade_state.entry_price
 
+            # Convert to percentage for cross-instrument consistency
             if self.trade_state.position == 1:  # Long
-                pnl = current_price - self.trade_state.entry_price
+                pnl_pct = ((current_price - entry_price) / entry_price) * 100
             else:  # Short
-                pnl = self.trade_state.entry_price - current_price
+                pnl_pct = ((entry_price - current_price) / entry_price) * 100
 
-            self.trade_state.mfe = max(self.trade_state.mfe, pnl)
-            self.trade_state.mae = min(self.trade_state.mae, pnl)
+            self.trade_state.mfe = max(self.trade_state.mfe, pnl_pct)
+            self.trade_state.mae = min(self.trade_state.mae, pnl_pct)
 
         # Force close if held too long (prevent infinite positions)
         force_close = (
@@ -541,6 +651,9 @@ class TradingEnv:
         )
 
         # Process action
+        # In exploration mode: SpreadGate allows all trades (allow_entry=True always)
+        # Agent learns: high spread_ratio → worse MAE → lower Omega → avoid
+        # In live mode: SpreadGate hard-blocks based on percentile threshold
         if action == 0:  # HOLD
             pass
 
@@ -548,17 +661,37 @@ class TradingEnv:
             if self.trade_state.position == -1:  # Close short first
                 reward, trade_closed = self._close_position(current_price)
             if self.trade_state.position == 0:  # Open long
-                self._open_position(1, current_price)
+                if allow_entry:
+                    self._open_position(1, current_price)
+                    # Track entry conditions for correlation analysis
+                    if spread_info.get("spread_ratio"):
+                        self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
+                    self.trade_state.entry_volume_ratio = volume_ratio
+                else:
+                    spread_blocked = True
+                    self.trades_blocked_by_spread += 1
 
         elif action == 2:  # SHORT
             if self.trade_state.position == 1:  # Close long first
                 reward, trade_closed = self._close_position(current_price)
             if self.trade_state.position == 0:  # Open short
-                self._open_position(-1, current_price)
+                if allow_entry:
+                    self._open_position(-1, current_price)
+                    if spread_info.get("spread_ratio"):
+                        self.trade_state.entry_spread_ratio = spread_info["spread_ratio"]
+                    self.trade_state.entry_volume_ratio = volume_ratio
+                else:
+                    spread_blocked = True
+                    self.trades_blocked_by_spread += 1
 
         elif action == 3 or force_close:  # CLOSE
             if self.trade_state.position != 0:
                 reward, trade_closed = self._close_position(current_price)
+
+        info["spread_blocked"] = spread_blocked
+        # Provide spread_ratio for agent observation (key learning signal)
+        info["spread_ratio"] = spread_info.get("spread_ratio", 1.0)
+        info["spread_percentile"] = spread_info.get("percentile_rank", 50.0)
 
         # Advance time
         self.current_bar += 1
@@ -590,11 +723,16 @@ class TradingEnv:
         if self.trade_state.position == 0:
             return 0.0, False
 
-        # Calculate raw PnL
+        # Calculate raw PnL as PERCENTAGE (not absolute) for cross-instrument normalization
+        # This fixes the currency mismatch issue (BTCJPY in JPY vs BTCUSD in USD)
+        entry_price = self.trade_state.entry_price
         if self.trade_state.position == 1:  # Long
-            raw_pnl = price - self.trade_state.entry_price
+            raw_pnl_pct = ((price - entry_price) / entry_price) * 100
         else:  # Short
-            raw_pnl = self.trade_state.entry_price - price
+            raw_pnl_pct = ((entry_price - price) / entry_price) * 100
+
+        # Keep absolute PnL for tracking but use percentage for reward
+        raw_pnl = raw_pnl_pct  # Now in percentage terms
 
         # Shape reward using physics measures
         reward = self.reward_shaper.shape_reward(
@@ -608,7 +746,8 @@ class TradingEnv:
             bar_index=self.current_bar,
         )
 
-        # Record trade
+        # Record trade with market condition info for correlation analysis
+        # Agent learns: high spread_ratio + low volume_ratio → bad execution
         self.episode_trades.append({
             "entry_bar": self.trade_state.entry_bar,
             "exit_bar": self.current_bar,
@@ -618,6 +757,8 @@ class TradingEnv:
             "mae": self.trade_state.mae,
             "mfe": self.trade_state.mfe,
             "bars_held": self.trade_state.bars_held,
+            "entry_spread_ratio": self.trade_state.entry_spread_ratio,   # high → bad MAE
+            "entry_volume_ratio": self.trade_state.entry_volume_ratio,   # low → bad liquidity
         })
 
         # Reset position
@@ -626,13 +767,45 @@ class TradingEnv:
         return reward, True
 
     def get_episode_stats(self) -> Dict[str, float]:
-        """Get episode statistics."""
+        """Get episode statistics including market condition correlations."""
         if not self.episode_trades:
-            return {"trades": 0, "total_reward": 0, "avg_reward": 0}
+            return {"trades": 0, "total_reward": 0, "avg_reward": 0, "spread_blocked": 0}
 
         total_pnl = sum(t["raw_pnl"] for t in self.episode_trades)
         total_reward = sum(t["shaped_reward"] for t in self.episode_trades)
         wins = sum(1 for t in self.episode_trades if t["raw_pnl"] > 0)
+
+        # Spread gate stats
+        spread_stats = {}
+        if self.spread_gate is not None:
+            gate_stats = self.spread_gate.get_stats()
+            spread_stats = {
+                "spread_blocked": self.trades_blocked_by_spread,
+                "spread_block_rate": gate_stats.get("block_rate", 0),
+                "avg_spread": gate_stats.get("avg_spread", 0),
+            }
+
+        # Market condition correlations (agent learns these relationships)
+        spread_mae_corr = 0.0
+        volume_mae_corr = 0.0
+        avg_entry_spread_ratio = 1.0
+        avg_entry_volume_ratio = 1.0
+
+        if len(self.episode_trades) >= 3:
+            spread_ratios = [t.get("entry_spread_ratio", 1.0) for t in self.episode_trades]
+            volume_ratios = [t.get("entry_volume_ratio", 1.0) for t in self.episode_trades]
+            maes = [abs(t["mae"]) for t in self.episode_trades]
+
+            avg_entry_spread_ratio = np.mean(spread_ratios)
+            avg_entry_volume_ratio = np.mean(volume_ratios)
+
+            # Spread↔MAE: should be positive (high spread → worse MAE)
+            if np.std(spread_ratios) > 0 and np.std(maes) > 0:
+                spread_mae_corr = np.corrcoef(spread_ratios, maes)[0, 1]
+
+            # Volume↔MAE: should be negative (low volume → worse MAE)
+            if np.std(volume_ratios) > 0 and np.std(maes) > 0:
+                volume_mae_corr = np.corrcoef(volume_ratios, maes)[0, 1]
 
         return {
             "trades": len(self.episode_trades),
@@ -642,6 +815,11 @@ class TradingEnv:
             "win_rate": wins / len(self.episode_trades),
             "avg_mae": np.mean([t["mae"] for t in self.episode_trades]),
             "avg_mfe": np.mean([t["mfe"] for t in self.episode_trades]),
+            "avg_entry_spread_ratio": avg_entry_spread_ratio,
+            "avg_entry_volume_ratio": avg_entry_volume_ratio,
+            "spread_mae_corr": spread_mae_corr,   # + = high spread → bad MAE (expected)
+            "volume_mae_corr": volume_mae_corr,   # - = low volume → bad MAE (expected)
+            **spread_stats,
         }
 
 
@@ -651,13 +829,23 @@ class TradingEnv:
 
 class RewardShaper:
     """
-    Physics-based reward shaping.
+    Physics-based reward shaping with RISK-ADJUSTED returns.
 
     First-principles: Don't just reward PnL - reward GOOD trading:
     - Edge ratio (MFE/Hypotenuse): Reward efficient paths
     - Entropy alignment: Higher reward when trading with entropy flow
     - Regime awareness: Bonus for trading in favorable regimes
     - Risk-adjusted: Penalize excessive drawdown (MAE)
+
+    IMPORTANT: raw_pnl is now in PERCENTAGE terms (not absolute) for cross-instrument normalization.
+    This fixes the currency mismatch issue (BTCJPY in JPY vs BTCUSD in USD).
+
+    CLASS-SPECIFIC PROFILES:
+    - Forex: Balanced, mean-reversion friendly
+    - Index: High regime penalty (avoid non-trading hours)
+    - Crypto: High MAE penalty (control tail risk)
+    - Metals: Trend bonus (reward holding winners)
+    - Energy: Inventory-aware signals
 
     The agent should discover that physics-aligned trades work better.
     """
@@ -669,12 +857,58 @@ class RewardShaper:
         mae_penalty_weight: float = 0.3,
         regime_bonus_weight: float = 0.2,
         entropy_alignment_weight: float = 0.1,
+        risk_adjustment: bool = True,  # NEW: Enable risk-adjusted rewards
+        trend_bonus_weight: float = 0.0,  # For trending assets (metals, crypto)
+        holding_bonus_weight: float = 0.0,  # Reward holding winners
     ):
         self.pnl_weight = pnl_weight
         self.edge_ratio_weight = edge_ratio_weight
         self.mae_penalty_weight = mae_penalty_weight
         self.regime_bonus_weight = regime_bonus_weight
         self.entropy_alignment_weight = entropy_alignment_weight
+        self.risk_adjustment = risk_adjustment
+        self.trend_bonus_weight = trend_bonus_weight
+        self.holding_bonus_weight = holding_bonus_weight
+
+    @classmethod
+    def from_asset_class(cls, asset_class_name: str) -> 'RewardShaper':
+        """
+        Factory method: Create RewardShaper with class-specific profiles.
+
+        Asset classes have fundamentally different market dynamics:
+        - Forex: Mean-reverting, penalize whipsaw
+        - Index: Avoid non-trading hours, high regime penalty
+        - Crypto: Control tail risk, reward trends
+        - Metals: Trend-following, reward holding through pullbacks
+        - Energy: Inventory-aware, moderate trend following
+        """
+        # Class-specific profiles
+        profiles = {
+            'Forex': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.3, mae_penalty_weight=2.5,
+                regime_bonus_weight=0.2, trend_bonus_weight=0.0, holding_bonus_weight=0.0
+            ),
+            'EquityIndex': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.4, mae_penalty_weight=3.0,
+                regime_bonus_weight=0.5,  # High - avoid non-trading hours
+                trend_bonus_weight=0.0, holding_bonus_weight=0.0
+            ),
+            'Crypto': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.2, mae_penalty_weight=4.0,  # Very high
+                regime_bonus_weight=0.3, trend_bonus_weight=0.2, holding_bonus_weight=0.1
+            ),
+            'PreciousMetals': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.2, mae_penalty_weight=2.0,
+                regime_bonus_weight=0.2, trend_bonus_weight=0.4,  # High - reward trends
+                holding_bonus_weight=0.3  # Reward holding through pullbacks
+            ),
+            'EnergyCommodities': cls(
+                pnl_weight=1.0, edge_ratio_weight=0.3, mae_penalty_weight=2.5,
+                regime_bonus_weight=0.3, trend_bonus_weight=0.2, holding_bonus_weight=0.1
+            ),
+        }
+
+        return profiles.get(asset_class_name, cls())
 
     def shape_reward(
         self,
@@ -688,27 +922,37 @@ class RewardShaper:
         bar_index: int,
     ) -> float:
         """
-        Compute physics-shaped reward.
+        Compute physics-shaped reward with RISK ADJUSTMENT.
 
         Components:
-        1. Raw PnL (normalized)
+        1. Raw PnL (normalized) - NOW IN PERCENTAGE TERMS
         2. Edge ratio bonus (efficient path)
         3. MAE penalty (excessive drawdown)
         4. Regime bonus (favorable conditions)
         5. Entropy alignment (trade with disorder flow)
+        6. Risk adjustment: reward = pnl / (1 + |max_drawdown|)
         """
-        # Normalize PnL by typical move (avoid scale issues)
-        pnl_normalized = raw_pnl / (abs(raw_pnl) + 100)  # Sigmoid-like normalization
+        # raw_pnl is now in PERCENTAGE terms (e.g., 0.5 = 0.5% return)
+        # Normalize using sigmoid-like function centered on typical percentage moves
+        # A 1% move is significant, 5% is very significant
+        pnl_normalized = raw_pnl / (abs(raw_pnl) + 1.0)  # Adjusted for percentage scale
 
-        # Edge ratio: MFE / sqrt(MAE² + MFE²)
-        mae_abs = abs(mae)
-        mfe_abs = abs(mfe)
+        # Risk-adjusted PnL: penalize profits that came with excessive drawdown
+        # Formula: reward = pnl / (1 + |max_drawdown|)
+        if self.risk_adjustment and mae < 0:
+            drawdown_penalty = 1.0 + abs(mae) / 2.0  # mae is in % terms
+            pnl_normalized = pnl_normalized / drawdown_penalty
+
+        # Edge ratio: MFE / sqrt(MAE² + MFE²) - now in percentage terms
+        mae_abs = abs(mae)  # Now in percentage
+        mfe_abs = abs(mfe)  # Now in percentage
         hypotenuse = np.sqrt(mae_abs**2 + mfe_abs**2 + 1e-8)
         edge_ratio = mfe_abs / hypotenuse if hypotenuse > 0 else 0.5
         edge_bonus = (edge_ratio - 0.5) * 2  # Center at 0, range [-1, 1]
 
         # MAE penalty (excessive drawdown is bad even if profitable)
-        mae_penalty = -min(0, mae) / (abs(mae) + 100)  # Normalized penalty
+        # mae is now in percentage terms, so adjust threshold
+        mae_penalty = -min(0, mae) / (abs(mae) + 1.0)  # Adjusted for % scale
 
         # Regime bonus
         regime_bonus = 0.0
@@ -735,13 +979,35 @@ class RewardShaper:
             elif raw_pnl < 0 and entropy_change < 0:
                 entropy_bonus = 0.05
 
+        # Trend bonus: reward trades that go with the trend (for metals, crypto)
+        # Positive raw_pnl with consistent direction = trending trade
+        trend_bonus = 0.0
+        if self.trend_bonus_weight > 0 and raw_pnl > 0:
+            # MFE >> MAE indicates trend-following success
+            if mfe_abs > mae_abs * 2:
+                trend_bonus = 0.3  # Strong trend capture
+            elif mfe_abs > mae_abs:
+                trend_bonus = 0.1  # Moderate trend
+
+        # Holding bonus: reward holding winners longer (for trending assets)
+        # Prevents premature exits on metals/crypto trends
+        holding_bonus = 0.0
+        if self.holding_bonus_weight > 0 and raw_pnl > 0:
+            # Longer holds with positive outcome = patience rewarded
+            if bars_held >= 10:
+                holding_bonus = 0.3  # Held through pullback
+            elif bars_held >= 5:
+                holding_bonus = 0.15
+
         # Combine components
         shaped_reward = (
             self.pnl_weight * pnl_normalized +
             self.edge_ratio_weight * edge_bonus +
             self.mae_penalty_weight * mae_penalty +
             self.regime_bonus_weight * regime_bonus +
-            self.entropy_alignment_weight * entropy_bonus
+            self.entropy_alignment_weight * entropy_bonus +
+            self.trend_bonus_weight * trend_bonus +
+            self.holding_bonus_weight * holding_bonus
         )
 
         return shaped_reward
@@ -2203,7 +2469,7 @@ class MultiInstrumentEnv:
         self.max_position_bars = max_position_bars
         self.sampling_mode = sampling_mode
 
-        # Create per-instrument environments
+        # Create per-instrument environments with spread gate
         self.envs: Dict[str, TradingEnv] = {}
         for key, data in loader.instruments.items():
             self.envs[key] = TradingEnv(
@@ -2212,6 +2478,7 @@ class MultiInstrumentEnv:
                 feature_extractor=feature_extractor,
                 reward_shaper=reward_shaper,
                 max_position_bars=max_position_bars,
+                symbol=data.instrument,  # Pass symbol for SpreadGate auto-creation
             )
 
         # Sampling state

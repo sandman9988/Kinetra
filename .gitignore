@@ -51,7 +51,7 @@ results/
 *.h5
 *.onnx
 models/
-checkpoints/
+checkpoints*/
 logs/
 *.log
 
@@ -72,6 +72,9 @@ performance_metrics/
 mlruns/
 wandb/
 .neptune/
+<<<<<<< HEAD
+data/master_standardized/
+=======
 
 # Binary/installer files
 *.deb
@@ -90,3 +93,4 @@ wandb/
 # Large data directories
 data/master/*.csv
 rl_exploration_framework/data/*.csv
+>>>>>>> origin/main
