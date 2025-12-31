@@ -1513,6 +1513,93 @@ class InstrumentData:
         return f"{self.instrument}_{self.timeframe}"
 
 
+def _load_single_worker(
+    instrument: str,
+    timeframe: str,
+    filepath: str,
+    min_bars: int,
+    compute_physics: bool,
+    validate_data: bool,
+    cache_physics: bool,
+    cache_dir: str
+) -> Dict:
+    """
+    Worker function for parallel data loading.
+    Must be module-level for multiprocessing pickle compatibility.
+    """
+    import hashlib
+    import pickle
+    from pathlib import Path
+
+    try:
+        # Check physics cache first
+        physics_state = None
+        if cache_physics and compute_physics:
+            # Generate cache key from file content hash
+            cache_key = hashlib.md5(f"{filepath}_{instrument}_{timeframe}".encode()).hexdigest()
+            cache_file = Path(cache_dir) / f"{cache_key}.pkl"
+
+            if cache_file.exists():
+                try:
+                    with open(cache_file, 'rb') as f:
+                        cached_data = pickle.load(f)
+                        physics_state = cached_data['physics_state']
+                except Exception:
+                    pass  # Cache corrupted, recompute
+
+        # Load via UnifiedDataLoader
+        from kinetra.data_loader import UnifiedDataLoader
+
+        loader = UnifiedDataLoader(
+            validate=validate_data,
+            compute_physics=compute_physics and (physics_state is None),  # Skip if cached
+            verbose=False
+        )
+
+        data_package = loader.load(filepath)
+        df = data_package.to_backtest_engine_format()
+
+        # Use cached physics or newly computed
+        if physics_state is None:
+            physics_state = data_package.physics_state
+
+        # Cache physics state for future runs
+        if cache_physics and physics_state is not None:
+            cache_key = hashlib.md5(f"{filepath}_{instrument}_{timeframe}".encode()).hexdigest()
+            cache_file = Path(cache_dir) / f"{cache_key}.pkl"
+            try:
+                with open(cache_file, 'wb') as f:
+                    pickle.dump({'physics_state': physics_state}, f)
+            except Exception:
+                pass  # Cache write failed, not critical
+
+        # Create InstrumentData
+        data = InstrumentData(
+            instrument=instrument,
+            timeframe=timeframe,
+            df=df,
+            physics_state=physics_state,
+            file_path=filepath,
+            bar_count=len(df),
+            market_type=data_package.market_type.value if hasattr(data_package.market_type, 'value') else str(data_package.market_type),
+            symbol_spec=data_package.symbol_spec,
+            data_package=data_package,
+        )
+
+        return {
+            'success': True,
+            'data': data
+        }
+
+    except Exception as e:
+        import traceback
+        return {
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+
+
 class MultiInstrumentLoader:
     """
     Auto-discovers and loads all instruments and timeframes from data directory.
@@ -1538,20 +1625,34 @@ class MultiInstrumentLoader:
         verbose: bool = True,
         compute_physics: bool = True,
         validate_data: bool = True,
+        n_workers: int = None,
+        cache_physics: bool = True,
     ):
         self.data_dir = Path(data_dir)
         self.min_bars = min_bars
         self.verbose = verbose
         self.compute_physics = compute_physics
         self.validate_data = validate_data
+        self.cache_physics = cache_physics
         self.instruments: Dict[str, InstrumentData] = {}
+
+        # Auto-detect workers (use all cores - 2 for system)
+        import multiprocessing as mp
+        if n_workers is None:
+            n_workers = max(1, mp.cpu_count() - 2)
+        self.n_workers = n_workers
+
+        # Physics cache directory
+        self.cache_dir = Path(data_dir).parent / "physics_cache"
+        if cache_physics:
+            self.cache_dir.mkdir(exist_ok=True)
 
         # Initialize UnifiedDataLoader (auto-loads instrument_specs.json)
         from kinetra.data_loader import UnifiedDataLoader
         self.data_loader = UnifiedDataLoader(
             validate=validate_data,
             compute_physics=compute_physics,
-            verbose=verbose
+            verbose=False  # Disable verbose for parallel loading
         )
 
     def _log(self, msg: str):
@@ -1584,17 +1685,27 @@ class MultiInstrumentLoader:
 
     def load_all(self) -> Dict[str, InstrumentData]:
         """
-        Load all discovered instruments using UnifiedDataLoader.
+        Load all discovered instruments in parallel using UnifiedDataLoader.
 
         Uses DataPackage pipeline:
         - Auto-loads real MT5 specs from instrument_specs.json
         - Market-type-specific preprocessing (forex vs crypto vs metals etc.)
-        - Optional physics state computation
+        - Optional physics state computation (cached to disk)
         - Data quality validation
+        - Parallel processing across n_workers
         """
         discovered = self.discover()
 
-        self._log(f"\n[LOADING] {len(discovered)} datasets using DataPackage pipeline...")
+        if self.n_workers == 1:
+            # Sequential loading
+            return self._load_all_sequential(discovered)
+        else:
+            # Parallel loading
+            return self._load_all_parallel(discovered)
+
+    def _load_all_sequential(self, discovered: List[Tuple[str, str, str]]) -> Dict[str, InstrumentData]:
+        """Sequential loading (legacy mode)."""
+        self._log(f"\n[LOADING] {len(discovered)} datasets sequentially...")
 
         for instrument, timeframe, filepath in discovered:
             try:
@@ -1611,6 +1722,72 @@ class MultiInstrumentLoader:
                     traceback.print_exc()
 
         self._log(f"\n[LOADED] {len(self.instruments)} datasets ready")
+        return self.instruments
+
+    def _load_all_parallel(self, discovered: List[Tuple[str, str, str]]) -> Dict[str, InstrumentData]:
+        """Parallel loading using ProcessPoolExecutor."""
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        import time
+
+        start_time = time.time()
+
+        self._log(f"\n[LOADING] {len(discovered)} datasets in parallel...")
+        self._log(f"  Workers: {self.n_workers}")
+        self._log(f"  Physics computation: {'enabled (with caching)' if self.compute_physics else 'disabled'}")
+
+        loaded_count = 0
+        skipped_count = 0
+        error_count = 0
+
+        # Submit all tasks
+        with ProcessPoolExecutor(max_workers=self.n_workers) as executor:
+            # Submit work items
+            future_to_info = {
+                executor.submit(
+                    _load_single_worker,
+                    instrument,
+                    timeframe,
+                    filepath,
+                    self.min_bars,
+                    self.compute_physics,
+                    self.validate_data,
+                    self.cache_physics,
+                    str(self.cache_dir)
+                ): (instrument, timeframe)
+                for instrument, timeframe, filepath in discovered
+            }
+
+            # Collect results
+            for future in as_completed(future_to_info):
+                instrument, timeframe = future_to_info[future]
+                try:
+                    result = future.result()
+                    if result['success']:
+                        data = result['data']
+                        if data.bar_count >= self.min_bars:
+                            self.instruments[data.key] = data
+                            loaded_count += 1
+                            if self.verbose and loaded_count % 10 == 0:
+                                print(f"  Progress: {loaded_count + skipped_count + error_count}/{len(discovered)}", end='\r')
+                        else:
+                            skipped_count += 1
+                    else:
+                        error_count += 1
+                        if self.verbose:
+                            print(f"  [ERROR] {instrument}_{timeframe}: {result.get('error', 'Unknown error')}")
+                except Exception as e:
+                    error_count += 1
+                    if self.verbose:
+                        print(f"  [ERROR] {instrument}_{timeframe}: {e}")
+
+        elapsed = time.time() - start_time
+
+        self._log(f"\n[LOADED] {loaded_count} datasets in {elapsed:.1f}s ({loaded_count/elapsed:.1f} datasets/sec)")
+        if skipped_count > 0:
+            self._log(f"  Skipped: {skipped_count} (< {self.min_bars} bars)")
+        if error_count > 0:
+            self._log(f"  Errors: {error_count}")
+
         return self.instruments
 
     def _load_single(
