@@ -307,11 +307,13 @@ def main():
 
     print(f"\n📥 Loading training data from {train_dir}...")
 
-    loader = MultiInstrumentLoader(data_dir=str(train_dir), verbose=False)
+    loader = MultiInstrumentLoader(data_dir=str(train_dir), verbose=True)
     loader.load_all()
 
     if not loader.instruments:
         print("\n❌ No instruments loaded")
+        print(f"   Check that {train_dir} contains files matching pattern:")
+        print(f"   SYMBOL_TIMEFRAME_STARTDATE_ENDDATE.csv")
         return
 
     print(f"✅ Loaded {len(loader.instruments)} instruments")
