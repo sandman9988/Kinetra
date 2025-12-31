@@ -2175,7 +2175,7 @@ def run_multi_instrument_exploration(
 
             # Run 10 test episodes (no learning, just evaluation)
             for _ in range(10):
-                state, info = test_env.reset()
+                state = test_env.reset()
                 episode_reward = 0
                 episode_trades = 0
                 episode_pnl = 0
@@ -2183,7 +2183,7 @@ def run_multi_instrument_exploration(
                 for step in range(test_env.max_steps):
                     # Greedy action (no exploration)
                     action = agent.select_action(state, epsilon=0.0)
-                    next_state, reward, done, _, step_info = test_env.step(action)
+                    next_state, reward, done, step_info = test_env.step(action)
 
                     episode_reward += reward
                     if step_info.get("trade_executed"):
