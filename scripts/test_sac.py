@@ -45,11 +45,25 @@ def load_first_dataset():
     csv_file = sorted(csv_files, key=lambda x: x.stat().st_size)[len(csv_files)//2]
     print(f"[LOAD] {csv_file.name}")
 
+    # Try standard CSV first, then tab-separated with bracketed columns
     df = pd.read_csv(csv_file)
+
+    # Handle MT5-style CSVs with bracketed column names like <CLOSE>
+    if '<CLOSE>' in df.columns or '<close>' in df.columns:
+        df = pd.read_csv(csv_file, sep='\t')
+        df.columns = [c.strip('<>').lower() for c in df.columns]
+    elif df.columns[0].startswith('<'):
+        df = pd.read_csv(csv_file, sep='\t')
+        df.columns = [c.strip('<>').lower() for c in df.columns]
+
+    # Normalize column names to lowercase
+    df.columns = [c.lower() for c in df.columns]
+
     if 'time' in df.columns:
-        df['time'] = pd.to_datetime(df['time'])
+        df['time'] = pd.to_datetime(df['time'], errors='coerce')
 
     print(f"  Bars: {len(df):,}")
+    print(f"  Columns: {list(df.columns)[:6]}...")
     return df
 
 def compute_physics_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -57,9 +71,15 @@ def compute_physics_features(df: pd.DataFrame) -> pd.DataFrame:
     physics = pd.DataFrame(index=df.index)
 
     close = df['close'].values
-    high = df['high'].values if 'high' in df else close
-    low = df['low'].values if 'low' in df else close
-    volume = df['volume'].values if 'volume' in df else np.ones(len(close))
+    high = df['high'].values if 'high' in df.columns else close
+    low = df['low'].values if 'low' in df.columns else close
+    # Handle tickvol (MT5 format) as fallback for volume
+    if 'volume' in df.columns:
+        volume = df['volume'].values
+    elif 'tickvol' in df.columns:
+        volume = df['tickvol'].values
+    else:
+        volume = np.ones(len(close))
 
     # Returns
     returns = np.diff(close, prepend=close[0]) / (close + 1e-10)
