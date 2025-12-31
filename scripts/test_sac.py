@@ -31,7 +31,7 @@ from rl_exploration_framework import (
 import os
 DATA_DIR = Path(os.environ.get(
     "KINETRA_DATA_DIR",
-    Path(__file__).parent.parent / "data" / "runs" / "berserker_run3" / "data"
+    str(Path(__file__).parent.parent / "data" / "runs" / "berserker_run3" / "data")
 ))
 
 def load_first_dataset():
