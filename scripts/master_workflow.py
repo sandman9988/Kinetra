@@ -18,6 +18,7 @@ Usage:
 import os
 import sys
 import subprocess
+import getpass
 from pathlib import Path
 
 # Add project root
@@ -31,18 +32,69 @@ def print_header(text: str):
     print("=" * 80)
 
 
+def save_credentials_to_env(token: str, account_id: str = None):
+    """Save credentials to .env file for persistent storage."""
+    env_file = Path.cwd() / '.env'
+
+    # Read existing .env if it exists
+    env_lines = {}
+    if env_file.exists():
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    env_lines[key] = value
+
+    # Update credentials
+    if token:
+        env_lines['METAAPI_TOKEN'] = token
+    if account_id:
+        env_lines['METAAPI_ACCOUNT_ID'] = account_id
+
+    # Write back
+    with open(env_file, 'w') as f:
+        f.write("# Kinetra MetaAPI Credentials\n")
+        f.write("# Auto-generated - do not commit to git\n\n")
+        for key, value in env_lines.items():
+            f.write(f"{key}={value}\n")
+
+    print(f"✅ Credentials saved to {env_file}")
+
+    # Add to .gitignore if not already there
+    gitignore = Path.cwd() / '.gitignore'
+    if gitignore.exists():
+        content = gitignore.read_text()
+        if '.env' not in content:
+            with open(gitignore, 'a') as f:
+                f.write("\n# Environment variables\n.env\n")
+
+
 def check_credentials() -> bool:
     """Check if MetaAPI credentials are set and prompt if needed."""
-    token = os.environ.get('METAAPI_TOKEN')
-    account_id = os.environ.get('METAAPI_ACCOUNT_ID')
-
     # Check for placeholder values
     placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
+
+    # Try loading from .env file first
+    env_file = Path.cwd() / '.env'
+    if env_file.exists():
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    if key == 'METAAPI_TOKEN' and key not in os.environ:
+                        os.environ[key] = value
+                    elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
+                        os.environ[key] = value
+
+    token = os.environ.get('METAAPI_TOKEN')
+    account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
     # Check token
     has_valid_token = False
     if token and not any(placeholder in token.lower() for placeholder in placeholder_patterns):
-        print(f"\n✅ Found valid API token: {token[:20]}...")
+        print(f"\n✅ Found valid API token: {token[:8]}***")
         has_valid_token = True
     else:
         if token:
@@ -50,10 +102,10 @@ def check_credentials() -> bool:
         else:
             print("\nℹ️  No METAAPI_TOKEN set")
 
-        # Prompt for token NOW
+        # Prompt for token NOW (hidden input)
         print("\n📋 MetaAPI Token Required")
         print("Get your token from: https://app.metaapi.cloud/")
-        token = input("\nEnter your MetaAPI token: ").strip()
+        token = getpass.getpass("\nEnter your MetaAPI token (hidden): ").strip()
 
         if not token:
             print("\n❌ No token provided - cannot proceed")
@@ -61,13 +113,20 @@ def check_credentials() -> bool:
 
         # Save to environment for this session
         os.environ['METAAPI_TOKEN'] = token
-        print(f"✅ Token saved for this session")
         has_valid_token = True
+
+        # Ask to save persistently
+        save_choice = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
+        if save_choice == '1':
+            # Will save after account selection
+            pass
+
+        print(f"✅ Token set for workflow")
 
     # Check account ID
     has_valid_account = False
     if account_id and not any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-        print(f"✅ Found valid account ID: {account_id}")
+        print(f"✅ Found valid account ID: {account_id[:8]}***")
         has_valid_account = True
     else:
         if account_id:

@@ -16,6 +16,7 @@ Usage:
 import os
 import sys
 import asyncio
+import getpass
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Tuple
@@ -424,6 +425,19 @@ async def main():
         print("\n⚠️  Skipping fixes")
         return
 
+    # Try loading from .env file first
+    env_file = Path.cwd() / '.env'
+    if env_file.exists():
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    if key == 'METAAPI_TOKEN' and key not in os.environ:
+                        os.environ[key] = value
+                    elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
+                        os.environ[key] = value
+
     # Get credentials
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
@@ -439,8 +453,8 @@ async def main():
     # Prompt for token if not set
     if not token:
         print("\n📋 MetaAPI Token Required")
-        print("\nGet your token from: https://app.metaapi.cloud/")
-        token = input("\nEnter your MetaAPI token: ").strip()
+        print("Get your token from: https://app.metaapi.cloud/")
+        token = getpass.getpass("\nEnter your MetaAPI token (hidden): ").strip()
 
         if not token:
             print("\n❌ No token provided")
@@ -454,7 +468,7 @@ async def main():
     # Prompt for account ID if not set
     if not account_id:
         print("\n📋 MetaAPI Account ID Required")
-        print("\nGet this from: https://app.metaapi.cloud/")
+        print("Get this from: https://app.metaapi.cloud/")
         print("(UUID format: e8f8c21a-32b5-40b0-9bf7-672e8ffab91f)")
         account_id = input("\nEnter your MetaAPI account ID: ").strip()
 

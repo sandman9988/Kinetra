@@ -17,6 +17,7 @@ import os
 import sys
 import asyncio
 import json
+import getpass
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
@@ -98,6 +99,44 @@ def print_step(step_num: int, text: str):
     print("-" * 80)
 
 
+def save_credentials_to_env(token: str, account_id: str = None):
+    """Save credentials to .env file for persistent storage."""
+    env_file = Path.cwd() / '.env'
+
+    # Read existing .env if it exists
+    env_lines = {}
+    if env_file.exists():
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    env_lines[key] = value
+
+    # Update credentials
+    if token:
+        env_lines['METAAPI_TOKEN'] = token
+    if account_id:
+        env_lines['METAAPI_ACCOUNT_ID'] = account_id
+
+    # Write back
+    with open(env_file, 'w') as f:
+        f.write("# Kinetra MetaAPI Credentials\n")
+        f.write("# Auto-generated - do not commit to git\n\n")
+        for key, value in env_lines.items():
+            f.write(f"{key}={value}\n")
+
+    print(f"\n✅ Credentials saved to {env_file}")
+
+    # Add to .gitignore if not already there
+    gitignore = Path.cwd() / '.gitignore'
+    if gitignore.exists():
+        content = gitignore.read_text()
+        if '.env' not in content:
+            with open(gitignore, 'a') as f:
+                f.write("\n# Environment variables\n.env\n")
+
+
 class InteractiveDownloader:
     """Interactive downloader with step-by-step workflow."""
 
@@ -112,34 +151,48 @@ class InteractiveDownloader:
         """Step 1: Select MetaAPI account."""
         print_step(1, "Select MetaAPI Account")
 
-        # Check for token in environment first
+        # Try loading from .env file first
+        env_file = Path.cwd() / '.env'
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        if key == 'METAAPI_TOKEN' and key not in os.environ:
+                            os.environ[key] = value
+                        elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
+                            os.environ[key] = value
+
+        # Check for token in environment
         self.token = os.environ.get('METAAPI_TOKEN')
 
         # Check for placeholder values
         placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
 
+        should_save = False  # Track if we should save credentials
+
         if self.token and any(placeholder in self.token.lower() for placeholder in placeholder_patterns):
             print(f"\n⚠️  Found placeholder token in environment (ignoring it)")
-            self.token = None  # Ignore placeholder, will prompt below
+            self.token = None
 
         if not self.token:
             print("\n📋 MetaAPI Token Required")
-            print("\nGet your token from: https://app.metaapi.cloud/")
+            print("Get your token from: https://app.metaapi.cloud/")
             print("(Sign up if you don't have an account)")
 
-            self.token = input("\nEnter your MetaAPI token: ").strip()
+            # Use getpass for hidden input
+            self.token = getpass.getpass("\nEnter your MetaAPI token (hidden): ").strip()
 
             if not self.token:
                 print("\n❌ No token provided")
                 return False
 
             # Ask if they want to save it
-            save = input("\nSave token to environment for next time? [1=Yes, 2=No]: ").strip()
-            if save == '1':
-                print("\nTo save permanently, add to your ~/.bashrc or ~/.zshrc:")
-                print(f'export METAAPI_TOKEN="{self.token}"')
+            save = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
+            should_save = (save == '1')
 
-        print(f"\n✅ Using API token: {self.token[:20]}...")
+        print(f"\n✅ Using API token: {self.token[:8]}***")
 
         # Check for account ID in environment
         env_account_id = os.environ.get('METAAPI_ACCOUNT_ID')
@@ -147,12 +200,10 @@ class InteractiveDownloader:
         if env_account_id:
             # Check if it's a placeholder
             if any(placeholder in env_account_id.lower() for placeholder in placeholder_patterns):
-                print(f"\n⚠️  Found placeholder account ID in environment: {env_account_id}")
-                print("   This is NOT a real account ID!")
-                print("\nWill list your accounts instead...")
-                env_account_id = None  # Force account selection
+                print(f"\n⚠️  Found placeholder account ID (ignoring it)")
+                env_account_id = None
             else:
-                print(f"\n✅ Found account ID in environment: {env_account_id}")
+                print(f"\n✅ Found account ID: {env_account_id[:8]}***")
                 response = input(f"\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
 
                 if response == '1':
@@ -179,6 +230,13 @@ class InteractiveDownloader:
                 if 0 <= idx < len(accounts):
                     self.account_id = accounts[idx].id
                     print(f"\n✅ Selected: {accounts[idx].name}")
+
+                    # Save credentials if requested
+                    if should_save:
+                        save_credentials_to_env(self.token, self.account_id)
+                        os.environ['METAAPI_TOKEN'] = self.token
+                        os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
+
                     return True
                 else:
                     print(f"\n❌ Invalid choice")
