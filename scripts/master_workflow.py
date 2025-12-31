@@ -149,7 +149,13 @@ def run_step(step_name: str, script_path: str, required: bool = True, allow_exit
         return False
 
     try:
-        result = subprocess.run([sys.executable, script_path])
+        # Pass through stdin/stdout/stderr so interactive scripts work
+        result = subprocess.run(
+            [sys.executable, script_path],
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr
+        )
 
         if result.returncode != 0:
             if required:
@@ -274,7 +280,12 @@ Which steps do you want to run?
         print("\n🔄 Auto-converting MT5 format files to standard format...")
         print("   (Combining <DATE>+<TIME> → time, renaming columns)")
 
-        result = subprocess.run([sys.executable, str(convert_script)])
+        result = subprocess.run(
+            [sys.executable, str(convert_script)],
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr
+        )
 
         if result.returncode == 0:
             print("\n✅ Format conversion complete")
