@@ -32,32 +32,50 @@ def print_header(text: str):
 
 
 def check_credentials() -> bool:
-    """Check if MetaAPI credentials are set."""
+    """Check if MetaAPI credentials are set and prompt if needed."""
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
     # Check for placeholder values
     placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
 
-    if token:
-        # Check if it's a placeholder
-        if any(placeholder in token.lower() for placeholder in placeholder_patterns):
+    # Check token
+    has_valid_token = False
+    if token and not any(placeholder in token.lower() for placeholder in placeholder_patterns):
+        print(f"\n✅ Found valid API token: {token[:20]}...")
+        has_valid_token = True
+    else:
+        if token:
             print(f"\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
-            print("   Will prompt you for the real token...")
         else:
-            print(f"\n✅ Found API token: {token[:20]}...")
-    else:
-        print("\nℹ️  No METAAPI_TOKEN set (will prompt interactively)")
+            print("\nℹ️  No METAAPI_TOKEN set")
 
-    if account_id:
-        # Check if it's a placeholder
-        if any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-            print(f"⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
-            print("   Will list your accounts...")
-        else:
-            print(f"✅ Found account ID: {account_id}")
+        # Prompt for token NOW
+        print("\n📋 MetaAPI Token Required")
+        print("Get your token from: https://app.metaapi.cloud/")
+        token = input("\nEnter your MetaAPI token: ").strip()
+
+        if not token:
+            print("\n❌ No token provided - cannot proceed")
+            return False
+
+        # Save to environment for this session
+        os.environ['METAAPI_TOKEN'] = token
+        print(f"✅ Token saved for this session")
+        has_valid_token = True
+
+    # Check account ID
+    has_valid_account = False
+    if account_id and not any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
+        print(f"✅ Found valid account ID: {account_id}")
+        has_valid_account = True
     else:
-        print("ℹ️  No METAAPI_ACCOUNT_ID set (will select interactively)")
+        if account_id:
+            print(f"⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
+        else:
+            print("ℹ️  No METAAPI_ACCOUNT_ID set")
+
+        print("\nℹ️  Account will be selected interactively during download")
 
     return True
 
