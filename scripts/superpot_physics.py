@@ -993,16 +993,43 @@ def main():
     print(f"\n🧪 Starting with {extractor.n_features} physics measurements")
     print(f"   Prune {args.prune_count} every {args.prune_every} episodes")
     
+    # Test data loading first
+    print(f"\n📋 Testing data loading...")
+    test_file = files[0]
+    try:
+        df = load_data(test_file['path'])
+        print(f"   ✓ Loaded {test_file['symbol']}: {len(df)} bars")
+        print(f"   ✓ Columns: {list(df.columns)[:6]}...")
+        
+        # Test feature extraction
+        features = extractor.extract(df, 100)
+        print(f"   ✓ Extracted {len(features)} features")
+        print(f"   ✓ Non-zero features: {np.sum(features != 0)}")
+    except Exception as e:
+        print(f"   ❌ Data loading failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
     start_time = time.time()
     all_rewards = []
     all_pnls = []
     
+    errors = []
     for ep in range(args.episodes):
         file_info = files[np.random.randint(len(files))]
         
         try:
             df = load_data(file_info['path'])
             if len(df) < 200:
+                errors.append(f"Too few bars: {len(df)}")
+                continue
+            
+            # Verify required columns
+            required = ['open', 'high', 'low', 'close']
+            missing = [c for c in required if c not in df.columns]
+            if missing:
+                errors.append(f"Missing columns: {missing}")
                 continue
             
             df = df.iloc[-2000:].reset_index(drop=True)
@@ -1078,6 +1105,9 @@ def main():
                 agent.n_features = tracker.n_active
         
         except Exception as e:
+            errors.append(str(e))
+            if len(errors) <= 3:
+                print(f"   ⚠️  Error: {e}")
             continue
     
     elapsed = time.time() - start_time
@@ -1088,6 +1118,22 @@ def main():
     
     print(f"\n📊 Performance:")
     print(f"   Episodes: {len(all_rewards)}")
+    
+    if len(all_rewards) == 0:
+        print("   ❌ No episodes completed! Check data loading.")
+        print(f"   Files found: {len(files)}")
+        # Try to debug
+        if files:
+            test_file = files[0]
+            print(f"   Testing file: {test_file['path']}")
+            try:
+                df = load_data(test_file['path'])
+                print(f"   Loaded: {len(df)} bars")
+                print(f"   Columns: {list(df.columns)}")
+            except Exception as e:
+                print(f"   Load error: {e}")
+        return
+    
     print(f"   Avg reward: {np.mean(all_rewards):+.2f}")
     print(f"   Avg PnL: ${np.mean(all_pnls):+.0f}")
     print(f"   Win rate: {sum(1 for p in all_pnls if p > 0) / len(all_pnls) * 100:.0f}%")
