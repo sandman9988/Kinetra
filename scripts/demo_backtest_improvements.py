@@ -11,7 +11,6 @@ Demonstrates:
 
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
 
 from kinetra.backtest_engine import BacktestEngine
 from kinetra.symbol_spec import SymbolSpec, CommissionSpec, CommissionType
