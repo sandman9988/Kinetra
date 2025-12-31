@@ -36,17 +36,35 @@ def check_credentials() -> bool:
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
-    if not token:
-        print("\n❌ METAAPI_TOKEN not set")
-        print("\nSetup:")
-        print("  1. Go to https://app.metaapi.cloud/")
-        print("  2. Get your API token")
-        print("  3. Run: export METAAPI_TOKEN='your-token-here'")
-        return False
+    # Check for placeholder values
+    placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
 
-    print(f"\n✅ Found API token: {token[:20]}...")
+    if token:
+        # Check if it's a placeholder
+        if any(placeholder in token.lower() for placeholder in placeholder_patterns):
+            print(f"\n⚠️  Found placeholder METAAPI_TOKEN: {token[:30]}...")
+            print("   This is not a real token!")
+            print("\nTo fix:")
+            print("  1. Go to https://app.metaapi.cloud/")
+            print("  2. Get your REAL API token")
+            print("  3. Run: unset METAAPI_TOKEN")
+            print("  4. Run this script again (it will prompt you)")
+            return False
+
+        print(f"\n✅ Found API token: {token[:20]}...")
+    else:
+        print("\nℹ️  No METAAPI_TOKEN set (will prompt interactively)")
 
     if account_id:
+        # Check if it's a placeholder
+        if any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
+            print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID: {account_id}")
+            print("   This is not a real account ID!")
+            print("\nTo fix:")
+            print("  Run: unset METAAPI_ACCOUNT_ID")
+            print("  Run this script again (it will list your accounts)")
+            return False
+
         print(f"✅ Found account ID: {account_id}")
     else:
         print("ℹ️  No METAAPI_ACCOUNT_ID set (will select interactively)")

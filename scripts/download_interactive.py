@@ -115,6 +115,17 @@ class InteractiveDownloader:
         # Check for token in environment first
         self.token = os.environ.get('METAAPI_TOKEN')
 
+        # Check for placeholder values
+        placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
+
+        if self.token and any(placeholder in self.token.lower() for placeholder in placeholder_patterns):
+            print(f"\n⚠️  Found placeholder token in environment: {self.token[:30]}...")
+            print("   This is NOT a real token!")
+            print("\nPlease unset it and enter your real token:")
+            print("  Run: unset METAAPI_TOKEN")
+            print("  Then run this script again")
+            return False
+
         if not self.token:
             print("\n📋 MetaAPI Token Required")
             print("\nGet your token from: https://app.metaapi.cloud/")
@@ -138,12 +149,19 @@ class InteractiveDownloader:
         env_account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
         if env_account_id:
-            print(f"\n✅ Found account ID in environment: {env_account_id}")
-            response = input(f"\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
+            # Check if it's a placeholder
+            if any(placeholder in env_account_id.lower() for placeholder in placeholder_patterns):
+                print(f"\n⚠️  Found placeholder account ID in environment: {env_account_id}")
+                print("   This is NOT a real account ID!")
+                print("\nWill list your accounts instead...")
+                env_account_id = None  # Force account selection
+            else:
+                print(f"\n✅ Found account ID in environment: {env_account_id}")
+                response = input(f"\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
 
-            if response == '1':
-                self.account_id = env_account_id
-                return True
+                if response == '1':
+                    self.account_id = env_account_id
+                    return True
 
         # List available accounts
         try:

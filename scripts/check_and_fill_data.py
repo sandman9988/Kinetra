@@ -428,6 +428,16 @@ async def main():
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
+    # Check for placeholder values
+    placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
+
+    # Check token
+    if token and any(placeholder in token.lower() for placeholder in placeholder_patterns):
+        print(f"\n⚠️  Found placeholder METAAPI_TOKEN: {token[:30]}...")
+        print("   This is NOT a real token!")
+        print("\nPlease unset it: unset METAAPI_TOKEN")
+        token = None
+
     # Prompt for token if not set
     if not token:
         print("\n📋 MetaAPI Token Required")
@@ -437,6 +447,13 @@ async def main():
         if not token:
             print("\n❌ No token provided")
             return
+
+    # Check account ID
+    if account_id and any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
+        print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID: {account_id}")
+        print("   This is NOT a real account ID!")
+        print("\nPlease unset it: unset METAAPI_ACCOUNT_ID")
+        account_id = None
 
     # Prompt for account ID if not set
     if not account_id:
