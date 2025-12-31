@@ -1,0 +1,15 @@
+# Kinetra Python Startup
+import sys
+import os
+
+# Add workspace to path
+workspace = "/workspace"
+if workspace not in sys.path:
+    sys.path.insert(0, workspace)
+
+# Set PYTHONPATH
+pythonpath = os.environ.get("PYTHONPATH", "")
+if workspace not in pythonpath:
+    os.environ["PYTHONPATH"] = f"{workspace}:{pythonpath}" if pythonpath else workspace
+
+print(f"[Kinetra] Workspace: {workspace}")

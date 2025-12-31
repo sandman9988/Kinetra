@@ -1,0 +1,39 @@
+# Kinetra Monitoring Service
+# =============================================================================
+# systemd service file for continuous monitoring
+#
+# Installation:
+#   sudo cp scripts/kinetra-monitor.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable kinetra-monitor
+#   sudo systemctl start kinetra-monitor
+#
+# Check status:
+#   sudo systemctl status kinetra-monitor
+#   journalctl -u kinetra-monitor -f
+# =============================================================================
+
+[Unit]
+Description=Kinetra Real-Time Monitoring Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/workspace
+Environment="PYTHONPATH=/workspace"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+ExecStart=/usr/bin/python3 /workspace/scripts/monitor_daemon.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/kinetra/monitor.log
+StandardError=append:/var/log/kinetra/monitor_error.log
+
+# Resource limits
+MemoryLimit=512M
+CPUQuota=20%
+
+[Install]
+WantedBy=multi-user.target
