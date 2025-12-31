@@ -1019,6 +1019,376 @@ class RandomAgent(BaseAgent):
 
 
 # =============================================================================
+# ADVANCED RL: SAC, PPO, TD3 via stable-baselines3
+# =============================================================================
+
+# Try importing stable-baselines3 and gymnasium
+try:
+    import gymnasium as gym
+    from gymnasium import spaces
+    from stable_baselines3 import SAC, PPO, TD3
+    from stable_baselines3.common.callbacks import BaseCallback
+    SB3_AVAILABLE = True
+except ImportError:
+    SB3_AVAILABLE = False
+    gym = None
+    spaces = None
+
+
+class PhysicsGymEnv(gym.Env if SB3_AVAILABLE else object):
+    """
+    Gymnasium-compatible wrapper for physics-based trading environment.
+
+    Features:
+    - Continuous action space: action ∈ [-1, +1] → position size
+    - 64-dim observation space (physics features)
+    - Risk-adjusted reward: pnl - λ * volatility
+    """
+
+    metadata = {"render_modes": ["human"]}
+
+    def __init__(
+        self,
+        physics_state: pd.DataFrame,
+        prices: pd.DataFrame,
+        feature_extractor: Callable,
+        max_steps: int = 500,
+        risk_penalty: float = 0.1,
+        transaction_cost: float = 0.0001,
+    ):
+        if not SB3_AVAILABLE:
+            raise ImportError("stable-baselines3 and gymnasium required for SAC/PPO/TD3")
+
+        super().__init__()
+
+        self.physics_state = physics_state
+        self.prices = prices
+        self.feature_extractor = feature_extractor
+        self.max_steps = max_steps
+        self.risk_penalty = risk_penalty
+        self.transaction_cost = transaction_cost
+
+        # Continuous action space: position size from -1 (full short) to +1 (full long)
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=np.float32)
+
+        # 64-dim observation space
+        self.observation_space = spaces.Box(
+            low=-np.inf, high=np.inf, shape=(64,), dtype=np.float32
+        )
+
+        # State tracking
+        self.current_bar = 100
+        self.current_position = 0.0
+        self.entry_price = 0.0
+        self.episode_pnls = []
+        self.step_count = 0
+        self.total_pnl = 0.0
+
+    def _get_price(self, bar: int) -> float:
+        """Get close price at bar."""
+        if bar >= len(self.prices):
+            bar = len(self.prices) - 1
+        return float(self.prices.iloc[bar]["close"])
+
+    def _get_obs(self) -> np.ndarray:
+        """Get current observation (64-dim physics state)."""
+        obs = self.feature_extractor(self.physics_state, self.current_bar)
+        return np.nan_to_num(obs.astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
+
+    def reset(self, seed=None, options=None):
+        """Reset environment."""
+        super().reset(seed=seed)
+
+        # Random start bar (avoid beginning and end)
+        max_start = len(self.physics_state) - self.max_steps - 100
+        self.current_bar = self.np_random.integers(100, max(101, max_start))
+
+        self.current_position = 0.0
+        self.entry_price = 0.0
+        self.episode_pnls = []
+        self.step_count = 0
+        self.total_pnl = 0.0
+
+        return self._get_obs(), {}
+
+    def step(self, action: np.ndarray):
+        """Execute action and return (obs, reward, terminated, truncated, info)."""
+        # Extract scalar action
+        target_position = float(np.clip(action[0], -1.0, 1.0))
+
+        current_price = self._get_price(self.current_bar)
+        prev_position = self.current_position
+
+        # Calculate position change
+        position_delta = target_position - prev_position
+
+        # Transaction cost
+        cost = abs(position_delta) * current_price * self.transaction_cost
+
+        # Move to next bar
+        self.current_bar += 1
+        self.step_count += 1
+        next_price = self._get_price(self.current_bar)
+
+        # Calculate PnL from position
+        price_change = next_price - current_price
+        pnl = self.current_position * price_change - cost
+
+        # Update position
+        if abs(position_delta) > 0.1:  # Significant position change
+            self.current_position = target_position
+            if abs(prev_position) < 0.1:  # Was flat, now entering
+                self.entry_price = current_price
+
+        # Track PnL for risk calculation
+        self.episode_pnls.append(pnl)
+        self.total_pnl += pnl
+
+        # Risk-adjusted reward
+        # reward = pnl - risk_penalty * volatility
+        if len(self.episode_pnls) > 10:
+            pnl_std = np.std(self.episode_pnls[-20:])
+        else:
+            pnl_std = 0.0
+
+        reward = pnl - self.risk_penalty * pnl_std
+
+        # Normalize reward for stability
+        reward = np.clip(reward / (current_price * 0.001 + 1), -10, 10)
+
+        # Check termination
+        terminated = self.current_bar >= len(self.physics_state) - 10
+        truncated = self.step_count >= self.max_steps
+
+        info = {
+            "pnl": pnl,
+            "total_pnl": self.total_pnl,
+            "position": self.current_position,
+            "price": current_price,
+        }
+
+        return self._get_obs(), float(reward), terminated, truncated, info
+
+    def render(self):
+        """Render current state."""
+        print(f"Bar {self.current_bar} | Pos: {self.current_position:+.2f} | PnL: ${self.total_pnl:+,.0f}")
+
+
+class SB3AgentWrapper(BaseAgent):
+    """
+    Wrapper to use stable-baselines3 agents with the exploration framework.
+
+    Supports: SAC, PPO, TD3
+    """
+
+    def __init__(
+        self,
+        state_dim: int,
+        n_actions: int,
+        agent_type: str = "SAC",
+        env: Optional["PhysicsGymEnv"] = None,
+        learning_rate: float = 3e-4,
+        **kwargs
+    ):
+        super().__init__(state_dim, n_actions)
+
+        if not SB3_AVAILABLE:
+            raise ImportError("stable-baselines3 required. Install with: pip install stable-baselines3")
+
+        self.agent_type = agent_type
+        self.env = env
+        self.model = None
+        self.learning_rate = learning_rate
+        self.kwargs = kwargs
+
+        # For discrete action mapping
+        self.action_thresholds = [-0.5, 0.0, 0.5]  # Maps continuous to discrete
+
+    def initialize(self, env: "PhysicsGymEnv"):
+        """Initialize the SB3 model with the environment."""
+        self.env = env
+
+        if self.agent_type == "SAC":
+            self.model = SAC(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                buffer_size=100000,
+                batch_size=256,
+                tau=0.005,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        elif self.agent_type == "PPO":
+            self.model = PPO(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                n_steps=2048,
+                batch_size=64,
+                n_epochs=10,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        elif self.agent_type == "TD3":
+            self.model = TD3(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                buffer_size=100000,
+                batch_size=256,
+                tau=0.005,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        else:
+            raise ValueError(f"Unknown agent type: {self.agent_type}")
+
+    def train(self, total_timesteps: int = 10000, callback=None):
+        """Train the agent."""
+        if self.model is None:
+            raise ValueError("Model not initialized. Call initialize(env) first.")
+        self.model.learn(total_timesteps=total_timesteps, callback=callback)
+
+    def select_action(self, state: np.ndarray, epsilon: float = 0.1) -> int:
+        """Select discrete action from continuous model output."""
+        if self.model is None:
+            return np.random.randint(self.n_actions)
+
+        # Get continuous action
+        action, _ = self.model.predict(state.astype(np.float32), deterministic=(epsilon < 0.05))
+        continuous_action = float(action[0]) if hasattr(action, '__len__') else float(action)
+
+        # Map to discrete action
+        # < -0.5: SHORT (2), -0.5 to 0: CLOSE (3), 0 to 0.5: HOLD (0), > 0.5: LONG (1)
+        if continuous_action < -0.5:
+            return 2  # SHORT
+        elif continuous_action < 0:
+            return 3  # CLOSE
+        elif continuous_action < 0.5:
+            return 0  # HOLD
+        else:
+            return 1  # LONG
+
+    def get_continuous_action(self, state: np.ndarray, deterministic: bool = False) -> float:
+        """Get raw continuous action for position sizing."""
+        if self.model is None:
+            return 0.0
+        action, _ = self.model.predict(state.astype(np.float32), deterministic=deterministic)
+        return float(action[0]) if hasattr(action, '__len__') else float(action)
+
+    def update(self, state, action, reward, next_state, done):
+        """No manual updates - SB3 handles this internally during train()."""
+        return 0.0
+
+    def get_q_values(self, state: np.ndarray) -> np.ndarray:
+        """Return pseudo Q-values based on action preferences."""
+        if self.model is None:
+            return np.zeros(self.n_actions)
+
+        # Get continuous action
+        action = self.get_continuous_action(state, deterministic=True)
+
+        # Create pseudo Q-values
+        q = np.zeros(self.n_actions)
+        q[0] = 0.0  # HOLD baseline
+        q[1] = action * 2  # LONG preference
+        q[2] = -action * 2  # SHORT preference
+        q[3] = -abs(action)  # CLOSE when uncertain
+
+        return q
+
+    def save(self, path: str):
+        """Save the model."""
+        if self.model:
+            self.model.save(path)
+
+    def load(self, path: str):
+        """Load the model."""
+        if self.agent_type == "SAC":
+            self.model = SAC.load(path)
+        elif self.agent_type == "PPO":
+            self.model = PPO.load(path)
+        elif self.agent_type == "TD3":
+            self.model = TD3.load(path)
+
+
+class TrainingProgressCallback(BaseCallback if SB3_AVAILABLE else object):
+    """Callback to track training progress for SB3 agents."""
+
+    def __init__(self, print_every: int = 1000, verbose: int = 1):
+        if SB3_AVAILABLE:
+            super().__init__(verbose)
+        self.print_every = print_every
+        self.episode_rewards = []
+        self.episode_pnls = []
+
+    def _on_step(self) -> bool:
+        """Called at each step."""
+        if self.n_calls % self.print_every == 0:
+            # Get recent rewards from logger
+            if hasattr(self.model, 'ep_info_buffer') and self.model.ep_info_buffer:
+                recent_rewards = [ep['r'] for ep in self.model.ep_info_buffer]
+                if recent_rewards:
+                    avg_reward = np.mean(recent_rewards[-10:])
+                    print(f"  Step {self.n_calls:,} | Avg Reward: {avg_reward:+.2f}")
+        return True
+
+
+def create_sb3_agent(
+    agent_type: str,
+    physics_state: pd.DataFrame,
+    prices: pd.DataFrame,
+    feature_extractor: Callable,
+    learning_rate: float = 3e-4,
+    **kwargs
+) -> Tuple[SB3AgentWrapper, PhysicsGymEnv]:
+    """
+    Factory function to create SAC/PPO/TD3 agent with environment.
+
+    Args:
+        agent_type: "SAC", "PPO", or "TD3"
+        physics_state: DataFrame with physics features
+        prices: DataFrame with OHLCV prices
+        feature_extractor: Function to extract 64-dim state
+        learning_rate: Learning rate
+        **kwargs: Additional arguments for the agent
+
+    Returns:
+        (agent_wrapper, gym_env) tuple
+    """
+    if not SB3_AVAILABLE:
+        raise ImportError(
+            "stable-baselines3 and gymnasium required. "
+            "Install with: pip install stable-baselines3 gymnasium"
+        )
+
+    # Create Gymnasium environment
+    env = PhysicsGymEnv(
+        physics_state=physics_state,
+        prices=prices,
+        feature_extractor=feature_extractor,
+        **kwargs
+    )
+
+    # Create agent wrapper
+    agent = SB3AgentWrapper(
+        state_dim=64,
+        n_actions=4,
+        agent_type=agent_type,
+        learning_rate=learning_rate,
+    )
+
+    # Initialize with environment
+    agent.initialize(env)
+
+    return agent, env
+
+
+# =============================================================================
 # EXPLORATION LOOP: Iterative Learning
 # =============================================================================
 
