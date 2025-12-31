@@ -281,82 +281,103 @@ class EntropyExtractor:
         }
 
 
-class HurstExtractor:
+class DirectionalWaveletExtractor:
     """
-    Hurst Exponent - measures long-memory/persistence.
-    H < 0.5: Mean-reverting
-    H = 0.5: Random walk
-    H > 0.5: Trending/persistent
+    ASYMMETRIC wavelet analysis.
+    Separates positive and negative coefficients - NEVER squares them together.
+
+    REPLACES Hurst exponent which has fatal flaws:
+    - Linear regression assumption
+    - Drifts to 0.5 on short timeframes
+    - Assumes stationarity
     """
 
     @staticmethod
-    def compute_hurst(data: np.ndarray) -> float:
+    def extract_directional_features(cwt_coeffs: np.ndarray, scale: int) -> Dict:
         """
-        Compute Hurst exponent using R/S analysis.
+        Extract features from wavelet coefficients ASYMMETRICALLY.
+        Positive and negative coefficients analyzed separately.
         """
-        n = len(data)
-        if n < 20:
-            return 0.5
+        positive = cwt_coeffs[cwt_coeffs > 0]
+        negative = cwt_coeffs[cwt_coeffs < 0]
 
-        # Use multiple window sizes
-        max_k = min(n // 2, 100)
-        min_k = 10
+        features = {
+            # Counts (non-parametric)
+            'pos_count': len(positive),
+            'neg_count': len(negative),
+            'pos_ratio': len(positive) / max(len(cwt_coeffs), 1),
 
-        if max_k <= min_k:
-            return 0.5
+            # Sums (directional energy, NOT squared)
+            'pos_sum': np.sum(positive),
+            'neg_sum': np.sum(negative),  # Negative number
+            'net_energy': np.sum(positive) + np.sum(negative),
 
-        rs_values = []
-        sizes = []
+            # Medians (robust, separate)
+            'pos_median': np.median(positive) if len(positive) > 0 else 0.0,
+            'neg_median': np.median(negative) if len(negative) > 0 else 0.0,
 
-        for k in range(min_k, max_k, max(1, (max_k - min_k) // 10)):
-            rs_list = []
-            for start in range(0, n - k, k):
-                segment = data[start:start + k]
-                mean = np.mean(segment)
-                std = np.std(segment)
+            # Max extremes (separate)
+            'pos_max': np.max(positive) if len(positive) > 0 else 0.0,
+            'neg_min': np.min(negative) if len(negative) > 0 else 0.0,
+        }
 
-                if std == 0:
-                    continue
-
-                # Cumulative deviation from mean
-                cumdev = np.cumsum(segment - mean)
-                r = np.max(cumdev) - np.min(cumdev)
-                rs = r / std
-                rs_list.append(rs)
-
-            if rs_list:
-                rs_values.append(np.mean(rs_list))
-                sizes.append(k)
-
-        if len(sizes) < 3:
-            return 0.5
-
-        # Linear regression in log-log space
-        log_sizes = np.log(sizes)
-        log_rs = np.log(rs_values)
-
-        # Hurst = slope of log-log regression
-        coeffs = np.polyfit(log_sizes, log_rs, 1)
-        hurst = coeffs[0]
-
-        # Clip to valid range
-        return float(np.clip(hurst, 0.0, 1.0))
+        return features
 
     @staticmethod
-    def extract_features(data: np.ndarray, lookback: int = 200) -> Dict:
-        """Extract Hurst-related features."""
+    def compute_directional_persistence(data: np.ndarray, lookback: int = 100) -> Dict:
+        """
+        Measure directional persistence without Hurst's flaws.
+
+        Uses: Ratio of consecutive same-sign moves to opposite-sign moves.
+        This is non-linear, non-parametric, and asymmetric.
+        """
         if len(data) < lookback:
             lookback = len(data)
 
         recent = data[-lookback:]
+        returns = np.diff(recent)
 
-        hurst = HurstExtractor.compute_hurst(recent)
+        if len(returns) < 10:
+            return {
+                'up_persistence': 0.5,
+                'down_persistence': 0.5,
+                'overall_persistence': 0.5
+            }
+
+        # Count consecutive same-direction moves
+        up_continues = 0  # Up followed by up
+        up_reverses = 0   # Up followed by down
+        down_continues = 0  # Down followed by down
+        down_reverses = 0   # Down followed by up
+
+        for i in range(len(returns) - 1):
+            curr_up = returns[i] > 0
+            next_up = returns[i + 1] > 0
+
+            if curr_up:
+                if next_up:
+                    up_continues += 1
+                else:
+                    up_reverses += 1
+            else:
+                if not next_up:
+                    down_continues += 1
+                else:
+                    down_reverses += 1
+
+        # Persistence ratios (separate for up/down)
+        up_persist = up_continues / max(up_continues + up_reverses, 1)
+        down_persist = down_continues / max(down_continues + down_reverses, 1)
+
+        total_continues = up_continues + down_continues
+        total_reverses = up_reverses + down_reverses
+        overall = total_continues / max(total_continues + total_reverses, 1)
 
         return {
-            'hurst': hurst,
-            'is_trending': hurst > 0.55,
-            'is_mean_reverting': hurst < 0.45,
-            'persistence_strength': abs(hurst - 0.5) * 2  # 0-1 scale
+            'up_persistence': up_persist,
+            'down_persistence': down_persist,
+            'overall_persistence': overall,
+            'persistence_asymmetry': up_persist - down_persist,  # Positive = up trends stronger
         }
 
 
@@ -370,7 +391,7 @@ class DSPFeatureEngine:
         self.wavelet = WaveletExtractor()
         self.hilbert = HilbertExtractor()
         self.entropy = EntropyExtractor()
-        self.hurst = HurstExtractor()
+        self.directional = DirectionalWaveletExtractor()
 
     def extract_all(self, prices: pd.DataFrame, bar_idx: int = -1) -> Dict:
         """
@@ -431,12 +452,14 @@ class DSPFeatureEngine:
         features['permutation_entropy'] = entropy_feats['permutation_entropy']
         features['perm_entropy_short'] = entropy_feats['permutation_entropy_short']
 
-        # Hurst features
-        hurst_feats = self.hurst.extract_features(log_returns)
-        features['hurst'] = hurst_feats['hurst']
-        features['is_trending'] = float(hurst_feats['is_trending'])
-        features['is_mean_reverting'] = float(hurst_feats['is_mean_reverting'])
-        features['persistence_strength'] = hurst_feats['persistence_strength']
+        # Directional persistence (REPLACES Hurst - no linear/stationarity assumptions)
+        persist_feats = self.directional.compute_directional_persistence(close)
+        features['up_persistence'] = persist_feats['up_persistence']
+        features['down_persistence'] = persist_feats['down_persistence']
+        features['overall_persistence'] = persist_feats['overall_persistence']
+        features['persistence_asymmetry'] = persist_feats['persistence_asymmetry']
+        # NOTE: Removed persistence_strength - it reintroduced symmetric reference point (0.5)
+        # Use raw up/down persistence and asymmetry instead
 
         return features
 
@@ -456,10 +479,11 @@ class DSPFeatureEngine:
             'sample_entropy': 0.0,
             'permutation_entropy': 0.0,
             'perm_entropy_short': 0.0,
-            'hurst': 0.5,
-            'is_trending': 0.0,
-            'is_mean_reverting': 0.0,
-            'persistence_strength': 0.0
+            # Directional persistence (replaces Hurst)
+            'up_persistence': 0.5,
+            'down_persistence': 0.5,
+            'overall_persistence': 0.5,
+            'persistence_asymmetry': 0.0
         }
 
 

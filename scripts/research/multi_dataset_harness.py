@@ -66,7 +66,9 @@ class DatasetResult:
     fat_candle_pct: float
     mean_return: float
     volatility: float
-    hurst: float
+    up_persistence: float
+    down_persistence: float
+    persistence_asymmetry: float
     dominant_scale: int
     processing_time: float
     error: Optional[str] = None
@@ -190,7 +192,9 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
                 fat_candle_pct=0.0,
                 mean_return=0.0,
                 volatility=0.0,
-                hurst=0.5,
+                up_persistence=0.5,
+                down_persistence=0.5,
+                persistence_asymmetry=0.0,
                 dominant_scale=0,
                 processing_time=0.0,
                 error="Insufficient data (< 200 bars)"
@@ -212,7 +216,9 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
         # Extract DSP features for sample
         dsp_engine = DSPFeatureEngine()
         sample_dsp = dsp_engine.extract_all(df, bar_idx=len(df) - 1)
-        hurst = sample_dsp.get('hurst', 0.5)
+        up_persistence = sample_dsp.get('up_persistence', 0.5)
+        down_persistence = sample_dsp.get('down_persistence', 0.5)
+        persistence_asymmetry = sample_dsp.get('persistence_asymmetry', 0.0)
         dominant_scale = sample_dsp.get('wavelet_dominant_scale', 0)
 
         # Regime discovery
@@ -237,7 +243,9 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
             fat_candle_pct=fat_pct,
             mean_return=mean_return,
             volatility=volatility,
-            hurst=hurst,
+            up_persistence=up_persistence,
+            down_persistence=down_persistence,
+            persistence_asymmetry=persistence_asymmetry,
             dominant_scale=dominant_scale,
             processing_time=processing_time,
             error=None
@@ -258,7 +266,9 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
             fat_candle_pct=0.0,
             mean_return=0.0,
             volatility=0.0,
-            hurst=0.5,
+            up_persistence=0.5,
+            down_persistence=0.5,
+            persistence_asymmetry=0.0,
             dominant_scale=0,
             processing_time=processing_time,
             error=str(e)
@@ -388,7 +398,9 @@ class TestHarness:
                 'count': len(class_results),
                 'avg_regimes': np.mean([r.n_regimes for r in class_results]),
                 'avg_volatility': np.mean([r.volatility for r in class_results]),
-                'avg_hurst': np.mean([r.hurst for r in class_results]),
+                'avg_up_persistence': np.mean([r.up_persistence for r in class_results]),
+                'avg_down_persistence': np.mean([r.down_persistence for r in class_results]),
+                'avg_persistence_asymmetry': np.mean([r.persistence_asymmetry for r in class_results]),
                 'avg_fat_candle_pct': np.mean([r.fat_candle_pct for r in class_results])
             }
 
@@ -417,11 +429,13 @@ class TestHarness:
             [r.n_regimes for r in successful]
         )
 
-        # Feature insights
-        summary['feature_insights']['hurst_distribution'] = {
-            'trending_pct': np.mean([r.hurst > 0.55 for r in successful]) * 100,
-            'mean_reverting_pct': np.mean([r.hurst < 0.45 for r in successful]) * 100,
-            'random_walk_pct': np.mean([0.45 <= r.hurst <= 0.55 for r in successful]) * 100
+        # Feature insights - Persistence distribution (replaces Hurst)
+        # Persistence > 0.5 = trending, < 0.5 = mean-reverting
+        summary['feature_insights']['persistence_distribution'] = {
+            'trending_pct': np.mean([r.up_persistence > 0.55 or r.down_persistence > 0.55 for r in successful]) * 100,
+            'mean_reverting_pct': np.mean([r.up_persistence < 0.45 and r.down_persistence < 0.45 for r in successful]) * 100,
+            'random_walk_pct': np.mean([0.45 <= r.up_persistence <= 0.55 and 0.45 <= r.down_persistence <= 0.55 for r in successful]) * 100,
+            'asymmetric_pct': np.mean([abs(r.persistence_asymmetry) > 0.1 for r in successful]) * 100
         }
 
         return summary
@@ -458,7 +472,8 @@ def main():
     for cls, stats in summary.get('by_asset_class', {}).items():
         print(f"  {cls}: {stats['count']} datasets, "
               f"avg {stats['avg_regimes']:.1f} regimes, "
-              f"avg Hurst {stats['avg_hurst']:.3f}")
+              f"up_persist {stats['avg_up_persistence']:.3f}, "
+              f"down_persist {stats['avg_down_persistence']:.3f}")
 
     print("\n--- By Timeframe ---")
     for tf, stats in summary.get('by_timeframe', {}).items():
@@ -470,11 +485,12 @@ def main():
     for label, count in list(labels.items())[:10]:
         print(f"  {label}: {count} occurrences")
 
-    print("\n--- Hurst Distribution ---")
-    hurst_dist = summary.get('feature_insights', {}).get('hurst_distribution', {})
-    print(f"  Trending (H > 0.55): {hurst_dist.get('trending_pct', 0):.1f}%")
-    print(f"  Mean-reverting (H < 0.45): {hurst_dist.get('mean_reverting_pct', 0):.1f}%")
-    print(f"  Random walk: {hurst_dist.get('random_walk_pct', 0):.1f}%")
+    print("\n--- Persistence Distribution ---")
+    persist_dist = summary.get('feature_insights', {}).get('persistence_distribution', {})
+    print(f"  Trending (persist > 0.55): {persist_dist.get('trending_pct', 0):.1f}%")
+    print(f"  Mean-reverting (persist < 0.45): {persist_dist.get('mean_reverting_pct', 0):.1f}%")
+    print(f"  Random walk: {persist_dist.get('random_walk_pct', 0):.1f}%")
+    print(f"  Asymmetric (|asym| > 0.1): {persist_dist.get('asymmetric_pct', 0):.1f}%")
 
     print("\n" + "=" * 70)
 

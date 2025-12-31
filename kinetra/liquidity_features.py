@@ -245,6 +245,10 @@ class RangeImpactExtractor:
 
     High impact = thin liquidity, explosive potential
     Low impact = deep liquidity, absorbing flow
+
+    ENHANCED: Now includes signed_range_impact which preserves direction:
+    - Positive = close near high (buying pressure dominated)
+    - Negative = close near low (selling pressure dominated)
     """
 
     @staticmethod
@@ -254,10 +258,29 @@ class RangeImpactExtractor:
         return ranges / safe_volumes
 
     @staticmethod
+    def compute_signed_range_impact(opens: np.ndarray, highs: np.ndarray,
+                                     lows: np.ndarray, closes: np.ndarray) -> np.ndarray:
+        """
+        Compute SIGNED range impact - preserves directional information.
+
+        signed_impact = (close - open) / (high - low + epsilon)
+
+        Returns:
+            Values in [-1, +1] range:
+            +1 = closed at high (full buying pressure)
+            -1 = closed at low (full selling pressure)
+            0 = closed at midpoint
+        """
+        ranges = highs - lows
+        epsilon = 1e-10
+        safe_ranges = np.maximum(ranges, epsilon)
+        return (closes - opens) / safe_ranges
+
+    @staticmethod
     def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
                          lookback: int = 50) -> Dict:
         """
-        Extract range impact features.
+        Extract range impact features including signed variant.
         """
         if bar_idx < 0:
             bar_idx = len(prices) + bar_idx
@@ -266,10 +289,17 @@ class RangeImpactExtractor:
             return {
                 'range_impact': 0.0,
                 'range_impact_percentile': 0.5,
-                'normalized_range': 0.0
+                'normalized_range': 0.0,
+                'signed_range_impact': 0.0,
+                'signed_range_mean': 0.0,
+                'is_fat_candle': False
             }
 
         ranges = (prices['high'] - prices['low']).values[:bar_idx + 1]
+        opens = prices['open'].values[:bar_idx + 1]
+        highs = prices['high'].values[:bar_idx + 1]
+        lows = prices['low'].values[:bar_idx + 1]
+        closes = prices['close'].values[:bar_idx + 1]
 
         if 'tickvol' in prices.columns:
             volumes = prices['tickvol'].values[:bar_idx + 1]
@@ -277,6 +307,9 @@ class RangeImpactExtractor:
             volumes = np.ones(len(ranges))
 
         impacts = RangeImpactExtractor.compute_range_impact(ranges, volumes)
+        signed_impacts = RangeImpactExtractor.compute_signed_range_impact(
+            opens, highs, lows, closes
+        )
 
         current = impacts[-1]
         recent = impacts[-lookback:] if len(impacts) >= lookback else impacts
@@ -288,10 +321,17 @@ class RangeImpactExtractor:
         median_range = np.median(recent) if len(recent) > 0 else 1.0
         normalized = ranges[-1] / median_range if median_range > 0 else 1.0
 
+        # Signed range impact - current and mean
+        signed_current = signed_impacts[-1]
+        signed_recent = signed_impacts[-lookback:] if len(signed_impacts) >= lookback else signed_impacts
+        signed_mean = np.mean(signed_recent)
+
         return {
             'range_impact': current,
             'range_impact_percentile': percentile,
             'normalized_range': normalized,
+            'signed_range_impact': signed_current,
+            'signed_range_mean': signed_mean,
             'is_fat_candle': normalized > 3.0  # 3x median range
         }
 

@@ -83,7 +83,7 @@ class ResultsAnalyzer:
         report['questions'].append(self._question_fat_candle_predictors())
         report['questions'].append(self._question_universal_patterns())
         report['questions'].append(self._question_timeframe_effects())
-        report['questions'].append(self._question_hurst_distribution())
+        report['questions'].append(self._question_persistence_distribution())
 
         report['cross_asset_comparison'] = self._cross_asset_comparison()
         report['timeframe_analysis'] = self._timeframe_analysis()
@@ -151,7 +151,8 @@ class ResultsAnalyzer:
         # Correlation between features and fat candle percentage
         correlations = {}
 
-        numeric_cols = ['volatility', 'hurst', 'n_regimes', 'dominant_scale']
+        numeric_cols = ['volatility', 'up_persistence', 'down_persistence',
+                        'persistence_asymmetry', 'n_regimes', 'dominant_scale']
         target = 'fat_candle_pct'
 
         for col in numeric_cols:
@@ -162,11 +163,11 @@ class ResultsAnalyzer:
                     correlations[col] = {'r': float(r), 'p': float(p)}
 
         # Find strongest predictor
-        strongest = max(correlations.items(), key=lambda x: abs(x[1]['r']))
+        strongest = max(correlations.items(), key=lambda x: abs(x[1]['r'])) if correlations else ('none', {'r': 0})
 
         return ResearchQuestion(
             question="What features predict fat candle (explosive move) frequency?",
-            hypothesis="Higher volatility and lower Hurst (mean-reverting) should predict more fat candles",
+            hypothesis="Higher volatility and low persistence (mean-reverting) should predict more fat candles",
             result=f"Strongest predictor: {strongest[0]} (r={strongest[1]['r']:.3f})",
             evidence={
                 'correlations': correlations,
@@ -218,7 +219,8 @@ class ResultsAnalyzer:
             tf_stats[tf] = {
                 'count': len(tf_data),
                 'avg_regimes': float(tf_data['n_regimes'].mean()),
-                'avg_hurst': float(tf_data['hurst'].mean()),
+                'avg_up_persistence': float(tf_data['up_persistence'].mean()) if 'up_persistence' in tf_data else 0.5,
+                'avg_down_persistence': float(tf_data['down_persistence'].mean()) if 'down_persistence' in tf_data else 0.5,
                 'avg_volatility': float(tf_data['volatility'].mean())
             }
 
@@ -248,40 +250,55 @@ class ResultsAnalyzer:
             confidence=abs(r)
         )
 
-    def _question_hurst_distribution(self) -> ResearchQuestion:
+    def _question_persistence_distribution(self) -> ResearchQuestion:
         """
-        Q5: What is the distribution of Hurst exponent across markets?
+        Q5: What is the distribution of directional persistence across markets?
+        Uses up/down persistence separately - no symmetric assumptions.
         """
-        hurst_vals = self.df_success['hurst'].dropna()
+        up_vals = self.df_success['up_persistence'].dropna() if 'up_persistence' in self.df_success else pd.Series([0.5])
+        down_vals = self.df_success['down_persistence'].dropna() if 'down_persistence' in self.df_success else pd.Series([0.5])
+        asym_vals = self.df_success['persistence_asymmetry'].dropna() if 'persistence_asymmetry' in self.df_success else pd.Series([0.0])
 
-        trending = (hurst_vals > 0.55).mean()
-        mean_rev = (hurst_vals < 0.45).mean()
-        random = ((hurst_vals >= 0.45) & (hurst_vals <= 0.55)).mean()
+        # Trending = persistence > 0.55, Mean-reverting = persistence < 0.45
+        up_trending = (up_vals > 0.55).mean()
+        down_trending = (down_vals > 0.55).mean()
+        up_mean_rev = (up_vals < 0.45).mean()
+        down_mean_rev = (down_vals < 0.45).mean()
+        asymmetric = (abs(asym_vals) > 0.1).mean()
 
         # By asset class
-        hurst_by_class = {}
+        persistence_by_class = {}
         for cls in self.df_success['asset_class'].unique():
-            cls_hurst = self.df_success[self.df_success['asset_class'] == cls]['hurst']
-            hurst_by_class[cls] = {
-                'mean': float(cls_hurst.mean()),
-                'trending_pct': float((cls_hurst > 0.55).mean() * 100)
+            cls_data = self.df_success[self.df_success['asset_class'] == cls]
+            up_p = cls_data['up_persistence'] if 'up_persistence' in cls_data else pd.Series([0.5])
+            down_p = cls_data['down_persistence'] if 'down_persistence' in cls_data else pd.Series([0.5])
+            asym_p = cls_data['persistence_asymmetry'] if 'persistence_asymmetry' in cls_data else pd.Series([0.0])
+            persistence_by_class[cls] = {
+                'mean_up_persistence': float(up_p.mean()),
+                'mean_down_persistence': float(down_p.mean()),
+                'mean_asymmetry': float(asym_p.mean()),
+                'up_trending_pct': float((up_p > 0.55).mean() * 100),
+                'down_trending_pct': float((down_p > 0.55).mean() * 100)
             }
 
         return ResearchQuestion(
-            question="What is the distribution of Hurst exponent across markets?",
-            hypothesis="Markets should show mix of trending/mean-reverting behavior",
-            result=f"Trending: {trending*100:.1f}%, Mean-reverting: {mean_rev*100:.1f}%, Random: {random*100:.1f}%",
+            question="What is the distribution of directional persistence across markets?",
+            hypothesis="Markets should show asymmetric persistence (up ≠ down)",
+            result=f"Up trending: {up_trending*100:.1f}%, Down trending: {down_trending*100:.1f}%, Asymmetric: {asymmetric*100:.1f}%",
             evidence={
                 'overall': {
-                    'trending_pct': float(trending * 100),
-                    'mean_reverting_pct': float(mean_rev * 100),
-                    'random_walk_pct': float(random * 100),
-                    'mean_hurst': float(hurst_vals.mean()),
-                    'std_hurst': float(hurst_vals.std())
+                    'up_trending_pct': float(up_trending * 100),
+                    'down_trending_pct': float(down_trending * 100),
+                    'up_mean_reverting_pct': float(up_mean_rev * 100),
+                    'down_mean_reverting_pct': float(down_mean_rev * 100),
+                    'asymmetric_pct': float(asymmetric * 100),
+                    'mean_up_persistence': float(up_vals.mean()),
+                    'mean_down_persistence': float(down_vals.mean()),
+                    'mean_asymmetry': float(asym_vals.mean())
                 },
-                'by_class': hurst_by_class
+                'by_class': persistence_by_class
             },
-            confidence=0.9  # Hurst is well-established measure
+            confidence=0.9  # Directional persistence is assumption-free
         )
 
     def _cross_asset_comparison(self) -> Dict:
@@ -296,7 +313,9 @@ class ResultsAnalyzer:
                 'avg_regimes': float(cls_data['n_regimes'].mean()),
                 'std_regimes': float(cls_data['n_regimes'].std()),
                 'avg_volatility': float(cls_data['volatility'].mean()),
-                'avg_hurst': float(cls_data['hurst'].mean()),
+                'avg_up_persistence': float(cls_data['up_persistence'].mean()) if 'up_persistence' in cls_data else 0.5,
+                'avg_down_persistence': float(cls_data['down_persistence'].mean()) if 'down_persistence' in cls_data else 0.5,
+                'avg_persistence_asymmetry': float(cls_data['persistence_asymmetry'].mean()) if 'persistence_asymmetry' in cls_data else 0.0,
                 'avg_fat_candle_pct': float(cls_data['fat_candle_pct'].mean()),
                 'most_common_labels': self._get_top_labels(cls_data, n=3)
             }
@@ -327,7 +346,8 @@ class ResultsAnalyzer:
                 'n_datasets': len(tf_data),
                 'avg_regimes': float(tf_data['n_regimes'].mean()),
                 'avg_dominant_scale': float(tf_data['dominant_scale'].mean()),
-                'avg_hurst': float(tf_data['hurst'].mean())
+                'avg_up_persistence': float(tf_data['up_persistence'].mean()) if 'up_persistence' in tf_data else 0.5,
+                'avg_down_persistence': float(tf_data['down_persistence'].mean()) if 'down_persistence' in tf_data else 0.5
             }
 
         return analysis
@@ -364,7 +384,8 @@ class ResultsAnalyzer:
     def _feature_importance(self) -> Dict:
         """Estimate which features are most important for regime differentiation."""
         # Based on correlation with key outcomes
-        features = ['volatility', 'hurst', 'dominant_scale']
+        features = ['volatility', 'up_persistence', 'down_persistence',
+                    'persistence_asymmetry', 'dominant_scale']
         outcomes = ['n_regimes', 'fat_candle_pct']
 
         importance = {}
@@ -393,15 +414,22 @@ class ResultsAnalyzer:
         """Generate actionable recommendations based on analysis."""
         recommendations = []
 
-        # Based on Hurst distribution
-        hurst_vals = self.df_success['hurst'].dropna()
-        if hurst_vals.mean() > 0.55:
+        # Based on persistence distribution
+        up_persist = self.df_success['up_persistence'].dropna() if 'up_persistence' in self.df_success else pd.Series([0.5])
+        down_persist = self.df_success['down_persistence'].dropna() if 'down_persistence' in self.df_success else pd.Series([0.5])
+        asym_vals = self.df_success['persistence_asymmetry'].dropna() if 'persistence_asymmetry' in self.df_success else pd.Series([0.0])
+
+        if up_persist.mean() > 0.55:
             recommendations.append(
-                "Markets show trending behavior - consider momentum-based regime conditioning"
+                "Up moves show persistence - consider momentum-based entries on upside"
             )
-        elif hurst_vals.mean() < 0.45:
+        if down_persist.mean() > 0.55:
             recommendations.append(
-                "Markets show mean-reverting behavior - consider fading extremes"
+                "Down moves show persistence - consider momentum-based entries on downside"
+            )
+        if abs(asym_vals.mean()) > 0.1:
+            recommendations.append(
+                f"Asymmetric persistence detected (avg={asym_vals.mean():.3f}) - use directional-specific models"
             )
 
         # Based on regime counts
@@ -411,12 +439,14 @@ class ResultsAnalyzer:
                 f"Average {avg_regimes:.1f} regimes discovered - use regime conditioning in RL"
             )
 
-        # Based on class differences
-        class_hurst = self.df_success.groupby('asset_class')['hurst'].mean()
-        if class_hurst.max() - class_hurst.min() > 0.1:
-            recommendations.append(
-                "Significant Hurst differences across classes - use class-specific models"
-            )
+        # Based on class differences in persistence
+        if 'up_persistence' in self.df_success:
+            class_up = self.df_success.groupby('asset_class')['up_persistence'].mean()
+            class_down = self.df_success.groupby('asset_class')['down_persistence'].mean()
+            if class_up.max() - class_up.min() > 0.1 or class_down.max() - class_down.min() > 0.1:
+                recommendations.append(
+                    "Significant persistence differences across classes - use class-specific models"
+                )
 
         # Fat candle insights
         if self.df_success['fat_candle_pct'].mean() > 3:
@@ -455,7 +485,9 @@ class ResultsAnalyzer:
             print(f"  Datasets: {stats['n_datasets']}")
             print(f"  Avg Regimes: {stats['avg_regimes']:.1f} ± {stats['std_regimes']:.1f}")
             print(f"  Avg Volatility: {stats['avg_volatility']:.6f}")
-            print(f"  Avg Hurst: {stats['avg_hurst']:.3f}")
+            print(f"  Up Persistence: {stats.get('avg_up_persistence', 0.5):.3f}")
+            print(f"  Down Persistence: {stats.get('avg_down_persistence', 0.5):.3f}")
+            print(f"  Persistence Asymmetry: {stats.get('avg_persistence_asymmetry', 0.0):.3f}")
             print(f"  Fat Candles: {stats['avg_fat_candle_pct']:.1f}%")
             print(f"  Top Labels: {', '.join(stats['most_common_labels'])}")
 
