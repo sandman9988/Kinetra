@@ -20,9 +20,15 @@ try:
     import torch.nn as nn
     import torch.optim as optim
     import torch.nn.functional as F
+    from torch.distributions import Normal
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
+    torch = None
+    nn = None
+    optim = None
+    F = None
+    Normal = None
     print("⚠️  PyTorch not available. Deep RL agents (PPO, SAC, TD3) will not work.")
 
 from rl_exploration_framework import BaseAgent
@@ -32,7 +38,8 @@ from rl_exploration_framework import BaseAgent
 # Neural Network Components
 # =============================================================================
 
-class MLPNetwork(nn.Module):
+if TORCH_AVAILABLE:
+    class MLPNetwork(nn.Module):
     """Simple MLP network for value/policy functions."""
 
     def __init__(self, input_dim: int, output_dim: int, hidden_dims=(64, 64)):
