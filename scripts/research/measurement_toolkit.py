@@ -357,18 +357,25 @@ class MeasurementToolkit:
         # Remove duplicate columns
         all_measurements = all_measurements.loc[:, ~all_measurements.columns.duplicated()]
 
+        # Ensure no duplicate row indices (can happen with timezone-aware timestamps)
+        if all_measurements.index.duplicated().any():
+            all_measurements = all_measurements[~all_measurements.index.duplicated(keep='first')]
+            future_returns = future_returns[~future_returns.index.duplicated(keep='first')]
+
         for col in all_measurements.columns:
             if col == 'returns':  # Skip target variable
                 continue
 
-            # Drop NaN for correlation
-            valid_mask = ~(all_measurements[col].isna() | future_returns.isna())
+            # Drop NaN for correlation using .values to avoid index alignment issues
+            x_vals = all_measurements[col].values
+            y_vals = future_returns.values
+            valid_mask = ~(pd.isna(x_vals) | pd.isna(y_vals))
 
             if valid_mask.sum() < 100:  # Need enough data
                 continue
 
-            x = all_measurements[col][valid_mask]
-            y = future_returns[valid_mask]
+            x = x_vals[valid_mask]
+            y = y_vals[valid_mask]
 
             # Compute correlations
             try:
