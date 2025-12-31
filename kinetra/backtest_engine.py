@@ -8,32 +8,6 @@ to realistic_backtester.py.
 For new code, import from realistic_backtester instead.
 """
 
-from dataclasses import dataclass
-from typing import List
-
-# Re-export classes from realistic_backtester for backward compatibility
-from .realistic_backtester import Trade, TradeDirection, BacktestResult
-
-# Legacy classes that are still used by portfolio_backtest.py
-from .symbol_spec import SymbolSpec
-
-
-@dataclass
-class OpenPosition:
-    """
-    Legacy class representing an open position in a portfolio.
-    
-    This is a minimal implementation for backward compatibility with
-    portfolio_backtest.py.
-    """
-Backtest Engine Compatibility Module
-
-This module provides compatibility classes for code that still imports from backtest_engine.
-The main backtesting functionality has been moved to realistic_backtester.py.
-
-These classes are maintained for backward compatibility with existing code.
-"""
-
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -206,53 +180,14 @@ class OpenPosition:
     trade: Trade
     symbol_spec: SymbolSpec
     current_price: float
-    
+
     def update(self, price: float):
         """Update the current price of the position."""
-        """Update current price for the position."""
         self.current_price = price
 
 
 @dataclass
 class PortfolioState:
-    """
-    Legacy class representing portfolio state.
-    
-    This is a minimal implementation for backward compatibility with
-    portfolio_backtest.py.
-    """
-    balance: float = 0.0
-    equity: float = 0.0
-    used_margin: float = 0.0
-    free_margin: float = 0.0
-    margin_level: float = 0.0
-    
-    def update(self, balance: float, open_positions: List[OpenPosition]):
-        """Update portfolio state based on balance and open positions."""
-        self.balance = balance
-        self.used_margin = 0.0
-        self.equity = balance
-        
-        # Calculate used margin and floating P&L from open positions
-        for position in open_positions:
-            # Simple margin calculation (actual margin depends on leverage)
-            # This is a placeholder - real calculation would use symbol_spec
-            trade = position.trade
-            if hasattr(trade, 'lots'):
-                # Estimate margin (100:1 leverage as default)
-                self.used_margin += trade.lots * position.current_price * 100000 / 100
-            
-            # Calculate floating P&L
-            if hasattr(trade, 'direction') and hasattr(trade, 'entry_price'):
-                if trade.direction == 1:  # Long
-                    pnl = (position.current_price - trade.entry_price) * (trade.lots if hasattr(trade, 'lots') else 1.0) * 100000
-                else:  # Short  
-                    pnl = (trade.entry_price - position.current_price) * (trade.lots if hasattr(trade, 'lots') else 1.0) * 100000
-                self.equity += pnl
-        
-        self.free_margin = self.equity - self.used_margin
-        
-        # Calculate margin level (percentage)
     """Current state of the portfolio."""
 
     equity: float = 0.0
@@ -261,40 +196,57 @@ class PortfolioState:
     free_margin: float = 0.0
     margin_level: float = 0.0
     open_positions_count: int = 0
-    
+
     def update(self, balance: float, open_positions: List[OpenPosition]):
         """Update portfolio state based on current balance and positions."""
         self.balance = balance
         self.open_positions_count = len(open_positions)
-        
+
         # Calculate used margin
         self.used_margin = 0.0
         unrealized_pnl = 0.0
-        
+
         for position in open_positions:
             trade = position.trade
             spec = position.symbol_spec
-            
+
             # Calculate margin requirement
             position_value = spec.contract_size * trade.lots * position.current_price
             margin = position_value * spec.margin_initial
             self.used_margin += margin
-            
+
             # Calculate unrealized P&L
             if trade.direction == TradeDirection.LONG:
                 pnl = (position.current_price - trade.entry_price) * spec.contract_size * trade.lots
             else:
                 pnl = (trade.entry_price - position.current_price) * spec.contract_size * trade.lots
             unrealized_pnl += pnl
-        
+
         # Calculate equity and margin level
         self.equity = self.balance + unrealized_pnl
         self.free_margin = self.equity - self.used_margin
-        
+
         if self.used_margin > 0:
             self.margin_level = (self.equity / self.used_margin) * 100
         else:
             self.margin_level = float('inf')
+
+
+class BacktestEngine:
+    """
+    Legacy BacktestEngine class for backward compatibility.
+
+    NOTE: This class is deprecated. Use RealisticBacktester instead.
+    The realistic backtester provides MT5-accurate constraints and better friction modeling.
+    """
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "BacktestEngine is deprecated. Please use RealisticBacktester instead. "
+            "See kinetra/realistic_backtester.py for the new implementation.",
+            DeprecationWarning,
+            stacklevel=2
+        )
 
 
 __all__ = [
@@ -304,18 +256,3 @@ __all__ = [
     'OpenPosition',
     'PortfolioState',
 ]
-class BacktestEngine:
-    """
-    Legacy BacktestEngine class for backward compatibility.
-    
-    NOTE: This class is deprecated. Use RealisticBacktester instead.
-    The realistic backtester provides MT5-accurate constraints and better friction modeling.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "BacktestEngine is deprecated. Please use RealisticBacktester instead. "
-            "See kinetra/realistic_backtester.py for the new implementation.",
-            DeprecationWarning,
-            stacklevel=2
-        )
