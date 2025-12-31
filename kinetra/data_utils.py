@@ -96,8 +96,13 @@ def load_mt5_csv(
                 break
             elif col == 'Date':
                 date_col = col
-            elif col == 'Time' and date_col:
-                time_col = col
+            elif col == 'Time':
+                if date_col:
+                    # We have both Date and Time columns
+                    time_col = col
+                else:
+                    # Only Time column - might contain full datetime
+                    date_col = col
 
     # Combine Date and Time if both exist
     if date_col and time_col and time_col in df.columns:
