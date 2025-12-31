@@ -167,9 +167,6 @@ class EnergySignalGenerator(SignalGenerator):
         # Kinetic energy percentile
         ke = measurements.get('kinetic_energy_pct', 0.5)
 
-        # Potential energy (compression) percentile
-        # (measurement currently unused in signal computation)
-
         # Energy efficiency ratio
         efficiency = measurements.get('energy_efficiency_pct', 0.5)
 
