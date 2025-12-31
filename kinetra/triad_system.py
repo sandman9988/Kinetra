@@ -253,7 +253,8 @@ class ImbalanceExtractor:
         
         # Entropy
         entropy = -np.sum(probs * np.log(probs + 1e-10))
-        max_entropy = np.log(min(len(patterns), np.math.factorial(order)))
+        import math
+        max_entropy = np.log(min(len(patterns), math.factorial(order)))
         
         return entropy / (max_entropy + 1e-10)
 

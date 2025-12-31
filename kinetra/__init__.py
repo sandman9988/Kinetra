@@ -206,6 +206,19 @@ _LAZY_MODULES = {
     "CrossAssetRegimeAnalyzer": "regime_discovery",
     "discover_regimes": "regime_discovery",
 
+    # Triad System (Incumbent/Competitor/Researcher)
+    "TriadSystem": "triad_system",
+    "AgentRole": "triad_system",
+    "RegimeState": "triad_system",
+    "ImbalanceState": "triad_system",
+    "ImbalanceExtractor": "triad_system",
+    "RegimeDetector": "triad_system",
+    "MetaController": "triad_system",
+    "IncumbentAgent": "triad_system",
+    "CompetitorAgent": "triad_system",
+    "ResearcherAgent": "triad_system",
+    "create_triad_system": "triad_system",
+
     # Workflow Management
     "WorkflowManager": "workflow_manager",
 
