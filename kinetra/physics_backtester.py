@@ -16,6 +16,7 @@ import multiprocessing as mp
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
 
+from .config import MAX_WORKERS
 from .physics_engine import PhysicsEngine, RegimeType
 
 # Try GPU physics (ROCm/CUDA)
@@ -770,7 +771,7 @@ class PhysicsBacktestRunner:
                 return None
 
         results = []
-        n_workers = min(mp.cpu_count(), len(strategies), 32)
+        n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
 
         if n_workers > 1 and len(strategies) >= 3:
             # Parallel strategy comparison

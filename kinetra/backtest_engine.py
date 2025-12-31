@@ -21,6 +21,7 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 
+from .config import MAX_WORKERS
 from .physics_engine import PhysicsEngine
 from .symbol_spec import SymbolSpec
 
@@ -772,8 +773,8 @@ class BacktestEngine:
         Raises:
             ValueError: If shuffle method is not supported
         """
-        # Parallel Monte Carlo - use all available cores
-        n_workers = min(mp.cpu_count(), n_runs, 32)  # Cap at 32 for AMD 5950
+        # Parallel Monte Carlo - use configured max workers
+        n_workers = min(mp.cpu_count(), n_runs, MAX_WORKERS)
 
         def run_single_mc(run_id: int):
             """Single MC run for parallel execution."""

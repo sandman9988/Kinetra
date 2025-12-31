@@ -21,6 +21,7 @@ import numpy as np
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from kinetra.config import MAX_WORKERS
 from kinetra.physics_engine import PhysicsEngine
 from kinetra.market_calendar import get_calendar_for_symbol
 
@@ -31,8 +32,7 @@ try:
 except ImportError:
     GPU_AVAILABLE = False
 
-# Use all 32 threads
-MAX_WORKERS = 32
+# MAX_WORKERS imported from kinetra.config (configurable via KINETRA_MAX_WORKERS env var)
 
 
 class PrepProgress:

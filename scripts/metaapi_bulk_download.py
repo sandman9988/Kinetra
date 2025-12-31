@@ -17,6 +17,8 @@ import shutil
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from kinetra.config import MAX_NETWORK_WORKERS
+
 try:
     from metaapi_cloud_sdk import MetaApi
 except ImportError:
@@ -195,8 +197,8 @@ def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> 
     return None
 
 
-# Concurrency control - max out 32-thread AMD 5950
-MAX_CONCURRENT_DOWNLOADS = 32  # Network I/O bound, throttler backs off on rate limits
+# Concurrency control - configurable via KINETRA_MAX_NETWORK_WORKERS env var
+MAX_CONCURRENT_DOWNLOADS = MAX_NETWORK_WORKERS
 
 
 class ProgressTracker:

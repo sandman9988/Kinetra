@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 from .backtest_engine import BacktestEngine, BacktestResult
+from .config import MAX_WORKERS
 from .symbol_spec import SymbolSpec
 
 
@@ -286,8 +287,8 @@ class WalkForwardEngine:
 
             return wf_window
 
-        # Parallel walk-forward - use all cores
-        n_workers = min(mp.cpu_count(), len(windows), 32)
+        # Parallel walk-forward - use configured max workers
+        n_workers = min(mp.cpu_count(), len(windows), MAX_WORKERS)
         window_args = [(i, *w) for i, w in enumerate(windows)]
 
         if n_workers > 1 and len(windows) >= 4:

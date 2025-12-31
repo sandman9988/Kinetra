@@ -27,8 +27,12 @@ from rl_exploration_framework import (
     TrainingProgressCallback,
 )
 
-# Load test data
-DATA_DIR = Path("/home/user/Kinetra/data/runs/berserker_run3/data/")
+# Load test data - configurable via environment or default to project data directory
+import os
+DATA_DIR = Path(os.environ.get(
+    "KINETRA_DATA_DIR",
+    Path(__file__).parent.parent / "data" / "runs" / "berserker_run3" / "data"
+))
 
 def load_first_dataset():
     """Load first available dataset."""
