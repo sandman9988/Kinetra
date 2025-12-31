@@ -20,7 +20,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Optional
-import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from collections import defaultdict
 
@@ -348,12 +347,15 @@ class MeasurementToolkit:
 
         predictive_power = []
 
-        # Test all measurements
+        # Test all measurements (remove duplicates from concat)
         all_measurements = pd.concat([
             result.raw_measurements,
             result.derived_measurements,
             result.physics_measurements,
         ], axis=1)
+
+        # Remove duplicate columns
+        all_measurements = all_measurements.loc[:, ~all_measurements.columns.duplicated()]
 
         for col in all_measurements.columns:
             if col == 'returns':  # Skip target variable

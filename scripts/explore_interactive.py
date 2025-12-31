@@ -33,22 +33,84 @@ from rl_exploration_framework import (
 )
 
 
-def get_rl_state_features(physics_state: dict) -> np.ndarray:
-    """Extract RL state features from physics state."""
+def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.ndarray:
+    """Extract ungated 64-dim feature vector for RL exploration."""
+    if bar_index >= len(physics_state):
+        return np.zeros(64)
+
+    ps = physics_state.iloc[bar_index]
+
     features = [
-        physics_state.get('energy', 0),
-        physics_state.get('entropy', 0),
-        physics_state.get('damping', 0),
-        physics_state.get('energy_percentile', 0.5),
-        physics_state.get('entropy_percentile', 0.5),
-        physics_state.get('regime_confidence', 0),
+        # Kinematics
+        ps.get("v", 0), ps.get("a", 0), ps.get("j", 0), ps.get("jerk_z", 0),
+        # Energetics
+        ps.get("energy", 0), ps.get("PE", 0), ps.get("eta", 0), ps.get("energy_pct", 0.5),
+        # Damping
+        ps.get("damping", 0), ps.get("viscosity", 0), ps.get("visc_z", 0), ps.get("damping_pct", 0.5),
+        # Entropy
+        ps.get("entropy", 0), ps.get("entropy_z", 0), ps.get("reynolds", 0), ps.get("entropy_pct", 0.5),
+        # Chaos
+        ps.get("lyapunov_proxy", 0), ps.get("lyap_z", 0), ps.get("local_dim", 2.0),
+        ps.get("lyapunov_proxy_pct", 0.5), ps.get("local_dim_pct", 0.5),
+        # Tail risk
+        ps.get("cvar_95", 0), ps.get("cvar_asymmetry", 1.0),
+        ps.get("cvar_95_pct", 0.5), ps.get("cvar_asymmetry_pct", 0.5),
+        # Composites
+        ps.get("composite_jerk_entropy", 0), ps.get("stack_jerk_entropy", 0),
+        ps.get("stack_jerk_lyap", 0), ps.get("triple_stack", 0),
+        ps.get("composite_pct", 0.5), ps.get("triple_stack_pct", 0.5),
+        # Momentum
+        ps.get("roc", 0), ps.get("momentum_strength", 0),
+        # Regime one-hot
+        1.0 if ps.get("regime") == "OVERDAMPED" else 0.0,
+        1.0 if ps.get("regime") == "UNDERDAMPED" else 0.0,
+        1.0 if ps.get("regime") == "LAMINAR" else 0.0,
+        1.0 if ps.get("regime") == "BREAKOUT" else 0.0,
+        ps.get("regime_age_frac", 0),
+        # Adaptive
+        ps.get("adaptive_trail_mult", 2.0),
+        ps.get("PE_pct", 0.5), ps.get("reynolds_pct", 0.5), ps.get("eta_pct", 0.5),
+        # Advanced volatility
+        ps.get("vol_rs", 0), ps.get("vol_yz", 0), ps.get("vol_gk", 0),
+        ps.get("vol_rs_z", 0), ps.get("vol_yz_z", 0),
+        ps.get("vol_ratio_yz_rs", 1.0), ps.get("vol_term_structure", 1.0),
+        # DSP
+        ps.get("dsp_roofing", 0), ps.get("dsp_roofing_z", 0),
+        ps.get("dsp_trend", 0), ps.get("dsp_trend_dir", 0), ps.get("dsp_cycle_period", 24),
+        # VPIN
+        ps.get("vpin", 0.5), ps.get("vpin_z", 0),
+        ps.get("vpin_pct", 0.5), ps.get("buy_pressure", 0.5),
+        # Higher moments
+        ps.get("kurtosis", 0), ps.get("kurtosis_z", 0),
+        ps.get("skewness", 0), ps.get("skewness_z", 0),
+        ps.get("tail_risk", 0), ps.get("jb_proxy_z", 0),
     ]
+
     return np.array(features, dtype=np.float32)
 
 
 def get_rl_feature_names() -> list:
-    """Get feature names for tracking."""
-    return ['energy', 'entropy', 'damping', 'energy_pct', 'entropy_pct', 'regime_conf']
+    """Get feature names for interpretability."""
+    return [
+        "v", "a", "j", "jerk_z",
+        "energy", "PE", "eta", "energy_pct",
+        "damping", "viscosity", "visc_z", "damping_pct",
+        "entropy", "entropy_z", "reynolds", "entropy_pct",
+        "lyapunov_proxy", "lyap_z", "local_dim", "lyapunov_proxy_pct", "local_dim_pct",
+        "cvar_95", "cvar_asymmetry", "cvar_95_pct", "cvar_asymmetry_pct",
+        "composite_jerk_entropy", "stack_jerk_entropy", "stack_jerk_lyap", "triple_stack",
+        "composite_pct", "triple_stack_pct",
+        "roc", "momentum_strength",
+        "regime_OVERDAMPED", "regime_UNDERDAMPED", "regime_LAMINAR", "regime_BREAKOUT",
+        "regime_age_frac",
+        "adaptive_trail_mult",
+        "PE_pct", "reynolds_pct", "eta_pct",
+        "vol_rs", "vol_yz", "vol_gk", "vol_rs_z", "vol_yz_z",
+        "vol_ratio_yz_rs", "vol_term_structure",
+        "dsp_roofing", "dsp_roofing_z", "dsp_trend", "dsp_trend_dir", "dsp_cycle_period",
+        "vpin", "vpin_z", "vpin_pct", "buy_pressure",
+        "kurtosis", "kurtosis_z", "skewness", "skewness_z", "tail_risk", "jb_proxy_z",
+    ]
 
 
 def print_header(text):

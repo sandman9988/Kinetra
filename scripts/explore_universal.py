@@ -34,22 +34,174 @@ from rl_exploration_framework import (
 )
 
 
-def get_rl_state_features(physics_state: dict) -> np.ndarray:
-    """Extract RL state features from physics state."""
+def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.ndarray:
+    """Extract ungated feature vector for RL exploration.
+
+    First-principles approach: NO assumptions, NO gating, NO filtering.
+    Expose ALL physics measures to let the agent discover optimal combinations.
+
+    "We don't know what we don't know" - allow exploration of ALL feature space.
+
+    Returns 64-dimensional state vector (all normalized to ~N(0,1)):
+    - Kinematic: v, a, j, jerk_z (derivatives)
+    - Energetic: energy, PE, eta (kinetic/potential/efficiency)
+    - Damping: damping, zeta, viscosity, visc_z
+    - Information: entropy, entropy_z, reynolds
+    - Chaos: lyapunov_proxy, lyap_z, local_dim
+    - Tail risk: cvar_95, cvar_asymmetry
+    - Stacked: composite, triple_stack, stack_jerk_entropy, stack_jerk_lyap
+    - Regime: one-hot encoded (OVERDAMPED, UNDERDAMPED, LAMINAR, BREAKOUT)
+    - Momentum: roc, momentum_strength
+    - Adaptive: adaptive_trail_mult
+    - Percentiles: all _pct features (empirical CDFs)
+    - Volatility: YZ, RS, GK, PK estimators + ratios
+    - DSP: Ehlers roofing filter, trend, cycle period
+    - VPIN: Order flow toxicity proxy, buy pressure
+    - Higher moments: Kurtosis, skewness, tail_risk, JB proxy
+    """
+    if bar_index >= len(physics_state):
+        return np.zeros(64)  # Return zeros for out-of-bounds
+
+    ps = physics_state.iloc[bar_index]
+
+    # Build ungated feature vector - let the agent discover what matters
     features = [
-        physics_state.get('energy', 0),
-        physics_state.get('entropy', 0),
-        physics_state.get('damping', 0),
-        physics_state.get('energy_percentile', 0.5),
-        physics_state.get('entropy_percentile', 0.5),
-        physics_state.get('regime_confidence', 0),
+        # === KINEMATICS (derivatives) ===
+        ps.get("v", 0),                    # velocity (1st derivative)
+        ps.get("a", 0),                    # acceleration (2nd derivative)
+        ps.get("j", 0),                    # jerk (3rd derivative)
+        ps.get("jerk_z", 0),               # z-scored jerk
+
+        # === ENERGETICS ===
+        ps.get("energy", 0),               # kinetic energy (0.5 * v^2)
+        ps.get("PE", 0),                   # potential energy (1/vol)
+        ps.get("eta", 0),                  # efficiency (KE/PE)
+        ps.get("energy_pct", 0.5),         # percentile
+
+        # === DAMPING / FRICTION ===
+        ps.get("damping", 0),              # damping ratio (zeta)
+        ps.get("viscosity", 0),            # viscosity proxy
+        ps.get("visc_z", 0),               # z-scored viscosity
+        ps.get("damping_pct", 0.5),        # percentile
+
+        # === INFORMATION / ENTROPY ===
+        ps.get("entropy", 0),              # spectral entropy
+        ps.get("entropy_z", 0),            # z-scored entropy
+        ps.get("reynolds", 0),             # Reynolds number (trend/noise)
+        ps.get("entropy_pct", 0.5),        # percentile
+
+        # === CHAOS MEASURES ===
+        ps.get("lyapunov_proxy", 0),       # Lyapunov divergence rate
+        ps.get("lyap_z", 0),               # z-scored Lyapunov
+        ps.get("local_dim", 2.0),          # local correlation dimension
+        ps.get("lyapunov_proxy_pct", 0.5), # percentile
+        ps.get("local_dim_pct", 0.5),      # percentile
+
+        # === TAIL RISK (CVaR) ===
+        ps.get("cvar_95", 0),              # 95% CVaR (expected shortfall)
+        ps.get("cvar_asymmetry", 1.0),     # upside/downside tail ratio
+        ps.get("cvar_95_pct", 0.5),        # percentile
+        ps.get("cvar_asymmetry_pct", 0.5), # percentile
+
+        # === STACKED COMPOSITES (non-linear combinations) ===
+        ps.get("composite_jerk_entropy", 0),   # jerk * exp(entropy)
+        ps.get("stack_jerk_entropy", 0),       # jerk_z * exp(entropy_z)
+        ps.get("stack_jerk_lyap", 0),          # jerk_z * |lyap_z|
+        ps.get("triple_stack", 0),             # jerk_z * exp(entropy_z) * lyap_z
+        ps.get("composite_pct", 0.5),          # percentile
+        ps.get("triple_stack_pct", 0.5),       # percentile
+
+        # === MOMENTUM ===
+        ps.get("roc", 0),                  # rate of change
+        ps.get("momentum_strength", 0),    # rolling |ROC| mean
+
+        # === REGIME (one-hot) ===
+        1.0 if ps.get("regime") == "OVERDAMPED" else 0.0,
+        1.0 if ps.get("regime") == "UNDERDAMPED" else 0.0,
+        1.0 if ps.get("regime") == "LAMINAR" else 0.0,
+        1.0 if ps.get("regime") == "BREAKOUT" else 0.0,
+
+        # === REGIME AGE ===
+        ps.get("regime_age_frac", 0),      # normalized time in current regime
+
+        # === ADAPTIVE TRAIL ===
+        ps.get("adaptive_trail_mult", 2.0), # physics-based trail multiplier
+
+        # === ADDITIONAL PERCENTILES ===
+        ps.get("PE_pct", 0.5),
+        ps.get("reynolds_pct", 0.5),
+        ps.get("eta_pct", 0.5),
+
+        # === ADVANCED VOLATILITY (YZ/RS/GK/PK) ===
+        ps.get("vol_rs", 0),               # Rogers-Satchell (drift-robust)
+        ps.get("vol_yz", 0),               # Yang-Zhang (most efficient)
+        ps.get("vol_gk", 0),               # Garman-Klass (classic)
+        ps.get("vol_rs_z", 0),             # z-scored RS
+        ps.get("vol_yz_z", 0),             # z-scored YZ
+        ps.get("vol_ratio_yz_rs", 1.0),    # YZ/RS ratio (gap risk)
+        ps.get("vol_term_structure", 1.0), # short/long vol ratio (stress)
+
+        # === DSP (Ehlers Filters) ===
+        ps.get("dsp_roofing", 0),          # Roofing filter (cycle isolation)
+        ps.get("dsp_roofing_z", 0),        # z-scored roofing
+        ps.get("dsp_trend", 0),            # Instantaneous trend
+        ps.get("dsp_trend_dir", 0),        # Trend direction (-1, 0, 1)
+        ps.get("dsp_cycle_period", 24),    # Estimated cycle period
+
+        # === VPIN (Order Flow Toxicity) ===
+        ps.get("vpin", 0.5),               # VPIN proxy (0-1)
+        ps.get("vpin_z", 0),               # z-scored VPIN
+        ps.get("vpin_pct", 0.5),           # VPIN percentile
+        ps.get("buy_pressure", 0.5),       # Buy volume ratio
+
+        # === HIGHER MOMENTS (Kurtosis/Skewness) ===
+        ps.get("kurtosis", 0),             # Excess kurtosis (fat tails)
+        ps.get("kurtosis_z", 0),           # z-scored kurtosis
+        ps.get("skewness", 0),             # Skewness (tail asymmetry)
+        ps.get("skewness_z", 0),           # z-scored skewness
+        ps.get("tail_risk", 0),            # kurtosis_z * (-skewness_z) (crash risk)
+        ps.get("jb_proxy_z", 0),           # Jarque-Bera proxy (non-normality)
     ]
+
     return np.array(features, dtype=np.float32)
 
 
 def get_rl_feature_names() -> list:
-    """Get feature names for tracking."""
-    return ['energy', 'entropy', 'damping', 'energy_pct', 'entropy_pct', 'regime_conf']
+    """Get feature names for interpretability and debugging."""
+    return [
+        # Kinematics
+        "v", "a", "j", "jerk_z",
+        # Energetics
+        "energy", "PE", "eta", "energy_pct",
+        # Damping
+        "damping", "viscosity", "visc_z", "damping_pct",
+        # Entropy/Information
+        "entropy", "entropy_z", "reynolds", "entropy_pct",
+        # Chaos
+        "lyapunov_proxy", "lyap_z", "local_dim", "lyapunov_proxy_pct", "local_dim_pct",
+        # Tail risk
+        "cvar_95", "cvar_asymmetry", "cvar_95_pct", "cvar_asymmetry_pct",
+        # Stacked composites
+        "composite_jerk_entropy", "stack_jerk_entropy", "stack_jerk_lyap", "triple_stack",
+        "composite_pct", "triple_stack_pct",
+        # Momentum
+        "roc", "momentum_strength",
+        # Regime (one-hot)
+        "regime_OVERDAMPED", "regime_UNDERDAMPED", "regime_LAMINAR", "regime_BREAKOUT",
+        "regime_age_frac",
+        # Adaptive
+        "adaptive_trail_mult",
+        "PE_pct", "reynolds_pct", "eta_pct",
+        # Advanced volatility (YZ/RS/GK/PK)
+        "vol_rs", "vol_yz", "vol_gk", "vol_rs_z", "vol_yz_z",
+        "vol_ratio_yz_rs", "vol_term_structure",
+        # DSP (Ehlers filters)
+        "dsp_roofing", "dsp_roofing_z", "dsp_trend", "dsp_trend_dir", "dsp_cycle_period",
+        # VPIN (order flow toxicity)
+        "vpin", "vpin_z", "vpin_pct", "buy_pressure",
+        # Higher moments
+        "kurtosis", "kurtosis_z", "skewness", "skewness_z", "tail_risk", "jb_proxy_z",
+    ]
 
 
 def classify_symbol(symbol: str) -> str:
