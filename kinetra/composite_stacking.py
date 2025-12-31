@@ -179,9 +179,6 @@ class EnergySignalGenerator(SignalGenerator):
         # Phase compression (high PE, low KE, low entropy)
         phase_comp = measurements.get('phase_compression_pct', 0.5)
 
-        # Release potential (compression × low entropy)
-        release_potential = measurements.get('release_potential_pct', 0.5)
-
         # Signal logic:
         # High KE with positive release rate = momentum continuing
         # High PE with rising release rate = breakout imminent
