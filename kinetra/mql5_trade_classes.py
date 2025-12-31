@@ -552,10 +552,13 @@ class CAccountInfo:
         equity: float = None,
         margin: float = None,
         profit: float = None,
+        leverage: int = None,
     ) -> None:
         """Update account properties."""
         if balance is not None:
             self._balance = balance
+            if equity is None:
+                self._equity = balance  # Sync equity with balance if not specified
         if equity is not None:
             self._equity = equity
         if margin is not None:
@@ -565,6 +568,19 @@ class CAccountInfo:
                 self._margin_level = (self._equity / margin) * 100
         if profit is not None:
             self._profit = profit
+        if leverage is not None:
+            self._leverage = leverage
+    
+    def SetLeverage(self, leverage: int) -> None:
+        """Set account leverage."""
+        self._leverage = leverage
+    
+    def SetBalance(self, balance: float, sync_equity: bool = True) -> None:
+        """Set account balance (and optionally sync equity)."""
+        self._balance = balance
+        if sync_equity:
+            self._equity = balance
+            self._margin_free = balance - self._margin
 
 
 # ═══════════════════════════════════════════════════════════════════════════
