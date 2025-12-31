@@ -68,7 +68,7 @@ class PortfolioTrade(Trade):
     """Extended trade with portfolio context."""
 
     timeframe: str = ""
-    instrument_class: AssetClass = AssetClass.COMMODITY
+    instrument_class: AssetClass = AssetClass.FOREX
     portfolio_equity_at_entry: float = 0.0
     portfolio_margin_at_entry: float = 0.0
 
