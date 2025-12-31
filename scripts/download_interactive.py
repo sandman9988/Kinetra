@@ -102,17 +102,25 @@ def print_step(step_num: int, text: str):
 
 def save_credentials_to_env(token: str, account_id: str = None):
     """Save credentials to .env file for persistent storage."""
-    env_file = Path.cwd() / '.env'
+    # Use script's parent directory, not cwd (in case user runs from subdirectory)
+    script_dir = Path(__file__).parent.parent
+    env_file = script_dir / '.env'
+
+    print(f"\n📝 Saving to: {env_file.absolute()}")
 
     # Read existing .env if it exists
     env_lines = {}
     if env_file.exists():
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    env_lines[key] = value
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        env_lines[key] = value
+            print(f"   Loaded {len(env_lines)} existing credentials")
+        except Exception as e:
+            print(f"⚠️  Could not read existing .env: {e}")
 
     # Update credentials
     if token:
@@ -120,17 +128,30 @@ def save_credentials_to_env(token: str, account_id: str = None):
     if account_id:
         env_lines['METAAPI_ACCOUNT_ID'] = account_id
 
-    # Write back
-    with open(env_file, 'w') as f:
-        f.write("# Kinetra MetaAPI Credentials\n")
-        f.write("# Auto-generated - do not commit to git\n\n")
-        for key, value in env_lines.items():
-            f.write(f"{key}={value}\n")
+    # Write back with error handling
+    try:
+        with open(env_file, 'w') as f:
+            f.write("# Kinetra MetaAPI Credentials\n")
+            f.write("# Auto-generated - do not commit to git\n\n")
+            for key, value in env_lines.items():
+                f.write(f"{key}={value}\n")
 
-    print(f"\n✅ Credentials saved to {env_file}")
+        # Verify file was written
+        if env_file.exists():
+            size = env_file.stat().st_size
+            print(f"✅ Credentials saved to {env_file}")
+            print(f"   File size: {size} bytes")
+            print(f"   Saved {len(env_lines)} credentials")
+        else:
+            print(f"❌ Failed to create {env_file}")
+
+    except Exception as e:
+        print(f"❌ Failed to save credentials: {e}")
+        import traceback
+        traceback.print_exc()
 
     # Add to .gitignore if not already there
-    gitignore = Path.cwd() / '.gitignore'
+    gitignore = script_dir / '.gitignore'
     if gitignore.exists():
         content = gitignore.read_text()
         if '.env' not in content:
@@ -152,9 +173,12 @@ class InteractiveDownloader:
         """Step 1: Select MetaAPI account."""
         print_step(1, "Select MetaAPI Account")
 
-        # Try loading from .env file first
-        env_file = Path.cwd() / '.env'
+        # Try loading from .env file first (use script's parent directory)
+        script_dir = Path(__file__).parent.parent
+        env_file = script_dir / '.env'
+
         if env_file.exists():
+            print(f"🔍 Loading credentials from: {env_file.absolute()}")
             with open(env_file, 'r') as f:
                 for line in f:
                     line = line.strip()
