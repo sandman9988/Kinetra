@@ -61,8 +61,6 @@ def simple_trend_signal(row, physics_state, bar_index):
     if bar_index >= len(physics_state.get("close", [])):
         return 0
     
-    current_price = row["close"]
-    
     # Simple: buy if price is above entry, sell if below
     if bar_index % 30 == 10:  # Buy every 30 bars
         return 1
