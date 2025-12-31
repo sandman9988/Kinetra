@@ -1100,10 +1100,11 @@ def main():
                     print(f"   ... and {len(pruned) - 5} more")
                 print(f"   Remaining: {tracker.n_active} measurements\n")
                 
-                active_indices = np.where(tracker.active_mask)[0]
-                agent.W = agent.W[active_indices]
-                agent.V_W = agent.V_W[active_indices]
-                agent.n_features = tracker.n_active
+                # Recreate agent with new feature count (simpler than trying to remap weights)
+                new_n_features = tracker.n_active
+                new_agent = PhysicsAgent(new_n_features, n_actions=4)
+                new_agent.epsilon = agent.epsilon  # Preserve exploration rate
+                agent = new_agent
         
         except Exception as e:
             errors.append(str(e))
