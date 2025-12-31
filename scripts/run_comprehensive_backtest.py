@@ -398,7 +398,7 @@ def main():
         print("Usage: python run_comprehensive_backtest.py <csv_file1> [csv_file2] ...")
         print("\nExample:")
         print("  python scripts/run_comprehensive_backtest.py data/*.csv")
-        print("  python scripts/run_comprehensive_backtest.py /path/to/BTCUSD_H1.csv")
+        print("  python scripts/run_comprehensive_backtest.py data/master/crypto/BTCUSD_H1_*.csv")
         sys.exit(1)
 
     csv_files = sys.argv[1:]

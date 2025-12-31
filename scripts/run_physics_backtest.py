@@ -13,16 +13,16 @@ Usage:
 
 Examples:
     # Run single strategy
-    python scripts/run_physics_backtest.py --data data/EURUSD_H1.csv --strategy energy_momentum
+    python scripts/run_physics_backtest.py --data data/master/forex/EURUSD_H1_*.csv --strategy energy_momentum
 
     # Compare all physics strategies
-    python scripts/run_physics_backtest.py --data data/BTCUSD_H1.csv --compare-all
+    python scripts/run_physics_backtest.py --data data/master/crypto/BTCUSD_H1_*.csv --compare-all
 
     # Walk-forward validation
     python scripts/run_physics_backtest.py --data data/XAUUSD_H1.csv --walk-forward --train-bars 1000
 
     # Optimize parameters
-    python scripts/run_physics_backtest.py --data data/EURUSD_H1.csv --optimize --strategy multi_physics
+    python scripts/run_physics_backtest.py --data data/master/forex/EURUSD_H1_*.csv --optimize --strategy multi_physics
 """
 
 import argparse

@@ -11,7 +11,7 @@ Uses rolling periods with adaptive thresholds (no magic numbers).
 All thresholds are percentile-based, adapting to each instrument's characteristics.
 
 Usage:
-    python scripts/test_strategies.py --symbol BTCUSD --data data/master/BTCUSD_H1.csv
+    python scripts/test_strategies.py --symbol BTCUSD --data data/master/crypto/BTCUSD_H1_*.csv
     python scripts/test_strategies.py --symbol EURUSD --stress-test
 """
 

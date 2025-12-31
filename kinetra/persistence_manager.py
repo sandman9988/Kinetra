@@ -17,10 +17,10 @@ Usage:
     pm = PersistenceManager(backup_dir="data/backups", max_backups=10)
 
     # Atomic save with automatic backup
-    pm.atomic_save("data/master/BTCUSD_H1.csv", dataframe)
+    pm.atomic_save("data/master/crypto/BTCUSD_H1_20240101_20241231.csv", dataframe)
 
     # Restore from latest backup
-    pm.restore_latest("data/master/BTCUSD_H1.csv")
+    pm.restore_latest("data/master/crypto/BTCUSD_H1_20240101_20241231.csv")
 """
 
 import os

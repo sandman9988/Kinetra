@@ -9,7 +9,7 @@ Usage:
     python scripts/run_full_backtest.py /home/renier/QuantumHunter/*.csv
 
 Example:
-    python scripts/run_full_backtest.py data/EURUSD_H1.csv data/BTCUSD_H1.csv
+    python scripts/run_full_backtest.py data/master/forex/EURUSD_H1_*.csv data/master/crypto/BTCUSD_H1_*.csv
 """
 
 import sys

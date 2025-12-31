@@ -162,8 +162,10 @@ class UnifiedDataLoader:
         """
         Extract symbol and timeframe from filename.
 
-        Supports formats:
-        - BTCUSD_H1_20240101_20241231.csv
+        Standard format (preferred):
+        - BTCUSD_H1_202401010000_202412312359.csv
+        
+        Legacy formats (deprecated, will warn):
         - EURUSD_M30.csv
         - XAUUSD_D1_data.csv
 

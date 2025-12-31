@@ -297,11 +297,13 @@ Then run this script again.
                 df['friction_score'] = info['friction_score']
                 df['spread_pct'] = info['spread_pct']
 
-            # Save
+            # Save with standardized naming: SYMBOL_TF_STARTDATE_ENDDATE.csv
             tf_map = {'15m': 'M15', '30m': 'M30', '1h': 'H1', '4h': 'H4'}
             tf_str = tf_map.get(tf, tf)
-            filename = f"{symbol}_{tf_str}.csv"
-            df.to_csv(output_dir / filename)
+            start_str = df['time'].iloc[0].strftime('%Y%m%d%H%M')
+            end_str = df['time'].iloc[-1].strftime('%Y%m%d%H%M')
+            filename = f"{symbol}_{tf_str}_{start_str}_{end_str}.csv"
+            df.to_csv(output_dir / filename, index=False)
             print(f"  {tf}: {len(df)} bars -> {filename}")
 
     # Save symbol info
