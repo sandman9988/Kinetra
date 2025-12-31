@@ -118,8 +118,8 @@ def check_credentials() -> bool:
         # Ask to save persistently
         save_choice = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
         if save_choice == '1':
-            # Will save after account selection
-            pass
+            # Save token now, account_id will be added by download script
+            save_credentials_to_env(token, account_id=None)
 
         print(f"✅ Token set for workflow")
 
