@@ -19,6 +19,7 @@ from typing import Dict, List, Tuple, Optional
 from scipy import signal
 from scipy.stats import skew, kurtosis
 from dataclasses import dataclass
+import pywt  # PyWavelets for CWT (replaces deprecated scipy.signal.cwt)
 
 
 @dataclass
@@ -58,8 +59,8 @@ class WaveletExtractor:
 
     def compute_cwt(self, data: np.ndarray) -> np.ndarray:
         """
-        Compute CWT using Ricker (Mexican hat) wavelet.
-        Returns: 2D array [scales x time]
+        Compute CWT using Mexican hat wavelet via PyWavelets.
+        Returns: 2D array [scales x time], scales array
         """
         if len(data) < self.scales[-1] * 2:
             # Data too short, use smaller scales
@@ -68,8 +69,9 @@ class WaveletExtractor:
         else:
             scales = self.scales
 
-        # Ricker wavelet CWT
-        cwt_matrix = signal.cwt(data, signal.ricker, scales)
+        # Use PyWavelets for CWT (scipy.signal.cwt is deprecated)
+        # 'mexh' = Mexican hat wavelet (same as Ricker)
+        cwt_matrix, _ = pywt.cwt(data, scales, 'mexh')
         return cwt_matrix, scales
 
     def extract_features(self, data: np.ndarray, lookback: int = 50) -> Dict:

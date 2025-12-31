@@ -127,7 +127,7 @@ from .dsp_features import (
     WaveletExtractor,
     HilbertExtractor,
     EntropyExtractor,
-    HurstExtractor,
+    DirectionalWaveletExtractor,  # Replaces HurstExtractor
     extract_dsp_features,
 )
 
@@ -139,6 +139,19 @@ from .liquidity_features import (
     RangeImpactExtractor,
     VolumeImbalanceExtractor,
     extract_liquidity_features,
+)
+
+# Assumption-Free Measures (Directional, Asymmetric)
+from .assumption_free_measures import (
+    AsymmetricReturns,
+    RankBasedMeasures,
+    DirectionalVolatility,
+    DirectionalOrderFlow,
+    PermutationPatterns,
+    RecurrenceFeatures,
+    TailBehavior,
+    AssumptionFreeEngine,
+    extract_assumption_free_features,
 )
 
 # Unsupervised Regime Discovery
@@ -256,7 +269,7 @@ __all__ = [
     "WaveletExtractor",
     "HilbertExtractor",
     "EntropyExtractor",
-    "HurstExtractor",
+    "DirectionalWaveletExtractor",  # Replaces HurstExtractor
     "extract_dsp_features",
     # Liquidity Proxies
     "LiquidityFeatureEngine",
@@ -265,6 +278,16 @@ __all__ = [
     "RangeImpactExtractor",
     "VolumeImbalanceExtractor",
     "extract_liquidity_features",
+    # Assumption-Free Measures
+    "AsymmetricReturns",
+    "RankBasedMeasures",
+    "DirectionalVolatility",
+    "DirectionalOrderFlow",
+    "PermutationPatterns",
+    "RecurrenceFeatures",
+    "TailBehavior",
+    "AssumptionFreeEngine",
+    "extract_assumption_free_features",
     # Regime Discovery
     "RegimeDiscoveryEngine",
     "RegimeDiscoveryResult",
