@@ -169,7 +169,7 @@ class TestMarginTracking:
     
     def create_trending_data(self, n_bars: int = 100) -> pd.DataFrame:
         """Create trending data that will trigger trades."""
-        dates = pd.date_range(start="2024-01-01", periods=n_bars, freq="H")
+        dates = pd.date_range(start="2024-01-01", periods=n_bars, freq="h")
         # Create strong uptrend
         prices = 1.08 + np.arange(n_bars) * 0.0001
         
@@ -188,12 +188,21 @@ class TestMarginTracking:
         spec = self.create_test_spec()
         data = self.create_trending_data(50)
         
-        result = engine.run_backtest(data, spec)
+        # Use custom signal function to force trade entry
+        def force_long_signal(row, physics_state, bar_index):
+            # Open long at bar 25, close at bar 45
+            if bar_index == 25:
+                return 1  # Buy
+            elif bar_index == 45:
+                return -1  # Sell to close
+            return 0  # Hold
+        
+        result = engine.run_backtest(data, spec, signal_func=force_long_signal)
         
         # Should have margin history
         assert len(engine.margin_history) > 0
         
-        # Min margin level should be set
+        # Min margin level should be set (trade was opened)
         assert engine.min_margin_level < float("inf")
         
         # Min margin level should be in result
@@ -205,7 +214,7 @@ class TestMarginTracking:
         spec = self.create_test_spec()
         # Flat data - no trades
         data = pd.DataFrame({
-            "time": pd.date_range(start="2024-01-01", periods=10, freq="H"),
+            "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
             "open": [1.08] * 10,
             "high": [1.081] * 10,
             "low": [1.079] * 10,
@@ -213,7 +222,11 @@ class TestMarginTracking:
             "volume": [1000] * 10,
         })
         
-        engine.run_backtest(data, spec)
+        # Use a signal function that never trades
+        def no_trade_signal(row, physics_state, bar_index):
+            return 0  # Always hold
+        
+        engine.run_backtest(data, spec, signal_func=no_trade_signal)
         
         # Should have margin history (all inf when no position)
         assert len(engine.margin_history) > 0
@@ -246,17 +259,25 @@ class TestSafeMathOperations:
         spec = self.create_test_spec(tick_size=0.0)
         
         data = pd.DataFrame({
-            "time": pd.date_range(start="2024-01-01", periods=5, freq="H"),
-            "open": [1.08, 1.09, 1.10, 1.11, 1.12],
-            "high": [1.081, 1.091, 1.101, 1.111, 1.121],
-            "low": [1.079, 1.089, 1.099, 1.109, 1.119],
-            "close": [1.08, 1.09, 1.10, 1.11, 1.12],
-            "volume": [1000] * 5,
+            "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
+            "open": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
+            "high": [1.081, 1.091, 1.101, 1.111, 1.121, 1.131, 1.141, 1.151, 1.161, 1.171],
+            "low": [1.079, 1.089, 1.099, 1.109, 1.119, 1.129, 1.139, 1.149, 1.159, 1.169],
+            "close": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
+            "volume": [1000] * 10,
         })
         
-        # Should not crash, should warn
+        # Force a trade to trigger the tick_size warning
+        def force_trade_signal(row, physics_state, bar_index):
+            if bar_index == 3:
+                return 1  # Buy
+            elif bar_index == 8:
+                return -1  # Sell
+            return 0
+        
+        # Should not crash, should warn when position is closed
         with pytest.warns(UserWarning, match="Invalid tick_size"):
-            result = engine.run_backtest(data, spec)
+            result = engine.run_backtest(data, spec, signal_func=force_trade_signal)
         
         # Should complete without error
         assert isinstance(result, BacktestResult)
@@ -267,17 +288,25 @@ class TestSafeMathOperations:
         spec = self.create_test_spec(spread_points=0.0)
         
         data = pd.DataFrame({
-            "time": pd.date_range(start="2024-01-01", periods=5, freq="H"),
-            "open": [1.08, 1.09, 1.10, 1.11, 1.12],
-            "high": [1.081, 1.091, 1.101, 1.111, 1.121],
-            "low": [1.079, 1.089, 1.099, 1.109, 1.119],
-            "close": [1.08, 1.09, 1.10, 1.11, 1.12],
-            "volume": [1000] * 5,
+            "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
+            "open": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
+            "high": [1.081, 1.091, 1.101, 1.111, 1.121, 1.131, 1.141, 1.151, 1.161, 1.171],
+            "low": [1.079, 1.089, 1.099, 1.109, 1.119, 1.129, 1.139, 1.149, 1.159, 1.169],
+            "close": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
+            "volume": [1000] * 10,
         })
         
-        # Should warn and use fallback
+        # Force a trade to trigger the spread_points warning
+        def force_trade_signal(row, physics_state, bar_index):
+            if bar_index == 3:
+                return 1  # Buy
+            elif bar_index == 8:
+                return -1  # Sell
+            return 0
+        
+        # Should warn and use fallback when position is opened
         with pytest.warns(UserWarning, match="Invalid spread_points"):
-            result = engine.run_backtest(data, spec)
+            result = engine.run_backtest(data, spec, signal_func=force_trade_signal)
         
         assert isinstance(result, BacktestResult)
 
