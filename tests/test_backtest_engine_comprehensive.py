@@ -10,6 +10,8 @@ Tests for critical bug fixes and new features:
 6. Multi-instrument support (future)
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -167,8 +169,9 @@ class TestMarginTracking:
             slippage_avg=0.5,
         )
     
-    def create_trending_data(self, n_bars: int = 100) -> pd.DataFrame:
+    def create_trending_data(self, n_bars: int = 200) -> pd.DataFrame:
         """Create trending data that will trigger trades."""
+        # Need enough bars to exceed physics lookback (default 125)
         dates = pd.date_range(start="2024-01-01", periods=n_bars, freq="h")
         # Create strong uptrend
         prices = 1.08 + np.arange(n_bars) * 0.0001
@@ -186,14 +189,16 @@ class TestMarginTracking:
         """Test that margin levels are tracked during backtest."""
         engine = BacktestEngine(leverage=100.0)
         spec = self.create_test_spec()
-        data = self.create_trending_data(50)
+        # Need 200+ bars to exceed physics lookback (125)
+        data = self.create_trending_data(200)
         
         # Use custom signal function to force trade entry
+        # Signals must be AFTER physics lookback (125 bars)
         def force_long_signal(row, physics_state, bar_index):
-            # Open long at bar 25, close at bar 45
-            if bar_index == 25:
+            # Open long at bar 130, close at bar 180
+            if bar_index == 130:
                 return 1  # Buy
-            elif bar_index == 45:
+            elif bar_index == 180:
                 return -1  # Sell to close
             return 0  # Hold
         
@@ -212,7 +217,7 @@ class TestMarginTracking:
         """Test margin level when no position is open."""
         engine = BacktestEngine()
         spec = self.create_test_spec()
-        # Flat data - no trades
+        # Flat data - no trades (only 10 bars, well under lookback)
         data = pd.DataFrame({
             "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
             "open": [1.08] * 10,
@@ -253,62 +258,79 @@ class TestSafeMathOperations:
         defaults.update(overrides)
         return SymbolSpec(**defaults)
     
+    def create_trending_data(self, n_bars: int = 200) -> pd.DataFrame:
+        """Create trending data with enough bars for physics lookback."""
+        dates = pd.date_range(start="2024-01-01", periods=n_bars, freq="h")
+        # Create strong uptrend
+        prices = 1.08 + np.arange(n_bars) * 0.0001
+        
+        return pd.DataFrame({
+            "time": dates,
+            "open": prices,
+            "high": prices + 0.0002,
+            "low": prices - 0.0001,
+            "close": prices,
+            "volume": np.ones(n_bars) * 1000,
+        })
+    
     def test_zero_tick_size_handling(self):
         """Test handling of zero tick_size."""
-        engine = BacktestEngine()
-        spec = self.create_test_spec(tick_size=0.0)
+        # Use higher capital and leverage to avoid margin calls
+        engine = BacktestEngine(initial_capital=1000000.0, leverage=500.0)
+        spec = self.create_test_spec(tick_size=0.0, volume_max=10.0)
         
-        data = pd.DataFrame({
-            "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
-            "open": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
-            "high": [1.081, 1.091, 1.101, 1.111, 1.121, 1.131, 1.141, 1.151, 1.161, 1.171],
-            "low": [1.079, 1.089, 1.099, 1.109, 1.119, 1.129, 1.139, 1.149, 1.159, 1.169],
-            "close": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
-            "volume": [1000] * 10,
-        })
+        # Need 200+ bars to exceed physics lookback (125)
+        data = self.create_trending_data(200)
         
-        # Force a trade to trigger the tick_size warning
+        # Force a trade with bars AFTER physics lookback (125)
         def force_trade_signal(row, physics_state, bar_index):
-            if bar_index == 3:
+            if bar_index == 130:
                 return 1  # Buy
-            elif bar_index == 8:
+            elif bar_index == 180:
                 return -1  # Sell
             return 0
         
-        # Should not crash, should warn when position is closed
-        with pytest.warns(UserWarning, match="Invalid tick_size"):
+        # Should not crash; check that warnings were raised
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             result = engine.run_backtest(data, spec, signal_func=force_trade_signal)
+            
+            # Check for tick_size warning
+            tick_warnings = [x for x in w if "tick_size" in str(x.message)]
+            assert len(tick_warnings) > 0, "Expected warning about Invalid tick_size"
         
         # Should complete without error
         assert isinstance(result, BacktestResult)
+        assert result.total_trades >= 1  # Verify trade was executed
     
     def test_zero_spread_handling(self):
         """Test handling of zero or negative spread."""
-        engine = BacktestEngine()
-        spec = self.create_test_spec(spread_points=0.0)
+        # Use higher capital and leverage to avoid margin calls
+        engine = BacktestEngine(initial_capital=1000000.0, leverage=500.0)
+        spec = self.create_test_spec(spread_points=0.0, volume_max=10.0)
         
-        data = pd.DataFrame({
-            "time": pd.date_range(start="2024-01-01", periods=10, freq="h"),
-            "open": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
-            "high": [1.081, 1.091, 1.101, 1.111, 1.121, 1.131, 1.141, 1.151, 1.161, 1.171],
-            "low": [1.079, 1.089, 1.099, 1.109, 1.119, 1.129, 1.139, 1.149, 1.159, 1.169],
-            "close": [1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17],
-            "volume": [1000] * 10,
-        })
+        # Need 200+ bars to exceed physics lookback (125)
+        data = self.create_trending_data(200)
         
-        # Force a trade to trigger the spread_points warning
+        # Force a trade with bars AFTER physics lookback (125)
         def force_trade_signal(row, physics_state, bar_index):
-            if bar_index == 3:
+            if bar_index == 130:
                 return 1  # Buy
-            elif bar_index == 8:
+            elif bar_index == 180:
                 return -1  # Sell
             return 0
         
-        # Should warn and use fallback when position is opened
-        with pytest.warns(UserWarning, match="Invalid spread_points"):
+        # Should not crash; check that warnings were raised
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             result = engine.run_backtest(data, spec, signal_func=force_trade_signal)
+            
+            # Check for spread_points warning
+            spread_warnings = [x for x in w if "spread_points" in str(x.message)]
+            assert len(spread_warnings) > 0, "Expected warning about Invalid spread_points"
         
         assert isinstance(result, BacktestResult)
+        assert result.total_trades >= 1  # Verify trade was executed
 
 
 class TestMetricsCalculation:

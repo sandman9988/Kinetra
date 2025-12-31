@@ -8,8 +8,16 @@ Complete backtesting framework for theorem validation and agent-based trading:
 - Monte Carlo validation
 - Performance metrics (Omega, Sharpe, Z-factor)
 - ML/RL agent integration
+
+Financial Audit Compliance:
+- IEEE 754 floating point validation
+- Division by zero protection
+- NaN/Inf detection and handling
+- Overflow/underflow prevention
+- Digit normalization
 """
 
+import math
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -25,12 +33,52 @@ from .config import MAX_WORKERS
 from .physics_engine import PhysicsEngine
 from .symbol_spec import SymbolSpec
 
+# Import financial audit utilities
+try:
+    from .financial_audit import SafeMath, DigitNormalizer
+    AUDIT_AVAILABLE = True
+except ImportError:
+    AUDIT_AVAILABLE = False
+
 # Try GPU physics
 try:
     from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
     GPU_AVAILABLE = TORCH_AVAILABLE
 except ImportError:
     GPU_AVAILABLE = False
+
+
+def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
+    """Safe division with zero and NaN handling."""
+    if AUDIT_AVAILABLE:
+        return SafeMath.safe_divide(numerator, denominator, default)
+    # Fallback implementation
+    if math.isnan(numerator) or math.isnan(denominator):
+        return default
+    if abs(denominator) < 1e-15:
+        return default
+    return numerator / denominator
+
+
+def safe_multiply(a: float, b: float, max_result: float = 1e15) -> float:
+    """Safe multiplication with overflow protection."""
+    if AUDIT_AVAILABLE:
+        return SafeMath.safe_multiply(a, b, max_result)
+    # Fallback implementation
+    if math.isnan(a) or math.isnan(b):
+        return 0.0
+    result = a * b
+    if abs(result) > max_result:
+        return math.copysign(max_result, result)
+    return result
+
+
+def validate_finite(value: float, name: str = "value", default: float = 0.0) -> float:
+    """Validate value is finite (not NaN or Inf), return default if not."""
+    if math.isnan(value) or math.isinf(value):
+        warnings.warn(f"{name} is {value}, using default {default}")
+        return default
+    return value
 
 
 class TradeDirection(Enum):
@@ -559,27 +607,22 @@ class BacktestEngine:
         self.trade_counter += 1
 
         # Calculate position size based on risk (safe math)
-        risk_amount = self.equity * self.risk_per_trade
+        risk_amount = safe_multiply(self.equity, self.risk_per_trade)
         
-        # Validate spec parameters (defensive programming)
-        if spec.spread_points <= 0:
-            warnings.warn(f"Invalid spread_points {spec.spread_points}, using 1.0")
+        # Validate spec parameters (defensive programming with explicit checks)
+        spread_points = spec.spread_points
+        if spread_points <= 0 or math.isnan(spread_points) or math.isinf(spread_points):
+            warnings.warn(f"Invalid spread_points {spread_points}, using 1.0")
             spread_points = 1.0
-        else:
-            spread_points = spec.spread_points
-            
-        if spec.tick_value <= 0:
-            raise ValueError(f"Invalid tick_value {spec.tick_value}")
+        
+        tick_value = spec.tick_value
+        if tick_value <= 0 or math.isnan(tick_value) or math.isinf(tick_value):
+            raise ValueError(f"Invalid tick_value {tick_value}")
         
         # Calculate lot size (simplified: risk = X% of equity, size accordingly)
-        denominator = spread_points * spec.tick_value * 2  # 2x spread as stop
-        if denominator > 0:
-            lots = min(
-                risk_amount / denominator,
-                spec.volume_max,
-            )
-        else:
-            lots = spec.volume_min
+        denominator = safe_multiply(safe_multiply(spread_points, tick_value), 2.0)  # 2x spread as stop
+        lots = safe_divide(risk_amount, denominator, default=spec.volume_min)
+        lots = min(lots, spec.volume_max)
         
         # Normalize to broker constraints
         lots = max(lots, spec.volume_min)
@@ -650,12 +693,19 @@ class BacktestEngine:
         else:
             price_diff = trade.entry_price - exit_price
 
-        # Convert to money (safe division)
-        if spec.tick_size > 0:
-            trade.gross_pnl = price_diff * trade.lots * spec.tick_value / spec.tick_size
-        else:
-            warnings.warn(f"Invalid tick_size {spec.tick_size}, using 1.0")
-            trade.gross_pnl = price_diff * trade.lots * spec.tick_value
+        # Validate price_diff for numerical issues
+        price_diff = validate_finite(price_diff, "price_diff", 0.0)
+
+        # Convert to money (safe division with explicit tick_size validation)
+        tick_size = spec.tick_size
+        if tick_size <= 0 or math.isnan(tick_size) or math.isinf(tick_size):
+            warnings.warn(f"Invalid tick_size {tick_size}, using 1.0")
+            tick_size = 1.0
+        
+        trade.gross_pnl = safe_multiply(
+            safe_divide(price_diff, tick_size) * spec.tick_value,
+            trade.lots
+        )
 
         # Exit costs
         exit_commission = spec.commission.calculate_commission(
@@ -751,12 +801,19 @@ class BacktestEngine:
         else:
             price_diff = position.entry_price - current_price
 
-        # Safe division
-        if spec.tick_size > 0:
-            return price_diff * position.lots * spec.tick_value / spec.tick_size
-        else:
-            warnings.warn(f"Invalid tick_size {spec.tick_size}, using 1.0")
-            return price_diff * position.lots * spec.tick_value
+        # Validate price_diff
+        price_diff = validate_finite(price_diff, "mtm_price_diff", 0.0)
+
+        # Safe division with explicit tick_size validation
+        tick_size = spec.tick_size
+        if tick_size <= 0 or math.isnan(tick_size) or math.isinf(tick_size):
+            warnings.warn(f"Invalid tick_size {tick_size}, using 1.0")
+            tick_size = 1.0
+        
+        return safe_multiply(
+            safe_divide(price_diff, tick_size) * spec.tick_value,
+            position.lots
+        )
 
     def _build_agent_state(
         self, row: pd.Series, physics_state: pd.DataFrame, bar_index: int
@@ -841,15 +898,15 @@ class BacktestEngine:
         # Equity curve
         equity_curve = pd.Series(self.equity_history)
 
-        # Max drawdown
+        # Max drawdown (with safe division)
         rolling_max = equity_curve.expanding().max()
         drawdown = equity_curve - rolling_max
         max_dd = drawdown.min()
-        max_dd_pct = (
-            (max_dd / rolling_max[drawdown.idxmin()]) * 100
-            if rolling_max[drawdown.idxmin()] > 0
-            else 0
-        )
+        
+        # Safe calculation of max drawdown percentage
+        dd_idx = drawdown.idxmin()
+        rolling_max_at_dd = rolling_max[dd_idx]
+        max_dd_pct = safe_divide(max_dd, rolling_max_at_dd, 0.0) * 100
 
         # Returns for ratio calculations
         returns = equity_curve.pct_change().dropna()
@@ -869,21 +926,25 @@ class BacktestEngine:
         bars_per_year = timeframe_bars_per_year.get(self.timeframe, 252)
         annualization = np.sqrt(bars_per_year)
 
-        # Sharpe ratio (annualized, timeframe-aware)
-        if len(returns) > 1 and returns.std() > 0:
-            sharpe = (returns.mean() / returns.std()) * annualization
+        # Sharpe ratio (annualized, timeframe-aware with safe division)
+        if len(returns) > 1:
+            ret_std = returns.std()
+            ret_mean = returns.mean()
+            sharpe = safe_divide(ret_mean, ret_std, 0.0) * annualization
+            sharpe = validate_finite(sharpe, "sharpe_ratio", 0.0)
         else:
             sharpe = 0.0
 
-        # Sortino ratio
-        if len(returns) > 1 and returns.std() > 0:
+        # Sortino ratio (with safe division)
+        sortino = 0.0
+        if len(returns) > 1:
             downside_returns = returns[returns < 0]
             if len(downside_returns) > 0:
-                sortino = (returns.mean() / downside_returns.std()) * annualization
+                downside_std = downside_returns.std()
+                sortino = safe_divide(returns.mean(), downside_std, 0.0) * annualization
+                sortino = validate_finite(sortino, "sortino_ratio", 0.0)
             else:
-                sortino = float("inf")
-        else:
-            sortino = 0.0
+                sortino = float("inf") if returns.mean() > 0 else 0.0
 
         # CVaR (Conditional Value at Risk) - downside tail risk
         if len(returns) > 0:
@@ -895,42 +956,46 @@ class BacktestEngine:
             cvar_95 = 0.0
             cvar_99 = 0.0
 
-        # Omega ratio
+        # Omega ratio (with safe division)
         threshold = 0
         gains = returns[returns > threshold].sum()
         losses = abs(returns[returns <= threshold].sum())
-        omega = gains / losses if losses > 0 else float("inf")
+        omega = safe_divide(gains, losses, float("inf"))
+        omega = validate_finite(omega, "omega_ratio", 0.0) if not math.isinf(omega) else omega
 
-        # Z-factor (statistical edge)
+        # Z-factor (statistical edge with safe division)
+        z_factor = 0.0
         if total_trades > 1:
-            win_rate = len(winners) / total_trades
-            avg_win = np.mean([t.net_pnl for t in winners]) if winners else 0
-            avg_loss = np.mean([abs(t.net_pnl) for t in losers]) if losers else 0
-            if avg_loss > 0:
-                z_factor = (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_loss
-            else:
-                z_factor = float("inf") if avg_win > 0 else 0.0
+            win_rate = safe_divide(len(winners), total_trades, 0.0)
+            avg_win = float(np.mean([t.net_pnl for t in winners])) if winners else 0.0
+            avg_loss = float(np.mean([abs(t.net_pnl) for t in losers])) if losers else 0.0
+            
+            numerator = win_rate * avg_win - (1 - win_rate) * avg_loss
+            z_factor = safe_divide(numerator, avg_loss, 0.0)
+            z_factor = validate_finite(z_factor, "z_factor", 0.0)
+            if avg_loss == 0 and avg_win > 0:
+                z_factor = float("inf")
         else:
             z_factor = 0.0
 
-        # Energy captured
+        # Energy captured (with safe division)
         total_energy_at_entry = sum(t.energy_at_entry for t in self.trades)
         profitable_energy = sum(t.energy_at_entry for t in winners)
-        energy_captured = (
-            profitable_energy / total_energy_at_entry if total_energy_at_entry > 0 else 0.0
-        )
+        energy_captured = safe_divide(profitable_energy, total_energy_at_entry, 0.0)
+        energy_captured = validate_finite(energy_captured, "energy_captured", 0.0)
 
-        # MFE capture
+        # MFE capture (with safe division)
         total_mfe = sum(t.mfe for t in self.trades)
         realized_pnl = sum(max(0, t.gross_pnl) for t in self.trades)
-        mfe_capture = realized_pnl / total_mfe if total_mfe > 0 else 0.0
+        mfe_capture = safe_divide(realized_pnl, total_mfe, 0.0)
+        mfe_capture = validate_finite(mfe_capture, "mfe_capture", 0.0)
 
         return BacktestResult(
             trades=self.trades,
             total_trades=total_trades,
             winning_trades=len(winners),
             losing_trades=len(losers),
-            win_rate=len(winners) / total_trades if total_trades > 0 else 0,
+            win_rate=safe_divide(len(winners), total_trades, 0.0),
             gross_profit=gross_profit,
             gross_loss=gross_loss,
             total_gross_pnl=total_gross,
