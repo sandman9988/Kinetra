@@ -2330,6 +2330,7 @@ def _load_single_worker(
     instrument: str,
     timeframe: str,
     filepath: str,
+    asset_class: str,
     min_bars: int,
     compute_physics: bool,
     validate_data: bool,
@@ -2390,6 +2391,7 @@ def _load_single_worker(
         data = InstrumentData(
             instrument=instrument,
             timeframe=timeframe,
+            asset_class=asset_class,
             df=df,
             physics_state=physics_state,
             file_path=filepath,
@@ -2568,13 +2570,14 @@ class MultiInstrumentLoader:
                     instrument,
                     timeframe,
                     filepath,
+                    asset_class,
                     self.min_bars,
                     self.compute_physics,
                     self.validate_data,
                     self.cache_physics,
                     str(self.cache_dir)
                 ): (instrument, timeframe)
-                for instrument, timeframe, filepath, *_ in discovered
+                for instrument, timeframe, filepath, asset_class, *_ in discovered
             }
 
             # Collect results
