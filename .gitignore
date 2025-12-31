@@ -95,3 +95,4 @@ rl_exploration_framework/data/*.csv
 data/master/
 data/prepared/
 data/test/
+data/backups/
