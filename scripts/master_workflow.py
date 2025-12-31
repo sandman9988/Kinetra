@@ -1,0 +1,454 @@
+#!/usr/bin/env python3
+"""
+Kinetra Master Workflow
+=======================
+
+Complete end-to-end workflow in one process:
+1. Authentication & account selection
+2. Download data (with options)
+2.5. Auto-convert MT5 format to standard format
+3. Check and fill missing data
+4. Check data integrity
+5. Prepare data (train/test split)
+6. Run exploration (agent comparison)
+
+Usage:
+    python scripts/master_workflow.py
+"""
+
+import os
+import sys
+import subprocess
+import getpass
+from pathlib import Path
+
+# Add project root
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+
+def print_header(text: str):
+    """Print section header."""
+    print("\n" + "=" * 80)
+    print(f"  {text}")
+    print("=" * 80)
+
+
+def save_credentials_to_env(token: str, account_id: str = None):
+    """Save credentials to .env file for persistent storage."""
+    # Use script's parent directory, not cwd (in case user runs from subdirectory)
+    script_dir = Path(__file__).parent.parent
+    env_file = script_dir / '.env'
+
+    print(f"\n📝 Saving to: {env_file.absolute()}")
+
+    # Read existing .env if it exists
+    env_lines = {}
+    if env_file.exists():
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        env_lines[key] = value
+            print(f"   Loaded {len(env_lines)} existing credentials")
+        except Exception as e:
+            print(f"⚠️  Could not read existing .env: {e}")
+
+    # Update credentials
+    if token:
+        env_lines['METAAPI_TOKEN'] = token
+    if account_id:
+        env_lines['METAAPI_ACCOUNT_ID'] = account_id
+
+    # Write back with error handling
+    try:
+        with open(env_file, 'w') as f:
+            f.write("# Kinetra MetaAPI Credentials\n")
+            f.write("# Auto-generated - do not commit to git\n\n")
+            for key, value in env_lines.items():
+                f.write(f"{key}={value}\n")
+
+        # Verify file was written
+        if env_file.exists():
+            size = env_file.stat().st_size
+            print(f"✅ Credentials saved to {env_file}")
+            print(f"   File size: {size} bytes")
+            print(f"   Saved {len(env_lines)} credentials")
+        else:
+            print(f"❌ Failed to create {env_file}")
+
+    except Exception as e:
+        print(f"❌ Failed to save credentials: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # Add to .gitignore if not already there
+    gitignore = Path.cwd() / '.gitignore'
+    if gitignore.exists():
+        content = gitignore.read_text()
+        if '.env' not in content:
+            with open(gitignore, 'a') as f:
+                f.write("\n# Environment variables\n.env\n")
+
+
+def check_credentials() -> bool:
+    """Check if MetaAPI credentials are set and prompt if needed."""
+    # Check for placeholder values
+    placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
+
+    # Try loading from .env file first (use script's parent directory)
+    script_dir = Path(__file__).parent.parent
+    env_file = script_dir / '.env'
+
+    print(f"\n🔍 Looking for credentials in: {env_file.absolute()}")
+
+    if env_file.exists():
+        print(f"✅ Found .env file ({env_file.stat().st_size} bytes)")
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        if key == 'METAAPI_TOKEN' and key not in os.environ:
+                            os.environ[key] = value
+                            print(f"   Loaded METAAPI_TOKEN")
+                        elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
+                            os.environ[key] = value
+                            print(f"   Loaded METAAPI_ACCOUNT_ID")
+        except Exception as e:
+            print(f"⚠️  Could not read .env file: {e}")
+    else:
+        print(f"ℹ️  No .env file found (will prompt for credentials)")
+
+    token = os.environ.get('METAAPI_TOKEN')
+    account_id = os.environ.get('METAAPI_ACCOUNT_ID')
+
+    # Check token
+    has_valid_token = False
+    if token and not any(placeholder in token.lower() for placeholder in placeholder_patterns):
+        print(f"\n✅ Found valid API token: {token[:8]}***")
+        has_valid_token = True
+    else:
+        if token:
+            print(f"\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
+        else:
+            print("\nℹ️  No METAAPI_TOKEN set")
+
+        # Prompt for token NOW (hidden input)
+        print("\n📋 MetaAPI Token Required")
+        print("Get your token from: https://app.metaapi.cloud/")
+        token = getpass.getpass("\nEnter your MetaAPI token (hidden): ").strip()
+
+        if not token:
+            print("\n❌ No token provided - cannot proceed")
+            return False
+
+        # Save to environment for this session
+        os.environ['METAAPI_TOKEN'] = token
+        has_valid_token = True
+
+        # Ask to save persistently
+        save_choice = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
+        if save_choice == '1':
+            # Also prompt for account_id to save both together
+            print("\n📋 MetaAPI Account ID (optional, can skip if using multiple accounts)")
+            print("Get this from: https://app.metaapi.cloud/")
+            print("(UUID format: e8f8c21a-32b5-40b0-9bf7-672e8ffab91f)")
+            account_id_input = getpass.getpass("\nEnter your MetaAPI account ID (hidden, or press Enter to skip): ").strip()
+
+            if account_id_input:
+                os.environ['METAAPI_ACCOUNT_ID'] = account_id_input
+                account_id = account_id_input
+                save_credentials_to_env(token, account_id)
+            else:
+                save_credentials_to_env(token, account_id=None)
+
+        print(f"✅ Token set for workflow")
+
+    # Check account ID (after potential prompting above)
+    has_valid_account = False
+    if not account_id:
+        account_id = os.environ.get('METAAPI_ACCOUNT_ID')
+
+    if account_id and not any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
+        print(f"✅ Found valid account ID: {account_id[:8]}***")
+        has_valid_account = True
+    else:
+        if account_id:
+            print(f"⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
+        else:
+            print("ℹ️  No METAAPI_ACCOUNT_ID set")
+
+        print("\nℹ️  Account will be selected interactively during download")
+
+    return True
+
+
+def run_step(step_name: str, script_path: str, required: bool = True, allow_exit: bool = True) -> bool:
+    """Run a workflow step."""
+    print_header(step_name)
+
+    if not Path(script_path).exists():
+        print(f"\n❌ Script not found: {script_path}")
+        return False
+
+    try:
+        # Pass through stdin/stdout/stderr so interactive scripts work
+        result = subprocess.run(
+            [sys.executable, script_path],
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr
+        )
+
+        if result.returncode != 0:
+            if required:
+                print(f"\n❌ {step_name} failed (exit code {result.returncode})")
+                return False
+            else:
+                print(f"\n⚠️  {step_name} completed with warnings")
+
+        print(f"\n✅ {step_name} complete")
+
+        # Exit offramp
+        if allow_exit:
+            print("\nOptions:")
+            print("  1. Continue to next step")
+            print("  2. Exit workflow")
+
+            choice = input("\nSelect [1-2]: ").strip()
+            if choice == '2':
+                print("\n👋 Exiting workflow")
+                return False
+
+        return True
+
+    except KeyboardInterrupt:
+        print(f"\n\n⚠️  {step_name} interrupted by user")
+        return False
+    except Exception as e:
+        print(f"\n❌ {step_name} error: {e}")
+        return False
+
+
+def main():
+    """Run complete workflow."""
+    print_header("KINETRA MASTER WORKFLOW")
+
+    print("""
+Complete end-to-end workflow:
+
+1. Authentication & Account Selection
+2. Download Data (interactive)
+3. Check & Fill Missing Data
+4. Check Data Integrity
+5. Prepare Data (train/test split)
+6. Explore & Compare Agents
+
+THE MARKET TELLS US, WE DON'T ASSUME!
+""")
+
+    response = input("\nProceed with complete workflow? [1=Yes, 2=No]: ").strip()
+    if response != '1':
+        print("\n👋 Workflow cancelled")
+        return
+
+    # Check credentials first
+    print_header("STEP 1: AUTHENTICATION")
+
+    if not check_credentials():
+        print("\n⚠️  Set credentials and run again")
+        return
+
+    # Ask which steps to run
+    print_header("WORKFLOW OPTIONS")
+
+    print("""
+Which steps do you want to run?
+
+  1. Full workflow (recommended for first run)
+  2. Skip download (use existing data)
+  3. Download only (stop after downloading)
+  4. Custom (choose each step)
+""")
+
+    workflow_choice = input("\nSelect workflow [1-4]: ").strip()
+
+    # Determine steps to run
+    run_download = True
+    run_fill = True
+    run_integrity = True
+    run_prepare = True
+    run_explore = True
+
+    if workflow_choice == '2':
+        run_download = False
+        print("\n✅ Will skip download, use existing data")
+
+    elif workflow_choice == '3':
+        run_fill = False
+        run_integrity = False
+        run_prepare = False
+        run_explore = False
+        print("\n✅ Will download only")
+
+    elif workflow_choice == '4':
+        run_download = input("\n  Download data? [1=Yes, 2=No]: ").strip() == '1'
+        if run_download:
+            run_fill = input("  Fill missing data? [1=Yes, 2=No]: ").strip() == '1'
+        run_integrity = input("  Check integrity? [1=Yes, 2=No]: ").strip() == '1'
+        run_prepare = input("  Prepare data? [1=Yes, 2=No]: ").strip() == '1'
+        run_explore = input("  Run exploration? [1=Yes, 2=No]: ").strip() == '1'
+
+    # Run workflow steps
+    print_header("STARTING WORKFLOW")
+
+    # Step 2: Download
+    if run_download:
+        if not run_step(
+            "STEP 2: DOWNLOAD DATA",
+            "scripts/download_interactive.py",
+            required=True,
+            allow_exit=True
+        ):
+            return
+    else:
+        print_header("STEP 2: DOWNLOAD DATA")
+        print("\n⏭️  Skipped (using existing data)")
+
+    # Step 2.5: Convert MT5 format (automatic, no user input)
+    print_header("STEP 2.5: CONVERT MT5 FORMAT")
+
+    convert_script = Path("scripts/convert_mt5_format.py")
+    if convert_script.exists():
+        print("\n🔄 Auto-converting MT5 format files to standard format...")
+        print("   (Combining <DATE>+<TIME> → time, renaming columns)")
+
+        result = subprocess.run(
+            [sys.executable, str(convert_script)],
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr
+        )
+
+        if result.returncode == 0:
+            print("\n✅ Format conversion complete")
+        else:
+            print("\n⚠️  Format conversion completed with warnings")
+    else:
+        print("\n⏭️  Converter not found (files may already be in correct format)")
+
+    # Step 3: Fill missing
+    if run_fill:
+        # This step is optional - can continue even if it fails
+        if not run_step(
+            "STEP 3: CHECK & FILL MISSING DATA",
+            "scripts/check_and_fill_data.py",
+            required=False,
+            allow_exit=True
+        ):
+            return
+    else:
+        print_header("STEP 3: CHECK & FILL MISSING DATA")
+        print("\n⏭️  Skipped")
+
+    # Step 4: Integrity check
+    if run_integrity:
+        if not run_step(
+            "STEP 4: CHECK DATA INTEGRITY",
+            "scripts/check_data_integrity.py",
+            required=False,
+            allow_exit=True
+        ):
+            return
+    else:
+        print_header("STEP 4: CHECK DATA INTEGRITY")
+        print("\n⏭️  Skipped")
+
+    # Step 5: Prepare data
+    if run_prepare:
+        if not run_step(
+            "STEP 5: PREPARE DATA",
+            "scripts/prepare_data.py",
+            required=True,
+            allow_exit=True
+        ):
+            return
+    else:
+        print_header("STEP 5: PREPARE DATA")
+        print("\n⏭️  Skipped")
+
+    # Step 6: Exploration
+    if run_explore:
+        print_header("STEP 6: EXPLORATION")
+
+        print("""
+Exploration options:
+
+  1. Universal Agent Baseline (LinearQ only)
+  2. Compare All Agents (LinearQ vs PPO vs SAC vs TD3)
+  3. Open Testing Menu (choose manually)
+  4. Skip exploration
+""")
+
+        explore_choice = input("\nSelect exploration [1-4]: ").strip()
+
+        if explore_choice == '1':
+            run_step(
+                "UNIVERSAL AGENT BASELINE",
+                "scripts/explore_universal.py",
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
+            )
+
+        elif explore_choice == '2':
+            run_step(
+                "COMPARE AGENTS (LinearQ vs PPO vs SAC vs TD3)",
+                "scripts/explore_compare_agents.py",
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
+            )
+
+        elif explore_choice == '3':
+            run_step(
+                "TESTING MENU",
+                "scripts/test_menu.py",
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
+            )
+
+        else:
+            print("\n⏭️  Skipped exploration")
+
+    else:
+        print_header("STEP 6: EXPLORATION")
+        print("\n⏭️  Skipped")
+
+    # Final summary
+    print_header("WORKFLOW COMPLETE!")
+
+    print("""
+✅ All steps completed successfully!
+
+Next steps:
+  • Review results in results/exploration/
+  • Run additional exploration: python scripts/test_menu.py
+  • Check prepared data: ls data/prepared/train/
+
+THE MARKET HAS TOLD US - NOW WE KNOW!
+""")
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Workflow interrupted by user")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\n\n❌ Workflow error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)

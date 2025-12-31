@@ -2146,7 +2146,14 @@ def run_exploration_test(
 
 @dataclass
 class InstrumentData:
-    """Container for instrument/timeframe data."""
+    """
+    Container for instrument/timeframe data.
+
+    Enhanced with DataPackage integration:
+    - market_type: Auto-detected from symbol (forex/crypto/shares/metals/energy/etfs)
+    - symbol_spec: Real MT5 specs if available (swaps, margins, spreads)
+    - data_package: Full DataPackage for advanced use cases
+    """
     instrument: str
     timeframe: str
     asset_class: str  # forex, crypto, indices, metals, energy
@@ -2154,6 +2161,9 @@ class InstrumentData:
     physics_state: pd.DataFrame
     file_path: str
     bar_count: int
+    market_type: str = "unknown"  # Asset class (forex/crypto/shares/etc)
+    symbol_spec: Optional[Any] = None  # SymbolSpec from MT5
+    data_package: Optional[Any] = None  # Full DataPackage
 
     @property
     def key(self) -> str:
@@ -2164,15 +2174,106 @@ class InstrumentData:
         return f"{self.asset_class}/{self.instrument}_{self.timeframe}"
 
 
+def _load_single_worker(
+    instrument: str,
+    timeframe: str,
+    filepath: str,
+    min_bars: int,
+    compute_physics: bool,
+    validate_data: bool,
+    cache_physics: bool,
+    cache_dir: str
+) -> Dict:
+    """
+    Worker function for parallel data loading.
+    Must be module-level for multiprocessing pickle compatibility.
+    """
+    import hashlib
+    import pickle
+    from pathlib import Path
+
+    try:
+        # Check physics cache first
+        physics_state = None
+        if cache_physics and compute_physics:
+            # Generate cache key from file content hash
+            cache_key = hashlib.md5(f"{filepath}_{instrument}_{timeframe}".encode()).hexdigest()
+            cache_file = Path(cache_dir) / f"{cache_key}.pkl"
+
+            if cache_file.exists():
+                try:
+                    with open(cache_file, 'rb') as f:
+                        cached_data = pickle.load(f)
+                        physics_state = cached_data['physics_state']
+                except Exception:
+                    pass  # Cache corrupted, recompute
+
+        # Load via UnifiedDataLoader
+        from kinetra.data_loader import UnifiedDataLoader
+
+        loader = UnifiedDataLoader(
+            validate=validate_data,
+            compute_physics=compute_physics and (physics_state is None),  # Skip if cached
+            verbose=False
+        )
+
+        data_package = loader.load(filepath)
+        df = data_package.to_backtest_engine_format()
+
+        # Use cached physics or newly computed
+        if physics_state is None:
+            physics_state = data_package.physics_state
+
+        # Cache physics state for future runs
+        if cache_physics and physics_state is not None:
+            cache_key = hashlib.md5(f"{filepath}_{instrument}_{timeframe}".encode()).hexdigest()
+            cache_file = Path(cache_dir) / f"{cache_key}.pkl"
+            try:
+                with open(cache_file, 'wb') as f:
+                    pickle.dump({'physics_state': physics_state}, f)
+            except Exception:
+                pass  # Cache write failed, not critical
+
+        # Create InstrumentData
+        data = InstrumentData(
+            instrument=instrument,
+            timeframe=timeframe,
+            df=df,
+            physics_state=physics_state,
+            file_path=filepath,
+            bar_count=len(df),
+            market_type=data_package.market_type.value if hasattr(data_package.market_type, 'value') else str(data_package.market_type),
+            symbol_spec=data_package.symbol_spec,
+            data_package=data_package,
+        )
+
+        return {
+            'success': True,
+            'data': data
+        }
+
+    except Exception as e:
+        import traceback
+        return {
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+
+
 class MultiInstrumentLoader:
     """
     Auto-discovers and loads all instruments and timeframes from data directory.
 
     Features:
     - Auto-discovery of CSV files by filename pattern
+    - Uses UnifiedDataLoader for instrument-agnostic loading
+    - Auto-loads real MT5 specs from instrument_specs.json
     - Per-instrument physics state computation
     - Normalized features (z-scored per instrument for fair comparison)
     - Unified interface for multi-instrument training
+
+    INTEGRATION: Uses DataPackage pipeline (MT5 specs → UnifiedDataLoader → DataPackage)
     """
 
     # Pattern matches: BTCUSD_H1_..., GBPUSD+_M15_..., Nikkei225_H4_..., NAS100_M30_..., DJ30ft_H1_...
@@ -2183,12 +2284,37 @@ class MultiInstrumentLoader:
         data_dir: str = "data/master",
         min_bars: int = 1000,
         verbose: bool = True,
+        compute_physics: bool = True,
+        validate_data: bool = True,
+        n_workers: int = None,
+        cache_physics: bool = True,
     ):
         self.data_dir = Path(data_dir)
         self.min_bars = min_bars
         self.verbose = verbose
+        self.compute_physics = compute_physics
+        self.validate_data = validate_data
+        self.cache_physics = cache_physics
         self.instruments: Dict[str, InstrumentData] = {}
-        self._physics_engine = None
+
+        # Auto-detect workers (use all cores - 2 for system)
+        import multiprocessing as mp
+        if n_workers is None:
+            n_workers = max(1, mp.cpu_count() - 2)
+        self.n_workers = n_workers
+
+        # Physics cache directory
+        self.cache_dir = Path(data_dir).parent / "physics_cache"
+        if cache_physics:
+            self.cache_dir.mkdir(exist_ok=True)
+
+        # Initialize UnifiedDataLoader (auto-loads instrument_specs.json)
+        from kinetra.data_loader import UnifiedDataLoader
+        self.data_loader = UnifiedDataLoader(
+            validate=validate_data,
+            compute_physics=compute_physics,
+            verbose=False  # Disable verbose for parallel loading
+        )
 
     def _log(self, msg: str):
         if self.verbose:
@@ -2222,24 +2348,42 @@ class MultiInstrumentLoader:
         return discovered
 
     def load_all(self) -> Dict[str, InstrumentData]:
-        """Load all discovered instruments and compute physics state."""
-        from test_physics_pipeline import PhysicsEngine
+        """
+        Load all discovered instruments in parallel using UnifiedDataLoader.
 
-        self._physics_engine = PhysicsEngine()
+        Uses DataPackage pipeline:
+        - Auto-loads real MT5 specs from instrument_specs.json
+        - Market-type-specific preprocessing (forex vs crypto vs metals etc.)
+        - Optional physics state computation (cached to disk)
+        - Data quality validation
+        - Parallel processing across n_workers
+        """
         discovered = self.discover()
 
-        self._log(f"\n[LOADING] {len(discovered)} datasets...")
+        if self.n_workers == 1:
+            # Sequential loading
+            return self._load_all_sequential(discovered)
+        else:
+            # Parallel loading
+            return self._load_all_parallel(discovered)
+
+    def _load_all_sequential(self, discovered: List[Tuple[str, str, str]]) -> Dict[str, InstrumentData]:
+        """Sequential loading (legacy mode)."""
+        self._log(f"\n[LOADING] {len(discovered)} datasets sequentially...")
 
         for instrument, timeframe, filepath, asset_class in discovered:
             try:
                 data = self._load_single(instrument, timeframe, filepath, asset_class)
                 if data.bar_count >= self.min_bars:
                     self.instruments[data.key] = data
-                    self._log(f"  [OK] {asset_class}/{data.key}: {data.bar_count} bars")
+                    self._log(f"  [OK] {data.key}: {data.bar_count} bars (market: {data.market_type})")
                 else:
                     self._log(f"  [SKIP] {data.key}: {data.bar_count} bars < {self.min_bars}")
             except Exception as e:
                 self._log(f"  [ERROR] {instrument}_{timeframe}: {e}")
+                import traceback
+                if self.verbose:
+                    traceback.print_exc()
 
         self._log(f"\n[LOADED] {len(self.instruments)} datasets ready")
 
@@ -2248,131 +2392,116 @@ class MultiInstrumentLoader:
 
         return self.instruments
 
-    def _align_to_common_dates(self):
-        """Trim all instruments to the common overlapping date range."""
-        if not self.instruments:
-            return
+    def _load_all_parallel(self, discovered: List[Tuple[str, str, str]]) -> Dict[str, InstrumentData]:
+        """Parallel loading using ProcessPoolExecutor."""
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        import time
 
-        # Find common date range
-        starts = []
-        ends = []
-        for data in self.instruments.values():
-            starts.append(data.df.index.min())
-            ends.append(data.df.index.max())
+        start_time = time.time()
 
-        common_start = max(starts)
-        common_end = min(ends)
+        self._log(f"\n[LOADING] {len(discovered)} datasets in parallel...")
+        self._log(f"  Workers: {self.n_workers}")
+        self._log(f"  Physics computation: {'enabled (with caching)' if self.compute_physics else 'disabled'}")
 
-        if common_start >= common_end:
-            self._log(f"[WARN] No common date range found! Skipping alignment.")
-            return
+        loaded_count = 0
+        skipped_count = 0
+        error_count = 0
 
-        self._log(f"\n[ALIGN] Common date range: {common_start} to {common_end}")
+        # Submit all tasks
+        with ProcessPoolExecutor(max_workers=self.n_workers) as executor:
+            # Submit work items
+            future_to_info = {
+                executor.submit(
+                    _load_single_worker,
+                    instrument,
+                    timeframe,
+                    filepath,
+                    self.min_bars,
+                    self.compute_physics,
+                    self.validate_data,
+                    self.cache_physics,
+                    str(self.cache_dir)
+                ): (instrument, timeframe)
+                for instrument, timeframe, filepath in discovered
+            }
 
-        # Trim each instrument
-        trimmed_count = 0
-        for key, data in list(self.instruments.items()):
-            mask = (data.df.index >= common_start) & (data.df.index <= common_end)
-            if mask.sum() < self.min_bars:
-                self._log(f"  [DROP] {key}: only {mask.sum()} bars in common range")
-                del self.instruments[key]
-            else:
-                data.df = data.df.loc[mask]
-                data.physics_state = data.physics_state.loc[mask]
-                data.bar_count = len(data.df)
-                trimmed_count += 1
-                self._log(f"  [TRIM] {key}: {data.bar_count} bars")
+            # Collect results
+            for future in as_completed(future_to_info):
+                instrument, timeframe = future_to_info[future]
+                try:
+                    result = future.result()
+                    if result['success']:
+                        data = result['data']
+                        if data.bar_count >= self.min_bars:
+                            self.instruments[data.key] = data
+                            loaded_count += 1
+                            if self.verbose and loaded_count % 10 == 0:
+                                print(f"  Progress: {loaded_count + skipped_count + error_count}/{len(discovered)}", end='\r')
+                        else:
+                            skipped_count += 1
+                    else:
+                        error_count += 1
+                        if self.verbose:
+                            print(f"  [ERROR] {instrument}_{timeframe}: {result.get('error', 'Unknown error')}")
+                except Exception as e:
+                    error_count += 1
+                    if self.verbose:
+                        print(f"  [ERROR] {instrument}_{timeframe}: {e}")
 
-    def get_train_test_split(self, train_ratio: float = 0.7) -> Tuple[Dict[str, 'InstrumentData'], Dict[str, 'InstrumentData']]:
-        """
-        Temporal train/test split - NO lookahead bias.
+        elapsed = time.time() - start_time
 
-        Returns (train_instruments, test_instruments) with data split at the same
-        calendar date across all instruments.
+        self._log(f"\n[LOADED] {loaded_count} datasets in {elapsed:.1f}s ({loaded_count/elapsed:.1f} datasets/sec)")
+        if skipped_count > 0:
+            self._log(f"  Skipped: {skipped_count} (< {self.min_bars} bars)")
+        if error_count > 0:
+            self._log(f"  Errors: {error_count}")
 
-        MIT-style: Proper out-of-sample validation.
-        """
-        if not self.instruments:
-            return {}, {}
-
-        # Find the split date based on the common date range
-        all_dates = []
-        for data in self.instruments.values():
-            all_dates.extend(data.df.index.tolist())
-
-        all_dates = sorted(set(all_dates))
-        split_idx = int(len(all_dates) * train_ratio)
-        split_date = all_dates[split_idx]
-
-        self._log(f"\n[SPLIT] Train/Test split at {split_date} ({train_ratio:.0%}/{1-train_ratio:.0%})")
-
-        train_instruments = {}
-        test_instruments = {}
-
-        for key, data in self.instruments.items():
-            # Split by date
-            train_mask = data.df.index < split_date
-            test_mask = data.df.index >= split_date
-
-            train_df = data.df.loc[train_mask].copy()
-            test_df = data.df.loc[test_mask].copy()
-            train_physics = data.physics_state.loc[train_mask].copy()
-            test_physics = data.physics_state.loc[test_mask].copy()
-
-            if len(train_df) >= self.min_bars:
-                train_instruments[key] = InstrumentData(
-                    instrument=data.instrument,
-                    timeframe=data.timeframe,
-                    asset_class=data.asset_class,
-                    df=train_df,
-                    physics_state=train_physics,
-                    file_path=data.file_path,
-                    bar_count=len(train_df),
-                )
-                self._log(f"  [TRAIN] {key}: {len(train_df)} bars")
-
-            if len(test_df) >= 100:  # Lower threshold for test
-                test_instruments[key] = InstrumentData(
-                    instrument=data.instrument,
-                    timeframe=data.timeframe,
-                    asset_class=data.asset_class,
-                    df=test_df,
-                    physics_state=test_physics,
-                    file_path=data.file_path,
-                    bar_count=len(test_df),
-                )
-                self._log(f"  [TEST]  {key}: {len(test_df)} bars")
-
-        self._log(f"\n[SPLIT] Train: {len(train_instruments)} instruments, Test: {len(test_instruments)} instruments")
-        return train_instruments, test_instruments
+        return self.instruments
 
     def _load_single(
         self, instrument: str, timeframe: str, filepath: str, asset_class: str = "unknown"
     ) -> InstrumentData:
-        """Load single instrument and compute physics state."""
-        # Load raw data
-        df = self._load_csv(filepath, asset_class)
+        """
+        Load single instrument using UnifiedDataLoader (DataPackage pipeline).
 
-        # Compute full physics state
-        physics = self._physics_engine
-        physics_state = physics.compute_physics_state(df["close"])
+        Returns enhanced InstrumentData with:
+        - Real MT5 specs (if available)
+        - Market-type-specific preprocessing
+        - Physics state (if compute_physics=True)
+        - Quality validation
+        """
+        # Load via UnifiedDataLoader → DataPackage
+        data_package = self.data_loader.load(filepath)
 
-        # Add all advanced features
-        vol_state = physics.compute_advanced_volatility(df)
-        for col in vol_state.columns:
-            physics_state[col] = vol_state[col].values
+        # Extract prices in lowercase OHLCV format
+        df = data_package.to_backtest_engine_format()
 
-        dsp_state = physics.compute_dsp_features(df["close"])
-        for col in dsp_state.columns:
-            physics_state[col] = dsp_state[col].values
+        # Get or compute physics state
+        if data_package.physics_state is not None:
+            # Already computed by UnifiedDataLoader
+            physics_state = data_package.physics_state
+        else:
+            # Fallback: compute manually (for backward compatibility)
+            from test_physics_pipeline import PhysicsEngine
+            physics = PhysicsEngine()
+            physics_state = physics.compute_physics_state(df["close"])
 
-        vpin_state = physics.compute_vpin_proxy(df)
-        for col in vpin_state.columns:
-            physics_state[col] = vpin_state[col].values
+            # Add all advanced features
+            vol_state = physics.compute_advanced_volatility(df)
+            for col in vol_state.columns:
+                physics_state[col] = vol_state[col].values
 
-        moments_state = physics.compute_higher_moments(df["close"])
-        for col in moments_state.columns:
-            physics_state[col] = moments_state[col].values
+            dsp_state = physics.compute_dsp_features(df["close"])
+            for col in dsp_state.columns:
+                physics_state[col] = dsp_state[col].values
+
+            vpin_state = physics.compute_vpin_proxy(df)
+            for col in vpin_state.columns:
+                physics_state[col] = vpin_state[col].values
+
+            moments_state = physics.compute_higher_moments(df["close"])
+            for col in moments_state.columns:
+                physics_state[col] = moments_state[col].values
 
         return InstrumentData(
             instrument=instrument,
@@ -2382,43 +2511,10 @@ class MultiInstrumentLoader:
             physics_state=physics_state,
             file_path=filepath,
             bar_count=len(df),
+            market_type=data_package.market_type.value if data_package.market_type else "unknown",
+            symbol_spec=data_package.symbol_spec,
+            data_package=data_package,
         )
-
-    def _load_csv(self, filepath: str, asset_class: str = "unknown") -> pd.DataFrame:
-        """Load CSV with standard preprocessing and trading hours filtering."""
-        df = pd.read_csv(filepath, sep="\t")
-        df.columns = [c.lower().replace("<", "").replace(">", "") for c in df.columns]
-
-        # Combine date and time
-        df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"])
-        df.set_index("datetime", inplace=True)
-
-        # Ensure numeric
-        for col in ["open", "high", "low", "close"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-        df.dropna(subset=["close"], inplace=True)
-
-        # Filter by trading hours based on asset class
-        if asset_class == "forex":
-            # Forex: 24/5 - exclude weekends (Sat 00:00 to Sun 21:00 UTC)
-            df = df[~((df.index.dayofweek == 5) |
-                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
-        elif asset_class == "indices":
-            # Indices: typical exchange hours (filter weekends)
-            df = df[df.index.dayofweek < 5]
-        elif asset_class == "crypto":
-            # Crypto: 24/7 - no filtering needed
-            pass
-        elif asset_class == "metals":
-            # Metals (gold, silver): similar to forex, exclude weekends
-            df = df[~((df.index.dayofweek == 5) |
-                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
-        elif asset_class == "energy":
-            # Energy: exchange hours, exclude weekends
-            df = df[df.index.dayofweek < 5]
-
-        return df
 
     def get_instrument(self, key: str) -> Optional[InstrumentData]:
         """Get instrument by key (e.g., 'BTCUSD_H1')."""
