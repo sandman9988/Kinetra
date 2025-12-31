@@ -6,6 +6,7 @@ Kinetra Master Workflow
 Complete end-to-end workflow in one process:
 1. Authentication & account selection
 2. Download data (with options)
+2.5. Auto-convert MT5 format to standard format
 3. Check and fill missing data
 4. Check data integrity
 5. Prepare data (train/test split)
@@ -264,6 +265,23 @@ Which steps do you want to run?
     else:
         print_header("STEP 2: DOWNLOAD DATA")
         print("\n⏭️  Skipped (using existing data)")
+
+    # Step 2.5: Convert MT5 format (automatic, no user input)
+    print_header("STEP 2.5: CONVERT MT5 FORMAT")
+
+    convert_script = Path("scripts/convert_mt5_format.py")
+    if convert_script.exists():
+        print("\n🔄 Auto-converting MT5 format files to standard format...")
+        print("   (Combining <DATE>+<TIME> → time, renaming columns)")
+
+        result = subprocess.run([sys.executable, str(convert_script)])
+
+        if result.returncode == 0:
+            print("\n✅ Format conversion complete")
+        else:
+            print("\n⚠️  Format conversion completed with warnings")
+    else:
+        print("\n⏭️  Converter not found (files may already be in correct format)")
 
     # Step 3: Fill missing
     if run_fill:
