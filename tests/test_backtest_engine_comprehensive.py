@@ -213,7 +213,7 @@ class TestMarginTracking:
             "volume": [1000] * 10,
         })
         
-        result = engine.run_backtest(data, spec)
+        engine.run_backtest(data, spec)
         
         # Should have margin history (all inf when no position)
         assert len(engine.margin_history) > 0
