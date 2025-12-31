@@ -368,6 +368,14 @@ class UnifiedDataLoader:
         df = df.copy()
         df.columns = df.columns.str.lower()
 
+        # Remove duplicate timestamps as defensive measure (keep first)
+        if isinstance(df.index, pd.DatetimeIndex):
+            initial_len = len(df)
+            df = df[~df.index.duplicated(keep='first')]
+            if len(df) < initial_len:
+                removed = initial_len - len(df)
+                steps.append(f"Removed {removed} duplicate timestamps")
+
         # Market-specific preprocessing
         if market_type == AssetClass.FOREX:
             df, forex_steps = self._preprocess_forex(df)

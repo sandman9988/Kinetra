@@ -176,6 +176,16 @@ def load_mt5_csv(
     # Drop rows with NaN
     df = df.dropna()
 
+    # Remove duplicate timestamps (keep first occurrence)
+    # This is a defensive measure in case downloads introduce duplicates
+    if isinstance(df.index, pd.DatetimeIndex):
+        initial_len = len(df)
+        df = df[~df.index.duplicated(keep='first')]
+        if len(df) < initial_len:
+            # Duplicates were found and removed
+            removed = initial_len - len(df)
+            # Note: we don't print here as this is a utility function
+
     # Validate data integrity
     is_valid, message = validate_ohlcv(df)
     if not is_valid:
