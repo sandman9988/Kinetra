@@ -30,10 +30,39 @@ import getpass
 import time
 from pathlib import Path
 
+from cryptography.fernet import Fernet
+
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kinetra.workflow_manager import WorkflowManager
+
+
+def _get_encryption_key() -> bytes:
+    """
+    Get the encryption key for securing credentials.
+
+    The key is expected in the KINETRA_SECRET_KEY environment variable.
+    It must be a valid Fernet key (base64-encoded 32-byte key).
+    """
+    key = os.environ.get("KINETRA_SECRET_KEY")
+    if not key:
+        raise RuntimeError(
+            "Encryption key not set. Please define KINETRA_SECRET_KEY with a Fernet key."
+        )
+    return key.encode("utf-8")
+
+
+def encrypt_value(value: str) -> str:
+    """
+    Encrypt a sensitive value using Fernet and mark it as encrypted.
+    """
+    if not value:
+        return value
+    f = Fernet(_get_encryption_key())
+    token = f.encrypt(value.encode("utf-8"))
+    # Prefix to signal that the value is encrypted
+    return "ENC::" + token.decode("utf-8")
 
 
 def print_header(text: str):
@@ -88,11 +117,11 @@ def save_credentials_to_env(token: str, account_id: str = None, wf_manager: Work
             else:
                 print(f"⚠️  Could not read existing .env: {e}")
 
-    # Update credentials
+    # Update credentials (encrypt sensitive values before storing)
     if token:
-        env_lines['METAAPI_TOKEN'] = token
+        env_lines['METAAPI_TOKEN'] = encrypt_value(token)
     if account_id:
-        env_lines['METAAPI_ACCOUNT_ID'] = account_id
+        env_lines['METAAPI_ACCOUNT_ID'] = encrypt_value(account_id)
 
     # Prepare content
     content = "# Kinetra MetaAPI Credentials\n"
