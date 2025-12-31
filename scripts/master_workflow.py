@@ -54,7 +54,7 @@ def check_credentials() -> bool:
     return True
 
 
-def run_step(step_name: str, script_path: str, required: bool = True) -> bool:
+def run_step(step_name: str, script_path: str, required: bool = True, allow_exit: bool = True) -> bool:
     """Run a workflow step."""
     print_header(step_name)
 
@@ -71,9 +71,20 @@ def run_step(step_name: str, script_path: str, required: bool = True) -> bool:
                 return False
             else:
                 print(f"\n⚠️  {step_name} completed with warnings")
-                return True
 
         print(f"\n✅ {step_name} complete")
+
+        # Exit offramp
+        if allow_exit:
+            print("\nOptions:")
+            print("  1. Continue to next step")
+            print("  2. Exit workflow")
+
+            choice = input("\nSelect [1-2]: ").strip()
+            if choice == '2':
+                print("\n👋 Exiting workflow")
+                return False
+
         return True
 
     except KeyboardInterrupt:
@@ -161,9 +172,9 @@ Which steps do you want to run?
         if not run_step(
             "STEP 2: DOWNLOAD DATA",
             "scripts/download_interactive.py",
-            required=True
+            required=True,
+            allow_exit=True
         ):
-            print("\n⚠️  Workflow stopped")
             return
     else:
         print_header("STEP 2: DOWNLOAD DATA")
@@ -172,15 +183,12 @@ Which steps do you want to run?
     # Step 3: Fill missing
     if run_fill:
         # This step is optional - can continue even if it fails
-        run_step(
+        if not run_step(
             "STEP 3: CHECK & FILL MISSING DATA",
             "scripts/check_and_fill_data.py",
-            required=False
-        )
-
-        response = input("\nContinue to next step? [1=Yes, 2=No]: ").strip()
-        if response != '1':
-            print("\n⚠️  Workflow stopped by user")
+            required=False,
+            allow_exit=True
+        ):
             return
     else:
         print_header("STEP 3: CHECK & FILL MISSING DATA")
@@ -191,12 +199,10 @@ Which steps do you want to run?
         if not run_step(
             "STEP 4: CHECK DATA INTEGRITY",
             "scripts/check_data_integrity.py",
-            required=False
+            required=False,
+            allow_exit=True
         ):
-            response = input("\n⚠️  Integrity issues found. Continue anyway? [1=Yes, 2=No]: ").strip()
-            if response != '1':
-                print("\n⚠️  Workflow stopped")
-                return
+            return
     else:
         print_header("STEP 4: CHECK DATA INTEGRITY")
         print("\n⏭️  Skipped")
@@ -206,9 +212,9 @@ Which steps do you want to run?
         if not run_step(
             "STEP 5: PREPARE DATA",
             "scripts/prepare_data.py",
-            required=True
+            required=True,
+            allow_exit=True
         ):
-            print("\n⚠️  Workflow stopped")
             return
     else:
         print_header("STEP 5: PREPARE DATA")
@@ -233,21 +239,24 @@ Exploration options:
             run_step(
                 "UNIVERSAL AGENT BASELINE",
                 "scripts/explore_universal.py",
-                required=False
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
             )
 
         elif explore_choice == '2':
             run_step(
                 "COMPARE AGENTS (LinearQ vs PPO vs SAC vs TD3)",
                 "scripts/explore_compare_agents.py",
-                required=False
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
             )
 
         elif explore_choice == '3':
             run_step(
                 "TESTING MENU",
                 "scripts/test_menu.py",
-                required=False
+                required=False,
+                allow_exit=False  # Don't need exit prompt for last step
             )
 
         else:
