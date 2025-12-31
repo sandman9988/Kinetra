@@ -94,19 +94,20 @@ class PhysicsEngine:
         mass: float = 1.0,
         lookback: int = 20,
     ) -> None:
-        self.vel_window = vel_window
-        self.damping_window = damping_window
-        self.entropy_window = entropy_window
-        self.re_slow = re_slow
-        self.re_fast = re_fast
-        self.pe_window = pe_window
-        self.pct_window = pct_window
-        self.n_clusters = n_clusters
-        self.random_state = random_state
-        self.mass = mass
+        # Ensure all window parameters are integers (critical for pandas .rolling())
+        self.vel_window = int(vel_window)
+        self.damping_window = int(damping_window)
+        self.entropy_window = int(entropy_window)
+        self.re_slow = int(re_slow)
+        self.re_fast = int(re_fast)
+        self.pe_window = int(pe_window)
+        self.pct_window = int(pct_window)
+        self.n_clusters = int(n_clusters)
+        self.random_state = int(random_state)
+        self.mass = float(mass)
 
         # BacktestEngine uses this to avoid using early noisy bars
-        self.lookback = max(
+        self.lookback = int(max(
             lookback,
             damping_window,
             entropy_window,
@@ -114,7 +115,7 @@ class PhysicsEngine:
             re_fast,
             pe_window,
             pct_window // 4,
-        )
+        ))
 
         # Hybrid HMM-SVM components
         self.hmm = hmm.GaussianHMM(
@@ -330,6 +331,7 @@ class PhysicsEngine:
         High ζ = high friction, mean-reverting.
         Low ζ = low friction, trend-following.
         """
+        window = int(window)  # Ensure integer for pandas .rolling()
         abs_v = v.abs()
         sigma = v.rolling(window, min_periods=2).std()
         mu = abs_v.rolling(window, min_periods=2).mean()
@@ -344,6 +346,8 @@ class PhysicsEngine:
         H = - Σ p_i log(p_i)
         Normalised by log(bins) to map roughly to [0,1].
         """
+        window = int(window)  # Ensure integer for pandas .rolling()
+        bins = int(bins)  # Ensure integer for np.histogram()
 
         def ent(x: np.ndarray) -> float:
             x = x[~np.isnan(x)]
@@ -371,6 +375,8 @@ class PhysicsEngine:
         Re_m = | <v>_slow | / (sigma_v_fast + eps)
         High Re_m → laminar, low Re_m → turbulent/noisy.
         """
+        slow = int(slow)  # Ensure integer for pandas .rolling()
+        fast = int(fast)  # Ensure integer for pandas .rolling()
         trend = v.rolling(slow, min_periods=2).mean()
         noise = v.rolling(fast, min_periods=2).std()
         Re = trend.abs() / (noise + 1e-12)
@@ -383,6 +389,7 @@ class PhysicsEngine:
 
         High PE → compressed / squeezed (stored energy).
         """
+        window = int(window)  # Ensure integer for pandas .rolling()
         vol = v.rolling(window, min_periods=5).std()
         pe = 1.0 / (vol + 1e-12)
         return pe.bfill().fillna(0.0)
@@ -445,6 +452,7 @@ class PhysicsEngine:
         """
         Rolling percentile (0–1) of current value within last 'window' samples.
         """
+        window = int(window)  # Ensure integer for pandas .rolling()
 
         def pct_last(w: pd.Series) -> float:
             val = w.iloc[-1]

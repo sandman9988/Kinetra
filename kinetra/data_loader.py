@@ -509,12 +509,11 @@ class UnifiedDataLoader:
         try:
             from .physics_engine import PhysicsEngine
 
-            if symbol_spec is None:
-                # Cannot compute without symbol spec
-                return None
+            # Create physics engine with default parameters
+            engine = PhysicsEngine()
 
-            engine = PhysicsEngine(symbol_spec)
-            physics_state = engine.compute_physics_state(prices)
+            # Use OHLCV method since prices is a DataFrame
+            physics_state = engine.compute_physics_state_from_ohlcv(prices)
 
             return physics_state
 
