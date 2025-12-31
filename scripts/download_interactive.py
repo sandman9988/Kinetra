@@ -220,18 +220,26 @@ class InteractiveDownloader:
                 return False
 
             print(f"\n📋 Available Accounts ({len(accounts)}):")
+            print("\nDifferent brokers/servers:")
             for i, acc in enumerate(accounts, 1):
-                print(f"  {i}. {acc.name} ({acc.login}) - {acc.type}")
+                # Show broker server to distinguish between different brokers
+                server = getattr(acc, 'server', 'unknown')
+                platform = getattr(acc, 'platform', 'MT5')
+                print(f"  {i}. {acc.name}")
+                print(f"      Login: {acc.login} | Server: {server} | Platform: {platform}")
 
-            choice = input(f"\nSelect account [1-{len(accounts)}]: ").strip()
+            print(f"\nSelect account [1-{len(accounts)}]")
+            print("(Or enter 'all' to use symbols from all accounts)")
+            choice = input("\nYour choice: ").strip()
 
             try:
-                idx = int(choice) - 1
-                if 0 <= idx < len(accounts):
-                    self.account_id = accounts[idx].id
-                    print(f"\n✅ Selected: {accounts[idx].name}")
+                if choice.lower() == 'all':
+                    # Use first account for connection, but note we could download from multiple
+                    self.account_id = accounts[0].id
+                    print(f"\n✅ Will download symbols available across all {len(accounts)} accounts")
+                    print(f"   Using {accounts[0].name} as primary connection")
 
-                    # Save credentials if requested
+                    # Save first account if requested
                     if should_save:
                         save_credentials_to_env(self.token, self.account_id)
                         os.environ['METAAPI_TOKEN'] = self.token
@@ -239,10 +247,25 @@ class InteractiveDownloader:
 
                     return True
                 else:
-                    print(f"\n❌ Invalid choice")
-                    return False
+                    idx = int(choice) - 1
+                    if 0 <= idx < len(accounts):
+                        self.account_id = accounts[idx].id
+                        server = getattr(accounts[idx], 'server', 'unknown')
+                        print(f"\n✅ Selected: {accounts[idx].name}")
+                        print(f"   Server: {server}")
+
+                        # Save credentials if requested
+                        if should_save:
+                            save_credentials_to_env(self.token, self.account_id)
+                            os.environ['METAAPI_TOKEN'] = self.token
+                            os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
+
+                        return True
+                    else:
+                        print(f"\n❌ Invalid choice")
+                        return False
             except ValueError:
-                print(f"\n❌ Invalid input")
+                print(f"\n❌ Invalid input - enter a number or 'all'")
                 return False
 
         except Exception as e:
