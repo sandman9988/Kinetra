@@ -15,6 +15,7 @@ The DevOps module (`kinetra.devops`) provides:
 | **Security** | `security.py` | Scan for vulnerabilities |
 | **Environment** | `env_manager.py` | Python path/env management |
 | **Monitoring** | `monitor.py` | Real-time folder monitoring |
+| **File Safety** | `file_safety.py` | Atomic saves, integrity, backups |
 
 ## Quick Start
 
@@ -37,6 +38,8 @@ python scripts/devops_manager.py --gpu        # Configure GPU
 python scripts/devops_manager.py --git        # Git sync status
 python scripts/devops_manager.py --parallel   # Show parallelization config
 python scripts/devops_manager.py --monitor    # Start monitoring
+python scripts/devops_manager.py --backup     # Backup critical files
+python scripts/devops_manager.py --integrity  # Verify file integrity
 python scripts/devops_manager.py --fix        # Auto-fix issues
 ```
 
@@ -249,6 +252,58 @@ print(f"CPU avg: {stats['cpu']['avg']:.1f}%")
 - File created/modified/deleted
 - Performance alerts (CPU, memory, disk)
 - Failure detection in log files
+
+### 8. File Safety (`kinetra.devops.file_safety`)
+
+Atomic saves, file integrity verification, and backup management.
+
+```python
+from kinetra.devops import (
+    AtomicWriter, BackupManager, IntegrityChecker, SafeFileHandler,
+    atomic_write, safe_write, safe_read, create_backup, verify_integrity
+)
+
+# Atomic file write (no partial writes)
+with AtomicWriter("config.json") as f:
+    json.dump(data, f)
+
+# Simple atomic write
+atomic_write("data.txt", "Hello, World!")
+
+# Safe write with automatic backup and verification
+handler = SafeFileHandler(backup_dir="backups")
+success, msg = handler.safe_write("config.json", {"key": "value"})
+
+# Safe read with optional checksum verification
+data, msg = handler.safe_read("config.json", as_json=True)
+
+# Integrity checking
+checker = IntegrityChecker(algorithm="sha256")
+checksum = checker.compute_checksum("important_file.csv")
+is_valid = checker.verify_checksum("important_file.csv", checksum)
+
+# Create manifest for directory
+manifest = checker.create_manifest("data/", patterns=["*.csv"])
+checker.save_manifest(manifest, "data_manifest.json")
+
+# Verify against manifest
+results = checker.verify_manifest("data/", manifest)
+# Returns: {'file.csv': 'ok', 'other.csv': 'modified', ...}
+
+# Backup management
+backup = BackupManager("backups/", max_backups=10, compress=False)
+info = backup.create("important_data.csv")
+backups = backup.list_backups("important_data.csv")
+success, msg = backup.restore("important_data.csv")  # Restore latest
+```
+
+#### Features:
+- **Atomic Writes**: Write-to-temp-then-rename pattern prevents partial writes
+- **Integrity Verification**: SHA256/MD5 checksums for file validation
+- **Manifest System**: Track checksums for entire directories
+- **Backup Rotation**: Automatic cleanup of old backups
+- **Compression**: Optional gzip compression for backups
+- **Recovery**: Restore from any backup with integrity verification
 
 ### Running as a Daemon
 

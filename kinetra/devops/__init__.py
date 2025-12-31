@@ -14,6 +14,17 @@ Comprehensive utilities for:
 
 from .dedup import CodeDeduplicator, DataDeduplicator, find_duplicates
 from .env_manager import EnvManager, setup_environment, verify_environment
+from .file_safety import (
+    AtomicWriter,
+    BackupManager,
+    IntegrityChecker,
+    SafeFileHandler,
+    atomic_write,
+    create_backup,
+    safe_read,
+    safe_write,
+    verify_integrity,
+)
 from .git_sync import GitSync, auto_sync, check_sync_status
 from .gpu import GPUManager, auto_detect_gpu, get_gpu_info
 from .monitor import FolderMonitor, PerformanceTracker, start_monitoring
@@ -49,4 +60,14 @@ __all__ = [
     "FolderMonitor",
     "start_monitoring",
     "PerformanceTracker",
+    # File Safety
+    "AtomicWriter",
+    "BackupManager",
+    "IntegrityChecker",
+    "SafeFileHandler",
+    "atomic_write",
+    "safe_write",
+    "safe_read",
+    "create_backup",
+    "verify_integrity",
 ]
