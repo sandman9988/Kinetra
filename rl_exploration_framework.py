@@ -2574,7 +2574,7 @@ class MultiInstrumentLoader:
                     self.cache_physics,
                     str(self.cache_dir)
                 ): (instrument, timeframe)
-                for instrument, timeframe, filepath in discovered
+                for instrument, timeframe, filepath, *_ in discovered
             }
 
             # Collect results
