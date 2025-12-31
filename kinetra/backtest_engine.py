@@ -7,6 +7,7 @@ The main backtesting functionality has been moved to realistic_backtester.py.
 These classes are maintained for backward compatibility with existing code.
 """
 
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -239,7 +240,9 @@ class BacktestEngine:
     """
     
     def __init__(self, *args, **kwargs):
-        raise DeprecationWarning(
+        warnings.warn(
             "BacktestEngine is deprecated. Please use RealisticBacktester instead. "
-            "See kinetra/realistic_backtester.py for the new implementation."
+            "See kinetra/realistic_backtester.py for the new implementation.",
+            DeprecationWarning,
+            stacklevel=2
         )
