@@ -151,7 +151,8 @@ class WorkflowOrchestrator:
         if success:
             # Update results with detection stats
             stats = self.logger.get_statistics()
-            self.results["total_failures_detected"] = stats["total_unique_failures"]
+            # Safely get the value with fallback
+            self.results["total_failures_detected"] = stats.get("total_unique_failures", 0)
         
         return success
     

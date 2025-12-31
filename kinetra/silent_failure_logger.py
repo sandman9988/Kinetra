@@ -389,8 +389,12 @@ class SilentFailureLogger:
             with open(log_file, 'a') as f:
                 f.write(record.to_json() + '\n')
         except Exception as e:
-            # Avoid infinite loop - just print to stderr
-            print(f"Failed to write failure log: {e}", file=sys.stderr)
+            # Avoid infinite loop - just print to stderr with context
+            print(
+                f"Failed to write failure log to {log_file}: {e}\n"
+                f"Original failure: {record.exception_type} - {record.exception_message}",
+                file=sys.stderr
+            )
     
     def get_failures(
         self,

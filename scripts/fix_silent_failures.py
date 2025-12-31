@@ -204,29 +204,22 @@ class FailureFixer:
         
         class_body = match.group(1)
         
-        # Check if it's a dataclass
-        if "@dataclass" not in class_body[:200]:
-            # Regular class - add simple __len__
-            len_method = """
-    def __len__(self) -> int:
-        \"\"\"Return the number of data points.\"\"\"
-        if hasattr(self, 'data') and hasattr(self.data, '__len__'):
-            return len(self.data)
-        elif hasattr(self, 'prices') and hasattr(self.prices, '__len__'):
-            return len(self.prices)
-        return 0
-"""
-        else:
-            # Dataclass - add __len__ after fields
-            len_method = """
-    def __len__(self) -> int:
-        \"\"\"Return the number of data points.\"\"\"
-        if hasattr(self, 'data') and hasattr(self.data, '__len__'):
-            return len(self.data)
-        elif hasattr(self, 'prices') and hasattr(self.prices, '__len__'):
-            return len(self.prices)
-        return 0
-"""
+        # Define __len__ method as separate lines for proper formatting
+        len_method_lines = [
+            "",
+            "    def __len__(self) -> int:",
+            '        """Return the number of data points."""',
+            "        # Try common attribute names for data storage",
+            "        for attr in ['data', 'prices', 'bars', 'values', 'items']:",
+            "            if hasattr(self, attr):",
+            "                value = getattr(self, attr)",
+            "                if hasattr(value, '__len__'):",
+            "                    return len(value)",
+            "        # Default to 0 if no suitable attribute found",
+            "        return 0",
+            "",
+        ]
+        len_method = "\n".join(len_method_lines)
         
         # Insert before the next class or end of file
         # Find good insertion point (after last field/method)

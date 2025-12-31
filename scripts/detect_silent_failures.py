@@ -267,19 +267,12 @@ class FailureDetector:
             if "len(data)" in code and "InstrumentData" in code:
                 print("  ⚠ Found potential len(InstrumentData) pattern")
                 
-                # Log this as a known issue
-                log_failure(
-                    TypeError("object of type 'InstrumentData' has no len()"),
-                    context={
-                        "operation": "explore_interactive_analysis",
-                        "file": str(script_path),
-                        "line_pattern": "len(data)",
-                        "detector": "FailureDetector",
-                        "known_issue": True,
-                    },
-                    category=FailureCategory.TYPE_ERROR,
-                    severity=FailureSeverity.MEDIUM,
-                    tags=["known-issue", "explore-interactive", "auto-detected"],
+                # Log this as a known issue without creating artificial exception
+                logger = SilentFailureLogger.get_instance()
+                logger.logger.warning(
+                    f"Known issue detected in {script_path}: "
+                    "Potential TypeError with len(InstrumentData). "
+                    "This pattern may fail if InstrumentData lacks __len__ method."
                 )
             
         except Exception as e:
