@@ -90,14 +90,14 @@ def test_atomic_write():
             read_content = f.read()
         assert read_content == content, "Content mismatch"
         
-        # Verify checksum stored
-        checksum_file = wf.state_dir / f"{test_file.name}.checksum"
-        assert checksum_file.exists(), "Checksum not stored"
+        # Verify checksum stored (check for any checksum file for this filename)
+        checksum_files = list(wf.state_dir.glob(f"{test_file.name}.*.checksum"))
+        assert len(checksum_files) > 0, "Checksum not stored"
         
         print("✅ Atomic write successful")
         print(f"   File: {test_file}")
         print(f"   Size: {test_file.stat().st_size} bytes")
-        print(f"   Checksum: {checksum_file.read_text()[:16]}...")
+        print(f"   Checksum: {checksum_files[0].read_text()[:16]}...")
 
 
 def test_checksum_verification():

@@ -206,7 +206,10 @@ class WorkflowManager:
             return is_valid
         else:
             # Store checksum for future verification
-            checksum_file = self.state_dir / f"{file_path.name}.checksum"
+            # Use hash of full path to avoid collisions
+            import hashlib
+            path_hash = hashlib.md5(str(file_path.absolute()).encode()).hexdigest()[:8]
+            checksum_file = self.state_dir / f"{file_path.name}.{path_hash}.checksum"
             try:
                 with open(checksum_file, 'w') as f:
                     f.write(current_checksum)
@@ -247,9 +250,11 @@ class WorkflowManager:
             # Atomic rename
             temp_file.replace(file_path)
             
-            # Store checksum
+            # Store checksum (use hash of full path to avoid collisions)
             if self.enable_checksums:
-                checksum_file = self.state_dir / f"{file_path.name}.checksum"
+                import hashlib
+                path_hash = hashlib.md5(str(file_path.absolute()).encode()).hexdigest()[:8]
+                checksum_file = self.state_dir / f"{file_path.name}.{path_hash}.checksum"
                 with open(checksum_file, 'w') as f:
                     f.write(checksum)
             

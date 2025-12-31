@@ -167,12 +167,13 @@ def save_credentials_to_env(token: str, account_id: str = None, wf_manager: Work
                 f.write("\n# Environment variables\n.env\n")
 
 
-def check_credentials(wf_manager: WorkflowManager = None) -> bool:
+def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = False) -> bool:
     """
     Check if MetaAPI credentials are set and prompt if needed.
     
     Args:
         wf_manager: WorkflowManager instance for logging and atomic operations
+        auto_restore: If True, automatically restore from backup without prompting
         
     Returns:
         True if credentials are available
@@ -196,12 +197,26 @@ def check_credentials(wf_manager: WorkflowManager = None) -> bool:
         if wf_manager:
             if not wf_manager.verify_file_integrity(env_file):
                 logger.warning("⚠️  .env file integrity check failed - may have been tampered with")
-                restore = input("\nAttempt to restore from backup? [1=Yes, 2=No]: ").strip()
-                if restore == '1':
+                
+                if auto_restore:
+                    # Automatically restore without prompting
                     if wf_manager.restore_from_backup(env_file):
-                        logger.info("✅ Restored .env from backup")
+                        logger.info("✅ Automatically restored .env from backup")
                     else:
                         logger.warning("⚠️  No backup available, will prompt for credentials")
+                else:
+                    # Prompt user for restore decision
+                    while True:
+                        restore = input("\nAttempt to restore from backup? [1=Yes, 2=No]: ").strip()
+                        if restore in ['1', '2']:
+                            break
+                        print("⚠️  Invalid input. Please enter 1 or 2.")
+                    
+                    if restore == '1':
+                        if wf_manager.restore_from_backup(env_file):
+                            logger.info("✅ Restored .env from backup")
+                        else:
+                            logger.warning("⚠️  No backup available, will prompt for credentials")
         
         if logger:
             logger.info(f"✅ Found .env file ({env_file.stat().st_size} bytes)")
@@ -393,7 +408,12 @@ def run_step(
         print("  2. Exit workflow")
         print("  3. Save progress and exit (resume later)")
 
-        choice = input("\nSelect [1-3]: ").strip()
+        while True:
+            choice = input("\nSelect [1-3]: ").strip()
+            if choice in ['1', '2', '3']:
+                break
+            print("⚠️  Invalid input. Please enter 1, 2, or 3.")
+        
         if choice == '2':
             wf_manager.logger.info("👋 User chose to exit workflow")
             return False
