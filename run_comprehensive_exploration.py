@@ -88,7 +88,6 @@ except Exception as e:
 from rl_exploration_framework import (
     RewardShaper,
     LinearQAgent,
-    FeatureTracker,
 )
 
 
@@ -249,10 +248,6 @@ class ComprehensiveTradingEnv:
                 val = self.inst_meas.normalized_measurements[name][self.current_bar]
                 if np.isfinite(val):
                     bar_meas[name] = val
-
-        # Use physics-based spread and volume measures
-        spread_pct = bar_meas.get('spread_pct_pct', 0.5)  # Spread percentile
-        volume_surge = bar_meas.get('volume_surge_pct', 0.5)  # Volume surge percentile
 
         # Current price
         close = self.close_prices[self.current_bar]
@@ -481,8 +476,7 @@ def run_comprehensive_exploration(
         print(f"  {cls}: MAE_w={shaper.mae_penalty_weight}, "
               f"trend={shaper.trend_bonus_weight}, hold={shaper.holding_bonus_weight}")
 
-    # Get state dim from first instrument
-    first_inst = list(loader.instruments.values())[0]
+    # Get state dimension from extracted features
     state_dim = len(extractor.get_feature_names())
 
     print(f"\n[STEP 4] Feature dimension: {state_dim}")

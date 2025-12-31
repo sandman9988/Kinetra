@@ -23,7 +23,7 @@ Let the physics state and RL discover the patterns.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Callable
+from typing import Dict, List, Tuple
 from enum import Enum
 import numpy as np
 import pandas as pd
@@ -167,20 +167,11 @@ class EnergySignalGenerator(SignalGenerator):
         # Kinetic energy percentile
         ke = measurements.get('kinetic_energy_pct', 0.5)
 
-        # Potential energy (compression) percentile
-        pe_compression = measurements.get('potential_energy_compression_pct', 0.5)
-
-        # Energy efficiency ratio
-        efficiency = measurements.get('energy_efficiency_pct', 0.5)
-
         # Energy release rate
         release_rate = measurements.get('energy_release_rate_pct', 0.5)
 
         # Phase compression (high PE, low KE, low entropy)
         phase_comp = measurements.get('phase_compression_pct', 0.5)
-
-        # Release potential (compression × low entropy)
-        release_potential = measurements.get('release_potential_pct', 0.5)
 
         # Signal logic:
         # High KE with positive release rate = momentum continuing
@@ -225,27 +216,15 @@ class FlowRegimeSignalGenerator(SignalGenerator):
         # Reynolds number percentile
         reynolds = measurements.get('reynolds_pct', 0.5)
 
-        # Damping coefficient
-        damping = measurements.get('damping_pct', 0.5)
-
-        # Viscosity (resistance to flow)
-        viscosity = measurements.get('viscosity_pct', 0.5)
-
-        # Liquidity
-        liquidity = measurements.get('liquidity_pct', 0.5)
-
         # Reynolds-momentum correlation (should be inverse in stable regime)
         re_mom_corr = measurements.get('reynolds_momentum_corr_pct', 0.5)
-
-        # Re-damping ratio
-        re_damping = measurements.get('re_damping_ratio_pct', 0.5)
 
         # Regime classification:
         # High Reynolds (>0.8) = turbulent → be cautious
         # Low damping (<0.3) = trending → follow momentum
         # High damping (>0.7) = mean-reverting → fade moves
 
-        sources = ['reynolds', 'damping', 'viscosity', 'liquidity']
+        sources = ['reynolds', 'reynolds_momentum_corr']
 
         # Regime quality signal (positive = good for trading)
         if reynolds < 0.3:
@@ -339,13 +318,10 @@ class MicrostructureSignalGenerator(SignalGenerator):
         # Volume surge (high = unusual activity)
         volume_surge = measurements.get('volume_surge_pct', 0.5)
 
-        # Volume trend (rising = increasing interest)
-        volume_trend = measurements.get('volume_trend_pct', 0.5)
-
         # Liquidity from flow measures
         liquidity = measurements.get('liquidity_pct', 0.5)
 
-        sources = ['spread_pct', 'volume_surge', 'volume_trend', 'liquidity']
+        sources = ['spread_pct', 'volume_surge', 'liquidity']
 
         # Execution quality:
         # Good: low spread, high liquidity, moderate volume
@@ -613,7 +589,6 @@ class InverseRelationshipTracker:
 
             # Split by energy level
             energy_levels = [h[0] for h in history]
-            correlations = [h[1] for h in history]
 
             median_energy = np.median(energy_levels)
 

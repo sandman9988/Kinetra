@@ -24,7 +24,7 @@ Physics Measurements:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 from pathlib import Path
 from dataclasses import dataclass, field
 
@@ -43,56 +43,32 @@ def _load_sibling_module(name: str):
 try:
     from .measurements import (
         MeasurementEngine,
-        KinematicsMeasures,
-        EnergyMeasures,
-        FlowMeasures,
-        ThermodynamicsMeasures,
-        FieldMeasures,
-        MicrostructureMeasures,
-        PercentileNormalizer,
-        PhysicsRegimeDetector,
         CorrelationExplorer,
     )
 except ImportError:
     _meas = _load_sibling_module('measurements')
     MeasurementEngine = _meas.MeasurementEngine
-    KinematicsMeasures = _meas.KinematicsMeasures
-    EnergyMeasures = _meas.EnergyMeasures
-    FlowMeasures = _meas.FlowMeasures
-    ThermodynamicsMeasures = _meas.ThermodynamicsMeasures
-    FieldMeasures = _meas.FieldMeasures
-    MicrostructureMeasures = _meas.MicrostructureMeasures
-    PercentileNormalizer = _meas.PercentileNormalizer
-    PhysicsRegimeDetector = _meas.PhysicsRegimeDetector
     CorrelationExplorer = _meas.CorrelationExplorer
 
 try:
     from .composite_stacking import (
         ExplorationEngine,
         CompositeStacker,
-        ClassDiscoveryEngine,
-        InverseRelationshipTracker,
     )
 except ImportError:
     _comp = _load_sibling_module('composite_stacking')
     ExplorationEngine = _comp.ExplorationEngine
     CompositeStacker = _comp.CompositeStacker
-    ClassDiscoveryEngine = _comp.ClassDiscoveryEngine
-    InverseRelationshipTracker = _comp.InverseRelationshipTracker
 
 try:
     from .multi_agent_design import (
         AssetClass,
         get_asset_class,
-        get_instrument_profile,
-        INSTRUMENT_PROFILES,
     )
 except ImportError:
     _multi = _load_sibling_module('multi_agent_design')
     AssetClass = _multi.AssetClass
     get_asset_class = _multi.get_asset_class
-    get_instrument_profile = _multi.get_instrument_profile
-    INSTRUMENT_PROFILES = _multi.INSTRUMENT_PROFILES
 
 
 @dataclass

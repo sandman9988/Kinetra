@@ -20,7 +20,7 @@ Broker-Specific Calibration:
 - Default thresholds based on Vantage International ECN profiles
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np

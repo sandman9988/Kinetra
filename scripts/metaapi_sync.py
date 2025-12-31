@@ -33,7 +33,6 @@ import json
 import asyncio
 import argparse
 import tempfile
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -51,7 +50,6 @@ load_dotenv()
 from metaapi_cloud_sdk import MetaApi
 
 import pandas as pd
-import numpy as np
 
 
 # =============================================================================
@@ -86,6 +84,7 @@ def atomic_write_text(filepath: Path, content: str, mode: str = 'w'):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Ignore errors during cleanup of temp file
             pass
         raise
 
@@ -125,6 +124,7 @@ def atomic_write_csv(filepath: Path, df: pd.DataFrame, **kwargs):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Ignore errors during cleanup of temp file
             pass
         raise
 

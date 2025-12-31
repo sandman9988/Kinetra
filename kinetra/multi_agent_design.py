@@ -389,7 +389,6 @@ class VolatilityEstimator:
             open_close_var = np.var(log_co)
 
             # Rogers-Satchell component
-            log_hl = np.log(h / l)
             log_hc = np.log(h / c)
             log_lc = np.log(l / c)
             rs_var = np.mean(log_hc * (log_hc - log_co) + log_lc * (log_lc - log_co))

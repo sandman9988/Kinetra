@@ -14,13 +14,12 @@ Usage:
 """
 
 import argparse
-import os
 import re
 import shutil
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import pandas as pd
 
@@ -264,9 +263,6 @@ def truncate_to_cutoff(
                     df_truncated.columns = ['<' + c.upper() + '>' for c in df_truncated.columns]
                     df_truncated.to_csv(output_path / new_filename, sep='\t', index=False)
 
-                rows_before = "?" if dry_run else len(pd.read_csv(csv_file))
-                rows_after = "?" if dry_run else len(df_truncated)
-
                 results["truncated"].append({
                     "file": csv_file.name,
                     "original_end": end_dt,
@@ -355,9 +351,6 @@ def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
         "H4": 4.0,
     }
     expected_gap_hours = expected_gaps.get(timeframe, 1.0)
-
-    # Weekend gap threshold (forex closes Friday 5pm NY, opens Sunday 5pm NY = ~48h)
-    weekend_gap_hours = 48
 
     # Find matching files
     pattern = f"*_{timeframe}_*.csv"

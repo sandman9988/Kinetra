@@ -17,7 +17,7 @@ Example discoveries we might find:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Tuple, Set
 from collections import defaultdict
 import numpy as np
 import pandas as pd

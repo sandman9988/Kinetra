@@ -26,8 +26,8 @@ KEY INSIGHTS:
 - Let RL discover what matters per class - we just measure everything
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Any
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 from enum import Enum
 import numpy as np
 import pandas as pd
@@ -673,7 +673,8 @@ class MeasurementEngine:
         measurements = {}
 
         # === ADAPTIVE WINDOWS FROM FFT ===
-        short_w, med_w, long_w = AdaptiveWindows.get_adaptive_windows(close)
+        # (currently not used in computations, reserved for future adaptive features)
+        _ = AdaptiveWindows.get_adaptive_windows(close)
 
         # === KINEMATICS (Derivatives) ===
         derivatives = KinematicsMeasures.compute_all_derivatives(close)
