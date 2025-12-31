@@ -242,6 +242,22 @@ _LAZY_MODULES = {
     "DistributionAnalyzer": "backtest_optimizer",
     "ObjectiveFunction": "backtest_optimizer",
     "calculate_objective": "backtest_optimizer",
+
+    # Performance Module
+    "RingBuffer": "performance",
+    "TickBuffer": "performance",
+    "BarBuffer": "performance",
+    "LRUCache": "performance",
+    "ComputeCache": "performance",
+    "cached_property": "performance",
+    "AsyncExecutor": "performance",
+    "AsyncDataStream": "performance",
+    "Timer": "performance",
+    "OnTickHandler": "performance",
+    "OnTimerHandler": "performance",
+    "ParallelProcessor": "performance",
+    "PerformanceMetrics": "performance",
+    "PerformanceMonitor": "performance",
 }
 
 # Cache for loaded modules
@@ -416,4 +432,19 @@ __all__ = [
     "discover_regimes",
     # Workflow Management
     "WorkflowManager",
+    # Performance Module
+    "RingBuffer",
+    "TickBuffer",
+    "BarBuffer",
+    "LRUCache",
+    "ComputeCache",
+    "cached_property",
+    "AsyncExecutor",
+    "AsyncDataStream",
+    "Timer",
+    "OnTickHandler",
+    "OnTimerHandler",
+    "ParallelProcessor",
+    "PerformanceMetrics",
+    "PerformanceMonitor",
 ]
