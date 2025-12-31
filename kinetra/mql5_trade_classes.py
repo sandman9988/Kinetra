@@ -573,13 +573,12 @@ class CAccountInfo:
 
 class CSymbolInfo:
     """
-    Class for working with trade instrument properties.
+    Class for easy access to the symbol properties.
     
-    Provides comprehensive symbol information including:
-    - Contract specifications
-    - Price data (bid/ask)
-    - Trading conditions
-    - Margin requirements
+    CSymbolInfo class provides access to the symbol properties.
+    Mirrors MQL5 Standard Library: #include <Trade\\SymbolInfo.mqh>
+    
+    Reference: https://www.mql5.com/en/docs/standardlibrary/tradeclasses/csymbolinfo
     """
     
     def __init__(self, symbol: str = ""):
@@ -587,84 +586,147 @@ class CSymbolInfo:
         self._name: str = symbol
         self._select: bool = False
         
-        # Price info
-        self._bid: float = 0.0
-        self._bidhigh: float = 0.0
-        self._bidlow: float = 0.0
-        self._ask: float = 0.0
-        self._askhigh: float = 0.0
-        self._asklow: float = 0.0
-        self._last: float = 0.0
-        self._lasthigh: float = 0.0
-        self._lastlow: float = 0.0
+        # ═══════════════════════════════════════════════════════════════
+        # Volumes
+        # ═══════════════════════════════════════════════════════════════
+        self._volume: int = 0              # Volume of last deal
+        self._volumehigh: int = 0          # Maximal volume for a day
+        self._volumelow: int = 0           # Minimal volume for a day
+        self._volume_real: float = 0.0     # Real volume
         
-        # Volume info
-        self._volume: int = 0
-        self._volumehigh: int = 0
-        self._volumelow: int = 0
-        self._volume_real: float = 0.0
+        # ═══════════════════════════════════════════════════════════════
+        # Miscellaneous
+        # ═══════════════════════════════════════════════════════════════
+        self._time: datetime = datetime.now()  # Time of last quote
+        self._spread: int = 0              # Spread in points
+        self._spread_float: bool = True    # Floating spread flag
+        self._ticks_bookdepth: int = 10    # Depth of ticks saving
         
-        # Time info
-        self._time: datetime = datetime.now()
+        # ═══════════════════════════════════════════════════════════════
+        # Levels
+        # ═══════════════════════════════════════════════════════════════
+        self._trade_stops_level: int = 0   # Minimal indent for stops (points)
+        self._trade_freeze_level: int = 0  # Freeze distance (points)
         
-        # Spread
-        self._spread: int = 0
-        self._spread_float: bool = True
+        # ═══════════════════════════════════════════════════════════════
+        # Bid prices
+        # ═══════════════════════════════════════════════════════════════
+        self._bid: float = 0.0             # Current Bid price
+        self._bidhigh: float = 0.0         # Maximal Bid for a day
+        self._bidlow: float = 0.0          # Minimal Bid for a day
         
-        # Ticks
-        self._ticks_bookdepth: int = 10
+        # ═══════════════════════════════════════════════════════════════
+        # Ask prices
+        # ═══════════════════════════════════════════════════════════════
+        self._ask: float = 0.0             # Current Ask price
+        self._askhigh: float = 0.0         # Maximal Ask for a day
+        self._asklow: float = 0.0          # Minimal Ask for a day
         
-        # Contract specification
-        self._digits: int = 5
-        self._point: float = 0.00001
-        self._tick_size: float = 0.00001
-        self._tick_value: float = 1.0
-        self._tick_value_profit: float = 1.0
-        self._tick_value_loss: float = 1.0
-        self._contract_size: float = 100000.0
+        # ═══════════════════════════════════════════════════════════════
+        # Last prices
+        # ═══════════════════════════════════════════════════════════════
+        self._last: float = 0.0            # Current Last price
+        self._lasthigh: float = 0.0        # Maximal Last for a day
+        self._lastlow: float = 0.0         # Minimal Last for a day
         
-        # Swap
-        self._swap_mode: ENUM_SYMBOL_SWAP_MODE = ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_POINTS
-        self._swap_long: float = 0.0
-        self._swap_short: float = 0.0
-        self._swap_rollover3days: ENUM_DAY_OF_WEEK = ENUM_DAY_OF_WEEK.WEDNESDAY
-        
+        # ═══════════════════════════════════════════════════════════════
         # Trade modes
+        # ═══════════════════════════════════════════════════════════════
         self._trade_calc_mode: ENUM_SYMBOL_CALC_MODE = ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_FOREX
         self._trade_mode: ENUM_SYMBOL_TRADE_MODE = ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_FULL
         self._trade_exe_mode: ENUM_SYMBOL_TRADE_EXECUTION = ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_INSTANT
         
-        # Trade constraints
-        self._trade_stops_level: int = 0
-        self._trade_freeze_level: int = 0
-        self._volume_min: float = 0.01
-        self._volume_max: float = 100.0
-        self._volume_step: float = 0.01
-        self._volume_limit: float = 0.0
+        # ═══════════════════════════════════════════════════════════════
+        # Swaps
+        # ═══════════════════════════════════════════════════════════════
+        self._swap_mode: ENUM_SYMBOL_SWAP_MODE = ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_POINTS
+        self._swap_long: float = 0.0       # Swap for long positions
+        self._swap_short: float = 0.0      # Swap for short positions
+        self._swap_rollover3days: ENUM_DAY_OF_WEEK = ENUM_DAY_OF_WEEK.WEDNESDAY
         
-        # Margin
-        self._margin_initial: float = 0.0
-        self._margin_maintenance: float = 0.0
-        self._margin_long: float = 1.0
-        self._margin_short: float = 1.0
-        self._margin_limit: float = 0.0
-        self._margin_stop: float = 0.0
-        self._margin_stop_limit: float = 0.0
-        self._margin_hedged: float = 0.5
+        # ═══════════════════════════════════════════════════════════════
+        # Margins and flags
+        # ═══════════════════════════════════════════════════════════════
+        self._margin_initial: float = 0.0       # Initial margin
+        self._margin_maintenance: float = 0.0   # Maintenance margin
+        self._margin_long: float = 1.0          # Long margin rate
+        self._margin_short: float = 1.0         # Short margin rate
+        self._margin_limit: float = 0.0         # Limit order margin rate
+        self._margin_stop: float = 0.0          # Stop order margin rate
+        self._margin_stop_limit: float = 0.0    # StopLimit order margin rate
+        self._margin_hedged: float = 0.5        # Hedged margin rate
+        self._trade_time_flags: int = 0         # Expiration mode flags
+        self._trade_fill_flags: int = 0         # Filling mode flags
         
+        # ═══════════════════════════════════════════════════════════════
+        # Quantization
+        # ═══════════════════════════════════════════════════════════════
+        self._digits: int = 5              # Digits after period
+        self._point: float = 0.00001       # Value of one point
+        self._tick_value: float = 1.0      # Tick value (minimal price change)
+        self._tick_value_profit: float = 1.0   # Tick price for profit
+        self._tick_value_loss: float = 1.0     # Tick price for loss
+        self._tick_size: float = 0.00001   # Minimal price change
+        
+        # ═══════════════════════════════════════════════════════════════
+        # Contract sizes
+        # ═══════════════════════════════════════════════════════════════
+        self._contract_size: float = 100000.0  # Trade contract size
+        self._volume_min: float = 0.01     # Minimal volume
+        self._volume_max: float = 100.0    # Maximal volume
+        self._volume_step: float = 0.01    # Volume step
+        self._volume_limit: float = 0.0    # Volume limit
+        
+        # ═══════════════════════════════════════════════════════════════
+        # Text properties
+        # ═══════════════════════════════════════════════════════════════
+        self._currency_base: str = ""      # Base currency
+        self._currency_profit: str = ""    # Profit currency
+        self._currency_margin: str = ""    # Margin currency
+        self._bank: str = ""               # Current quote source
+        self._description: str = ""        # Symbol description
+        self._path: str = ""               # Path in symbols tree
+        
+        # ═══════════════════════════════════════════════════════════════
+        # Session properties
+        # ═══════════════════════════════════════════════════════════════
+        self._session_deals: int = 0           # Deals in current session
+        self._session_buy_orders: int = 0      # Buy orders at moment
+        self._session_sell_orders: int = 0     # Sell orders at moment
+        self._session_turnover: float = 0.0    # Turnover
+        self._session_interest: float = 0.0    # Open interest
+        self._session_buy_orders_volume: float = 0.0   # Buy orders volume
+        self._session_sell_orders_volume: float = 0.0  # Sell orders volume
+        self._session_open: float = 0.0        # Session open price
+        self._session_close: float = 0.0       # Session close price
+        self._session_aw: float = 0.0          # Average weighted price
+        self._session_price_settlement: float = 0.0    # Settlement price
+        self._session_price_limit_min: float = 0.0     # Min price limit
+        self._session_price_limit_max: float = 0.0     # Max price limit
+        
+        # ═══════════════════════════════════════════════════════════════
         # Order modes
+        # ═══════════════════════════════════════════════════════════════
         self._order_mode: int = 127
         self._filling_mode: int = 3
         self._expiration_mode: int = 15
-        
-        # Currency
-        self._currency_base: str = ""
-        self._currency_profit: str = ""
-        self._currency_margin: str = ""
-        
-        # Description
-        self._description: str = ""
-        self._path: str = ""
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Controlling
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def Refresh(self) -> bool:
+        """Refresh symbol data."""
+        # In real implementation, would fetch from MT5
+        return True
+    
+    def RefreshRates(self) -> bool:
+        """Refresh symbol quotes."""
+        return True
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Properties
+    # ═══════════════════════════════════════════════════════════════════
     
     def Name(self, name: str = None) -> str:
         """Get/set symbol name."""
@@ -673,286 +735,407 @@ class CSymbolInfo:
         return self._name
     
     def Select(self, select: bool = None) -> bool:
-        """Get/set symbol selection in Market Watch."""
+        """Get/set the 'Market Watch' symbol flag."""
         if select is not None:
             self._select = select
         return self._select
     
-    def Refresh(self) -> bool:
-        """Refresh symbol data."""
-        # In real implementation, would fetch from MT5
-        return True
-    
-    def RefreshRates(self) -> bool:
-        """Refresh current rates."""
-        return True
-    
     def IsSynchronized(self) -> bool:
-        """Check if symbol is synchronized."""
+        """Check symbol synchronization with server."""
         return True
     
-    # ─────────────────────────────────────────────────────────────────
-    # Price Properties
-    # ─────────────────────────────────────────────────────────────────
-    
-    def Bid(self) -> float:
-        """Get current bid price."""
-        return self._bid
-    
-    def BidHigh(self) -> float:
-        """Get daily bid high."""
-        return self._bidhigh
-    
-    def BidLow(self) -> float:
-        """Get daily bid low."""
-        return self._bidlow
-    
-    def Ask(self) -> float:
-        """Get current ask price."""
-        return self._ask
-    
-    def AskHigh(self) -> float:
-        """Get daily ask high."""
-        return self._askhigh
-    
-    def AskLow(self) -> float:
-        """Get daily ask low."""
-        return self._asklow
-    
-    def Last(self) -> float:
-        """Get last price."""
-        return self._last
-    
-    def LastHigh(self) -> float:
-        """Get daily last high."""
-        return self._lasthigh
-    
-    def LastLow(self) -> float:
-        """Get daily last low."""
-        return self._lastlow
+    # ═══════════════════════════════════════════════════════════════════
+    # Volumes
+    # ═══════════════════════════════════════════════════════════════════
     
     def Volume(self) -> int:
-        """Get volume."""
+        """Get volume of last deal."""
         return self._volume
     
     def VolumeHigh(self) -> int:
-        """Get daily volume high."""
+        """Get maximal volume for a day."""
         return self._volumehigh
     
     def VolumeLow(self) -> int:
-        """Get daily volume low."""
+        """Get minimal volume for a day."""
         return self._volumelow
     
+    # ═══════════════════════════════════════════════════════════════════
+    # Miscellaneous
+    # ═══════════════════════════════════════════════════════════════════
+    
     def Time(self) -> datetime:
-        """Get last quote time."""
+        """Get time of last quote."""
         return self._time
     
     def Spread(self) -> int:
-        """Get spread in points."""
+        """Get amount of spread (in points)."""
         return self._spread
     
     def SpreadFloat(self) -> bool:
-        """Check if spread is floating."""
+        """Get flag of floating spread."""
         return self._spread_float
     
-    # ─────────────────────────────────────────────────────────────────
-    # Contract Specification
-    # ─────────────────────────────────────────────────────────────────
+    def TicksBookDepth(self) -> int:
+        """Get depth of ticks saving."""
+        return self._ticks_bookdepth
     
-    def Digits(self) -> int:
-        """Get price digits."""
-        return self._digits
+    # ═══════════════════════════════════════════════════════════════════
+    # Levels
+    # ═══════════════════════════════════════════════════════════════════
     
-    def Point(self) -> float:
-        """Get point size."""
-        return self._point
+    def StopsLevel(self) -> int:
+        """Get minimal indent for orders (in points)."""
+        return self._trade_stops_level
     
-    def TickSize(self) -> float:
-        """Get tick size."""
-        return self._tick_size
+    def FreezeLevel(self) -> int:
+        """Get distance of freezing trade operations (in points)."""
+        return self._trade_freeze_level
     
-    def TickValue(self) -> float:
-        """Get tick value."""
-        return self._tick_value
+    # ═══════════════════════════════════════════════════════════════════
+    # Bid prices
+    # ═══════════════════════════════════════════════════════════════════
     
-    def TickValueProfit(self) -> float:
-        """Get tick value for profit."""
-        return self._tick_value_profit
+    def Bid(self) -> float:
+        """Get current Bid price."""
+        return self._bid
     
-    def TickValueLoss(self) -> float:
-        """Get tick value for loss."""
-        return self._tick_value_loss
+    def BidHigh(self) -> float:
+        """Get maximal Bid price for a day."""
+        return self._bidhigh
     
-    def ContractSize(self) -> float:
-        """Get contract size."""
-        return self._contract_size
+    def BidLow(self) -> float:
+        """Get minimal Bid price for a day."""
+        return self._bidlow
     
-    # ─────────────────────────────────────────────────────────────────
-    # Swap
-    # ─────────────────────────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════════
+    # Ask prices
+    # ═══════════════════════════════════════════════════════════════════
     
-    def SwapMode(self) -> ENUM_SYMBOL_SWAP_MODE:
-        """Get swap mode."""
-        return self._swap_mode
+    def Ask(self) -> float:
+        """Get current Ask price."""
+        return self._ask
     
-    def SwapModeDescription(self) -> str:
-        """Get swap mode description."""
-        modes = {
-            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_DISABLED: "Disabled",
-            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_POINTS: "Points",
-            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_SYMBOL: "Currency Symbol",
-            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_MARGIN: "Currency Margin",
-            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT: "Currency Deposit",
-        }
-        return modes.get(self._swap_mode, "Unknown")
+    def AskHigh(self) -> float:
+        """Get maximal Ask price for a day."""
+        return self._askhigh
     
-    def SwapLong(self) -> float:
-        """Get swap for long positions."""
-        return self._swap_long
+    def AskLow(self) -> float:
+        """Get minimal Ask price for a day."""
+        return self._asklow
     
-    def SwapShort(self) -> float:
-        """Get swap for short positions."""
-        return self._swap_short
+    # ═══════════════════════════════════════════════════════════════════
+    # Last prices
+    # ═══════════════════════════════════════════════════════════════════
     
-    def SwapRollover3days(self) -> ENUM_DAY_OF_WEEK:
-        """Get triple swap day."""
-        return self._swap_rollover3days
+    def Last(self) -> float:
+        """Get current Last price."""
+        return self._last
     
-    def SwapRollover3daysDescription(self) -> str:
-        """Get triple swap day description."""
-        days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        return days[self._swap_rollover3days]
+    def LastHigh(self) -> float:
+        """Get maximal Last price for a day."""
+        return self._lasthigh
     
-    # ─────────────────────────────────────────────────────────────────
-    # Trade Modes
-    # ─────────────────────────────────────────────────────────────────
+    def LastLow(self) -> float:
+        """Get minimal Last price for a day."""
+        return self._lastlow
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Trade modes
+    # ═══════════════════════════════════════════════════════════════════
     
     def TradeCalcMode(self) -> ENUM_SYMBOL_CALC_MODE:
-        """Get profit calculation mode."""
+        """Get mode of contract cost calculation."""
         return self._trade_calc_mode
     
     def TradeCalcModeDescription(self) -> str:
-        """Get calculation mode description."""
+        """Get mode of contract cost calculation as string."""
         modes = {
             ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_FOREX: "Forex",
-            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_CFD: "CFD",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_FOREX_NO_LEVERAGE: "Forex No Leverage",
             ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_FUTURES: "Futures",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_CFD: "CFD",
             ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_CFDINDEX: "CFD Index",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_CFDLEVERAGE: "CFD Leverage",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_EXCH_STOCKS: "Exchange Stocks",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_EXCH_FUTURES: "Exchange Futures",
+            ENUM_SYMBOL_CALC_MODE.SYMBOL_CALC_MODE_EXCH_OPTIONS: "Exchange Options",
         }
         return modes.get(self._trade_calc_mode, "Unknown")
     
     def TradeMode(self) -> ENUM_SYMBOL_TRADE_MODE:
-        """Get trade mode."""
+        """Get type of order execution."""
         return self._trade_mode
     
     def TradeModeDescription(self) -> str:
-        """Get trade mode description."""
+        """Get type of order execution as string."""
         modes = {
-            ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_DISABLED: "Disabled",
+            ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_DISABLED: "Trade Disabled",
             ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_LONGONLY: "Long Only",
             ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_SHORTONLY: "Short Only",
             ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_CLOSEONLY: "Close Only",
-            ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_FULL: "Full",
+            ENUM_SYMBOL_TRADE_MODE.SYMBOL_TRADE_MODE_FULL: "Full Access",
         }
         return modes.get(self._trade_mode, "Unknown")
     
     def TradeExecution(self) -> ENUM_SYMBOL_TRADE_EXECUTION:
-        """Get execution mode."""
+        """Get trade execution mode."""
         return self._trade_exe_mode
     
     def TradeExecutionDescription(self) -> str:
-        """Get execution mode description."""
+        """Get execution mode as string."""
         modes = {
-            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_REQUEST: "Request",
-            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_INSTANT: "Instant",
-            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_MARKET: "Market",
-            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_EXCHANGE: "Exchange",
+            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_REQUEST: "Request Execution",
+            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_INSTANT: "Instant Execution",
+            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_MARKET: "Market Execution",
+            ENUM_SYMBOL_TRADE_EXECUTION.SYMBOL_TRADE_EXECUTION_EXCHANGE: "Exchange Execution",
         }
         return modes.get(self._trade_exe_mode, "Unknown")
     
-    # ─────────────────────────────────────────────────────────────────
-    # Trade Constraints
-    # ─────────────────────────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════════
+    # Swaps
+    # ═══════════════════════════════════════════════════════════════════
     
-    def StopsLevel(self) -> int:
-        """Get stops level in points."""
-        return self._trade_stops_level
+    def SwapMode(self) -> ENUM_SYMBOL_SWAP_MODE:
+        """Get swap calculation mode."""
+        return self._swap_mode
     
-    def FreezeLevel(self) -> int:
-        """Get freeze level in points."""
-        return self._trade_freeze_level
+    def SwapModeDescription(self) -> str:
+        """Get swap calculation mode as string."""
+        modes = {
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_DISABLED: "Disabled",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_POINTS: "Points",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_SYMBOL: "Symbol Currency",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_MARGIN: "Margin Currency",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT: "Deposit Currency",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_INTEREST_CURRENT: "Interest Current",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_INTEREST_OPEN: "Interest Open",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_REOPEN_CURRENT: "Reopen Current",
+            ENUM_SYMBOL_SWAP_MODE.SYMBOL_SWAP_MODE_REOPEN_BID: "Reopen Bid",
+        }
+        return modes.get(self._swap_mode, "Unknown")
     
-    def LotsMin(self) -> float:
-        """Get minimum lot size."""
-        return self._volume_min
+    def SwapRollover3days(self) -> ENUM_DAY_OF_WEEK:
+        """Get day of triple swap charge."""
+        return self._swap_rollover3days
     
-    def LotsMax(self) -> float:
-        """Get maximum lot size."""
-        return self._volume_max
+    def SwapRollover3daysDescription(self) -> str:
+        """Get day of triple swap charge as string."""
+        days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        return days[self._swap_rollover3days]
     
-    def LotsStep(self) -> float:
-        """Get lot step."""
-        return self._volume_step
-    
-    def LotsLimit(self) -> float:
-        """Get total volume limit."""
-        return self._volume_limit
-    
-    # ─────────────────────────────────────────────────────────────────
-    # Margin
-    # ─────────────────────────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════════
+    # Margins and flags
+    # ═══════════════════════════════════════════════════════════════════
     
     def MarginInitial(self) -> float:
-        """Get initial margin."""
+        """Get value of initial margin."""
         return self._margin_initial
     
     def MarginMaintenance(self) -> float:
-        """Get maintenance margin."""
+        """Get value of maintenance margin."""
         return self._margin_maintenance
     
     def MarginLong(self) -> float:
-        """Get long margin rate."""
+        """Get rate of margin charging for long positions."""
         return self._margin_long
     
     def MarginShort(self) -> float:
-        """Get short margin rate."""
+        """Get rate of margin charging for short positions."""
         return self._margin_short
+    
+    def MarginLimit(self) -> float:
+        """Get rate of margin charging for Limit orders."""
+        return self._margin_limit
+    
+    def MarginStop(self) -> float:
+        """Get rate of margin charging for Stop orders."""
+        return self._margin_stop
+    
+    def MarginStopLimit(self) -> float:
+        """Get rate of margin charging for StopLimit orders."""
+        return self._margin_stop_limit
     
     def MarginHedged(self) -> float:
         """Get hedged margin rate."""
         return self._margin_hedged
     
-    # ─────────────────────────────────────────────────────────────────
-    # Currency
-    # ─────────────────────────────────────────────────────────────────
+    def TradeTimeFlags(self) -> int:
+        """Get flags of allowed expiration modes."""
+        return self._trade_time_flags
+    
+    def TradeFillFlags(self) -> int:
+        """Get flags of allowed filling modes."""
+        return self._trade_fill_flags
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Quantization
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def Digits(self) -> int:
+        """Get number of digits after period."""
+        return self._digits
+    
+    def Point(self) -> float:
+        """Get value of one point."""
+        return self._point
+    
+    def TickValue(self) -> float:
+        """Get tick value (minimal change of price)."""
+        return self._tick_value
+    
+    def TickValueProfit(self) -> float:
+        """Get calculated tick price for profitable position."""
+        return self._tick_value_profit
+    
+    def TickValueLoss(self) -> float:
+        """Get calculated tick price for losing position."""
+        return self._tick_value_loss
+    
+    def TickSize(self) -> float:
+        """Get minimal change of price."""
+        return self._tick_size
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Contract sizes
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def ContractSize(self) -> float:
+        """Get amount of trade contract."""
+        return self._contract_size
+    
+    def LotsMin(self) -> float:
+        """Get minimal volume to close a deal."""
+        return self._volume_min
+    
+    def LotsMax(self) -> float:
+        """Get maximal volume to close a deal."""
+        return self._volume_max
+    
+    def LotsStep(self) -> float:
+        """Get minimal step of volume change."""
+        return self._volume_step
+    
+    def LotsLimit(self) -> float:
+        """Get maximal allowed volume of position and orders."""
+        return self._volume_limit
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Swap sizes
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def SwapLong(self) -> float:
+        """Get value of long position swap."""
+        return self._swap_long
+    
+    def SwapShort(self) -> float:
+        """Get value of short position swap."""
+        return self._swap_short
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Text properties
+    # ═══════════════════════════════════════════════════════════════════
     
     def CurrencyBase(self) -> str:
-        """Get base currency."""
+        """Get name of symbol base currency."""
         return self._currency_base
     
     def CurrencyProfit(self) -> str:
-        """Get profit currency."""
+        """Get profit currency name."""
         return self._currency_profit
     
     def CurrencyMargin(self) -> str:
-        """Get margin currency."""
+        """Get margin currency name."""
         return self._currency_margin
     
-    # ─────────────────────────────────────────────────────────────────
-    # Description
-    # ─────────────────────────────────────────────────────────────────
+    def Bank(self) -> str:
+        """Get name of current quote source."""
+        return self._bank
     
     def Description(self) -> str:
-        """Get symbol description."""
+        """Get string description of symbol."""
         return self._description
     
     def Path(self) -> str:
-        """Get symbol path."""
+        """Get path in symbols tree."""
         return self._path
     
-    # ─────────────────────────────────────────────────────────────────
-    # Utility Methods
-    # ─────────────────────────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════════
+    # Symbol session properties
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def SessionDeals(self) -> int:
+        """Get number of deals in current session."""
+        return self._session_deals
+    
+    def SessionBuyOrders(self) -> int:
+        """Get number of Buy orders at the moment."""
+        return self._session_buy_orders
+    
+    def SessionSellOrders(self) -> int:
+        """Get number of Sell orders at the moment."""
+        return self._session_sell_orders
+    
+    def SessionTurnover(self) -> float:
+        """Get summary turnover of current session."""
+        return self._session_turnover
+    
+    def SessionInterest(self) -> float:
+        """Get summary open interest of current session."""
+        return self._session_interest
+    
+    def SessionBuyOrdersVolume(self) -> float:
+        """Get current volume of Buy orders."""
+        return self._session_buy_orders_volume
+    
+    def SessionSellOrdersVolume(self) -> float:
+        """Get current volume of Sell orders."""
+        return self._session_sell_orders_volume
+    
+    def SessionOpen(self) -> float:
+        """Get open price of current session."""
+        return self._session_open
+    
+    def SessionClose(self) -> float:
+        """Get close price of current session."""
+        return self._session_close
+    
+    def SessionAW(self) -> float:
+        """Get average weighted price of current session."""
+        return self._session_aw
+    
+    def SessionPriceSettlement(self) -> float:
+        """Get settlement price of current session."""
+        return self._session_price_settlement
+    
+    def SessionPriceLimitMin(self) -> float:
+        """Get minimal price of current session."""
+        return self._session_price_limit_min
+    
+    def SessionPriceLimitMax(self) -> float:
+        """Get maximal price of current session."""
+        return self._session_price_limit_max
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Access to MQL5 API functions
+    # ═══════════════════════════════════════════════════════════════════
+    
+    def InfoInteger(self, prop_id: int) -> int:
+        """Get value of specified integer type property."""
+        # Map property IDs to internal values
+        return 0
+    
+    def InfoDouble(self, prop_id: int) -> float:
+        """Get value of specified double type property."""
+        return 0.0
+    
+    def InfoString(self, prop_id: int) -> str:
+        """Get value of specified string type property."""
+        return ""
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Service functions
+    # ═══════════════════════════════════════════════════════════════════
     
     def NormalizePrice(self, price: float) -> float:
         """Normalize price to symbol tick size."""
@@ -966,6 +1149,10 @@ class CSymbolInfo:
             return 0.0
         lots = min(lots, self._volume_max)
         return round(lots / self._volume_step) * self._volume_step
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Utility Methods (extensions)
+    # ═══════════════════════════════════════════════════════════════════
     
     def CheckMargin(
         self,
@@ -996,6 +1183,8 @@ class CSymbolInfo:
         self,
         bid: float = None,
         ask: float = None,
+        last: float = None,
+        volume: int = None,
         spread: int = None,
         time: datetime = None,
     ) -> None:
@@ -1004,12 +1193,84 @@ class CSymbolInfo:
             self._bid = bid
         if ask is not None:
             self._ask = ask
+        if last is not None:
+            self._last = last
+        if volume is not None:
+            self._volume = volume
         if spread is not None:
             self._spread = spread
-        elif bid is not None and ask is not None:
+        elif bid is not None and ask is not None and self._point > 0:
             self._spread = int((ask - bid) / self._point)
         if time is not None:
             self._time = time
+    
+    def SetContractSpec(
+        self,
+        digits: int = None,
+        point: float = None,
+        tick_size: float = None,
+        tick_value: float = None,
+        contract_size: float = None,
+        volume_min: float = None,
+        volume_max: float = None,
+        volume_step: float = None,
+    ) -> None:
+        """Set contract specifications."""
+        if digits is not None:
+            self._digits = digits
+        if point is not None:
+            self._point = point
+        if tick_size is not None:
+            self._tick_size = tick_size
+        if tick_value is not None:
+            self._tick_value = tick_value
+            self._tick_value_profit = tick_value
+            self._tick_value_loss = tick_value
+        if contract_size is not None:
+            self._contract_size = contract_size
+        if volume_min is not None:
+            self._volume_min = volume_min
+        if volume_max is not None:
+            self._volume_max = volume_max
+        if volume_step is not None:
+            self._volume_step = volume_step
+    
+    def SetSwapSpec(
+        self,
+        swap_mode: ENUM_SYMBOL_SWAP_MODE = None,
+        swap_long: float = None,
+        swap_short: float = None,
+        swap_rollover3days: ENUM_DAY_OF_WEEK = None,
+    ) -> None:
+        """Set swap specifications."""
+        if swap_mode is not None:
+            self._swap_mode = swap_mode
+        if swap_long is not None:
+            self._swap_long = swap_long
+        if swap_short is not None:
+            self._swap_short = swap_short
+        if swap_rollover3days is not None:
+            self._swap_rollover3days = swap_rollover3days
+    
+    def SetCurrency(
+        self,
+        base: str = None,
+        profit: str = None,
+        margin: str = None,
+    ) -> None:
+        """Set currency information."""
+        if base is not None:
+            self._currency_base = base
+        if profit is not None:
+            self._currency_profit = profit
+        if margin is not None:
+            self._currency_margin = margin
+    
+    def SetDescription(self, description: str, path: str = None) -> None:
+        """Set symbol description and path."""
+        self._description = description
+        if path is not None:
+            self._path = path
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -258,6 +258,73 @@ _LAZY_MODULES = {
     "ParallelProcessor": "performance",
     "PerformanceMetrics": "performance",
     "PerformanceMonitor": "performance",
+
+    # Network Resilience
+    "ConnectionManager": "network_resilience",
+    "ServerPool": "network_resilience",
+    "ServerEndpoint": "network_resilience",
+    "LatencyMonitor": "network_resilience",
+    "PacketTracker": "network_resilience",
+    "ReconnectHandler": "network_resilience",
+    "RedundantConnection": "network_resilience",
+    "ConnectionState": "network_resilience",
+    "StressTest": "network_resilience",
+
+    # Hardware Optimizer
+    "HardwareDetector": "hardware_optimizer",
+    "HardwareOptimizer": "hardware_optimizer",
+    "HardwareProfile": "hardware_optimizer",
+    "OptimizedConfig": "hardware_optimizer",
+    "CPUInfo": "hardware_optimizer",
+    "MemoryInfo": "hardware_optimizer",
+    "GPUInfo": "hardware_optimizer",
+    "PerformanceTier": "hardware_optimizer",
+    "auto_configure": "hardware_optimizer",
+
+    # Trading Costs
+    "TradingCostCalculator": "trading_costs",
+    "TradingCostSpec": "trading_costs",
+    "TradeCosts": "trading_costs",
+    "SwapCalendar": "trading_costs",
+    "CostAnalyzer": "trading_costs",
+    "get_forex_major_spec": "trading_costs",
+    "get_index_cfd_spec": "trading_costs",
+    "get_crypto_spec": "trading_costs",
+
+    # Symbol Info
+    "SymbolInfo": "symbol_info",
+    "get_symbol_info": "symbol_info",
+    "register_symbol": "symbol_info",
+    "list_symbols": "symbol_info",
+    "SYMBOL_REGISTRY": "symbol_info",
+    "calculate_position_value": "symbol_info",
+    "calculate_pip_value": "symbol_info",
+    "calculate_profit_loss": "symbol_info",
+
+    # MQL5 Trade Classes
+    "CAccountInfo": "mql5_trade_classes",
+    "CSymbolInfo": "mql5_trade_classes",
+    "COrderInfo": "mql5_trade_classes",
+    "CHistoryOrderInfo": "mql5_trade_classes",
+    "CPositionInfo": "mql5_trade_classes",
+    "CDealInfo": "mql5_trade_classes",
+    "CTrade": "mql5_trade_classes",
+    "CTerminalInfo": "mql5_trade_classes",
+    "MqlTradeRequest": "mql5_trade_classes",
+    "MqlTradeResult": "mql5_trade_classes",
+    "ENUM_ORDER_TYPE": "mql5_trade_classes",
+    "ENUM_POSITION_TYPE": "mql5_trade_classes",
+    "ENUM_DEAL_TYPE": "mql5_trade_classes",
+    "ENUM_TRADE_RETCODE": "mql5_trade_classes",
+
+    # High Performance Engine
+    "HighPerformanceEngine": "high_performance_engine",
+    "HighPerformanceDataFeed": "high_performance_engine",
+    "CachedIndicatorEngine": "high_performance_engine",
+    "SignalGenerator": "high_performance_engine",
+    "TickData": "high_performance_engine",
+    "BarData": "high_performance_engine",
+    "Signal": "high_performance_engine",
 }
 
 # Cache for loaded modules
