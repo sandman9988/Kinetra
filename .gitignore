@@ -90,3 +90,8 @@ wandb/
 # Large data directories
 data/master/*.csv
 rl_exploration_framework/data/*.csv
+
+# Data directories (large files, don't commit)
+data/master/
+data/prepared/
+data/test/
