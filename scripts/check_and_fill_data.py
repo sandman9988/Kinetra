@@ -229,7 +229,8 @@ class DataFiller:
         try:
             start_time = datetime.utcnow() - timedelta(days=days)
 
-            candles = await self.connection.get_historical_candles(
+            # Use account object for historical candles (not RPC connection)
+            candles = await self.account.get_historical_candles(
                 symbol=symbol,
                 timeframe=TIMEFRAME_MAP[timeframe],
                 start_time=start_time,
