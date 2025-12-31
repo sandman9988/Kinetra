@@ -470,7 +470,7 @@ async def main():
         print("\n📋 MetaAPI Account ID Required")
         print("Get this from: https://app.metaapi.cloud/")
         print("(UUID format: e8f8c21a-32b5-40b0-9bf7-672e8ffab91f)")
-        account_id = input("\nEnter your MetaAPI account ID: ").strip()
+        account_id = getpass.getpass("\nEnter your MetaAPI account ID (hidden): ").strip()
 
         if not account_id:
             print("\n❌ No account ID provided")
