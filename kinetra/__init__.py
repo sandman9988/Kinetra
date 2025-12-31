@@ -121,6 +121,36 @@ from .persistence import (
     create_checkpointer,
 )
 
+# DSP-Driven Features (Assumption-Free)
+from .dsp_features import (
+    DSPFeatureEngine,
+    WaveletExtractor,
+    HilbertExtractor,
+    EntropyExtractor,
+    HurstExtractor,
+    extract_dsp_features,
+)
+
+# Liquidity Proxies (Asymmetric Order Flow)
+from .liquidity_features import (
+    LiquidityFeatureEngine,
+    CVDExtractor,
+    AmihudExtractor,
+    RangeImpactExtractor,
+    VolumeImbalanceExtractor,
+    extract_liquidity_features,
+)
+
+# Unsupervised Regime Discovery
+from .regime_discovery import (
+    RegimeDiscoveryEngine,
+    RegimeDiscoveryResult,
+    RegimeProfile,
+    TransitionPrecursor,
+    CrossAssetRegimeAnalyzer,
+    discover_regimes,
+)
+
 __all__ = [
     # Physics Engine
     "PhysicsEngine",
@@ -221,4 +251,25 @@ __all__ = [
     "TradingEnv",
     "Action",
     "Position",
+    # DSP Features (Assumption-Free)
+    "DSPFeatureEngine",
+    "WaveletExtractor",
+    "HilbertExtractor",
+    "EntropyExtractor",
+    "HurstExtractor",
+    "extract_dsp_features",
+    # Liquidity Proxies
+    "LiquidityFeatureEngine",
+    "CVDExtractor",
+    "AmihudExtractor",
+    "RangeImpactExtractor",
+    "VolumeImbalanceExtractor",
+    "extract_liquidity_features",
+    # Regime Discovery
+    "RegimeDiscoveryEngine",
+    "RegimeDiscoveryResult",
+    "RegimeProfile",
+    "TransitionPrecursor",
+    "CrossAssetRegimeAnalyzer",
+    "discover_regimes",
 ]
