@@ -3,19 +3,42 @@ Data Utilities for Physics Backtesting
 
 Loads and validates real MT5 market data for empirical testing.
 NO synthetic or simulated data - real market data only.
+
+PERFORMANCE OPTIMIZATIONS:
+- Format detection is cached per file path
+- Uses optimized parsing with known separators
+- Deduplication is vectorized
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Dict
 from datetime import datetime
+import functools
+
+# Cache for file format detection (separator, date format)
+_FORMAT_CACHE: Dict[str, Tuple[str, Optional[str]]] = {}
+
+
+def clear_format_cache():
+    """Clear the cached file format detections."""
+    _FORMAT_CACHE.clear()
+
+
+def get_format_cache_stats() -> Dict:
+    """Get statistics about the format cache."""
+    return {
+        "size": len(_FORMAT_CACHE),
+        "files": list(_FORMAT_CACHE.keys())[:10],  # First 10 files
+    }
 
 
 def load_mt5_csv(
     filepath: str,
     date_column: str = None,
-    date_format: str = None
+    date_format: str = None,
+    use_cache: bool = True
 ) -> pd.DataFrame:
     """
     Load OHLCV data from MT5 CSV export.
@@ -29,17 +52,41 @@ def load_mt5_csv(
         filepath: Path to MT5 exported CSV file
         date_column: Name of datetime column (auto-detected if None)
         date_format: Datetime format string (auto-detected if None)
+        use_cache: Use cached format detection (default: True)
 
     Returns:
         Validated OHLCV DataFrame
+        
+    PERFORMANCE: Caches detected format for faster subsequent loads.
     """
-    # Try different separators (handle Windows line endings)
+    filepath_str = str(filepath)
+    
+    # Check format cache for faster loading
+    cached_sep = None
+    if use_cache and filepath_str in _FORMAT_CACHE:
+        cached_sep, cached_date_fmt = _FORMAT_CACHE[filepath_str]
+        date_format = date_format or cached_date_fmt
+    
+    # Try cached separator first, then others
     df = None
-    for sep in ['\t', ',', ';']:
+    separators = [cached_sep] if cached_sep else []
+    separators.extend(['\t', ',', ';'])
+    
+    detected_sep = None
+    for sep in separators:
+        if sep is None:
+            continue
         try:
-            df = pd.read_csv(filepath, sep=sep, encoding='utf-8-sig',
-                           lineterminator=None, engine='python')
+            # Use C engine for faster parsing when possible
+            df = pd.read_csv(
+                filepath, 
+                sep=sep, 
+                encoding='utf-8-sig',
+                engine='c' if sep in [',', '\t', ';'] else 'python',
+                low_memory=False
+            )
             if len(df.columns) >= 4:  # At least OHLC
+                detected_sep = sep
                 break
         except Exception:
             continue
@@ -190,6 +237,10 @@ def load_mt5_csv(
     is_valid, message = validate_ohlcv(df)
     if not is_valid:
         raise ValueError(f"Invalid OHLCV data: {message}")
+
+    # Cache the detected format for faster subsequent loads
+    if use_cache and detected_sep:
+        _FORMAT_CACHE[filepath_str] = (detected_sep, date_format)
 
     return df
 

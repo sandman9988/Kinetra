@@ -345,10 +345,22 @@ class PhysicsEngine:
 
         H = - Σ p_i log(p_i)
         Normalised by log(bins) to map roughly to [0,1].
+        
+        PERFORMANCE: Uses vectorized implementation when available,
+        otherwise falls back to pandas .apply() (slower).
         """
         window = int(window)  # Ensure integer for pandas .rolling()
         bins = int(bins)  # Ensure integer for np.histogram()
+        
+        # Try to use optimized version
+        try:
+            from .performance import rolling_entropy_vectorized
+            result = rolling_entropy_vectorized(v.values, window, bins)
+            return pd.Series(result, index=v.index).bfill().fillna(0.0)
+        except ImportError:
+            pass
 
+        # Fallback to pandas .apply() (slower but always works)
         def ent(x: np.ndarray) -> float:
             x = x[~np.isnan(x)]
             n = x.size
@@ -451,9 +463,21 @@ class PhysicsEngine:
     def _rolling_percentile(x: pd.Series, window: int) -> pd.Series:
         """
         Rolling percentile (0–1) of current value within last 'window' samples.
+        
+        PERFORMANCE: Uses vectorized implementation when available,
+        providing significant speedup over pandas .apply().
         """
         window = int(window)  # Ensure integer for pandas .rolling()
 
+        # Try to use optimized version
+        try:
+            from .performance import rolling_percentile_vectorized
+            result = rolling_percentile_vectorized(x.values, window)
+            return pd.Series(result, index=x.index).bfill().fillna(0.5)
+        except ImportError:
+            pass
+
+        # Fallback to pandas .apply() (slower but always works)
         def pct_last(w: pd.Series) -> float:
             val = w.iloc[-1]
             w = w.dropna()
