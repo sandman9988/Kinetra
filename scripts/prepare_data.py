@@ -179,13 +179,16 @@ class DataPreparer:
 
     def prepare_file(self, filepath: Path, test_ratio: float = 0.2) -> Dict:
         """Prepare a single file."""
-        # Parse filename
+        # Parse filename - preserve original filename for prepared files
         parts = filepath.stem.split('_')
         if len(parts) < 2:
             return None
 
         symbol = parts[0]
         timeframe = parts[1]
+
+        # Keep original filename (with dates) for compatibility with MultiInstrumentLoader
+        original_filename = filepath.name
 
         # Read data
         try:
@@ -207,12 +210,12 @@ class DataPreparer:
             # Split train/test (NO PEEKING)
             train, test = self.split_train_test(df, test_ratio)
 
-            # Save train data
-            train_file = self.train_dir / f"{symbol}_{timeframe}.csv"
+            # Save train data (preserve original filename with dates)
+            train_file = self.train_dir / original_filename
             train.to_csv(train_file, index=False)
 
-            # Save test data
-            test_file = self.test_dir / f"{symbol}_{timeframe}.csv"
+            # Save test data (preserve original filename with dates)
+            test_file = self.test_dir / original_filename
             test.to_csv(test_file, index=False)
 
             return {
@@ -230,7 +233,9 @@ class DataPreparer:
             }
 
         except Exception as e:
-            print(f"  ❌ Error preparing {filepath.name}: {e}")
+            print(f"\n❌ Error preparing {filepath.name}: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def prepare_all(self, test_ratio: float = 0.2):

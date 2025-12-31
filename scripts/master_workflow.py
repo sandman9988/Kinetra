@@ -119,13 +119,26 @@ def check_credentials() -> bool:
         # Ask to save persistently
         save_choice = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
         if save_choice == '1':
-            # Save token now, account_id will be added by download script
-            save_credentials_to_env(token, account_id=None)
+            # Also prompt for account_id to save both together
+            print("\n📋 MetaAPI Account ID (optional, can skip if using multiple accounts)")
+            print("Get this from: https://app.metaapi.cloud/")
+            print("(UUID format: e8f8c21a-32b5-40b0-9bf7-672e8ffab91f)")
+            account_id_input = getpass.getpass("\nEnter your MetaAPI account ID (hidden, or press Enter to skip): ").strip()
+
+            if account_id_input:
+                os.environ['METAAPI_ACCOUNT_ID'] = account_id_input
+                account_id = account_id_input
+                save_credentials_to_env(token, account_id)
+            else:
+                save_credentials_to_env(token, account_id=None)
 
         print(f"✅ Token set for workflow")
 
-    # Check account ID
+    # Check account ID (after potential prompting above)
     has_valid_account = False
+    if not account_id:
+        account_id = os.environ.get('METAAPI_ACCOUNT_ID')
+
     if account_id and not any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
         print(f"✅ Found valid account ID: {account_id[:8]}***")
         has_valid_account = True
