@@ -433,9 +433,7 @@ async def main():
 
     # Check token
     if token and any(placeholder in token.lower() for placeholder in placeholder_patterns):
-        print(f"\n⚠️  Found placeholder METAAPI_TOKEN: {token[:30]}...")
-        print("   This is NOT a real token!")
-        print("\nPlease unset it: unset METAAPI_TOKEN")
+        print(f"\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
         token = None
 
     # Prompt for token if not set
@@ -450,9 +448,7 @@ async def main():
 
     # Check account ID
     if account_id and any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-        print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID: {account_id}")
-        print("   This is NOT a real account ID!")
-        print("\nPlease unset it: unset METAAPI_ACCOUNT_ID")
+        print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
         account_id = None
 
     # Prompt for account ID if not set

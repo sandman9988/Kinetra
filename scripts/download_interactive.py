@@ -119,12 +119,8 @@ class InteractiveDownloader:
         placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
 
         if self.token and any(placeholder in self.token.lower() for placeholder in placeholder_patterns):
-            print(f"\n⚠️  Found placeholder token in environment: {self.token[:30]}...")
-            print("   This is NOT a real token!")
-            print("\nPlease unset it and enter your real token:")
-            print("  Run: unset METAAPI_TOKEN")
-            print("  Then run this script again")
-            return False
+            print(f"\n⚠️  Found placeholder token in environment (ignoring it)")
+            self.token = None  # Ignore placeholder, will prompt below
 
         if not self.token:
             print("\n📋 MetaAPI Token Required")

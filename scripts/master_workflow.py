@@ -42,30 +42,20 @@ def check_credentials() -> bool:
     if token:
         # Check if it's a placeholder
         if any(placeholder in token.lower() for placeholder in placeholder_patterns):
-            print(f"\n⚠️  Found placeholder METAAPI_TOKEN: {token[:30]}...")
-            print("   This is not a real token!")
-            print("\nTo fix:")
-            print("  1. Go to https://app.metaapi.cloud/")
-            print("  2. Get your REAL API token")
-            print("  3. Run: unset METAAPI_TOKEN")
-            print("  4. Run this script again (it will prompt you)")
-            return False
-
-        print(f"\n✅ Found API token: {token[:20]}...")
+            print(f"\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
+            print("   Will prompt you for the real token...")
+        else:
+            print(f"\n✅ Found API token: {token[:20]}...")
     else:
         print("\nℹ️  No METAAPI_TOKEN set (will prompt interactively)")
 
     if account_id:
         # Check if it's a placeholder
         if any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-            print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID: {account_id}")
-            print("   This is not a real account ID!")
-            print("\nTo fix:")
-            print("  Run: unset METAAPI_ACCOUNT_ID")
-            print("  Run this script again (it will list your accounts)")
-            return False
-
-        print(f"✅ Found account ID: {account_id}")
+            print(f"⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
+            print("   Will list your accounts...")
+        else:
+            print(f"✅ Found account ID: {account_id}")
     else:
         print("ℹ️  No METAAPI_ACCOUNT_ID set (will select interactively)")
 
