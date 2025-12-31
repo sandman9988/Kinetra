@@ -13,7 +13,7 @@ Tests for critical bug fixes and new features:
 import numpy as np
 import pandas as pd
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from kinetra.backtest_engine import BacktestEngine, TradeDirection, Trade, BacktestResult
 from kinetra.symbol_spec import SymbolSpec, CommissionSpec, CommissionType
