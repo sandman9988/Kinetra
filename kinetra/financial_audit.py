@@ -628,7 +628,7 @@ class RiskMetricsCalculator:
             return 0.0, 0.0, 0, 0
         
         # Remove NaN/Inf
-        clean_equity = np.array(equity_curve, dtype=float)
+        clean_equity = np.array(equity_curve, dtype=float).flatten()
         clean_equity = clean_equity[~np.isnan(clean_equity) & ~np.isinf(clean_equity)]
         if len(clean_equity) < 2:
             return 0.0, 0.0, 0, 0
@@ -636,17 +636,21 @@ class RiskMetricsCalculator:
         # Calculate running maximum
         running_max = np.maximum.accumulate(clean_equity)
         drawdown = running_max - clean_equity
-        drawdown_pct = SafeMath.safe_divide(drawdown, running_max, default=0.0)
+        
+        # Calculate percentage drawdown element-wise
+        drawdown_pct = np.zeros_like(drawdown)
+        nonzero_mask = running_max > 0
+        drawdown_pct[nonzero_mask] = drawdown[nonzero_mask] / running_max[nonzero_mask]
         
         # Find max drawdown
-        max_dd_idx = np.argmax(drawdown)
-        max_dd = drawdown[max_dd_idx]
-        max_dd_pct = drawdown_pct[max_dd_idx]
+        max_dd_idx = int(np.argmax(drawdown))
+        max_dd = float(drawdown[max_dd_idx])
+        max_dd_pct = float(drawdown_pct[max_dd_idx])
         
         # Find peak (before trough)
-        peak_idx = np.argmax(clean_equity[:max_dd_idx + 1]) if max_dd_idx > 0 else 0
+        peak_idx = int(np.argmax(clean_equity[:max_dd_idx + 1])) if max_dd_idx > 0 else 0
         
-        return float(max_dd), float(max_dd_pct), int(peak_idx), int(max_dd_idx)
+        return max_dd, max_dd_pct, peak_idx, max_dd_idx
     
     @staticmethod
     def calculate_var_cvar(

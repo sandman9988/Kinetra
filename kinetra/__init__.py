@@ -208,6 +208,40 @@ _LAZY_MODULES = {
 
     # Workflow Management
     "WorkflowManager": "workflow_manager",
+
+    # Financial Audit
+    "SafeMath": "financial_audit",
+    "DigitNormalizer": "financial_audit",
+    "PnLCalculator": "financial_audit",
+    "RiskMetricsCalculator": "financial_audit",
+    "AuditTrail": "financial_audit",
+    "AuditIssue": "financial_audit",
+    "AuditSeverity": "financial_audit",
+
+    # Position Manager
+    "PositionManager": "position_manager",
+    "Position": "position_manager",
+    "PositionState": "position_manager",
+    "PositionSide": "position_manager",
+    "PositionEvent": "position_manager",
+
+    # Broker Compliance
+    "BrokerComplianceValidator": "broker_compliance",
+    "GracefulExecutor": "broker_compliance",
+    "ValidationResult": "broker_compliance",
+    "ValidationIssue": "broker_compliance",
+    "ThrottleState": "broker_compliance",
+    "with_graceful_failure": "broker_compliance",
+
+    # Backtest Optimizer
+    "BayesianOptimizer": "backtest_optimizer",
+    "GeneticOptimizer": "backtest_optimizer",
+    "ParetoOptimizer": "backtest_optimizer",
+    "ParameterSpace": "backtest_optimizer",
+    "Parameter": "backtest_optimizer",
+    "DistributionAnalyzer": "backtest_optimizer",
+    "ObjectiveFunction": "backtest_optimizer",
+    "calculate_objective": "backtest_optimizer",
 }
 
 # Cache for loaded modules
