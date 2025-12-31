@@ -323,7 +323,7 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
         account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
     if account_id and not any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-        msg = f"✅ Found valid account ID: {account_id[:8]}***"
+        msg = "✅ Found valid account ID"
         if logger:
             logger.info(msg)
         else:
