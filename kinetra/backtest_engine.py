@@ -15,12 +15,21 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Union
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
 
 import numpy as np
 import pandas as pd
 
 from .physics_engine import PhysicsEngine
 from .symbol_spec import SymbolSpec
+
+# Try GPU physics
+try:
+    from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
 
 
 class TradeDirection(Enum):
@@ -195,6 +204,7 @@ class BacktestEngine:
         risk_per_trade: float = 0.01,  # 1% risk per trade
         max_positions: int = 1,
         use_physics_signals: bool = True,
+        use_gpu: bool = True,  # Use GPU for physics if available
     ):
         """
         Initialize backtest engine.
@@ -204,12 +214,17 @@ class BacktestEngine:
             risk_per_trade: Percentage of equity to risk per trade (0-1)
             max_positions: Maximum number of concurrent positions
             use_physics_signals: Use physics-based signals when no custom signal provided
+            use_gpu: Use GPU acceleration for physics (ROCm/CUDA)
         """
         self.initial_capital = initial_capital
         self.risk_per_trade = risk_per_trade
         self.max_positions = max_positions
         self.use_physics_signals = use_physics_signals
+        self.use_gpu = use_gpu and GPU_AVAILABLE
 
+        # Use GPU physics if available
+        if self.use_gpu:
+            self.gpu_physics = GPUPhysicsEngine(device="auto")
         self.physics = PhysicsEngine()
         self.trades: List[Trade] = []
         self.equity = initial_capital
@@ -757,20 +772,33 @@ class BacktestEngine:
         Raises:
             ValueError: If shuffle method is not supported
         """
-        results = []
+        # Parallel Monte Carlo - use all available cores
+        n_workers = min(mp.cpu_count(), n_runs, 32)  # Cap at 32 for AMD 5950
 
-        for i in range(n_runs):
-            # Create shuffled data
+        def run_single_mc(run_id: int):
+            """Single MC run for parallel execution."""
+            np.random.seed(run_id)  # Reproducible per-run
             if shuffle_method == "returns":
                 shuffled = self._shuffle_returns(data)
             elif shuffle_method == "bootstrap":
                 shuffled = self._bootstrap_sample(data)
             else:
                 raise ValueError(f"Unsupported shuffle method: {shuffle_method}")
-
-            # Run backtest
             result = self.run_backtest(shuffled, symbol_spec)
-            results.append(result.to_dict())
+            return result.to_dict()
+
+        results = []
+
+        if n_workers > 1 and n_runs >= 4:
+            # Parallel execution for significant workloads
+            with ProcessPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(run_single_mc, i): i for i in range(n_runs)}
+                for future in as_completed(futures):
+                    results.append(future.result())
+        else:
+            # Sequential for small runs
+            for i in range(n_runs):
+                results.append(run_single_mc(i))
 
         return pd.DataFrame(results)
 

@@ -43,6 +43,17 @@ import pandas as pd
 
 warnings.filterwarnings("ignore")
 
+# Add tests directory to path for test_physics_pipeline imports
+_this_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(_this_dir / "tests"))
+
+# Try GPU physics (ROCm/CUDA)
+try:
+    from kinetra.parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    GPU_AVAILABLE = TORCH_AVAILABLE
+except ImportError:
+    GPU_AVAILABLE = False
+
 
 # =============================================================================
 # PERSISTENCE & LOGGING: Atomic saves, graceful failure
@@ -1008,6 +1019,376 @@ class RandomAgent(BaseAgent):
 
 
 # =============================================================================
+# ADVANCED RL: SAC, PPO, TD3 via stable-baselines3
+# =============================================================================
+
+# Try importing stable-baselines3 and gymnasium
+try:
+    import gymnasium as gym
+    from gymnasium import spaces
+    from stable_baselines3 import SAC, PPO, TD3
+    from stable_baselines3.common.callbacks import BaseCallback
+    SB3_AVAILABLE = True
+except ImportError:
+    SB3_AVAILABLE = False
+    gym = None
+    spaces = None
+
+
+class PhysicsGymEnv(gym.Env if SB3_AVAILABLE else object):
+    """
+    Gymnasium-compatible wrapper for physics-based trading environment.
+
+    Features:
+    - Continuous action space: action ∈ [-1, +1] → position size
+    - 64-dim observation space (physics features)
+    - Risk-adjusted reward: pnl - λ * volatility
+    """
+
+    metadata = {"render_modes": ["human"]}
+
+    def __init__(
+        self,
+        physics_state: pd.DataFrame,
+        prices: pd.DataFrame,
+        feature_extractor: Callable,
+        max_steps: int = 500,
+        risk_penalty: float = 0.1,
+        transaction_cost: float = 0.0001,
+    ):
+        if not SB3_AVAILABLE:
+            raise ImportError("stable-baselines3 and gymnasium required for SAC/PPO/TD3")
+
+        super().__init__()
+
+        self.physics_state = physics_state
+        self.prices = prices
+        self.feature_extractor = feature_extractor
+        self.max_steps = max_steps
+        self.risk_penalty = risk_penalty
+        self.transaction_cost = transaction_cost
+
+        # Continuous action space: position size from -1 (full short) to +1 (full long)
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=np.float32)
+
+        # 64-dim observation space
+        self.observation_space = spaces.Box(
+            low=-np.inf, high=np.inf, shape=(64,), dtype=np.float32
+        )
+
+        # State tracking
+        self.current_bar = 100
+        self.current_position = 0.0
+        self.entry_price = 0.0
+        self.episode_pnls = []
+        self.step_count = 0
+        self.total_pnl = 0.0
+
+    def _get_price(self, bar: int) -> float:
+        """Get close price at bar."""
+        if bar >= len(self.prices):
+            bar = len(self.prices) - 1
+        return float(self.prices.iloc[bar]["close"])
+
+    def _get_obs(self) -> np.ndarray:
+        """Get current observation (64-dim physics state)."""
+        obs = self.feature_extractor(self.physics_state, self.current_bar)
+        return np.nan_to_num(obs.astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
+
+    def reset(self, seed=None, options=None):
+        """Reset environment."""
+        super().reset(seed=seed)
+
+        # Random start bar (avoid beginning and end)
+        max_start = len(self.physics_state) - self.max_steps - 100
+        self.current_bar = self.np_random.integers(100, max(101, max_start))
+
+        self.current_position = 0.0
+        self.entry_price = 0.0
+        self.episode_pnls = []
+        self.step_count = 0
+        self.total_pnl = 0.0
+
+        return self._get_obs(), {}
+
+    def step(self, action: np.ndarray):
+        """Execute action and return (obs, reward, terminated, truncated, info)."""
+        # Extract scalar action
+        target_position = float(np.clip(action[0], -1.0, 1.0))
+
+        current_price = self._get_price(self.current_bar)
+        prev_position = self.current_position
+
+        # Calculate position change
+        position_delta = target_position - prev_position
+
+        # Transaction cost
+        cost = abs(position_delta) * current_price * self.transaction_cost
+
+        # Move to next bar
+        self.current_bar += 1
+        self.step_count += 1
+        next_price = self._get_price(self.current_bar)
+
+        # Calculate PnL from position
+        price_change = next_price - current_price
+        pnl = self.current_position * price_change - cost
+
+        # Update position
+        if abs(position_delta) > 0.1:  # Significant position change
+            self.current_position = target_position
+            if abs(prev_position) < 0.1:  # Was flat, now entering
+                self.entry_price = current_price
+
+        # Track PnL for risk calculation
+        self.episode_pnls.append(pnl)
+        self.total_pnl += pnl
+
+        # Risk-adjusted reward
+        # reward = pnl - risk_penalty * volatility
+        if len(self.episode_pnls) > 10:
+            pnl_std = np.std(self.episode_pnls[-20:])
+        else:
+            pnl_std = 0.0
+
+        reward = pnl - self.risk_penalty * pnl_std
+
+        # Normalize reward for stability
+        reward = np.clip(reward / (current_price * 0.001 + 1), -10, 10)
+
+        # Check termination
+        terminated = self.current_bar >= len(self.physics_state) - 10
+        truncated = self.step_count >= self.max_steps
+
+        info = {
+            "pnl": pnl,
+            "total_pnl": self.total_pnl,
+            "position": self.current_position,
+            "price": current_price,
+        }
+
+        return self._get_obs(), float(reward), terminated, truncated, info
+
+    def render(self):
+        """Render current state."""
+        print(f"Bar {self.current_bar} | Pos: {self.current_position:+.2f} | PnL: ${self.total_pnl:+,.0f}")
+
+
+class SB3AgentWrapper(BaseAgent):
+    """
+    Wrapper to use stable-baselines3 agents with the exploration framework.
+
+    Supports: SAC, PPO, TD3
+    """
+
+    def __init__(
+        self,
+        state_dim: int,
+        n_actions: int,
+        agent_type: str = "SAC",
+        env: Optional["PhysicsGymEnv"] = None,
+        learning_rate: float = 3e-4,
+        **kwargs
+    ):
+        super().__init__(state_dim, n_actions)
+
+        if not SB3_AVAILABLE:
+            raise ImportError("stable-baselines3 required. Install with: pip install stable-baselines3")
+
+        self.agent_type = agent_type
+        self.env = env
+        self.model = None
+        self.learning_rate = learning_rate
+        self.kwargs = kwargs
+
+        # For discrete action mapping
+        self.action_thresholds = [-0.5, 0.0, 0.5]  # Maps continuous to discrete
+
+    def initialize(self, env: "PhysicsGymEnv"):
+        """Initialize the SB3 model with the environment."""
+        self.env = env
+
+        if self.agent_type == "SAC":
+            self.model = SAC(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                buffer_size=100000,
+                batch_size=256,
+                tau=0.005,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        elif self.agent_type == "PPO":
+            self.model = PPO(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                n_steps=2048,
+                batch_size=64,
+                n_epochs=10,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        elif self.agent_type == "TD3":
+            self.model = TD3(
+                "MlpPolicy",
+                env,
+                learning_rate=self.learning_rate,
+                buffer_size=100000,
+                batch_size=256,
+                tau=0.005,
+                gamma=0.99,
+                verbose=0,
+                **self.kwargs
+            )
+        else:
+            raise ValueError(f"Unknown agent type: {self.agent_type}")
+
+    def train(self, total_timesteps: int = 10000, callback=None):
+        """Train the agent."""
+        if self.model is None:
+            raise ValueError("Model not initialized. Call initialize(env) first.")
+        self.model.learn(total_timesteps=total_timesteps, callback=callback)
+
+    def select_action(self, state: np.ndarray, epsilon: float = 0.1) -> int:
+        """Select discrete action from continuous model output."""
+        if self.model is None:
+            return np.random.randint(self.n_actions)
+
+        # Get continuous action
+        action, _ = self.model.predict(state.astype(np.float32), deterministic=(epsilon < 0.05))
+        continuous_action = float(action[0]) if hasattr(action, '__len__') else float(action)
+
+        # Map to discrete action
+        # < -0.5: SHORT (2), -0.5 to 0: CLOSE (3), 0 to 0.5: HOLD (0), > 0.5: LONG (1)
+        if continuous_action < -0.5:
+            return 2  # SHORT
+        elif continuous_action < 0:
+            return 3  # CLOSE
+        elif continuous_action < 0.5:
+            return 0  # HOLD
+        else:
+            return 1  # LONG
+
+    def get_continuous_action(self, state: np.ndarray, deterministic: bool = False) -> float:
+        """Get raw continuous action for position sizing."""
+        if self.model is None:
+            return 0.0
+        action, _ = self.model.predict(state.astype(np.float32), deterministic=deterministic)
+        return float(action[0]) if hasattr(action, '__len__') else float(action)
+
+    def update(self, state, action, reward, next_state, done):
+        """No manual updates - SB3 handles this internally during train()."""
+        return 0.0
+
+    def get_q_values(self, state: np.ndarray) -> np.ndarray:
+        """Return pseudo Q-values based on action preferences."""
+        if self.model is None:
+            return np.zeros(self.n_actions)
+
+        # Get continuous action
+        action = self.get_continuous_action(state, deterministic=True)
+
+        # Create pseudo Q-values
+        q = np.zeros(self.n_actions)
+        q[0] = 0.0  # HOLD baseline
+        q[1] = action * 2  # LONG preference
+        q[2] = -action * 2  # SHORT preference
+        q[3] = -abs(action)  # CLOSE when uncertain
+
+        return q
+
+    def save(self, path: str):
+        """Save the model."""
+        if self.model:
+            self.model.save(path)
+
+    def load(self, path: str):
+        """Load the model."""
+        if self.agent_type == "SAC":
+            self.model = SAC.load(path)
+        elif self.agent_type == "PPO":
+            self.model = PPO.load(path)
+        elif self.agent_type == "TD3":
+            self.model = TD3.load(path)
+
+
+class TrainingProgressCallback(BaseCallback if SB3_AVAILABLE else object):
+    """Callback to track training progress for SB3 agents."""
+
+    def __init__(self, print_every: int = 1000, verbose: int = 1):
+        if SB3_AVAILABLE:
+            super().__init__(verbose)
+        self.print_every = print_every
+        self.episode_rewards = []
+        self.episode_pnls = []
+
+    def _on_step(self) -> bool:
+        """Called at each step."""
+        if self.n_calls % self.print_every == 0:
+            # Get recent rewards from logger
+            if hasattr(self.model, 'ep_info_buffer') and self.model.ep_info_buffer:
+                recent_rewards = [ep['r'] for ep in self.model.ep_info_buffer]
+                if recent_rewards:
+                    avg_reward = np.mean(recent_rewards[-10:])
+                    print(f"  Step {self.n_calls:,} | Avg Reward: {avg_reward:+.2f}")
+        return True
+
+
+def create_sb3_agent(
+    agent_type: str,
+    physics_state: pd.DataFrame,
+    prices: pd.DataFrame,
+    feature_extractor: Callable,
+    learning_rate: float = 3e-4,
+    **kwargs
+) -> Tuple[SB3AgentWrapper, PhysicsGymEnv]:
+    """
+    Factory function to create SAC/PPO/TD3 agent with environment.
+
+    Args:
+        agent_type: "SAC", "PPO", or "TD3"
+        physics_state: DataFrame with physics features
+        prices: DataFrame with OHLCV prices
+        feature_extractor: Function to extract 64-dim state
+        learning_rate: Learning rate
+        **kwargs: Additional arguments for the agent
+
+    Returns:
+        (agent_wrapper, gym_env) tuple
+    """
+    if not SB3_AVAILABLE:
+        raise ImportError(
+            "stable-baselines3 and gymnasium required. "
+            "Install with: pip install stable-baselines3 gymnasium"
+        )
+
+    # Create Gymnasium environment
+    env = PhysicsGymEnv(
+        physics_state=physics_state,
+        prices=prices,
+        feature_extractor=feature_extractor,
+        **kwargs
+    )
+
+    # Create agent wrapper
+    agent = SB3AgentWrapper(
+        state_dim=64,
+        n_actions=4,
+        agent_type=agent_type,
+        learning_rate=learning_rate,
+    )
+
+    # Initialize with environment
+    agent.initialize(env)
+
+    return agent, env
+
+
+# =============================================================================
 # EXPLORATION LOOP: Iterative Learning
 # =============================================================================
 
@@ -1301,12 +1682,21 @@ def run_exploration_test(
         get_rl_feature_names,
     )
 
-    # Load data
-    DATA_PATH = "data/master/BTCUSD_H1_202407010000_202512270700.csv"
+    # Load data - find any H1 file dynamically (prefer BTCUSD, fallback to any)
+    import glob
+    data_dir = os.environ.get("DATA_DIR", "data/master")
+    h1_files = glob.glob(f"{data_dir}/*_H1_*.csv")
+    if not h1_files:
+        raise FileNotFoundError(f"No *_H1_*.csv files found in {data_dir}/")
+    # Prefer BTCUSD, else use first available
+    btc_files = [f for f in h1_files if "BTCUSD" in f]
+    DATA_PATH = sorted(btc_files)[-1] if btc_files else sorted(h1_files)[-1]
     if persistence:
         persistence.logger.info(f"Loading data: {DATA_PATH}")
+        persistence.logger.info(f"Available H1 files: {len(h1_files)}")
     else:
         print(f"\nLoading data: {DATA_PATH}")
+        print(f"Available H1 files: {len(h1_files)}")
 
     df = load_btc_h1_data(DATA_PATH)
 
@@ -1493,6 +1883,7 @@ class InstrumentData:
     """Container for instrument/timeframe data."""
     instrument: str
     timeframe: str
+    asset_class: str  # forex, crypto, indices, metals, energy
     df: pd.DataFrame
     physics_state: pd.DataFrame
     file_path: str
@@ -1501,6 +1892,10 @@ class InstrumentData:
     @property
     def key(self) -> str:
         return f"{self.instrument}_{self.timeframe}"
+
+    @property
+    def full_key(self) -> str:
+        return f"{self.asset_class}/{self.instrument}_{self.timeframe}"
 
 
 class MultiInstrumentLoader:
@@ -1546,12 +1941,15 @@ class MultiInstrumentLoader:
             self._log(f"[WARN] Data directory not found: {self.data_dir}")
             return discovered
 
-        for csv_file in sorted(self.data_dir.glob("*.csv")):
+        # Search recursively in subdirectories (forex/, crypto/, indices/, metals/, energy/)
+        for csv_file in sorted(self.data_dir.glob("**/*.csv")):
             match = re.match(self.FILENAME_PATTERN, csv_file.name)
             if match:
                 instrument, timeframe = match.groups()
-                discovered.append((instrument, timeframe, str(csv_file)))
-                self._log(f"  [FOUND] {instrument} {timeframe}: {csv_file.name}")
+                # Determine asset class from parent directory
+                asset_class = csv_file.parent.name if csv_file.parent != self.data_dir else "unknown"
+                discovered.append((instrument, timeframe, str(csv_file), asset_class))
+                self._log(f"  [FOUND] {asset_class}/{instrument} {timeframe}: {csv_file.name}")
             else:
                 self._log(f"  [SKIP] {csv_file.name} (doesn't match pattern)")
 
@@ -1566,26 +1964,128 @@ class MultiInstrumentLoader:
 
         self._log(f"\n[LOADING] {len(discovered)} datasets...")
 
-        for instrument, timeframe, filepath in discovered:
+        for instrument, timeframe, filepath, asset_class in discovered:
             try:
-                data = self._load_single(instrument, timeframe, filepath)
+                data = self._load_single(instrument, timeframe, filepath, asset_class)
                 if data.bar_count >= self.min_bars:
                     self.instruments[data.key] = data
-                    self._log(f"  [OK] {data.key}: {data.bar_count} bars")
+                    self._log(f"  [OK] {asset_class}/{data.key}: {data.bar_count} bars")
                 else:
                     self._log(f"  [SKIP] {data.key}: {data.bar_count} bars < {self.min_bars}")
             except Exception as e:
                 self._log(f"  [ERROR] {instrument}_{timeframe}: {e}")
 
         self._log(f"\n[LOADED] {len(self.instruments)} datasets ready")
+
+        # Align all instruments to common date range (avoid forward bias from disparate dates)
+        self._align_to_common_dates()
+
         return self.instruments
 
+    def _align_to_common_dates(self):
+        """Trim all instruments to the common overlapping date range."""
+        if not self.instruments:
+            return
+
+        # Find common date range
+        starts = []
+        ends = []
+        for data in self.instruments.values():
+            starts.append(data.df.index.min())
+            ends.append(data.df.index.max())
+
+        common_start = max(starts)
+        common_end = min(ends)
+
+        if common_start >= common_end:
+            self._log(f"[WARN] No common date range found! Skipping alignment.")
+            return
+
+        self._log(f"\n[ALIGN] Common date range: {common_start} to {common_end}")
+
+        # Trim each instrument
+        trimmed_count = 0
+        for key, data in list(self.instruments.items()):
+            mask = (data.df.index >= common_start) & (data.df.index <= common_end)
+            if mask.sum() < self.min_bars:
+                self._log(f"  [DROP] {key}: only {mask.sum()} bars in common range")
+                del self.instruments[key]
+            else:
+                data.df = data.df.loc[mask]
+                data.physics_state = data.physics_state.loc[mask]
+                data.bar_count = len(data.df)
+                trimmed_count += 1
+                self._log(f"  [TRIM] {key}: {data.bar_count} bars")
+
+    def get_train_test_split(self, train_ratio: float = 0.7) -> Tuple[Dict[str, 'InstrumentData'], Dict[str, 'InstrumentData']]:
+        """
+        Temporal train/test split - NO lookahead bias.
+
+        Returns (train_instruments, test_instruments) with data split at the same
+        calendar date across all instruments.
+
+        MIT-style: Proper out-of-sample validation.
+        """
+        if not self.instruments:
+            return {}, {}
+
+        # Find the split date based on the common date range
+        all_dates = []
+        for data in self.instruments.values():
+            all_dates.extend(data.df.index.tolist())
+
+        all_dates = sorted(set(all_dates))
+        split_idx = int(len(all_dates) * train_ratio)
+        split_date = all_dates[split_idx]
+
+        self._log(f"\n[SPLIT] Train/Test split at {split_date} ({train_ratio:.0%}/{1-train_ratio:.0%})")
+
+        train_instruments = {}
+        test_instruments = {}
+
+        for key, data in self.instruments.items():
+            # Split by date
+            train_mask = data.df.index < split_date
+            test_mask = data.df.index >= split_date
+
+            train_df = data.df.loc[train_mask].copy()
+            test_df = data.df.loc[test_mask].copy()
+            train_physics = data.physics_state.loc[train_mask].copy()
+            test_physics = data.physics_state.loc[test_mask].copy()
+
+            if len(train_df) >= self.min_bars:
+                train_instruments[key] = InstrumentData(
+                    instrument=data.instrument,
+                    timeframe=data.timeframe,
+                    asset_class=data.asset_class,
+                    df=train_df,
+                    physics_state=train_physics,
+                    file_path=data.file_path,
+                    bar_count=len(train_df),
+                )
+                self._log(f"  [TRAIN] {key}: {len(train_df)} bars")
+
+            if len(test_df) >= 100:  # Lower threshold for test
+                test_instruments[key] = InstrumentData(
+                    instrument=data.instrument,
+                    timeframe=data.timeframe,
+                    asset_class=data.asset_class,
+                    df=test_df,
+                    physics_state=test_physics,
+                    file_path=data.file_path,
+                    bar_count=len(test_df),
+                )
+                self._log(f"  [TEST]  {key}: {len(test_df)} bars")
+
+        self._log(f"\n[SPLIT] Train: {len(train_instruments)} instruments, Test: {len(test_instruments)} instruments")
+        return train_instruments, test_instruments
+
     def _load_single(
-        self, instrument: str, timeframe: str, filepath: str
+        self, instrument: str, timeframe: str, filepath: str, asset_class: str = "unknown"
     ) -> InstrumentData:
         """Load single instrument and compute physics state."""
         # Load raw data
-        df = self._load_csv(filepath)
+        df = self._load_csv(filepath, asset_class)
 
         # Compute full physics state
         physics = self._physics_engine
@@ -1611,14 +2111,15 @@ class MultiInstrumentLoader:
         return InstrumentData(
             instrument=instrument,
             timeframe=timeframe,
+            asset_class=asset_class,
             df=df,
             physics_state=physics_state,
             file_path=filepath,
             bar_count=len(df),
         )
 
-    def _load_csv(self, filepath: str) -> pd.DataFrame:
-        """Load CSV with standard preprocessing."""
+    def _load_csv(self, filepath: str, asset_class: str = "unknown") -> pd.DataFrame:
+        """Load CSV with standard preprocessing and trading hours filtering."""
         df = pd.read_csv(filepath, sep="\t")
         df.columns = [c.lower().replace("<", "").replace(">", "") for c in df.columns]
 
@@ -1631,6 +2132,26 @@ class MultiInstrumentLoader:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
         df.dropna(subset=["close"], inplace=True)
+
+        # Filter by trading hours based on asset class
+        if asset_class == "forex":
+            # Forex: 24/5 - exclude weekends (Sat 00:00 to Sun 21:00 UTC)
+            df = df[~((df.index.dayofweek == 5) |
+                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
+        elif asset_class == "indices":
+            # Indices: typical exchange hours (filter weekends)
+            df = df[df.index.dayofweek < 5]
+        elif asset_class == "crypto":
+            # Crypto: 24/7 - no filtering needed
+            pass
+        elif asset_class == "metals":
+            # Metals (gold, silver): similar to forex, exclude weekends
+            df = df[~((df.index.dayofweek == 5) |
+                     ((df.index.dayofweek == 6) & (df.index.hour < 21)))]
+        elif asset_class == "energy":
+            # Energy: exchange hours, exclude weekends
+            df = df[df.index.dayofweek < 5]
+
         return df
 
     def get_instrument(self, key: str) -> Optional[InstrumentData]:
@@ -1800,14 +2321,30 @@ def run_multi_instrument_exploration(
     summary = loader.summary()
     print(f"\n{summary.to_string()}")
 
-    # Calculate episodes
-    n_instruments = len(loader.instruments)
+    # MIT-STYLE: Proper train/test split (70/30 temporal)
+    print(f"\n{'=' * 70}")
+    print("TRAIN/TEST SPLIT (MIT-style, no forward bias)")
+    print("=" * 70)
+
+    train_instruments, test_instruments = loader.get_train_test_split(train_ratio=0.7)
+
+    if not train_instruments:
+        print("[ERROR] No training instruments after split!")
+        return {}
+
+    # Calculate episodes for training set
+    n_instruments = len(train_instruments)
     total_episodes = max(n_episodes, n_instruments * episodes_per_instrument)
 
     print(f"\nTraining plan:")
-    print(f"  Instruments: {n_instruments}")
+    print(f"  Train instruments: {n_instruments}")
+    print(f"  Test instruments: {len(test_instruments)}")
     print(f"  Episodes per instrument: {episodes_per_instrument}")
-    print(f"  Total episodes: {total_episodes}")
+    print(f"  Total training episodes: {total_episodes}")
+
+    # Create TRAINING environment (using train_instruments only)
+    train_loader = MultiInstrumentLoader(data_dir=data_dir, verbose=False)
+    train_loader.instruments = train_instruments  # Use pre-split data
 
     # Create multi-instrument environment
     reward_shaper = RewardShaper(
@@ -1819,7 +2356,7 @@ def run_multi_instrument_exploration(
     )
 
     multi_env = MultiInstrumentEnv(
-        loader=loader,
+        loader=train_loader,  # TRAIN on training data only
         feature_extractor=get_rl_state_features,
         reward_shaper=reward_shaper,
         sampling_mode="round_robin",
@@ -1848,7 +2385,7 @@ def run_multi_instrument_exploration(
 
     # Results per agent and per instrument
     results: Dict[str, Dict] = {}
-    per_instrument_results: Dict[str, Dict[str, Dict]] = {key: {} for key in loader.instruments}
+    per_instrument_results: Dict[str, Dict[str, Dict]] = {key: {} for key in train_instruments}
 
     for agent_name, agent in agents.items():
         print(f"\n{'=' * 70}")
@@ -1863,7 +2400,7 @@ def run_multi_instrument_exploration(
             agent.q_table = defaultdict(lambda: np.zeros(agent.n_actions))
 
         # Track per-instrument metrics
-        instrument_episodes: Dict[str, List[Dict]] = {key: [] for key in loader.instruments}
+        instrument_episodes: Dict[str, List[Dict]] = {key: [] for key in train_instruments}
         all_rewards = []
         all_trades = []
         all_pnl = []
@@ -1978,11 +2515,91 @@ def run_multi_instrument_exploration(
                       f"Trades={stats['avg_trades']:5.1f} | "
                       f"PnL=${stats['avg_pnl']:+10,.0f}")
 
+    # =========================================================================
+    # OUT-OF-SAMPLE TEST EVALUATION (MIT-style rigor)
+    # =========================================================================
+    print(f"\n{'=' * 70}")
+    print("OUT-OF-SAMPLE TEST EVALUATION")
+    print("=" * 70)
+
+    if test_instruments:
+        # Create test environment
+        test_loader = MultiInstrumentLoader(data_dir=data_dir, verbose=False)
+        test_loader.instruments = test_instruments
+
+        test_env = MultiInstrumentEnv(
+            loader=test_loader,
+            feature_extractor=get_rl_state_features,
+            reward_shaper=reward_shaper,
+            sampling_mode="round_robin",
+        )
+
+        test_results: Dict[str, Dict] = {}
+
+        for agent_name, agent in agents.items():
+            print(f"\n[TEST] {agent_name} on unseen data...")
+
+            test_rewards = []
+            test_pnl = []
+            test_trades = []
+
+            # Run 10 test episodes (no learning, just evaluation)
+            for _ in range(10):
+                state = test_env.reset()
+                episode_reward = 0
+                episode_trades = 0
+                episode_pnl = 0
+
+                for step in range(test_env.max_steps):
+                    # Greedy action (no exploration)
+                    action = agent.select_action(state, epsilon=0.0)
+                    next_state, reward, done, step_info = test_env.step(action)
+
+                    episode_reward += reward
+                    if step_info.get("trade_executed"):
+                        episode_trades += 1
+                        episode_pnl += step_info.get("trade_pnl", 0)
+
+                    state = next_state
+                    if done:
+                        break
+
+                test_rewards.append(episode_reward)
+                test_pnl.append(episode_pnl)
+                test_trades.append(episode_trades)
+
+            test_results[agent_name] = {
+                "avg_reward": float(np.mean(test_rewards)),
+                "avg_pnl": float(np.mean(test_pnl)),
+                "avg_trades": float(np.mean(test_trades)),
+                "std_reward": float(np.std(test_rewards)),
+            }
+
+            print(f"  Avg Reward: {test_results[agent_name]['avg_reward']:+.2f} ± {test_results[agent_name]['std_reward']:.2f}")
+            print(f"  Avg PnL:    ${test_results[agent_name]['avg_pnl']:+,.0f}")
+            print(f"  Avg Trades: {test_results[agent_name]['avg_trades']:.1f}")
+
+        # Compare train vs test (overfitting check)
+        print(f"\n{'=' * 70}")
+        print("TRAIN vs TEST COMPARISON (Overfitting Check)")
+        print("=" * 70)
+        print(f"{'Agent':<12} | {'Train Reward':>12} | {'Test Reward':>12} | {'Δ%':>8}")
+        print("-" * 50)
+        for agent_name in agents.keys():
+            train_r = np.mean(results[agent_name]["episode_rewards"][-20:])
+            test_r = test_results[agent_name]["avg_reward"]
+            delta_pct = ((test_r - train_r) / (abs(train_r) + 1e-8)) * 100
+            overfit = "⚠️ OVERFIT" if delta_pct < -30 else ""
+            print(f"{agent_name:<12} | {train_r:+12.2f} | {test_r:+12.2f} | {delta_pct:+7.1f}% {overfit}")
+    else:
+        print("[WARN] No test instruments available for out-of-sample evaluation")
+        test_results = {}
+
     # Save results
     if persistence:
         persistence.save_results({
             "experiment": experiment_name,
-            "instruments": list(loader.instruments.keys()),
+            "instruments": list(train_instruments.keys()),
             "n_instruments": n_instruments,
             "total_episodes": total_episodes,
             "agents": list(results.keys()),
@@ -2031,7 +2648,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="RL Exploration Framework")
-    parser.add_argument("--multi", action="store_true", help="Run multi-instrument exploration")
+    parser.add_argument("--multi", action="store_true", default=True, help="Run multi-instrument exploration (default)")
+    parser.add_argument("--single", action="store_true", help="Run single-instrument exploration (BTCUSD only)")
     parser.add_argument("--data-dir", type=str, default="data/master",
                         help="Path to data directory containing CSV files")
     parser.add_argument("--episodes", type=int, default=25,
@@ -2041,13 +2659,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.multi:
-        # Run multi-instrument exploration
+    if args.single:
+        # Run single-instrument exploration (BTCUSD only)
+        results = run_exploration_test(n_episodes=args.episodes)
+    else:
+        # Run multi-instrument exploration (all instruments: forex, indices, crypto, commodities)
         results = run_multi_instrument_exploration(
             data_dir=args.data_dir,
             episodes_per_instrument=args.episodes,
             agents_to_test=args.agents.split(",") if args.agents else None,
         )
-    else:
-        # Run single-instrument exploration (original)
-        results = run_exploration_test(n_episodes=args.episodes)
