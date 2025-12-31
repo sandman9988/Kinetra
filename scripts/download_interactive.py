@@ -112,18 +112,27 @@ class InteractiveDownloader:
         """Step 1: Select MetaAPI account."""
         print_step(1, "Select MetaAPI Account")
 
-        # Check for token
+        # Check for token in environment first
         self.token = os.environ.get('METAAPI_TOKEN')
-        if not self.token:
-            print("\n❌ METAAPI_TOKEN not found in environment")
-            print("\nSetup:")
-            print("1. Go to https://app.metaapi.cloud/")
-            print("2. Create account and add your MT5 broker credentials")
-            print("3. Get your API token")
-            print("4. Run: export METAAPI_TOKEN='your-token-here'")
-            return False
 
-        print(f"\n✅ Found API token: {self.token[:20]}...")
+        if not self.token:
+            print("\n📋 MetaAPI Token Required")
+            print("\nGet your token from: https://app.metaapi.cloud/")
+            print("(Sign up if you don't have an account)")
+
+            self.token = input("\nEnter your MetaAPI token: ").strip()
+
+            if not self.token:
+                print("\n❌ No token provided")
+                return False
+
+            # Ask if they want to save it
+            save = input("\nSave token to environment for next time? [1=Yes, 2=No]: ").strip()
+            if save == '1':
+                print("\nTo save permanently, add to your ~/.bashrc or ~/.zshrc:")
+                print(f'export METAAPI_TOKEN="{self.token}"')
+
+        print(f"\n✅ Using API token: {self.token[:20]}...")
 
         # Check for account ID in environment
         env_account_id = os.environ.get('METAAPI_ACCOUNT_ID')

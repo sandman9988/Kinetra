@@ -428,10 +428,26 @@ async def main():
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
 
-    if not token or not account_id:
-        print("\n❌ MetaAPI credentials not found")
-        print("   Set METAAPI_TOKEN and METAAPI_ACCOUNT_ID environment variables")
-        return
+    # Prompt for token if not set
+    if not token:
+        print("\n📋 MetaAPI Token Required")
+        print("\nGet your token from: https://app.metaapi.cloud/")
+        token = input("\nEnter your MetaAPI token: ").strip()
+
+        if not token:
+            print("\n❌ No token provided")
+            return
+
+    # Prompt for account ID if not set
+    if not account_id:
+        print("\n📋 MetaAPI Account ID Required")
+        print("\nGet this from: https://app.metaapi.cloud/")
+        print("(UUID format: e8f8c21a-32b5-40b0-9bf7-672e8ffab91f)")
+        account_id = input("\nEnter your MetaAPI account ID: ").strip()
+
+        if not account_id:
+            print("\n❌ No account ID provided")
+            return
 
     # Connect and fix
     filler = DataFiller(token, account_id)
