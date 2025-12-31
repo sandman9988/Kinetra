@@ -101,7 +101,11 @@ def print_step(step_num: int, text: str):
 
 
 def save_credentials_to_env(token: str, account_id: str = None):
-    """Save credentials to .env file for persistent storage."""
+    """Save non-sensitive credentials to .env file for persistent storage.
+
+    Note: The MetaAPI token is NOT persisted to disk to avoid clear-text
+    storage of sensitive information. Only the account ID is stored.
+    """
     # Use script's parent directory, not cwd (in case user runs from subdirectory)
     script_dir = Path(__file__).parent.parent
     env_file = script_dir / '.env'
@@ -122,9 +126,7 @@ def save_credentials_to_env(token: str, account_id: str = None):
         except Exception as e:
             print(f"⚠️  Could not read existing .env: {e}")
 
-    # Update credentials
-    if token:
-        env_lines['METAAPI_TOKEN'] = token
+    # Update credentials (do NOT persist the MetaAPI token)
     if account_id:
         env_lines['METAAPI_ACCOUNT_ID'] = account_id
 
@@ -264,10 +266,9 @@ class InteractiveDownloader:
                     print(f"\n✅ Will download symbols available across all {len(accounts)} accounts")
                     print(f"   Using {accounts[0].name} as primary connection")
 
-                    # Save first account if requested
+                    # Save first account if requested (only account ID, not token)
                     if should_save:
-                        save_credentials_to_env(self.token, self.account_id)
-                        os.environ['METAAPI_TOKEN'] = self.token
+                        save_credentials_to_env(None, self.account_id)
                         os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
 
                     return True
@@ -279,10 +280,9 @@ class InteractiveDownloader:
                         print(f"\n✅ Selected: {accounts[idx].name}")
                         print(f"   Server: {server}")
 
-                        # Save credentials if requested
+                        # Save credentials if requested (only account ID, not token)
                         if should_save:
-                            save_credentials_to_env(self.token, self.account_id)
-                            os.environ['METAAPI_TOKEN'] = self.token
+                            save_credentials_to_env(None, self.account_id)
                             os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
 
                         return True
