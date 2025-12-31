@@ -375,7 +375,7 @@ class TestLoggingIntegration:
             "volume": [1000] * 10,
         })
         
-        result = engine.run_backtest(data, spec)
+        engine.run_backtest(data, spec)
         
         # Logger should be initialized during backtest
         assert engine.logger is not None
