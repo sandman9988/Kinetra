@@ -1,0 +1,120 @@
+---
+# Example Test Configuration for Kinetra Testing Framework
+# This YAML file demonstrates how to configure custom test runs
+
+# Test metadata
+test_name: "example_alpha_discovery"
+description: "Example configuration for alpha discovery across multiple dimensions"
+output_dir: "test_results/example_run"
+
+# Instrument selection - "apples to apples" comparison
+instruments:
+  asset_classes:
+    - crypto
+    - forex
+    - metals
+  timeframes:
+    - H1
+    - H4
+  max_per_class: 2  # Limit to 2 instruments per class
+
+# Test suites to run
+test_suites:
+  # Core baselines
+  - name: control
+    enabled: true
+    episodes: 100
+    
+  - name: physics
+    enabled: true
+    episodes: 100
+    
+  # RL approaches
+  - name: rl_ppo
+    enabled: true
+    episodes: 150
+    
+  - name: rl_sac
+    enabled: true
+    episodes: 150
+    
+  # Discovery suites - exploring unknowns
+  - name: hidden_dimensions
+    enabled: true
+    episodes: 200
+    config:
+      latent_dims: [8, 16, 32]
+      methods: ["autoencoder", "pca", "umap"]
+      
+  - name: chaos_theory
+    enabled: true
+    episodes: 150
+    config:
+      lyapunov_horizon: "adaptive"
+      fractal_analysis: true
+      
+  - name: cross_regime
+    enabled: true
+    episodes: 150
+    config:
+      focus_on_transitions: true
+      
+  - name: meta_learning
+    enabled: false  # Disabled for quick runs
+    episodes: 250
+    
+  - name: deep_ensemble
+    enabled: true
+    episodes: 200
+
+# Statistical validation settings
+statistical_validation:
+  significance_level: 0.05
+  min_sample_size: 30
+  correction_method: "bonferroni"
+  filter_insignificant: true
+
+# First principles requirements
+first_principles:
+  require_non_linear: true
+  require_asymmetric: true
+  forbid_magic_numbers: true
+
+# GPU settings
+gpu:
+  use_gpu: true
+  target_utilization: 80  # Aim for 80%+ GPU usage
+  monitor_interval: 5  # seconds
+
+# Efficiency metrics
+efficiency_metrics:
+  measure_mfe_mae: true
+  measure_pythagorean: true
+  trailing_stop:
+    enabled: true
+    initial_distance: 0.02  # 2% initial stop
+    step_size: 0.005  # 0.5% trail increment
+
+# Visualization
+visualization:
+  generate_plots: true
+  plot_types:
+    - comparison_sharpe
+    - comparison_omega
+    - efficiency_metrics
+    - gpu_utilization
+    - first_principles
+  save_format: "png"
+  dpi: 300
+
+# Reporting
+reporting:
+  save_raw_results: true
+  generate_summary: true
+  include_insignificant: false
+  comparison_metrics:
+    - sharpe_ratio
+    - omega_ratio
+    - max_drawdown
+    - mfe_captured_pct
+    - pythagorean_efficiency

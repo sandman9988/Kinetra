@@ -3,30 +3,36 @@
 Unified Testing Framework - Consolidates All Test Scripts
 ===========================================================
 
+**FULLY INTEGRATED SYSTEM**
+
 Integrates:
 1. explore_specialization.py - Agent specialization strategies
 2. train_triad.py - Triad system training
 3. superpot_by_class.py - Asset class testing
 4. superpot_complete.py - Complete exploration
-5. Additional: Stacking, control groups, efficiency metrics
+5. **Data download and preparation**
+6. **Backtesting of discovered strategies**
+7. Additional: Stacking, control groups, efficiency metrics
+
+Features:
+- Automatic data discovery and validation
+- Integrated backtesting of discovered strategies
+- Statistical validation
+- GPU optimization
+- Pretty plots and reports
 
 Usage:
-    # Run all tests
-    python scripts/unified_test_framework.py --full
+    # Run all tests with data management
+    python scripts/unified_test_framework.py --full --auto-download
     
     # Quick test
     python scripts/unified_test_framework.py --quick
     
-    # Specific test suite
-    python scripts/unified_test_framework.py --suite control
-    python scripts/unified_test_framework.py --suite physics
-    python scripts/unified_test_framework.py --suite specialization
+    # Specific test suite with backtesting
+    python scripts/unified_test_framework.py --suite chaos --backtest
     
-    # Compare multiple suites
-    python scripts/unified_test_framework.py --compare control physics ml
-    
-    # Custom configuration
-    python scripts/unified_test_framework.py --config my_test_config.yaml
+    # EXTREME mode with everything
+    python scripts/unified_test_framework.py --extreme --backtest --auto-download
 """
 
 import argparse
@@ -57,6 +63,8 @@ from kinetra.testing_framework import (
     FirstPrinciplesValidator,
     classify_asset,
 )
+from kinetra.unified_data_manager import UnifiedDataManager, quick_setup
+from kinetra.integrated_backtester import IntegratedBacktester, BacktestConfig
 
 
 # =============================================================================
@@ -67,14 +75,36 @@ def discover_instruments(
     data_dirs: Optional[List[str]] = None,
     asset_classes: Optional[List[str]] = None,
     timeframes: Optional[List[str]] = None,
-    max_per_class: int = 3
+    max_per_class: int = 3,
+    use_data_manager: bool = True
 ) -> List[InstrumentSpec]:
     """
     Discover available instruments for testing.
     
     Ensures "apples to apples" comparison by selecting same instruments
     across different tests.
+    
+    Args:
+        data_dirs: Data directories to search (legacy)
+        asset_classes: Filter by asset classes
+        timeframes: Filter by timeframes
+        max_per_class: Max instruments per class
+        use_data_manager: Use UnifiedDataManager for discovery
+        
+    Returns:
+        List of InstrumentSpec objects
     """
+    if use_data_manager:
+        # Use UnifiedDataManager for better discovery
+        manager = quick_setup()
+        instruments = manager.prepare_for_testing(
+            asset_classes=asset_classes,
+            timeframes=timeframes,
+            max_per_class=max_per_class
+        )
+        return instruments
+    
+    # Legacy discovery method
     if data_dirs is None:
         data_dirs = [
             "data/master",
@@ -865,18 +895,45 @@ Examples:
     parser.add_argument('--episodes', type=int,
                        help='Override number of episodes')
     
+    # NEW: Integrated features
+    parser.add_argument('--backtest', action='store_true',
+                       help='Backtest discovered strategies automatically')
+    parser.add_argument('--auto-download', action='store_true',
+                       help='Automatically download missing data')
+    parser.add_argument('--validate-data', action='store_true',
+                       help='Validate data quality before testing')
+    parser.add_argument('--min-quality', type=float, default=0.7,
+                       help='Minimum data quality score (0-1, default: 0.7)')
+    
     args = parser.parse_args()
     
+    # Initialize data manager if needed
+    data_manager = None
+    if args.auto_download or args.validate_data:
+        print("Initializing data manager...")
+        data_manager = quick_setup()
+        data_manager.print_summary()
+        
+        if args.validate_data:
+            print("\nValidating data quality...")
+            integrity_results = data_manager.validate_all_data()
+            
+            passed = sum(1 for r in integrity_results.values() if r.quality_score >= args.min_quality)
+            print(f"Data validation: {passed}/{len(integrity_results)} files passed (quality >= {args.min_quality:.0%})")
+    
     # Discover instruments
-    print("Discovering instruments...")
+    print("\nDiscovering instruments...")
     instruments = discover_instruments(
         asset_classes=args.asset_classes,
         timeframes=args.timeframes,
-        max_per_class=args.max_instruments if not args.quick else 1
+        max_per_class=args.max_instruments if not args.quick else 1,
+        use_data_manager=(data_manager is not None)
     )
     
     if not instruments:
         print("ERROR: No instruments found!")
+        if args.auto_download:
+            print("\nTip: Implement data download in UnifiedDataManager.download_data()")
         return
     
     print(f"Found {len(instruments)} instruments:")
@@ -891,6 +948,13 @@ Examples:
     
     # Initialize framework
     framework = TestingFramework(output_dir=args.output_dir)
+    
+    # Initialize backtester if requested
+    backtester = None
+    if args.backtest:
+        print("\nInitializing integrated backtester...")
+        backtester = IntegratedBacktester(output_dir=f"{args.output_dir}/backtests")
+        print("Backtester ready - will automatically backtest discovered strategies")
     
     # Add tests based on arguments
     if args.extreme:
@@ -1050,9 +1114,37 @@ Examples:
         
         visualizer.generate_all_plots(results_dicts)
     
+    # Run backtests on discovered strategies
+    if args.backtest and backtester and results:
+        print(f"\n{'='*80}")
+        print("BACKTESTING DISCOVERED STRATEGIES")
+        print(f"{'='*80}\n")
+        
+        backtest_results = backtester.backtest_from_test_results(results, data_manager)
+        
+        if backtest_results:
+            print(f"\nBacktested {len(backtest_results)} strategies")
+            
+            # Generate backtest report
+            backtester.generate_backtest_report(backtest_results)
+            
+            # Show summary
+            print("\nBacktest Summary:")
+            for name, bt_result in backtest_results.items():
+                print(f"\n  {name}:")
+                print(f"    Total Return: {bt_result.total_return:.2%}")
+                print(f"    Sharpe Ratio: {bt_result.sharpe_ratio:.2f}")
+                print(f"    Max Drawdown: {bt_result.max_drawdown:.2%}")
+                print(f"    Win Rate: {bt_result.win_rate:.2%}")
+                print(f"    Significant: {bt_result.is_statistically_significant}")
+        else:
+            print("No backtestable strategies discovered")
+    
     print(f"\n{'='*80}")
     print("ALL TESTS COMPLETE")
     print(f"Results saved to: {args.output_dir}")
+    if args.backtest:
+        print(f"Backtest results: {args.output_dir}/backtests")
     print(f"{'='*80}\n")
 
 
