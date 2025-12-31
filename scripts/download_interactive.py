@@ -368,12 +368,20 @@ class InteractiveDownloader:
             all_symbols = await self.connection.get_symbols()
 
             # Handle both formats: list of strings or list of dicts
-            if all_symbols and isinstance(all_symbols[0], str):
-                # Format: ['EURUSD', 'GBPUSD', ...]
-                tradeable = all_symbols
+            if all_symbols:
+                # Check first element to determine format
+                first = all_symbols[0]
+                if isinstance(first, str):
+                    # Format: ['EURUSD', 'GBPUSD', ...]
+                    tradeable = all_symbols
+                elif isinstance(first, dict):
+                    # Format: [{'symbol': 'EURUSD', 'tradeMode': 'FULL_ACCESS'}, ...]
+                    tradeable = [s['symbol'] for s in all_symbols if s.get('tradeMode') != 'DISABLED']
+                else:
+                    print(f"⚠️  Unexpected symbol format: {type(first)}")
+                    tradeable = []
             else:
-                # Format: [{'symbol': 'EURUSD', 'tradeMode': 'FULL_ACCESS'}, ...]
-                tradeable = [s['symbol'] for s in all_symbols if s.get('tradeMode') != 'DISABLED']
+                tradeable = []
 
             print(f"✅ Found {len(tradeable)} tradeable symbols")
         except Exception as e:
