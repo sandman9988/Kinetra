@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Quick SAC test on physics data."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -27,8 +28,13 @@ from rl_exploration_framework import (
     TrainingProgressCallback,
 )
 
-# Load test data
-DATA_DIR = Path("/home/user/Kinetra/data/runs/berserker_run3/data/")
+# Load test data - configurable via environment variable
+_default_data_dir = Path(__file__).parent.parent / "data" / "runs"
+_available_runs = list(_default_data_dir.glob("*/data")) if _default_data_dir.exists() else []
+DATA_DIR = Path(os.environ.get(
+    "KINETRA_DATA_DIR",
+    str(_available_runs[-1]) if _available_runs else str(_default_data_dir / "berserker_run3" / "data")
+))
 
 def load_first_dataset():
     """Load first available dataset."""
