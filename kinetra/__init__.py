@@ -20,6 +20,16 @@ import importlib
 import importlib.util
 from typing import TYPE_CHECKING
 
+# Initialize silent failure logger early
+from .silent_failure_logger import (
+    SilentFailureLogger,
+    log_failure,
+    log_failures,
+    get_failure_logger,
+    FailureCategory,
+    FailureSeverity,
+)
+
 # Type checking imports (only used by type checkers, not at runtime)
 if TYPE_CHECKING:
     from .assumption_free_measures import AssumptionFreeEngine, extract_assumption_free_features
