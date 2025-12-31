@@ -1,0 +1,52 @@
+# Kinetra ROCm Container for AMD GPUs
+# Build: docker build -f Dockerfile.rocm -t kinetra-rocm .
+# Run: docker run -it --rm --device=/dev/kfd --device=/dev/dri \
+#      --group-add video --shm-size=16g \
+#      -v $(pwd)/data:/app/data -v $(pwd)/results:/app/results \
+#      kinetra-rocm python scripts/pathfinder_explore.py
+
+FROM rocm/pytorch:rocm6.0_ubuntu22.04_py3.10_pytorch_2.1.1
+
+# Set working directory
+WORKDIR /app
+
+# Install additional system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    libopenblas0 \
+    liblapack3 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies (torch already in base image)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    numpy>=1.24.0 \
+    pandas>=2.0.0 \
+    scipy>=1.10.0 \
+    PyWavelets>=1.4.0 \
+    scikit-learn>=1.3.0 \
+    gymnasium>=0.28.0 \
+    matplotlib>=3.7.0 \
+    pydantic>=2.0.0 \
+    python-dotenv>=1.0.0
+
+# Copy application code
+COPY kinetra/ /app/kinetra/
+COPY scripts/ /app/scripts/
+COPY rl_exploration_framework.py /app/
+
+# Create directories
+RUN mkdir -p /app/results /app/logs /app/data
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+ENV HSA_OVERRIDE_GFX_VERSION=11.0.0
+ENV PYTORCH_HIP_ALLOC_CONF=garbage_collection_threshold:0.6,max_split_size_mb:128
+
+# Default command
+CMD ["python", "scripts/pathfinder_explore.py"]
