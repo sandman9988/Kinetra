@@ -1,20 +1,5 @@
 """
 MetaAPI Authentication & Data Download Test
-===========================================
-
-Complete test of MetaAPI cloud connection including:
-1. Authentication with MetaAPI token
-2. Account connection
-3. Account info retrieval
-4. Historical data download
-5. Data validation
-6. Save to CSV
-
-MetaAPI allows you to connect to MT5 without having it installed locally.
-Get your API token from: https://app.metaapi.cloud/
-"""
-
-import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 import pandas as pd

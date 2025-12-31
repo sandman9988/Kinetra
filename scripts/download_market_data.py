@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 import json
 import numpy as np
 import pandas as pd
@@ -354,60 +356,76 @@ def download_all_data(
         'symbol_info': {},
     }
 
-    for i, symbol in enumerate(symbols):
-        print(f"\n[{i+1}/{len(symbols)}] {symbol}")
+    # Thread-safe counters
+    completed = [0]
+    lock = threading.Lock()
 
-        # Get symbol info
+    def download_symbol_tf(args):
+        """Download single symbol/timeframe - for parallel execution."""
+        symbol, tf_name, tf_value = args
+
+        # Get symbol info (thread-safe via MT5)
         info = get_symbol_info(symbol)
         if info is None:
-            print(f"  ! Could not get symbol info")
-            summary['skipped'].append({'symbol': symbol, 'reason': 'No info'})
-            continue
+            return {'status': 'skipped', 'symbol': symbol, 'tf': tf_name, 'reason': 'No info'}
 
-        summary['symbol_info'][symbol] = info.to_dict()
+        # Download data
+        df = download_symbol_data(symbol, tf_name, tf_value, days)
+        if df is None:
+            return {'status': 'skipped', 'symbol': symbol, 'tf': tf_name, 'reason': 'No data'}
 
-        for tf_name, tf_value in timeframes.items():
-            # Download data
-            df = download_symbol_data(symbol, tf_name, tf_value, days)
+        # Validate
+        is_valid, issues = validate_data(df, symbol)
+        if not is_valid:
+            return {'status': 'skipped', 'symbol': symbol, 'tf': tf_name, 'reason': issues}
 
-            if df is None:
-                print(f"  {tf_name}: No data")
-                continue
+        # Normalize
+        df = normalize_ohlcv(df)
 
-            # Validate
-            is_valid, issues = validate_data(df, symbol)
-            if not is_valid:
-                print(f"  {tf_name}: Invalid - {', '.join(issues)}")
-                summary['skipped'].append({
-                    'symbol': symbol,
-                    'timeframe': tf_name,
-                    'reason': issues
-                })
-                continue
+        # Add friction
+        df = add_friction_columns(df, info)
 
-            # Normalize
-            df = normalize_ohlcv(df)
+        # Generate filename
+        start_str = df.index[0].strftime('%Y%m%d%H%M')
+        end_str = df.index[-1].strftime('%Y%m%d%H%M')
+        filename = f"{symbol}_{tf_name}_{start_str}_{end_str}.csv"
+        filepath = output_dir / filename
 
-            # Add friction
-            df = add_friction_columns(df, info)
+        # Save
+        df.to_csv(filepath)
 
-            # Generate filename
-            start_str = df.index[0].strftime('%Y%m%d%H%M')
-            end_str = df.index[-1].strftime('%Y%m%d%H%M')
-            filename = f"{symbol}_{tf_name}_{start_str}_{end_str}.csv"
-            filepath = output_dir / filename
+        with lock:
+            completed[0] += 1
+            print(f"\r  [{completed[0]}/{len(symbols) * len(timeframes)}] {symbol} {tf_name}: {len(df)} bars", end="", flush=True)
 
-            # Save
-            df.to_csv(filepath)
+        return {
+            'status': 'success',
+            'symbol': symbol,
+            'timeframe': tf_name,
+            'bars': len(df),
+            'file': filename,
+            'friction': info.friction_score(),
+            'info': info.to_dict(),
+        }
 
-            print(f"  {tf_name}: {len(df)} bars -> {filename}")
-            summary['downloaded'].append({
-                'symbol': symbol,
-                'timeframe': tf_name,
-                'bars': len(df),
-                'file': filename,
-                'friction': info.friction_score(),
-            })
+    # Build task list (all symbol/timeframe combinations)
+    tasks = [(symbol, tf_name, tf_value) for symbol in symbols for tf_name, tf_value in timeframes.items()]
+
+    # Parallel download with 16 threads (I/O bound)
+    n_workers = min(16, len(tasks))
+    print(f"\n  Parallel download with {n_workers} threads...")
+
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+        futures = {executor.submit(download_symbol_tf, args): args for args in tasks}
+        for future in as_completed(futures):
+            result = future.result()
+            if result['status'] == 'success':
+                summary['downloaded'].append(result)
+                summary['symbol_info'][result['symbol']] = result.get('info', {})
+            else:
+                summary['skipped'].append(result)
+
+    print()  # Newline after progress
 
     # Save summary
     summary_file = output_dir / 'download_summary.json'

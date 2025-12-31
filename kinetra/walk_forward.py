@@ -12,6 +12,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
 
 import numpy as np
 import pandas as pd
@@ -229,8 +231,9 @@ class WalkForwardEngine:
         wf_windows: List[WalkForwardWindow] = []
         all_oos_equity = []
 
-        for i, (is_start, is_end, oos_start, oos_end) in enumerate(windows):
-            # Extract data slices
+        def process_window(args):
+            """Process single window - for parallel execution."""
+            i, is_start, is_end, oos_start, oos_end = args
             is_data = data.iloc[is_start:is_end].copy()
             oos_data = data.iloc[oos_start:oos_end].copy()
 
@@ -281,11 +284,30 @@ class WalkForwardEngine:
                 oos_data, symbol_spec, current_signal_func, agent
             )
 
-            # Collect OOS equity for combined curve
-            if wf_window.oos_result.equity_curve is not None:
-                all_oos_equity.append(wf_window.oos_result.equity_curve)
+            return wf_window
 
-            wf_windows.append(wf_window)
+        # Parallel walk-forward - use all cores
+        n_workers = min(mp.cpu_count(), len(windows), 32)
+        window_args = [(i, *w) for i, w in enumerate(windows)]
+
+        if n_workers > 1 and len(windows) >= 4:
+            # Parallel execution
+            with ProcessPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(process_window, args): args[0] for args in window_args}
+                for future in as_completed(futures):
+                    wf_window = future.result()
+                    wf_windows.append(wf_window)
+                    if wf_window.oos_result and wf_window.oos_result.equity_curve is not None:
+                        all_oos_equity.append(wf_window.oos_result.equity_curve)
+            # Sort by window_id to maintain order
+            wf_windows.sort(key=lambda w: w.window_id)
+        else:
+            # Sequential for small runs
+            for args in window_args:
+                wf_window = process_window(args)
+                wf_windows.append(wf_window)
+                if wf_window.oos_result and wf_window.oos_result.equity_curve is not None:
+                    all_oos_equity.append(wf_window.oos_result.equity_curve)
 
         # Calculate aggregate metrics
         result = self._calculate_aggregate_metrics(wf_windows, all_oos_equity)

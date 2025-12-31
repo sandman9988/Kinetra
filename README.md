@@ -213,6 +213,7 @@ Every component is validated through multiple layers:
 
 ## 🔐 Security & Safety
 
+- **Credential Security**: All API keys and secrets loaded from environment variables (`.env` file), never committed to version control
 - **Mathematical Accuracy**: All theorems proven with LaTeX in documentation
 - **Data Validation**: Pydantic schemas enforce type/range contracts
 - **Execution Safety**: Circuit breakers, fallback policies, slippage modeling
