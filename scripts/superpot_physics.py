@@ -463,6 +463,7 @@ class PhysicsExtractor:
         price_impact = np.abs(vel) / (v[1:] + 1e-10) if len(vel) > 0 else np.array([0])
         features['viscosity_5'] = np.mean(price_impact[-5:]) * 1e6 if len(price_impact) >= 5 else 0
         features['viscosity_10'] = np.mean(price_impact[-10:]) * 1e6 if len(price_impact) >= 10 else 0
+        features['viscosity_20'] = np.mean(price_impact[-20:]) * 1e6 if len(price_impact) >= 20 else features['viscosity_10']
         
         visc_up = price_impact[vel[-len(price_impact):] > 0] if len(price_impact) > 0 else np.array([0])
         visc_down = price_impact[vel[-len(price_impact):] < 0] if len(price_impact) > 0 else np.array([0])
@@ -472,7 +473,7 @@ class PhysicsExtractor:
         # Liquidity (inverse price impact)
         features['liquidity_5'] = 1 / (features['viscosity_5'] + 1e-10)
         features['liquidity_10'] = 1 / (features['viscosity_10'] + 1e-10)
-        features['liquidity_stress'] = features['viscosity_5'] / (features['viscosity_20'] + 1e-10) if len(price_impact) >= 20 else 1
+        features['liquidity_stress'] = features['viscosity_5'] / (features['viscosity_20'] + 1e-10)
         
         # Reynolds-Momentum Correlation
         if len(vel) >= 10:
