@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Quick SAC test on physics data."""
 
+import os
 import sys
 from pathlib import Path
 

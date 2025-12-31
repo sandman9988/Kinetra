@@ -18,11 +18,31 @@ from enum import Enum
 
 
 class AssetClass(Enum):
+    # Currency markets
     FOREX = "forex"
+
+    # Digital assets
     CRYPTO = "crypto"
-    INDEX = "index"
+
+    # Equity markets
+    SHARES = "shares"
+    STOCK = "stock"  # Alias for shares
+    INDICES = "indices"
+    INDEX = "index"  # Alias for indices (backward compatibility)
+
+    # Commodity markets - Metals
+    METALS = "metals"
+    METAL = "metal"  # Alias for metals
+
+    # Commodity markets - Energy
+    ENERGY = "energy"
+
+    # General commodities (backward compatibility)
     COMMODITY = "commodity"
-    STOCK = "stock"
+
+    # Structured products
+    ETFS = "etfs"
+    ETF = "etf"  # Alias for etfs
 
 
 class Session(Enum):
@@ -41,6 +61,7 @@ class SymbolSpec:
     Symbol contract specification from MT5/broker.
 
     All values that affect friction and position sizing.
+    Designed to capture complete MT5 symbol_info structure.
     """
     symbol: str
     asset_class: AssetClass
@@ -55,26 +76,56 @@ class SymbolSpec:
     volume_max: float = 100.0       # Maximum lot
     volume_step: float = 0.01       # Lot increment
 
-    # Margin
-    margin_initial: float = 0.01    # Initial margin rate (1% = 100:1 leverage)
-    margin_maintenance: float = 0.005
-    margin_currency: str = "USD"
+    # Margin (MT5 complete specification)
+    margin_initial: float = 0.01          # Initial margin rate (deprecated - use rates below)
+    margin_maintenance: float = 0.005     # Maintenance margin (deprecated)
+    margin_initial_rate_buy: float = 0.01  # Initial margin rate for long positions
+    margin_initial_rate_sell: float = 0.01 # Initial margin rate for short positions
+    margin_maintenance_rate_buy: float = 0.005  # Maintenance margin rate for long
+    margin_maintenance_rate_sell: float = 0.005 # Maintenance margin rate for short
+    margin_hedge: float = 0.0             # Margin for hedged positions
+    margin_currency: str = "USD"          # Currency for margin calculation
+    margin_mode: str = "FOREX"            # FOREX, FOREX-NO-LEVERAGE, CFD, etc.
 
     # Costs
     spread_typical: float = 0.0     # Typical spread in points
     spread_min: float = 0.0         # Minimum spread
     spread_max: float = 0.0         # Maximum spread (during news/rollover)
     commission_per_lot: float = 0.0 # Commission per lot per side
-    swap_long: float = 0.0          # Daily swap for long positions (points)
-    swap_short: float = 0.0         # Daily swap for short positions (points)
+
+    # Swap (MT5 complete specification)
+    swap_long: float = 0.0          # Daily swap for long positions
+    swap_short: float = 0.0         # Daily swap for short positions
+    swap_type: str = "points"       # "points" or "percentage" or "interest"
+    swap_triple_day: str = "wednesday"  # Day when triple swap is charged
+
+    # Trading calculation
+    profit_calc_mode: str = "FOREX"  # Profit calculation mode (FOREX, CFD, FUTURES, etc.)
+
+    # Stop placement & freeze zones (CRITICAL for live trading)
+    trade_stops_level: int = 0      # Minimum distance for SL/TP from price (in points)
+    trade_freeze_level: int = 0     # Freeze zone before close/events (in points)
+
+    # Order execution modes
+    trade_mode: str = "FULL"        # FULL, CLOSEONLY, DISABLED
+    filling_mode: str = "IOC"       # IOC (Immediate or Cancel), FOK (Fill or Kill), RETURN
+    order_mode: str = "MARKET_LIMIT"  # Allowed order types
+    order_gtc_mode: str = "GTC"     # Good Till Cancelled mode
 
     # Session info
     session_start: time = time(0, 0)   # Market open (UTC)
     session_end: time = time(23, 59)   # Market close (UTC)
     rollover_time: time = time(21, 0)  # Daily rollover (UTC) - typically 21:00
 
+    # Detailed trading hours (optional, for precise modeling)
+    trading_hours: Optional[Dict[str, str]] = None  # {"monday": "00:01-23:58", ...}
+
     # Liquidity profile (normalized 0-1 by hour)
     liquidity_profile: Dict[int, float] = field(default_factory=dict)
+
+    # Metadata (for tracking updates)
+    last_updated: Optional[datetime] = None  # When spec was last updated from MT5
+    source: str = "manual"  # "manual", "mt5", "broker_api", etc.
 
     def __post_init__(self):
         if self.point is None:
@@ -98,8 +149,53 @@ class SymbolSpec:
         elif self.asset_class == AssetClass.CRYPTO:
             # Crypto: 24/7 but peaks during US hours
             return {h: 0.7 + 0.3 * np.sin((h - 14) * np.pi / 12) for h in range(24)}
+        elif self.asset_class in (AssetClass.SHARES, AssetClass.STOCK):
+            # Shares: US market hours (9:30-16:00 ET = roughly 14:30-21:00 UTC)
+            return {
+                0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0,      # Pre-market closed
+                6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0, 11: 0.0,    # Pre-market closed
+                12: 0.0, 13: 0.2, 14: 0.6, 15: 0.9, 16: 1.0, 17: 0.95,  # Market open
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.3,                  # Market close
+                22: 0.0, 23: 0.0                                      # After hours
+            }
+        elif self.asset_class in (AssetClass.INDICES, AssetClass.INDEX):
+            # Indices: Extended hours trading, peaks during regular session
+            return {
+                0: 0.2, 1: 0.2, 2: 0.2, 3: 0.2, 4: 0.2, 5: 0.2,      # Asian session
+                6: 0.3, 7: 0.4, 8: 0.5, 9: 0.6, 10: 0.7, 11: 0.75,   # European session
+                12: 0.8, 13: 0.85, 14: 0.9, 15: 0.95, 16: 1.0, 17: 0.95,  # US session peak
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.5,                  # US session close
+                22: 0.3, 23: 0.25                                     # After hours
+            }
+        elif self.asset_class in (AssetClass.METALS, AssetClass.METAL):
+            # Metals (Gold, Silver): 23-hour trading, 1 hour maintenance
+            return {
+                0: 0.7, 1: 0.65, 2: 0.6, 3: 0.6, 4: 0.65, 5: 0.7,    # Asian session
+                6: 0.75, 7: 0.8, 8: 0.85, 9: 0.9, 10: 0.95, 11: 0.95,  # London session
+                12: 0.95, 13: 1.0, 14: 1.0, 15: 0.95, 16: 0.9,       # London/NY overlap
+                17: 0.85, 18: 0.8, 19: 0.75, 20: 0.7, 21: 0.65,      # NY session
+                22: 0.0, 23: 0.6                                      # Maintenance hour (22:00)
+            }
+        elif self.asset_class == AssetClass.ENERGY:
+            # Energy (Oil, Gas): Peaks during London/NY hours
+            return {
+                0: 0.5, 1: 0.45, 2: 0.4, 3: 0.4, 4: 0.45, 5: 0.5,    # Asian session
+                6: 0.6, 7: 0.7, 8: 0.8, 9: 0.85, 10: 0.9, 11: 0.9,   # London open
+                12: 0.95, 13: 1.0, 14: 1.0, 15: 0.95, 16: 0.9,       # London/NY overlap
+                17: 0.85, 18: 0.8, 19: 0.7, 20: 0.6, 21: 0.5,        # NY afternoon
+                22: 0.45, 23: 0.5                                     # After hours
+            }
+        elif self.asset_class in (AssetClass.ETFS, AssetClass.ETF):
+            # ETFs: Follow equity market hours
+            return {
+                0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0,      # Pre-market closed
+                6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0, 11: 0.0,    # Pre-market closed
+                12: 0.0, 13: 0.2, 14: 0.6, 15: 0.9, 16: 1.0, 17: 0.95,  # Market open
+                18: 0.9, 19: 0.85, 20: 0.7, 21: 0.3,                  # Market close
+                22: 0.0, 23: 0.0                                      # After hours
+            }
         else:
-            # Default flat profile
+            # Default flat profile (COMMODITY and others)
             return {h: 0.8 for h in range(24)}
 
     def spread_in_price(self) -> float:
@@ -111,6 +207,64 @@ class SymbolSpec:
         # For most pairs, 1 pip = 0.0001 (or 0.01 for JPY pairs)
         pip_size = 10 * self.point if self.digits == 5 or self.digits == 3 else self.point
         return pip_size * self.contract_size * lot_size
+
+    def validate_stop_distance(self, entry_price: float, stop_price: float) -> tuple[bool, str]:
+        """
+        Validate that stop loss/take profit meets minimum distance requirement.
+
+        Args:
+            entry_price: Entry or current price
+            stop_price: Proposed SL/TP price
+
+        Returns:
+            (is_valid, error_message) tuple
+        """
+        if self.trade_stops_level == 0:
+            return (True, "")  # No minimum distance required
+
+        distance_price = abs(stop_price - entry_price)
+        # Use round() instead of int() to handle floating point precision issues
+        distance_points = round(distance_price / self.point)
+        min_points = self.trade_stops_level
+
+        if distance_points < min_points:
+            return (
+                False,
+                f"Stop distance {distance_points} points < minimum {min_points} points "
+                f"({distance_price:.{self.digits}f} < {min_points * self.point:.{self.digits}f})"
+            )
+
+        return (True, "")
+
+    def is_in_freeze_zone(self) -> bool:
+        """
+        Check if currently in freeze zone (before market close/events).
+
+        Note: This is a simplified check. Real freeze zone detection would need:
+        - Current server time
+        - Time to next market close
+        - Special event calendar (NFP, FOMC, etc.)
+
+        Returns:
+            True if modifications blocked (conservative default)
+        """
+        # Conservative: if freeze level exists, assume we might be in freeze zone
+        # Real implementation would check time until session_end
+        return self.trade_freeze_level > 0
+
+    def get_safe_stop_distance(self, safety_multiplier: float = 1.5) -> float:
+        """
+        Get safe stop loss distance with safety buffer.
+
+        Args:
+            safety_multiplier: Multiplier for minimum distance (default 1.5x)
+
+        Returns:
+            Safe distance in price units
+        """
+        min_distance_price = self.trade_stops_level * self.point
+        safe_distance = min_distance_price * safety_multiplier
+        return safe_distance
 
 
 # Pre-defined symbol specifications
@@ -180,7 +334,7 @@ SYMBOL_SPECS = {
     # Indices
     "US500": SymbolSpec(
         symbol="US500",
-        asset_class=AssetClass.INDEX,
+        asset_class=AssetClass.INDICES,
         digits=2,
         contract_size=1,
         spread_typical=0.5,
@@ -192,7 +346,7 @@ SYMBOL_SPECS = {
     ),
     "US30": SymbolSpec(
         symbol="US30",
-        asset_class=AssetClass.INDEX,
+        asset_class=AssetClass.INDICES,
         digits=0,
         contract_size=1,
         spread_typical=2.0,
@@ -202,10 +356,22 @@ SYMBOL_SPECS = {
         swap_long=-3.5,
         swap_short=-1.5,
     ),
-    # Gold
+    "NAS100": SymbolSpec(
+        symbol="NAS100",
+        asset_class=AssetClass.INDICES,
+        digits=2,
+        contract_size=1,
+        spread_typical=1.0,
+        spread_min=0.5,
+        spread_max=10.0,
+        commission_per_lot=0.0,
+        swap_long=-2.0,
+        swap_short=-1.0,
+    ),
+    # Metals
     "XAUUSD": SymbolSpec(
         symbol="XAUUSD",
-        asset_class=AssetClass.COMMODITY,
+        asset_class=AssetClass.METALS,
         digits=2,
         contract_size=100,       # 100 oz per lot
         spread_typical=0.30,     # $0.30 typical
@@ -214,6 +380,69 @@ SYMBOL_SPECS = {
         commission_per_lot=0.0,
         swap_long=-5.0,
         swap_short=1.0,
+    ),
+    "XAGUSD": SymbolSpec(
+        symbol="XAGUSD",
+        asset_class=AssetClass.METALS,
+        digits=3,
+        contract_size=5000,      # 5000 oz per lot
+        spread_typical=0.020,    # $0.020 typical
+        spread_min=0.010,
+        spread_max=0.200,
+        commission_per_lot=0.0,
+        swap_long=-4.0,
+        swap_short=1.0,
+    ),
+    # Energy
+    "XTIUSD": SymbolSpec(  # WTI Crude Oil
+        symbol="XTIUSD",
+        asset_class=AssetClass.ENERGY,
+        digits=2,
+        contract_size=1000,      # 1000 barrels per lot
+        spread_typical=0.05,     # $0.05 typical
+        spread_min=0.03,
+        spread_max=0.50,
+        commission_per_lot=0.0,
+        swap_long=-3.0,
+        swap_short=-1.0,
+    ),
+    "XBRUSD": SymbolSpec(  # Brent Crude Oil
+        symbol="XBRUSD",
+        asset_class=AssetClass.ENERGY,
+        digits=2,
+        contract_size=1000,      # 1000 barrels per lot
+        spread_typical=0.05,     # $0.05 typical
+        spread_min=0.03,
+        spread_max=0.50,
+        commission_per_lot=0.0,
+        swap_long=-3.0,
+        swap_short=-1.0,
+    ),
+    # Shares (Example: Major US stocks)
+    "AAPL": SymbolSpec(
+        symbol="AAPL",
+        asset_class=AssetClass.SHARES,
+        digits=2,
+        contract_size=1,         # 1 share per lot
+        spread_typical=0.02,     # $0.02 typical
+        spread_min=0.01,
+        spread_max=0.20,
+        commission_per_lot=0.0,  # Usually commission-free or in spread
+        swap_long=-0.02,
+        swap_short=-0.02,
+    ),
+    # ETFs (Example)
+    "SPY": SymbolSpec(
+        symbol="SPY",
+        asset_class=AssetClass.ETFS,
+        digits=2,
+        contract_size=1,         # 1 share per lot
+        spread_typical=0.01,     # $0.01 typical
+        spread_min=0.01,
+        spread_max=0.10,
+        commission_per_lot=0.0,
+        swap_long=-0.01,
+        swap_short=-0.01,
     ),
 }
 

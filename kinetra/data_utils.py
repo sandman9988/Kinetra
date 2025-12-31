@@ -96,8 +96,13 @@ def load_mt5_csv(
                 break
             elif col == 'Date':
                 date_col = col
-            elif col == 'Time' and date_col:
-                time_col = col
+            elif col == 'Time':
+                if date_col:
+                    # We have both Date and Time columns
+                    time_col = col
+                else:
+                    # Only Time column - might contain full datetime
+                    date_col = col
 
     # Combine Date and Time if both exist
     if date_col and time_col and time_col in df.columns:
@@ -170,6 +175,16 @@ def load_mt5_csv(
 
     # Drop rows with NaN
     df = df.dropna()
+
+    # Remove duplicate timestamps (keep first occurrence)
+    # This is a defensive measure in case downloads introduce duplicates
+    if isinstance(df.index, pd.DatetimeIndex):
+        initial_len = len(df)
+        df = df[~df.index.duplicated(keep='first')]
+        if len(df) < initial_len:
+            # Duplicates were found and removed
+            removed = initial_len - len(df)
+            # Note: we don't print here as this is a utility function
 
     # Validate data integrity
     is_valid, message = validate_ohlcv(df)
