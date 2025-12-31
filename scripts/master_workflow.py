@@ -258,7 +258,7 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
     # Check token
     has_valid_token = False
     if token and not any(placeholder in token.lower() for placeholder in placeholder_patterns):
-        msg = f"✅ Found valid API token: {token[:8]}***"
+        msg = "✅ Found valid API token"
         if logger:
             logger.info(msg)
         else:
