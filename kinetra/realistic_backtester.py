@@ -16,10 +16,16 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 from .market_microstructure import SymbolSpec, AssetClass
 from .regime_filtered_env import PhysicsRegime, VolatilityRegime, MomentumRegime
+
+
+class TradeDirection(Enum):
+    """Trade direction enumeration."""
+    LONG = "long"
+    SHORT = "short"
 
 
 class MT5ErrorCode(IntEnum):
