@@ -6,6 +6,7 @@ with atomic saves and proper naming conventions.
 """
 
 import sys
+import os
 from pathlib import Path
 from datetime import datetime, timedelta
 import pandas as pd
@@ -23,12 +24,27 @@ except ImportError:
     print("Install: pip install metaapi-cloud-sdk")
     sys.exit(1)
 
-# =====================================================
-# CREDENTIALS
-# =====================================================
-API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJjMTdhODAwNThhOWE3OWE0NDNkZjBlOGM1NDZjZjlmMSIsImFjY2Vzc1J1bGVzIjpbeyJpZCI6InRyYWRpbmctYWNjb3VudC1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVzdC1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcnBjLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVhbC10aW1lLXN0cmVhbWluZy1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOndzOnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtZXRhc3RhdHMtYXBpIiwibWV0aG9kcyI6WyJtZXRhc3RhdHMtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6InJpc2stbWFuYWdlbWVudC1hcGkiLCJtZXRob2RzIjpbInJpc2stbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoiY29weWZhY3RvcnktYXBpIiwibWV0aG9kcyI6WyJjb3B5ZmFjdG9yeS1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibXQtbWFuYWdlci1hcGkiLCJtZXRob2RzIjpbIm10LW1hbmFnZXItYXBpOnJlc3Q6ZGVhbGluZzoqOioiLCJtdC1tYW5hZ2VyLWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJiaWxsaW5nLWFwaSIsIm1ldGhvZHMiOlsiYmlsbGluZy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfV0sImlnbm9yZVJhdGVMaW1pdHMiOmZhbHNlLCJ0b2tlbklkIjoiMjAyMTAyMTMiLCJpbXBlcnNvbmF0ZWQiOmZhbHNlLCJyZWFsVXNlcklkIjoiYzE3YTgwMDU4YTlhNzlhNDQzZGYwZThjNTQ2Y2Y5ZjEiLCJpYXQiOjE3NjcxMjY5NzQsImV4cCI6MTc3NDkwMjk3NH0.MNG5qH4ufgoKivTCTuvfVywtTYgYhkIEWCLoff9F1tP3MvGLNRhHNwe2dyMppSTr5mzEFlkF1VRlpFthpq2KnOUvCATFNUM04cUYJcpcv6Arp_Pf653Lrtm1DK2Br4NZYQr9eh_ZndXIN2qm2QYSAi2W5wXovAaMkLPjs1x2J1G4ZxFM48u7xrqCci0Sri2dhCLNI6eVX9-VlfLJb4iYJqbKcS7GacodmtUHQqzKKusazLPoEe0cJmVPVj0h5OwXiWnZRH07VY9e9s3i-5BzHp9syGVDh7rU3D7IU8jCaB8oBWl6S49MW-wpY41_cdxf3eo53CN0MY3GikfZbusgO_2xAxxBfbsmMIC9l0g2TiUIuATEfMILPzcAhCjKE35AAc0JEbXw0XxBWyIZoCAcdqI2FuyyMOyddKfSQ7y7kkW_0tu5d9P8p-HUdE5FEI_rEHbfxfEy4CLI9LY_5ZycuhZwrnOyKLS_CPX4iFtdTT40eHynaeNv8ok8_h_wirm5YQuFv_YL0u0HqTqiy5Q_f-vDJVLob7et779DsBj9myILCFGg7RlwzEcxsZNGCkbNRvsCjZE7HwqQy2IjqGNo5vI8AiEfHD0c3PGfPhdKqKS5mBa7w4md-90T_Um9VnUXHZ8EnQlrVCnP8NpsfCWGQRDPMepd_D1lvL6XjxaVMfM"
+# Load environment variables from .env file if available
+try:
+    from dotenv import load_dotenv
+    load_dotenv(project_root / '.env')
+except ImportError:
+    pass
 
-ACCOUNT_ID = "e8f8c21a-32b5-40b0-9bf7-672e8ffab91f"
+# =====================================================
+# CREDENTIALS - Load from environment variables
+# =====================================================
+API_TOKEN = os.environ.get('METAAPI_TOKEN')
+ACCOUNT_ID = os.environ.get('METAAPI_ACCOUNT_ID')
+
+if not API_TOKEN or not ACCOUNT_ID:
+    print("ERROR: Missing credentials!")
+    print("Please set METAAPI_TOKEN and METAAPI_ACCOUNT_ID environment variables.")
+    print("You can:")
+    print("  1. Copy .env.example to .env and fill in your credentials")
+    print("  2. Export them: export METAAPI_TOKEN=your_token")
+    print("                 export METAAPI_ACCOUNT_ID=your_account_id")
+    sys.exit(1)
 
 # =====================================================
 # PREFERRED SYMBOLS BY ASSET CLASS (fallback list)
