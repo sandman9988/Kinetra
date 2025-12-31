@@ -40,23 +40,23 @@ from rl_exploration_framework import BaseAgent
 
 if TORCH_AVAILABLE:
     class MLPNetwork(nn.Module):
-    """Simple MLP network for value/policy functions."""
+        """Simple MLP network for value/policy functions."""
 
-    def __init__(self, input_dim: int, output_dim: int, hidden_dims=(64, 64)):
-        super().__init__()
-        layers = []
-        prev_dim = input_dim
+        def __init__(self, input_dim: int, output_dim: int, hidden_dims=(64, 64)):
+            super().__init__()
+            layers = []
+            prev_dim = input_dim
 
-        for hidden_dim in hidden_dims:
-            layers.append(nn.Linear(prev_dim, hidden_dim))
-            layers.append(nn.ReLU())
-            prev_dim = hidden_dim
+            for hidden_dim in hidden_dims:
+                layers.append(nn.Linear(prev_dim, hidden_dim))
+                layers.append(nn.ReLU())
+                prev_dim = hidden_dim
 
-        layers.append(nn.Linear(prev_dim, output_dim))
-        self.network = nn.Sequential(*layers)
+            layers.append(nn.Linear(prev_dim, output_dim))
+            self.network = nn.Sequential(*layers)
 
-    def forward(self, x):
-        return self.network(x)
+        def forward(self, x):
+            return self.network(x)
 
 
 class GaussianPolicyNetwork(nn.Module):

@@ -342,10 +342,20 @@ class InteractiveDownloader:
         print("\n🔍 Fetching available symbols from broker...")
         try:
             all_symbols = await self.connection.get_symbols()
-            tradeable = [s['symbol'] for s in all_symbols if s.get('tradeMode') != 'DISABLED']
+
+            # Handle both formats: list of strings or list of dicts
+            if all_symbols and isinstance(all_symbols[0], str):
+                # Format: ['EURUSD', 'GBPUSD', ...]
+                tradeable = all_symbols
+            else:
+                # Format: [{'symbol': 'EURUSD', 'tradeMode': 'FULL_ACCESS'}, ...]
+                tradeable = [s['symbol'] for s in all_symbols if s.get('tradeMode') != 'DISABLED']
+
             print(f"✅ Found {len(tradeable)} tradeable symbols")
         except Exception as e:
             print(f"❌ Failed to fetch symbols: {e}")
+            import traceback
+            traceback.print_exc()
             return []
 
         # Classify symbols
