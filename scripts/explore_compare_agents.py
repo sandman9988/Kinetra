@@ -338,40 +338,102 @@ def main():
 
     state_dim = env.state_dim
     n_actions = env.n_actions
-    episodes = 30  # Episodes per agent
 
     print(f"\n⚙️  Environment: state_dim={state_dim}, actions={n_actions}")
-    print(f"📊 Training each agent for {episodes} episodes...")
 
-    # Initialize agents
-    agents = {
-        'LinearQ': LinearQAgent(
-            state_dim=state_dim,
-            n_actions=n_actions,
-            learning_rate=0.05,
-            gamma=0.9,
-        )
-    }
+    # Interactive configuration
+    print(f"\n🎯 Training Configuration:")
+    print(f"\n1. How many episodes per agent?")
+    print(f"   • Quick test: 10 episodes (~2 min)")
+    print(f"   • Standard: 30 episodes (~5 min)")
+    print(f"   • Thorough: 50 episodes (~10 min)")
+    print(f"   • Custom: Enter your own")
+
+    episodes_choice = input("\nSelect [1=Quick, 2=Standard, 3=Thorough, or enter number]: ").strip()
+
+    if episodes_choice == '1':
+        episodes = 10
+    elif episodes_choice == '2' or episodes_choice == '':
+        episodes = 30  # Default
+    elif episodes_choice == '3':
+        episodes = 50
+    else:
+        try:
+            episodes = int(episodes_choice)
+            if episodes < 1:
+                print("⚠️  Invalid, using default 30")
+                episodes = 30
+        except ValueError:
+            print("⚠️  Invalid input, using default 30")
+            episodes = 30
+
+    print(f"\n✅ Will train each agent for {episodes} episodes")
+
+    # Agent selection
+    print(f"\n2. Which agents to test?")
+    print(f"   1. LinearQ only (fastest, baseline)")
+    print(f"   2. LinearQ + PPO (on-policy comparison)")
+    print(f"   3. LinearQ + SAC (off-policy comparison)")
+    print(f"   4. All agents (LinearQ + PPO + SAC + TD3)")
+
+    agent_choice = input("\nSelect agents [1-4, default=4]: ").strip()
+
+    # Initialize agents based on selection
+    agents = {}
+
+    # Always include LinearQ as baseline
+    agents['LinearQ'] = LinearQAgent(
+        state_dim=state_dim,
+        n_actions=n_actions,
+        learning_rate=0.05,
+        gamma=0.9,
+    )
 
     if DEEP_AGENTS_AVAILABLE:
-        agents['PPO'] = PPOAgent(
-            state_dim=state_dim,
-            n_actions=n_actions,
-            learning_rate=3e-4,
-            gamma=0.99,
-        )
-        agents['SAC'] = SACAgent(
-            state_dim=state_dim,
-            n_actions=n_actions,
-            learning_rate=3e-4,
-            gamma=0.99,
-        )
-        agents['TD3'] = TD3Agent(
-            state_dim=state_dim,
-            n_actions=n_actions,
-            learning_rate=3e-4,
-            gamma=0.99,
-        )
+        if agent_choice == '1':
+            # LinearQ only
+            pass
+        elif agent_choice == '2':
+            # LinearQ + PPO
+            agents['PPO'] = PPOAgent(
+                state_dim=state_dim,
+                n_actions=n_actions,
+                learning_rate=3e-4,
+                gamma=0.99,
+            )
+        elif agent_choice == '3':
+            # LinearQ + SAC
+            agents['SAC'] = SACAgent(
+                state_dim=state_dim,
+                n_actions=n_actions,
+                learning_rate=3e-4,
+                gamma=0.99,
+            )
+        else:
+            # All agents (default)
+            agents['PPO'] = PPOAgent(
+                state_dim=state_dim,
+                n_actions=n_actions,
+                learning_rate=3e-4,
+                gamma=0.99,
+            )
+            agents['SAC'] = SACAgent(
+                state_dim=state_dim,
+                n_actions=n_actions,
+                learning_rate=3e-4,
+                gamma=0.99,
+            )
+            agents['TD3'] = TD3Agent(
+                state_dim=state_dim,
+                n_actions=n_actions,
+                learning_rate=3e-4,
+                gamma=0.99,
+            )
+    else:
+        if agent_choice != '1':
+            print("⚠️  Deep RL agents not available, using LinearQ only")
+
+    print(f"\n✅ Testing {len(agents)} agent(s): {', '.join(agents.keys())}")
 
     # Train each agent
     results = {}

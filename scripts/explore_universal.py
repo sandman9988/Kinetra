@@ -171,11 +171,57 @@ def main():
     print(f"  Actions: {env.n_actions} (HOLD, LONG, SHORT, CLOSE)")
     print(f"  Instruments: {len(loader.instruments)}")
 
-    # Training configuration
-    episodes = 50  # More episodes for universal agent
-    epsilon = 1.0
-    epsilon_decay = 0.95
-    epsilon_min = 0.1
+    # Interactive training configuration
+    print(f"\n🎯 Training Configuration:")
+    print(f"\n1. How many episodes to train?")
+    print(f"   • Quick test: 20 episodes (~3 min)")
+    print(f"   • Standard: 50 episodes (~7 min)")
+    print(f"   • Thorough: 100 episodes (~15 min)")
+    print(f"   • Custom: Enter your own")
+
+    episodes_choice = input("\nSelect [1=Quick, 2=Standard, 3=Thorough, or enter number]: ").strip()
+
+    if episodes_choice == '1':
+        episodes = 20
+    elif episodes_choice == '2' or episodes_choice == '':
+        episodes = 50  # Default
+    elif episodes_choice == '3':
+        episodes = 100
+    else:
+        try:
+            episodes = int(episodes_choice)
+            if episodes < 1:
+                print("⚠️  Invalid, using default 50")
+                episodes = 50
+        except ValueError:
+            print("⚠️  Invalid input, using default 50")
+            episodes = 50
+
+    print(f"\n✅ Will train for {episodes} episodes")
+
+    # Exploration strategy
+    print(f"\n2. Exploration strategy:")
+    print(f"   1. Aggressive (ε: 1.0 → 0.05, decay 0.93)")
+    print(f"   2. Balanced (ε: 1.0 → 0.10, decay 0.95) [default]")
+    print(f"   3. Conservative (ε: 1.0 → 0.20, decay 0.97)")
+
+    strategy_choice = input("\nSelect strategy [1-3, default=2]: ").strip()
+
+    if strategy_choice == '1':
+        epsilon = 1.0
+        epsilon_decay = 0.93
+        epsilon_min = 0.05
+        print("✅ Aggressive exploration")
+    elif strategy_choice == '3':
+        epsilon = 1.0
+        epsilon_decay = 0.97
+        epsilon_min = 0.20
+        print("✅ Conservative exploration")
+    else:
+        epsilon = 1.0
+        epsilon_decay = 0.95
+        epsilon_min = 0.1
+        print("✅ Balanced exploration")
 
     # Performance tracking by breakdown
     performance_breakdown = defaultdict(lambda: {
