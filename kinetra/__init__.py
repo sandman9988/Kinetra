@@ -123,22 +123,47 @@ from .persistence import (
     create_checkpointer,
 )
 
-# DoppelgangerTriad (shadow agent risk management)
-from .doppelganger_triad import (
-    DoppelgangerTriad,
-    ShadowAgent,
-    ShadowAgentState,
-    AgentPerformance,
+# DSP-Driven Features (Assumption-Free)
+from .dsp_features import (
+    DSPFeatureEngine,
+    WaveletExtractor,
+    HilbertExtractor,
+    EntropyExtractor,
+    DirectionalWaveletExtractor,  # Replaces HurstExtractor
+    extract_dsp_features,
 )
 
-# Portfolio Health Monitoring (4-pillar health scoring)
-from .portfolio_health import (
-    PortfolioHealthMonitor,
-    CompositeHealthScore,
-    PillarScore,
-    HealthState,
-    HealthAction,
-    HEALTH_ACTIONS,
+# Liquidity Proxies (Asymmetric Order Flow)
+from .liquidity_features import (
+    LiquidityFeatureEngine,
+    CVDExtractor,
+    AmihudExtractor,
+    RangeImpactExtractor,
+    VolumeImbalanceExtractor,
+    extract_liquidity_features,
+)
+
+# Assumption-Free Measures (Directional, Asymmetric)
+from .assumption_free_measures import (
+    AsymmetricReturns,
+    RankBasedMeasures,
+    DirectionalVolatility,
+    DirectionalOrderFlow,
+    PermutationPatterns,
+    RecurrenceFeatures,
+    TailBehavior,
+    AssumptionFreeEngine,
+    extract_assumption_free_features,
+)
+
+# Unsupervised Regime Discovery
+from .regime_discovery import (
+    RegimeDiscoveryEngine,
+    RegimeDiscoveryResult,
+    RegimeProfile,
+    TransitionPrecursor,
+    CrossAssetRegimeAnalyzer,
+    discover_regimes,
 )
 
 __all__ = [
@@ -242,16 +267,35 @@ __all__ = [
     "TradingEnv",
     "Action",
     "Position",
-    # DoppelgangerTriad
-    "DoppelgangerTriad",
-    "ShadowAgent",
-    "ShadowAgentState",
-    "AgentPerformance",
-    # Portfolio Health Monitoring
-    "PortfolioHealthMonitor",
-    "CompositeHealthScore",
-    "PillarScore",
-    "HealthState",
-    "HealthAction",
-    "HEALTH_ACTIONS",
+    # DSP Features (Assumption-Free)
+    "DSPFeatureEngine",
+    "WaveletExtractor",
+    "HilbertExtractor",
+    "EntropyExtractor",
+    "DirectionalWaveletExtractor",  # Replaces HurstExtractor
+    "extract_dsp_features",
+    # Liquidity Proxies
+    "LiquidityFeatureEngine",
+    "CVDExtractor",
+    "AmihudExtractor",
+    "RangeImpactExtractor",
+    "VolumeImbalanceExtractor",
+    "extract_liquidity_features",
+    # Assumption-Free Measures
+    "AsymmetricReturns",
+    "RankBasedMeasures",
+    "DirectionalVolatility",
+    "DirectionalOrderFlow",
+    "PermutationPatterns",
+    "RecurrenceFeatures",
+    "TailBehavior",
+    "AssumptionFreeEngine",
+    "extract_assumption_free_features",
+    # Regime Discovery
+    "RegimeDiscoveryEngine",
+    "RegimeDiscoveryResult",
+    "RegimeProfile",
+    "TransitionPrecursor",
+    "CrossAssetRegimeAnalyzer",
+    "discover_regimes",
 ]
