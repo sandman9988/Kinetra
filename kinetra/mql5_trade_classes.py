@@ -487,20 +487,50 @@ class CAccountInfo:
         price: float,
     ) -> float:
         """
-        Check margin required for order.
+        Check margin required for order using symbol specifications.
         
         Args:
             symbol: Symbol name
             order_type: Order type
-            volume: Order volume
+            volume: Order volume in lots
             price: Order price
             
         Returns:
             Required margin (negative if insufficient)
+        
+        Uses:
+            - Symbol's contract_size
+            - Symbol's margin_initial (if set)
+            - Symbol's margin_long/margin_short rates
+            - Account leverage
         """
-        # Simplified margin calculation
-        notional = volume * 100000 * price  # Assuming forex
-        required = notional / self._leverage
+        # Get symbol specifications
+        from kinetra.symbol_info import get_symbol_info
+        try:
+            sym_info = get_symbol_info(symbol)
+            contract_size = sym_info.contract_size
+            
+            # Get margin rate for order direction
+            is_buy = order_type in [
+                ENUM_ORDER_TYPE.ORDER_TYPE_BUY,
+                ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT,
+                ENUM_ORDER_TYPE.ORDER_TYPE_BUY_STOP
+            ]
+            margin_rate = sym_info.margin_long if is_buy else sym_info.margin_short
+            
+            # Calculate margin
+            if sym_info.margin_initial > 0:
+                # Use fixed margin if specified
+                required = sym_info.margin_initial * volume * margin_rate
+            else:
+                # Calculate from notional
+                notional = volume * contract_size * price
+                required = (notional * margin_rate) / self._leverage
+                
+        except:
+            # Fallback to basic forex calculation
+            notional = volume * 100000 * price
+            required = notional / self._leverage
         
         if required > self._margin_free:
             return -required  # Negative indicates insufficient
@@ -529,22 +559,78 @@ class CAccountInfo:
         price: float,
     ) -> float:
         """
-        Calculate maximum lot size for order.
+        Calculate maximum lot size for order considering all constraints.
+        
+        Constraints checked:
+        1. Free margin available
+        2. Symbol's contract_size (not hardcoded)
+        3. Symbol's volume_max (broker max lot)
+        4. Symbol's volume_min (broker min lot)
+        5. Symbol's volume_step (lot increment)
+        6. Symbol's volume_limit (max total volume if set)
+        7. Symbol's margin requirements
         
         Returns:
-            Maximum lot size
+            Maximum lot size normalized to volume_step
         """
         if price <= 0:
             return 0.0
         
-        # Simplified: margin_per_lot = notional / leverage
-        margin_per_lot = (100000 * price) / self._leverage
+        # Get symbol specifications
+        from kinetra.symbol_info import get_symbol_info
+        try:
+            sym_info = get_symbol_info(symbol)
+        except:
+            # Fallback to basic calculation if symbol not found
+            margin_per_lot = (100000 * price) / self._leverage
+            if margin_per_lot <= 0:
+                return 0.0
+            return max(0, min(self._margin_free / margin_per_lot, 100.0))
+        
+        # Calculate margin per lot using symbol's contract_size
+        # margin_per_lot = (contract_size * price) / leverage
+        # Adjust for margin rates if specified
+        margin_rate = sym_info.margin_long if order_type in [
+            ENUM_ORDER_TYPE.ORDER_TYPE_BUY,
+            ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT,
+            ENUM_ORDER_TYPE.ORDER_TYPE_BUY_STOP
+        ] else sym_info.margin_short
+        
+        # Use margin_initial if specified, otherwise calculate
+        if sym_info.margin_initial > 0:
+            margin_per_lot = sym_info.margin_initial * margin_rate
+        else:
+            margin_per_lot = (sym_info.contract_size * price * margin_rate) / self._leverage
         
         if margin_per_lot <= 0:
             return 0.0
         
-        max_lots = self._margin_free / margin_per_lot
-        return max(0, min(max_lots, 100.0))  # Cap at 100 lots
+        # Calculate max lots based on free margin
+        max_by_margin = self._margin_free / margin_per_lot
+        
+        # Apply symbol constraints
+        max_lots = max_by_margin
+        
+        # Cap at symbol's volume_max
+        max_lots = min(max_lots, sym_info.volume_max)
+        
+        # Check volume_limit (max total position size) if set
+        if sym_info.volume_limit > 0:
+            # Would need to track current position volume for full implementation
+            max_lots = min(max_lots, sym_info.volume_limit)
+        
+        # Ensure at least volume_min (or 0 if can't afford)
+        if max_lots < sym_info.volume_min:
+            return 0.0
+        
+        # Normalize to volume_step
+        if sym_info.volume_step > 0:
+            max_lots = int(max_lots / sym_info.volume_step) * sym_info.volume_step
+        
+        # Final bounds check
+        max_lots = max(0.0, min(max_lots, sym_info.volume_max))
+        
+        return max_lots
     
     def Update(
         self,
