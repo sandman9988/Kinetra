@@ -68,26 +68,29 @@ THE MARKET TELLS US, WE DON'T ASSUME!
 
 Available exploration tests:
   1. Universal Agent Baseline - Train ONE agent on ALL instruments
-  2. Measurement Impact - What features matter where
-  3. Stacking Analysis - Feature combinations per class
-  4. Policy Discovery - What agent type per class
-  5. Risk Management - What risk params per class/regime
-  6. Full Exploration - Run all above
+  2. Compare Agents - Test LinearQ vs PPO vs SAC vs TD3
+  3. Measurement Impact - What features matter where
+  4. Stacking Analysis - Feature combinations per class
+  5. Policy Discovery - What agent type per class
+  6. Risk Management - What risk params per class/regime
+  7. Full Exploration - Run all above
 """)
 
-    choice = input("Select exploration test [1-6, or 0 to go back]: ").strip()
+    choice = input("Select exploration test [1-7, or 0 to go back]: ").strip()
 
     if choice == '1':
         subprocess.run([sys.executable, "scripts/explore_universal.py"])
     elif choice == '2':
-        subprocess.run([sys.executable, "scripts/explore_measurements.py"])
+        subprocess.run([sys.executable, "scripts/explore_compare_agents.py"])
     elif choice == '3':
-        subprocess.run([sys.executable, "scripts/explore_stacking.py"])
+        subprocess.run([sys.executable, "scripts/explore_measurements.py"])
     elif choice == '4':
-        subprocess.run([sys.executable, "scripts/explore_policies.py"])
+        subprocess.run([sys.executable, "scripts/explore_stacking.py"])
     elif choice == '5':
-        subprocess.run([sys.executable, "scripts/explore_risk.py"])
+        subprocess.run([sys.executable, "scripts/explore_policies.py"])
     elif choice == '6':
+        subprocess.run([sys.executable, "scripts/explore_risk.py"])
+    elif choice == '7':
         subprocess.run([sys.executable, "scripts/explore_full.py"])
 
 
