@@ -24,6 +24,8 @@ try:
     from dotenv import load_dotenv
     load_dotenv(project_root / '.env')
 except ImportError:
+    # python-dotenv is optional; if it's not installed we just rely on
+    # environment variables already set in the OS.
     pass
 
 # =====================================================
