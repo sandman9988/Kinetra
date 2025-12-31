@@ -25,6 +25,7 @@ from .symbol_spec import (
     get_symbol_spec, fetch_mt5_symbol_spec, DEFAULT_SPECS
 )
 from .realistic_backtester import Trade, BacktestResult
+from .backtest_engine import TradeDirection
 from .trigger_predictor import TriggerPredictor, TriggerPrediction, Direction
 
 # RL components require PyTorch
@@ -230,6 +231,7 @@ __all__ = [
     # Backtest types
     "Trade",
     "BacktestResult",
+    "TradeDirection",
     # Trigger prediction
     "TriggerPredictor",
     "TriggerPrediction",
