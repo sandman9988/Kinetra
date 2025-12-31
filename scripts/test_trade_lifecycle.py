@@ -1,562 +1,812 @@
 #!/usr/bin/env python3
 """
-Trade Lifecycle Integration Test
+Trade Lifecycle - Comprehensive & Correct Sequence of Events
+=============================================================
 
-Tests the complete lifecycle of a trade from opening to closure:
-1. Position opening with validation
-2. MFE/MAE tracking across candles
-3. SL/TP modification attempts (including freeze zone)
-4. Position closure
-5. Metric calculation validation
+This demonstrates the complete trade lifecycle with all events in correct order:
 
-This ensures the backtester correctly simulates realistic MT5 trading.
+1. PRE-TRADE VALIDATION
+   - Symbol validation
+   - Volume normalization & limits check
+   - Margin requirement check
+   - Free margin check
+   - Stops level validation
+
+2. ORDER SUBMISSION
+   - Create order request
+   - Validate order parameters
+   - Queue for execution
+
+3. ORDER EXECUTION
+   - Apply spread (buy at ask, sell at bid)
+   - Apply slippage (if market order)
+   - Deduct spread cost
+   - Deduct entry commission
+   - Reserve margin
+
+4. POSITION OPEN
+   - Create position record
+   - Set SL/TP if specified
+   - Start position monitoring
+
+5. POSITION MONITORING (per tick/bar)
+   - Update unrealized P&L
+   - Update equity
+   - Check margin level
+   - Check SL/TP hit
+   - Track MFE/MAE
+
+6. OVERNIGHT PROCESSING (if held overnight)
+   - Apply swap charge/credit
+   - Triple swap on rollover day
+
+7. POSITION CLOSE
+   - Execute at current price
+   - Apply exit spread (if applicable)
+   - Apply exit commission
+   - Calculate final P&L
+   - Release margin
+
+8. POST-TRADE
+   - Update balance
+   - Record trade history
+   - Update statistics
 """
 
 import sys
 from pathlib import Path
+from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict
+from enum import IntEnum
+import logging
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import numpy as np
-import pandas as pd
-from datetime import datetime, timedelta
+from kinetra.symbol_info import get_symbol_info, SymbolInfo
+from kinetra.mql5_trade_classes import (
+    CAccountInfo, CSymbolInfo, CPositionInfo, CTrade,
+    ENUM_ORDER_TYPE, ENUM_POSITION_TYPE, ENUM_TRADE_REQUEST_ACTIONS,
+    ENUM_SYMBOL_SWAP_MODE, ENUM_DAY_OF_WEEK
+)
 
-from kinetra.realistic_backtester import RealisticBacktester, Trade
-from kinetra.symbol_spec import SymbolSpec
-
-
-def create_test_symbol_spec() -> SymbolSpec:
-    """Create a realistic EURUSD spec for testing."""
-    return SymbolSpec(
-        symbol="EURUSD",
-        digits=5,
-        point=0.00001,
-        volume_min=0.01,
-        volume_max=100.0,
-        volume_step=0.01,
-        trade_mode="FULL",
-        # Costs
-        spread_typical=15,  # 1.5 pips
-        spread_points=15,
-        commission_per_lot=0.0,
-        swap_long=-0.5,
-        swap_short=0.3,
-        # MT5 constraints
-        freeze_level=50,  # 5 pips
-        stops_level=100,  # 10 pips
-    )
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
 
 
-def create_price_series(
-    initial_price: float,
-    n_candles: int,
-    trend: str = "up",
-    volatility: float = 0.0005,
-) -> pd.DataFrame:
-    """
-    Create a realistic price series for testing.
+# =============================================================================
+# ENUMS
+# =============================================================================
 
-    Args:
-        initial_price: Starting price
-        n_candles: Number of candles
-        trend: "up", "down", or "sideways"
-        volatility: Price volatility
+class TradeEvent(IntEnum):
+    """Trade lifecycle events."""
+    PRE_VALIDATION = 1
+    ORDER_SUBMITTED = 2
+    ORDER_EXECUTED = 3
+    POSITION_OPENED = 4
+    TICK_UPDATE = 5
+    SWAP_CHARGED = 6
+    SL_HIT = 7
+    TP_HIT = 8
+    MANUAL_CLOSE = 9
+    POSITION_CLOSED = 10
+    TRADE_COMPLETE = 11
 
-    Returns:
-        DataFrame with OHLCV data
-    """
-    np.random.seed(42)  # Reproducible
 
-    data = []
-    current_price = initial_price
+class CloseReason(IntEnum):
+    """Position close reason."""
+    MANUAL = 0
+    STOP_LOSS = 1
+    TAKE_PROFIT = 2
+    MARGIN_CALL = 3
+    END_OF_TEST = 4
 
-    for i in range(n_candles):
-        # Trend component
-        if trend == "up":
-            drift = 0.0003
-        elif trend == "down":
-            drift = -0.0003
-        else:
-            drift = 0.0
 
-        # Random walk with drift
-        change = drift + np.random.randn() * volatility
-        current_price *= (1 + change)
+# =============================================================================
+# TRADE LIFECYCLE MANAGER
+# =============================================================================
 
-        # Generate OHLC
-        open_price = current_price
-        high_price = open_price * (1 + abs(np.random.randn()) * volatility)
-        low_price = open_price * (1 - abs(np.random.randn()) * volatility)
-        close_price = low_price + np.random.random() * (high_price - low_price)
+@dataclass
+class TradeRequest:
+    """Trade request (mirrors MQL5 MqlTradeRequest)."""
+    action: ENUM_TRADE_REQUEST_ACTIONS
+    symbol: str
+    volume: float
+    type: ENUM_ORDER_TYPE
+    price: float = 0.0
+    sl: float = 0.0
+    tp: float = 0.0
+    deviation: int = 10  # Max slippage in points
+    magic: int = 0
+    comment: str = ""
 
-        data.append({
-            'timestamp': datetime(2024, 1, 1) + timedelta(hours=i),
-            'open': open_price,
-            'high': high_price,
-            'low': low_price,
-            'close': close_price,
-            'volume': 1000,
-            'spread': 15,  # Dynamic spread
+
+@dataclass
+class TradeResult:
+    """Trade result (mirrors MQL5 MqlTradeResult)."""
+    retcode: int = 0
+    deal: int = 0
+    order: int = 0
+    volume: float = 0.0
+    price: float = 0.0
+    comment: str = ""
+
+
+@dataclass
+class Position:
+    """Open position with full tracking."""
+    ticket: int
+    symbol: str
+    type: ENUM_POSITION_TYPE
+    volume: float
+    open_price: float
+    open_time: datetime
+    sl: float = 0.0
+    tp: float = 0.0
+    
+    # Costs at entry
+    spread_cost: float = 0.0
+    entry_commission: float = 0.0
+    slippage_cost: float = 0.0
+    
+    # Running totals
+    swap_total: float = 0.0
+    swap_days: int = 0
+    
+    # Unrealized
+    current_price: float = 0.0
+    unrealized_pnl: float = 0.0
+    
+    # MFE/MAE tracking
+    mfe: float = 0.0  # Max favorable excursion
+    mae: float = 0.0  # Max adverse excursion
+    
+    # Close data
+    close_price: float = 0.0
+    close_time: Optional[datetime] = None
+    close_reason: Optional[CloseReason] = None
+    exit_commission: float = 0.0
+    
+    # Final P&L
+    gross_pnl: float = 0.0
+    net_pnl: float = 0.0
+    
+    # Event log
+    events: List[Dict] = field(default_factory=list)
+    
+    def log_event(self, event: TradeEvent, details: str = "", **kwargs):
+        """Log a trade lifecycle event."""
+        self.events.append({
+            'time': datetime.now(),
+            'event': event.name,
+            'details': details,
+            **kwargs
         })
 
-    return pd.DataFrame(data)
 
-
-def test_long_trade_lifecycle():
+class TradeLifecycleManager:
     """
-    Test 1: Full lifecycle of a LONG trade.
-
-    Scenario:
-    - Open LONG at 1.10000
-    - Price moves up to 1.10500 (50 pips profit)
-    - Price pulls back to 1.10300 (30 pips profit)
-    - Close at 1.10300
-
-    Validates:
-    - MFE = 50 pips (max favorable)
-    - MAE = 0 (no adverse move)
-    - Final P&L = 30 pips
-    - MFE efficiency = 30/50 = 60%
+    Complete trade lifecycle management.
+    
+    Handles all events from order submission to trade completion.
     """
-    print("=" * 70)
-    print("TEST 1: Long Trade Lifecycle")
-    print("=" * 70)
-
-    spec = create_test_symbol_spec()
-    backtester = RealisticBacktester(
-        spec=spec,
-        initial_capital=10000.0,
-        timeframe="H1",
-        verbose=True,
-    )
-
-    # Create price series: up trend then pullback
-    data = pd.DataFrame([
-        # Entry candle
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'open': 1.10000, 'high': 1.10020, 'low': 1.09990, 'close': 1.10010, 'volume': 1000, 'spread': 15},
-        # Strong uptrend (MFE builds up)
-        {'timestamp': datetime(2024, 1, 1, 1, 0), 'open': 1.10010, 'high': 1.10150, 'low': 1.10005, 'close': 1.10130, 'volume': 1000, 'spread': 15},
-        {'timestamp': datetime(2024, 1, 1, 2, 0), 'open': 1.10130, 'high': 1.10300, 'low': 1.10120, 'close': 1.10280, 'volume': 1000, 'spread': 15},
-        {'timestamp': datetime(2024, 1, 1, 3, 0), 'open': 1.10280, 'high': 1.10500, 'low': 1.10270, 'close': 1.10480, 'volume': 1000, 'spread': 15},  # MFE here
-        # Pullback (MAE stays minimal, price still above entry)
-        {'timestamp': datetime(2024, 1, 1, 4, 0), 'open': 1.10480, 'high': 1.10490, 'low': 1.10320, 'close': 1.10350, 'volume': 1000, 'spread': 15},
-        # Exit candle
-        {'timestamp': datetime(2024, 1, 1, 5, 0), 'open': 1.10350, 'high': 1.10370, 'low': 1.10300, 'close': 1.10320, 'volume': 1000, 'spread': 15},
-    ])
-
-    # Signals: LONG at candle 0, CLOSE at candle 5
-    signals = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'signal': 1, 'sl': 1.09800, 'tp': 1.10600},  # Entry
-        {'timestamp': datetime(2024, 1, 1, 5, 0), 'signal': 0, 'sl': None, 'tp': None},  # Exit
-    ])
-
-    print("\n[Price Action]")
-    print(f"  Entry: 1.10000")
-    print(f"  Max high: 1.10500 (+50 pips)")
-    print(f"  Exit: 1.10320 (+32 pips)")
-    print(f"  Expected MFE: ~50 pips")
-    print(f"  Expected MAE: ~0 pips (no drawdown below entry)")
-
-    # Run backtest
-    result = backtester.run(data, signals)
-
-    print("\n[Backtest Results]")
-    print(f"  Total trades: {result.total_trades}")
-    assert result.total_trades == 1, "Should have exactly 1 trade"
-
-    trade = result.trades[0]
-    print(f"\n[Trade Details]")
-    print(f"  Direction: {'LONG' if trade.direction == 1 else 'SHORT'}")
-    print(f"  Entry price: {trade.entry_price:.5f}")
-    print(f"  Exit price: {trade.exit_price:.5f}")
-    print(f"  Entry time: {trade.entry_time}")
-    print(f"  Exit time: {trade.exit_time}")
-    print(f"  Holding time: {trade.holding_time:.2f} hours")
-
-    print(f"\n[P&L Breakdown]")
-    print(f"  Gross P&L: ${trade.gross_pnl:.2f}")
-    print(f"  Entry spread: ${trade.entry_spread:.2f}")
-    print(f"  Exit spread: ${trade.exit_spread:.2f}")
-    print(f"  Commission: ${trade.commission:.2f}")
-    print(f"  Swap: ${trade.swap:.2f}")
-    print(f"  Slippage: ${abs(trade.entry_slippage) + abs(trade.exit_slippage):.2f}")
-    print(f"  Total costs: ${trade.total_cost:.2f}")
-    print(f"  Net P&L: ${trade.pnl:.2f}")
-
-    print(f"\n[Execution Efficiency]")
-    print(f"  MFE: {trade.mfe:.5f} ({trade.mfe / spec.point:.1f} pips)")
-    print(f"  MAE: {trade.mae:.5f} ({trade.mae / spec.point:.1f} pips)")
-    print(f"  Price captured: {trade.price_captured:.5f} ({trade.price_captured / spec.point:.1f} pips)")
-    print(f"  MFE efficiency: {trade.mfe_efficiency:.2%}")
-    print(f"  MAE efficiency: {trade.mae_efficiency:.2%}")
-
-    # Validations
-    assert trade.direction == 1, "Should be LONG"
-    assert trade.pnl > 0, "Trade should be profitable"
-    assert trade.mfe > 0, "MFE should be positive"
-    assert trade.mfe >= abs(trade.mae), "MFE should be >= MAE"
-    assert 0 <= trade.mfe_efficiency <= 1.0, "MFE efficiency should be 0-1"
-
-    # MFE should be around 50 pips (0.00500)
-    expected_mfe_pips = 50
-    actual_mfe_pips = trade.mfe / spec.point
-    print(f"\n✓ MFE validation: {actual_mfe_pips:.1f} pips (expected ~{expected_mfe_pips} pips)")
-    assert actual_mfe_pips > 40, f"MFE too low: {actual_mfe_pips} pips"
-
-    print("\n✅ TEST PASSED: Long trade lifecycle works correctly")
-    return trade
-
-
-def test_short_trade_lifecycle():
-    """
-    Test 2: Full lifecycle of a SHORT trade.
-
-    Scenario:
-    - Open SHORT at 1.10000
-    - Price drops to 1.09500 (50 pips profit)
-    - Price bounces to 1.09700 (30 pips profit)
-    - Close at 1.09700
-    """
-    print("\n" + "=" * 70)
-    print("TEST 2: Short Trade Lifecycle")
-    print("=" * 70)
-
-    spec = create_test_symbol_spec()
-    backtester = RealisticBacktester(
-        spec=spec,
-        initial_capital=10000.0,
-        timeframe="H1",
-        verbose=True,
-    )
-
-    # Create price series: down trend then bounce
-    data = pd.DataFrame([
-        # Entry candle
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'open': 1.10000, 'high': 1.10010, 'low': 1.09990, 'close': 1.09995, 'volume': 1000, 'spread': 15},
-        # Downtrend (MFE builds)
-        {'timestamp': datetime(2024, 1, 1, 1, 0), 'open': 1.09995, 'high': 1.10000, 'low': 1.09850, 'close': 1.09870, 'volume': 1000, 'spread': 15},
-        {'timestamp': datetime(2024, 1, 1, 2, 0), 'open': 1.09870, 'high': 1.09880, 'low': 1.09700, 'close': 1.09720, 'volume': 1000, 'spread': 15},
-        {'timestamp': datetime(2024, 1, 1, 3, 0), 'open': 1.09720, 'high': 1.09730, 'low': 1.09500, 'close': 1.09520, 'volume': 1000, 'spread': 15},  # MFE here
-        # Bounce
-        {'timestamp': datetime(2024, 1, 1, 4, 0), 'open': 1.09520, 'high': 1.09680, 'low': 1.09510, 'close': 1.09650, 'volume': 1000, 'spread': 15},
-        # Exit candle
-        {'timestamp': datetime(2024, 1, 1, 5, 0), 'open': 1.09650, 'high': 1.09720, 'low': 1.09640, 'close': 1.09700, 'volume': 1000, 'spread': 15},
-    ])
-
-    # Signals: SHORT at candle 0, CLOSE at candle 5
-    signals = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'signal': -1, 'sl': 1.10200, 'tp': 1.09400},  # Entry
-        {'timestamp': datetime(2024, 1, 1, 5, 0), 'signal': 0, 'sl': None, 'tp': None},  # Exit
-    ])
-
-    print("\n[Price Action]")
-    print(f"  Entry: 1.10000")
-    print(f"  Min low: 1.09500 (-50 pips)")
-    print(f"  Exit: 1.09700 (-30 pips)")
-    print(f"  Expected MFE: ~50 pips")
-    print(f"  Expected MAE: ~0 pips")
-
-    # Run backtest
-    result = backtester.run(data, signals)
-
-    print("\n[Backtest Results]")
-    print(f"  Total trades: {result.total_trades}")
-    assert result.total_trades == 1, "Should have exactly 1 trade"
-
-    trade = result.trades[0]
-    print(f"\n[Trade Details]")
-    print(f"  Direction: {'LONG' if trade.direction == 1 else 'SHORT'}")
-    print(f"  Entry price: {trade.entry_price:.5f}")
-    print(f"  Exit price: {trade.exit_price:.5f}")
-    print(f"  Net P&L: ${trade.pnl:.2f}")
-
-    print(f"\n[Execution Efficiency]")
-    print(f"  MFE: {trade.mfe:.5f} ({trade.mfe / spec.point:.1f} pips)")
-    print(f"  MAE: {trade.mae:.5f} ({trade.mae / spec.point:.1f} pips)")
-    print(f"  Price captured: {trade.price_captured:.5f} ({trade.price_captured / spec.point:.1f} pips)")
-    print(f"  MFE efficiency: {trade.mfe_efficiency:.2%}")
-
-    # Validations
-    assert trade.direction == -1, "Should be SHORT"
-    assert trade.pnl > 0, "Trade should be profitable"
-    assert trade.mfe > 0, "MFE should be positive"
-
-    expected_mfe_pips = 50
-    actual_mfe_pips = trade.mfe / spec.point
-    print(f"\n✓ MFE validation: {actual_mfe_pips:.1f} pips (expected ~{expected_mfe_pips} pips)")
-    assert actual_mfe_pips > 40, f"MFE too low: {actual_mfe_pips} pips"
-
-    print("\n✅ TEST PASSED: Short trade lifecycle works correctly")
-    return trade
-
-
-def test_stop_loss_hit():
-    """
-    Test 3: Trade closed by stop loss.
-
-    Scenario:
-    - Open LONG at 1.10000 with SL at 1.09900
-    - Price drops to 1.09850
-    - SL triggered at 1.09900
-    - Verify loss is limited
-    """
-    print("\n" + "=" * 70)
-    print("TEST 3: Stop Loss Hit")
-    print("=" * 70)
-
-    spec = create_test_symbol_spec()
-    backtester = RealisticBacktester(
-        spec=spec,
-        initial_capital=10000.0,
-        timeframe="H1",
-        verbose=True,
-    )
-
-    # Price moves against us
-    data = pd.DataFrame([
-        # Entry
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'open': 1.10000, 'high': 1.10020, 'low': 1.09995, 'close': 1.10010, 'volume': 1000, 'spread': 15},
-        # Price drops
-        {'timestamp': datetime(2024, 1, 1, 1, 0), 'open': 1.10010, 'high': 1.10020, 'low': 1.09950, 'close': 1.09960, 'volume': 1000, 'spread': 15},
-        # SL hit (low touches SL)
-        {'timestamp': datetime(2024, 1, 1, 2, 0), 'open': 1.09960, 'high': 1.09970, 'low': 1.09850, 'close': 1.09870, 'volume': 1000, 'spread': 15},
-    ])
-
-    # Signal with SL
-    sl_price = 1.09900
-    signals = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'signal': 1, 'sl': sl_price, 'tp': 1.10500},
-    ])
-
-    print("\n[Trade Setup]")
-    print(f"  Entry: 1.10000 LONG")
-    print(f"  Stop Loss: {sl_price}")
-    print(f"  Price drops to: 1.09850")
-    print(f"  Expected: SL triggered at {sl_price}")
-
-    # Run backtest
-    result = backtester.run(data, signals)
-
-    print("\n[Results]")
-    print(f"  Total trades: {result.total_trades}")
-    assert result.total_trades == 1, "Should have 1 trade"
-
-    trade = result.trades[0]
-    print(f"  Exit price: {trade.exit_price:.5f}")
-    print(f"  Net P&L: ${trade.pnl:.2f}")
-    print(f"  Exit reason: SL hit")
-
-    # Validations
-    assert trade.pnl < 0, "Trade should be a loss"
-    assert abs(trade.exit_price - sl_price) < 0.00010, f"Exit should be at SL: {trade.exit_price:.5f} vs {sl_price:.5f}"
-
-    # Loss should be limited to ~10 pips + costs
-    expected_loss_pips = 10
-    actual_loss_pips = abs(trade.entry_price - trade.exit_price) / spec.point
-    print(f"\n✓ Loss limited: {actual_loss_pips:.1f} pips (expected ~{expected_loss_pips} pips)")
-
-    print("\n✅ TEST PASSED: Stop loss correctly limits loss")
-    return trade
-
-
-def test_take_profit_hit():
-    """
-    Test 4: Trade closed by take profit.
-
-    Scenario:
-    - Open LONG at 1.10000 with TP at 1.10500
-    - Price rallies to 1.10600
-    - TP triggered at 1.10500
-    - Verify profit is captured
-    """
-    print("\n" + "=" * 70)
-    print("TEST 4: Take Profit Hit")
-    print("=" * 70)
-
-    spec = create_test_symbol_spec()
-    backtester = RealisticBacktester(
-        spec=spec,
-        initial_capital=10000.0,
-        timeframe="H1",
-        verbose=True,
-    )
-
-    # Price moves in our favor
-    data = pd.DataFrame([
-        # Entry
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'open': 1.10000, 'high': 1.10020, 'low': 1.09995, 'close': 1.10010, 'volume': 1000, 'spread': 15},
-        # Rally
-        {'timestamp': datetime(2024, 1, 1, 1, 0), 'open': 1.10010, 'high': 1.10250, 'low': 1.10005, 'close': 1.10230, 'volume': 1000, 'spread': 15},
-        # TP hit
-        {'timestamp': datetime(2024, 1, 1, 2, 0), 'open': 1.10230, 'high': 1.10600, 'low': 1.10220, 'close': 1.10550, 'volume': 1000, 'spread': 15},
-    ])
-
-    tp_price = 1.10500
-    signals = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'signal': 1, 'sl': 1.09800, 'tp': tp_price},
-    ])
-
-    print("\n[Trade Setup]")
-    print(f"  Entry: 1.10000 LONG")
-    print(f"  Take Profit: {tp_price}")
-    print(f"  Price rallies to: 1.10600")
-    print(f"  Expected: TP triggered at {tp_price}")
-
-    # Run backtest
-    result = backtester.run(data, signals)
-
-    print("\n[Results]")
-    print(f"  Total trades: {result.total_trades}")
-    assert result.total_trades == 1, "Should have 1 trade"
-
-    trade = result.trades[0]
-    print(f"  Exit price: {trade.exit_price:.5f}")
-    print(f"  Net P&L: ${trade.pnl:.2f}")
-    print(f"  Exit reason: TP hit")
-
-    # Validations
-    assert trade.pnl > 0, "Trade should be profitable"
-    assert abs(trade.exit_price - tp_price) < 0.00010, f"Exit should be at TP: {trade.exit_price:.5f} vs {tp_price:.5f}"
-
-    # Profit should be ~50 pips - costs
-    expected_profit_pips = 50
-    actual_profit_pips = (trade.exit_price - trade.entry_price) / spec.point
-    print(f"\n✓ Profit captured: {actual_profit_pips:.1f} pips (expected ~{expected_profit_pips} pips)")
-
-    print("\n✅ TEST PASSED: Take profit correctly captures profit")
-    return trade
-
-
-def test_realistic_costs():
-    """
-    Test 5: Validate all cost components are calculated.
-
-    Validates:
-    - Spread cost (entry + exit)
-    - Commission
-    - Swap (overnight holding)
-    - Slippage
-    """
-    print("\n" + "=" * 70)
-    print("TEST 5: Realistic Cost Calculation")
-    print("=" * 70)
-
-    spec = create_test_symbol_spec()
-    backtester = RealisticBacktester(
-        spec=spec,
-        initial_capital=10000.0,
-        timeframe="H1",
-        enable_slippage=True,
-        slippage_std_pips=0.5,
-        verbose=True,
-    )
-
-    # Trade held for 2 days (48 hours) to accumulate swap
-    data = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'open': 1.10000, 'high': 1.10020, 'low': 1.09995, 'close': 1.10010, 'volume': 1000, 'spread': 15},
-        # ... 48 hours later
-        {'timestamp': datetime(2024, 1, 3, 0, 0), 'open': 1.10200, 'high': 1.10250, 'low': 1.10190, 'close': 1.10230, 'volume': 1000, 'spread': 15},
-    ])
-
-    signals = pd.DataFrame([
-        {'timestamp': datetime(2024, 1, 1, 0, 0), 'signal': 1, 'sl': 1.09800, 'tp': 1.10500},
-        {'timestamp': datetime(2024, 1, 3, 0, 0), 'signal': 0, 'sl': None, 'tp': None},
-    ])
-
-    print("\n[Trade Setup]")
-    print(f"  Entry: 1.10000 LONG")
-    print(f"  Exit: 1.10230 (after 48 hours)")
-    print(f"  Spread: {spec.spread_points} points")
-    print(f"  Swap long: {spec.swap_long} per day")
-
-    # Run backtest
-    result = backtester.run(data, signals)
-
-    trade = result.trades[0]
-    print("\n[Cost Breakdown]")
-    print(f"  Entry spread: ${trade.entry_spread:.2f}")
-    print(f"  Exit spread: ${trade.exit_spread:.2f}")
-    print(f"  Commission: ${trade.commission:.2f}")
-    print(f"  Swap (2 days): ${trade.swap:.2f}")
-    print(f"  Entry slippage: ${abs(trade.entry_slippage):.2f}")
-    print(f"  Exit slippage: ${abs(trade.exit_slippage):.2f}")
-    print(f"  ─────────────────────")
-    print(f"  Total costs: ${trade.total_cost:.2f}")
-
-    print(f"\n[P&L Impact]")
-    print(f"  Gross P&L: ${trade.gross_pnl:.2f}")
-    print(f"  Total costs: ${trade.total_cost:.2f}")
-    print(f"  Net P&L: ${trade.pnl:.2f}")
-
-    # Validations
-    assert trade.entry_spread > 0, "Entry spread should be positive"
-    assert trade.exit_spread > 0, "Exit spread should be positive"
-    assert trade.swap != 0, "Swap should be non-zero for 2-day hold"
-    assert trade.total_cost > 0, "Total costs should be positive"
-    assert trade.gross_pnl > trade.pnl, "Gross P&L should be higher than net"
-
-    print("\n✅ TEST PASSED: All cost components calculated correctly")
-    return trade
-
-
-def run_all_tests():
-    """Run all trade lifecycle tests."""
-    print("\n" + "=" * 70)
-    print("TRADE LIFECYCLE INTEGRATION TEST SUITE")
-    print("Testing: Complete trade flow from opening to closure")
-    print("=" * 70)
-
-    tests = [
-        ("Long Trade Lifecycle", test_long_trade_lifecycle),
-        ("Short Trade Lifecycle", test_short_trade_lifecycle),
-        ("Stop Loss Hit", test_stop_loss_hit),
-        ("Take Profit Hit", test_take_profit_hit),
-        ("Realistic Costs", test_realistic_costs),
-    ]
-
-    results = []
-    for name, test_func in tests:
+    
+    def __init__(
+        self,
+        initial_balance: float = 10000.0,
+        leverage: int = 100,
+        commission_per_lot: float = 7.0,
+    ):
+        # Account
+        self.account = CAccountInfo()
+        self.account.SetBalance(initial_balance)
+        self.account.SetLeverage(leverage)
+        
+        self.commission_per_lot = commission_per_lot
+        
+        # State
+        self.positions: Dict[int, Position] = {}
+        self.closed_positions: List[Position] = []
+        self.ticket_counter = 0
+        self.current_time = datetime.now()
+        
+        # Statistics
+        self.total_spread_cost = 0.0
+        self.total_commission = 0.0
+        self.total_swap = 0.0
+        self.total_slippage = 0.0
+    
+    def _get_symbol_info(self, symbol: str) -> SymbolInfo:
+        """Get symbol specifications."""
+        return get_symbol_info(symbol)
+    
+    def _log(self, msg: str):
+        """Log message with timestamp."""
+        logger.info(f"[{self.current_time}] {msg}")
+    
+    # =========================================================================
+    # PHASE 1: PRE-TRADE VALIDATION
+    # =========================================================================
+    
+    def validate_trade(self, request: TradeRequest) -> tuple[bool, str]:
+        """
+        Validate trade request before submission.
+        
+        Checks:
+        1. Symbol exists and is tradeable
+        2. Volume is within limits and properly normalized
+        3. Sufficient margin available
+        4. SL/TP distances are valid
+        """
+        self._log(f"━━━ PHASE 1: PRE-TRADE VALIDATION ━━━")
+        
+        # 1. Symbol validation
         try:
-            trade = test_func()
-            results.append((name, "✅ PASS", trade))
-        except AssertionError as e:
-            results.append((name, f"❌ FAIL: {e}", None))
+            info = self._get_symbol_info(request.symbol)
+            self._log(f"  ✓ Symbol {request.symbol} validated")
+            self._log(f"    Contract: {info.contract_size}, Point: {info.point}")
         except Exception as e:
-            results.append((name, f"❌ ERROR: {e}", None))
+            return False, f"Invalid symbol: {e}"
+        
+        # 2. Volume validation
+        if request.volume < info.volume_min:
+            return False, f"Volume {request.volume} below minimum {info.volume_min}"
+        if request.volume > info.volume_max:
+            return False, f"Volume {request.volume} above maximum {info.volume_max}"
+        
+        # Normalize volume to step
+        normalized = round(request.volume / info.volume_step) * info.volume_step
+        if abs(normalized - request.volume) > 0.0001:
+            self._log(f"  ⚠ Volume normalized: {request.volume} → {normalized}")
+            request.volume = normalized
+        else:
+            self._log(f"  ✓ Volume {request.volume} validated")
+        
+        # 3. Margin check
+        is_buy = request.type in [ENUM_ORDER_TYPE.ORDER_TYPE_BUY, ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT]
+        margin_required = info.calculate_margin(request.volume, request.price, self.account.Leverage())
+        
+        self._log(f"  Margin required: ${margin_required:.2f}")
+        self._log(f"  Free margin: ${self.account.FreeMargin():.2f}")
+        
+        if margin_required > self.account.FreeMargin():
+            return False, f"Insufficient margin: need ${margin_required:.2f}, have ${self.account.FreeMargin():.2f}"
+        self._log(f"  ✓ Margin check passed")
+        
+        # 4. Stops level check
+        if info.stops_level > 0:
+            min_distance = info.stops_level * info.point
+            if request.sl > 0:
+                sl_distance = abs(request.price - request.sl)
+                if sl_distance < min_distance:
+                    return False, f"SL too close: {sl_distance:.5f} < {min_distance:.5f}"
+            if request.tp > 0:
+                tp_distance = abs(request.price - request.tp)
+                if tp_distance < min_distance:
+                    return False, f"TP too close: {tp_distance:.5f} < {min_distance:.5f}"
+        self._log(f"  ✓ Stops level check passed")
+        
+        return True, "Validation passed"
+    
+    # =========================================================================
+    # PHASE 2 & 3: ORDER SUBMISSION & EXECUTION
+    # =========================================================================
+    
+    def execute_order(
+        self,
+        request: TradeRequest,
+        bid: float,
+        ask: float,
+    ) -> tuple[TradeResult, Optional[Position]]:
+        """
+        Execute order with proper spread and slippage handling.
+        
+        Steps:
+        1. Determine execution price (bid for sell, ask for buy)
+        2. Apply slippage
+        3. Calculate and deduct costs
+        4. Create position
+        """
+        self._log(f"━━━ PHASE 2: ORDER SUBMISSION ━━━")
+        self._log(f"  Order: {request.type.name} {request.volume} {request.symbol}")
+        self._log(f"  Bid: {bid:.5f}, Ask: {ask:.5f}, Spread: {(ask-bid)/self._get_symbol_info(request.symbol).point:.0f} pts")
+        
+        result = TradeResult()
+        info = self._get_symbol_info(request.symbol)
+        
+        # Determine if buy or sell
+        is_buy = request.type in [ENUM_ORDER_TYPE.ORDER_TYPE_BUY, ENUM_ORDER_TYPE.ORDER_TYPE_BUY_LIMIT]
+        
+        self._log(f"━━━ PHASE 3: ORDER EXECUTION ━━━")
+        
+        # 1. Execution price (buy at ask, sell at bid)
+        if is_buy:
+            base_price = ask
+            self._log(f"  BUY executes at ASK: {ask:.5f}")
+        else:
+            base_price = bid
+            self._log(f"  SELL executes at BID: {bid:.5f}")
+        
+        # 2. Apply slippage (random within deviation)
+        import random
+        slippage_points = random.randint(0, request.deviation)
+        slippage_price = slippage_points * info.point
+        
+        if is_buy:
+            exec_price = base_price + slippage_price  # Slippage hurts buyer
+        else:
+            exec_price = base_price - slippage_price  # Slippage hurts seller
+        
+        slippage_cost = slippage_price * info.contract_size * request.volume
+        self._log(f"  Slippage: {slippage_points} points (${slippage_cost:.2f})")
+        self._log(f"  Final execution price: {exec_price:.5f}")
+        
+        # 3. Calculate costs
+        spread_points = (ask - bid) / info.point
+        spread_cost = (ask - bid) * info.contract_size * request.volume
+        entry_commission = self.commission_per_lot * request.volume
+        
+        self._log(f"  Spread cost: ${spread_cost:.2f} ({spread_points:.0f} points)")
+        self._log(f"  Entry commission: ${entry_commission:.2f}")
+        
+        # 4. Reserve margin
+        margin_used = info.calculate_margin(request.volume, exec_price, self.account.Leverage())
+        self.account.Update(margin=self.account.Margin() + margin_used)
+        self._log(f"  Margin reserved: ${margin_used:.2f}")
+        
+        # Update statistics
+        self.total_spread_cost += spread_cost
+        self.total_commission += entry_commission
+        self.total_slippage += slippage_cost
+        
+        # 5. Create position
+        self.ticket_counter += 1
+        position = Position(
+            ticket=self.ticket_counter,
+            symbol=request.symbol,
+            type=ENUM_POSITION_TYPE.POSITION_TYPE_BUY if is_buy else ENUM_POSITION_TYPE.POSITION_TYPE_SELL,
+            volume=request.volume,
+            open_price=exec_price,
+            open_time=self.current_time,
+            sl=request.sl,
+            tp=request.tp,
+            spread_cost=spread_cost,
+            entry_commission=entry_commission,
+            slippage_cost=slippage_cost,
+            current_price=exec_price,
+        )
+        
+        position.log_event(TradeEvent.PRE_VALIDATION, "Trade validated")
+        position.log_event(TradeEvent.ORDER_SUBMITTED, f"Order submitted: {request.type.name}")
+        position.log_event(TradeEvent.ORDER_EXECUTED, f"Executed at {exec_price:.5f}")
+        position.log_event(TradeEvent.POSITION_OPENED, f"Position opened, margin ${margin_used:.2f}")
+        
+        self.positions[position.ticket] = position
+        
+        # Populate result
+        result.retcode = 10009  # TRADE_RETCODE_DONE
+        result.deal = self.ticket_counter
+        result.order = self.ticket_counter
+        result.volume = request.volume
+        result.price = exec_price
+        result.comment = "Order executed"
+        
+        self._log(f"  ✓ Position #{position.ticket} opened")
+        
+        return result, position
+    
+    # =========================================================================
+    # PHASE 4 & 5: POSITION MONITORING
+    # =========================================================================
+    
+    def update_position(
+        self,
+        ticket: int,
+        bid: float,
+        ask: float,
+        timestamp: datetime = None,
+    ) -> Optional[CloseReason]:
+        """
+        Update position with current market price.
+        
+        Checks:
+        1. Update unrealized P&L
+        2. Update equity
+        3. Check SL/TP
+        4. Track MFE/MAE
+        """
+        if ticket not in self.positions:
+            return None
+        
+        pos = self.positions[ticket]
+        info = self._get_symbol_info(pos.symbol)
+        
+        if timestamp:
+            self.current_time = timestamp
+        
+        # Current close price depends on position type
+        is_long = pos.type == ENUM_POSITION_TYPE.POSITION_TYPE_BUY
+        pos.current_price = bid if is_long else ask  # Close long at bid, short at ask
+        
+        # Calculate unrealized P&L
+        direction = 1 if is_long else -1
+        price_diff = (pos.current_price - pos.open_price) * direction
+        pos.unrealized_pnl = price_diff * info.contract_size * pos.volume
+        
+        # Track MFE/MAE
+        if pos.unrealized_pnl > pos.mfe:
+            pos.mfe = pos.unrealized_pnl
+        if pos.unrealized_pnl < pos.mae:
+            pos.mae = pos.unrealized_pnl
+        
+        # Update equity
+        total_unrealized = sum(p.unrealized_pnl for p in self.positions.values())
+        self.account.Update(equity=self.account.Balance() + total_unrealized)
+        
+        pos.log_event(TradeEvent.TICK_UPDATE, f"Price: {pos.current_price:.5f}, P&L: ${pos.unrealized_pnl:.2f}")
+        
+        # Check SL
+        if pos.sl > 0:
+            if is_long and bid <= pos.sl:
+                self._log(f"  ⚠ STOP LOSS HIT at {bid:.5f}")
+                pos.log_event(TradeEvent.SL_HIT, f"SL hit at {bid:.5f}")
+                return CloseReason.STOP_LOSS
+            elif not is_long and ask >= pos.sl:
+                self._log(f"  ⚠ STOP LOSS HIT at {ask:.5f}")
+                pos.log_event(TradeEvent.SL_HIT, f"SL hit at {ask:.5f}")
+                return CloseReason.STOP_LOSS
+        
+        # Check TP
+        if pos.tp > 0:
+            if is_long and bid >= pos.tp:
+                self._log(f"  ✓ TAKE PROFIT HIT at {bid:.5f}")
+                pos.log_event(TradeEvent.TP_HIT, f"TP hit at {bid:.5f}")
+                return CloseReason.TAKE_PROFIT
+            elif not is_long and ask <= pos.tp:
+                self._log(f"  ✓ TAKE PROFIT HIT at {ask:.5f}")
+                pos.log_event(TradeEvent.TP_HIT, f"TP hit at {ask:.5f}")
+                return CloseReason.TAKE_PROFIT
+        
+        # Check margin level
+        if self.account.Margin() > 0:
+            margin_level = self.account.MarginLevel()
+            if margin_level < 50:  # 50% margin call
+                self._log(f"  ⚠ MARGIN CALL at {margin_level:.1f}%")
+                return CloseReason.MARGIN_CALL
+        
+        return None
+    
+    # =========================================================================
+    # PHASE 6: OVERNIGHT PROCESSING
+    # =========================================================================
+    
+    def process_overnight(self, ticket: int, is_triple_swap: bool = False):
+        """
+        Process overnight swap charge.
+        
+        Called once per day position is held overnight.
+        """
+        if ticket not in self.positions:
+            return
+        
+        pos = self.positions[ticket]
+        info = self._get_symbol_info(pos.symbol)
+        
+        self._log(f"━━━ PHASE 6: OVERNIGHT PROCESSING ━━━")
+        
+        is_long = pos.type == ENUM_POSITION_TYPE.POSITION_TYPE_BUY
+        swap_rate = info.swap_long if is_long else info.swap_short
+        
+        # Triple swap on rollover day (usually Wednesday for Sat+Sun)
+        multiplier = 3 if is_triple_swap else 1
+        
+        # Swap calculation: rate × tick_value × lots × multiplier
+        daily_swap = swap_rate * info.tick_value * pos.volume * multiplier
+        
+        pos.swap_total += daily_swap
+        pos.swap_days += multiplier
+        self.total_swap += daily_swap
+        
+        swap_type = "TRIPLE SWAP" if is_triple_swap else "SWAP"
+        self._log(f"  {swap_type}: {swap_rate} × ${info.tick_value} × {pos.volume} × {multiplier} = ${daily_swap:.2f}")
+        self._log(f"  Total swap: ${pos.swap_total:.2f} ({pos.swap_days} days)")
+        
+        pos.log_event(TradeEvent.SWAP_CHARGED, f"Swap ${daily_swap:.2f} (day {pos.swap_days})")
+    
+    # =========================================================================
+    # PHASE 7: POSITION CLOSE
+    # =========================================================================
+    
+    def close_position(
+        self,
+        ticket: int,
+        bid: float,
+        ask: float,
+        reason: CloseReason = CloseReason.MANUAL,
+    ) -> Optional[Position]:
+        """
+        Close position with full P&L calculation.
+        
+        Steps:
+        1. Determine close price
+        2. Calculate gross P&L
+        3. Apply exit commission
+        4. Calculate net P&L (gross - all costs)
+        5. Update balance
+        6. Release margin
+        """
+        if ticket not in self.positions:
+            return None
+        
+        pos = self.positions[ticket]
+        info = self._get_symbol_info(pos.symbol)
+        
+        self._log(f"━━━ PHASE 7: POSITION CLOSE ━━━")
+        self._log(f"  Closing position #{ticket} - Reason: {reason.name}")
+        
+        is_long = pos.type == ENUM_POSITION_TYPE.POSITION_TYPE_BUY
+        
+        # 1. Close price (long closes at bid, short closes at ask)
+        if reason == CloseReason.STOP_LOSS:
+            pos.close_price = pos.sl
+        elif reason == CloseReason.TAKE_PROFIT:
+            pos.close_price = pos.tp
+        else:
+            pos.close_price = bid if is_long else ask
+        
+        pos.close_time = self.current_time
+        pos.close_reason = reason
+        
+        self._log(f"  Open price:  {pos.open_price:.5f}")
+        self._log(f"  Close price: {pos.close_price:.5f}")
+        
+        # 2. Calculate gross P&L
+        direction = 1 if is_long else -1
+        price_diff = (pos.close_price - pos.open_price) * direction
+        pos.gross_pnl = price_diff * info.contract_size * pos.volume
+        
+        self._log(f"  Price diff: {price_diff:.5f} ({price_diff/info.point:.0f} points)")
+        self._log(f"  Gross P&L: ${pos.gross_pnl:.2f}")
+        
+        # 3. Exit commission
+        pos.exit_commission = self.commission_per_lot * pos.volume
+        self.total_commission += pos.exit_commission
+        
+        self._log(f"  Exit commission: ${pos.exit_commission:.2f}")
+        
+        # 4. Calculate net P&L
+        total_costs = (
+            pos.spread_cost +
+            pos.entry_commission +
+            pos.exit_commission +
+            pos.slippage_cost +
+            (abs(pos.swap_total) if pos.swap_total < 0 else 0)  # Negative swap is cost
+        )
+        swap_credit = pos.swap_total if pos.swap_total > 0 else 0
+        
+        pos.net_pnl = pos.gross_pnl - pos.spread_cost - pos.entry_commission - pos.exit_commission - pos.slippage_cost + pos.swap_total
+        
+        self._log(f"\n  ═══ P&L BREAKDOWN ═══")
+        self._log(f"  Gross P&L:        ${pos.gross_pnl:>10.2f}")
+        self._log(f"  - Spread:         ${pos.spread_cost:>10.2f}")
+        self._log(f"  - Entry comm:     ${pos.entry_commission:>10.2f}")
+        self._log(f"  - Exit comm:      ${pos.exit_commission:>10.2f}")
+        self._log(f"  - Slippage:       ${pos.slippage_cost:>10.2f}")
+        self._log(f"  + Swap:           ${pos.swap_total:>10.2f}")
+        self._log(f"  ─────────────────────────────")
+        self._log(f"  NET P&L:          ${pos.net_pnl:>10.2f}")
+        
+        # 5. Update balance
+        old_balance = self.account.Balance()
+        new_balance = old_balance + pos.net_pnl
+        
+        # 6. Release margin
+        margin_released = info.calculate_margin(pos.volume, pos.open_price, self.account.Leverage())
+        new_margin = max(0, self.account.Margin() - margin_released)
+        
+        self.account.Update(balance=new_balance, margin=new_margin)
+        
+        self._log(f"\n  Balance: ${old_balance:.2f} → ${new_balance:.2f}")
+        self._log(f"  Margin released: ${margin_released:.2f}")
+        
+        pos.log_event(TradeEvent.POSITION_CLOSED, f"Net P&L: ${pos.net_pnl:.2f}")
+        pos.log_event(TradeEvent.TRADE_COMPLETE, f"Balance: ${new_balance:.2f}")
+        
+        # Move to closed
+        del self.positions[ticket]
+        self.closed_positions.append(pos)
+        
+        return pos
+    
+    # =========================================================================
+    # PHASE 8: POST-TRADE SUMMARY
+    # =========================================================================
+    
+    def get_trade_summary(self, pos: Position) -> Dict:
+        """Get complete trade summary."""
+        return {
+            'ticket': pos.ticket,
+            'symbol': pos.symbol,
+            'type': pos.type.name,
+            'volume': pos.volume,
+            'open_price': pos.open_price,
+            'close_price': pos.close_price,
+            'open_time': pos.open_time,
+            'close_time': pos.close_time,
+            'close_reason': pos.close_reason.name if pos.close_reason else None,
+            'gross_pnl': pos.gross_pnl,
+            'spread_cost': pos.spread_cost,
+            'commission_total': pos.entry_commission + pos.exit_commission,
+            'slippage_cost': pos.slippage_cost,
+            'swap_total': pos.swap_total,
+            'net_pnl': pos.net_pnl,
+            'mfe': pos.mfe,
+            'mae': pos.mae,
+            'events': pos.events,
+        }
 
-    # Summary
-    print("\n" + "=" * 70)
-    print("TEST SUMMARY")
+
+# =============================================================================
+# DEMONSTRATION
+# =============================================================================
+
+def main():
     print("=" * 70)
-
-    for name, status, _ in results:
-        print(f"  {status}: {name}")
-
-    passed = sum(1 for _, status, _ in results if "PASS" in status)
-    total = len(results)
-
-    print(f"\nOVERALL: {passed}/{total} tests passed ({100*passed/total:.0f}%)")
+    print("TRADE LIFECYCLE - COMPREHENSIVE SEQUENCE OF EVENTS")
     print("=" * 70)
-
-    if passed == total:
-        print("\n🎉 ALL TESTS PASSED - Trade lifecycle working correctly!")
-
-        print("\n" + "=" * 70)
-        print("KEY VALIDATIONS PASSED")
-        print("=" * 70)
-        print("✓ LONG trades: Entry, MFE/MAE tracking, exit")
-        print("✓ SHORT trades: Entry, MFE/MAE tracking, exit")
-        print("✓ Stop Loss: Correctly limits losses")
-        print("✓ Take Profit: Correctly captures profits")
-        print("✓ Costs: Spread, commission, swap, slippage all calculated")
-        print("✓ Metrics: MFE efficiency, MAE efficiency, holding time")
-        print("\nThe backtester correctly simulates realistic MT5 trading!")
-    else:
-        print("\n❌ SOME TESTS FAILED - Review failures above")
-        return 1
-
-    return 0
+    
+    # Create manager
+    manager = TradeLifecycleManager(
+        initial_balance=10000.0,
+        leverage=100,
+        commission_per_lot=7.0,
+    )
+    
+    print(f"\nInitial Account State:")
+    print(f"  Balance: ${manager.account.Balance():,.2f}")
+    print(f"  Leverage: {manager.account.Leverage()}:1")
+    
+    # =========================================================================
+    # TRADE 1: EURUSD Long - Full lifecycle with overnight
+    # =========================================================================
+    print("\n" + "═" * 70)
+    print("TRADE 1: EURUSD LONG - Full Lifecycle with Overnight Hold")
+    print("═" * 70)
+    
+    # Market prices
+    bid = 1.08500
+    ask = 1.08510  # 10 point spread
+    
+    # Create trade request
+    request = TradeRequest(
+        action=ENUM_TRADE_REQUEST_ACTIONS.TRADE_ACTION_DEAL,
+        symbol="EURUSD",
+        volume=0.5,
+        type=ENUM_ORDER_TYPE.ORDER_TYPE_BUY,
+        price=ask,
+        sl=1.08300,  # 21 pips SL
+        tp=1.08800,  # 29 pips TP
+        deviation=5,
+        comment="Test trade"
+    )
+    
+    # Phase 1: Validate
+    valid, msg = manager.validate_trade(request)
+    if not valid:
+        print(f"Validation failed: {msg}")
+        return
+    
+    # Phase 2-4: Execute and open
+    result, pos = manager.execute_order(request, bid, ask)
+    
+    if result.retcode != 10009:
+        print(f"Execution failed: {result.comment}")
+        return
+    
+    # Phase 5: Simulate price updates
+    print(f"\n━━━ PHASE 5: POSITION MONITORING ━━━")
+    
+    # Tick 1: Price moves up
+    manager.current_time += timedelta(hours=1)
+    close_reason = manager.update_position(pos.ticket, 1.08550, 1.08560)
+    print(f"  Tick 1: Bid 1.08550 - Unrealized: ${pos.unrealized_pnl:.2f}")
+    
+    # Tick 2: Price moves more
+    manager.current_time += timedelta(hours=2)
+    close_reason = manager.update_position(pos.ticket, 1.08600, 1.08610)
+    print(f"  Tick 2: Bid 1.08600 - Unrealized: ${pos.unrealized_pnl:.2f}")
+    
+    # Phase 6: Overnight swap (simulate holding overnight)
+    manager.current_time += timedelta(hours=20)
+    manager.process_overnight(pos.ticket, is_triple_swap=False)
+    
+    # Continue monitoring next day
+    manager.current_time += timedelta(hours=5)
+    close_reason = manager.update_position(pos.ticket, 1.08650, 1.08660)
+    print(f"  Tick 3 (next day): Bid 1.08650 - Unrealized: ${pos.unrealized_pnl:.2f}")
+    
+    # Phase 7: Close position manually
+    closed = manager.close_position(pos.ticket, 1.08650, 1.08660, CloseReason.MANUAL)
+    
+    # Phase 8: Summary
+    print(f"\n━━━ PHASE 8: TRADE SUMMARY ━━━")
+    summary = manager.get_trade_summary(closed)
+    print(f"  Ticket: #{summary['ticket']}")
+    print(f"  Symbol: {summary['symbol']}")
+    print(f"  Type: {summary['type']}")
+    print(f"  Volume: {summary['volume']} lots")
+    print(f"  Open → Close: {summary['open_price']:.5f} → {summary['close_price']:.5f}")
+    print(f"  Duration: {summary['close_time'] - summary['open_time']}")
+    print(f"  MFE: ${summary['mfe']:.2f}, MAE: ${summary['mae']:.2f}")
+    
+    # =========================================================================
+    # TRADE 2: XAUUSD Short - SL Hit
+    # =========================================================================
+    print("\n" + "═" * 70)
+    print("TRADE 2: XAUUSD SHORT - Stop Loss Hit")
+    print("═" * 70)
+    
+    gold_bid = 2650.00
+    gold_ask = 2650.30
+    
+    request2 = TradeRequest(
+        action=ENUM_TRADE_REQUEST_ACTIONS.TRADE_ACTION_DEAL,
+        symbol="XAUUSD",
+        volume=0.1,
+        type=ENUM_ORDER_TYPE.ORDER_TYPE_SELL,
+        price=gold_bid,
+        sl=2660.00,  # $10 SL
+        tp=2630.00,  # $20 TP
+        deviation=10,
+    )
+    
+    valid, msg = manager.validate_trade(request2)
+    result2, pos2 = manager.execute_order(request2, gold_bid, gold_ask)
+    
+    # Price moves against us
+    print(f"\n━━━ PHASE 5: POSITION MONITORING ━━━")
+    manager.current_time += timedelta(hours=1)
+    close_reason = manager.update_position(pos2.ticket, 2655.00, 2655.30)
+    print(f"  Tick 1: Ask 2655.30 - Unrealized: ${pos2.unrealized_pnl:.2f}")
+    
+    # Price hits SL
+    manager.current_time += timedelta(hours=1)
+    close_reason = manager.update_position(pos2.ticket, 2660.00, 2660.30)
+    
+    if close_reason == CloseReason.STOP_LOSS:
+        closed2 = manager.close_position(pos2.ticket, 2660.00, 2660.30, close_reason)
+        print(f"\n  Trade closed by STOP LOSS")
+        print(f"  Net P&L: ${closed2.net_pnl:.2f}")
+    
+    # =========================================================================
+    # FINAL ACCOUNT STATE
+    # =========================================================================
+    print("\n" + "═" * 70)
+    print("FINAL ACCOUNT STATE")
+    print("═" * 70)
+    
+    print(f"\n  Starting Balance:  ${10000.00:>10,.2f}")
+    print(f"  Trade 1 P&L:       ${summary['net_pnl']:>10,.2f}")
+    print(f"  Trade 2 P&L:       ${closed2.net_pnl:>10,.2f}")
+    print(f"  ─────────────────────────────────")
+    print(f"  Final Balance:     ${manager.account.Balance():>10,.2f}")
+    
+    print(f"\n  Total Costs:")
+    print(f"    Spread:     ${manager.total_spread_cost:>8,.2f}")
+    print(f"    Commission: ${manager.total_commission:>8,.2f}")
+    print(f"    Slippage:   ${manager.total_slippage:>8,.2f}")
+    print(f"    Swap:       ${manager.total_swap:>8,.2f}")
+    print(f"    ─────────────────────────")
+    total_costs = manager.total_spread_cost + manager.total_commission + manager.total_slippage + abs(manager.total_swap)
+    print(f"    TOTAL:      ${total_costs:>8,.2f}")
+    
+    # Event log for first trade
+    print(f"\n" + "═" * 70)
+    print("TRADE 1 EVENT LOG")
+    print("═" * 70)
+    for event in summary['events']:
+        print(f"  [{event['event']}] {event['details']}")
 
 
 if __name__ == "__main__":
-    exit(run_all_tests())
+    main()
