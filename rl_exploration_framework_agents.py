@@ -59,65 +59,65 @@ if TORCH_AVAILABLE:
             return self.network(x)
 
 
-class GaussianPolicyNetwork(nn.Module):
-    """Gaussian policy for continuous action space (adapted for discrete)."""
+    class GaussianPolicyNetwork(nn.Module):
+        """Gaussian policy for continuous action space (adapted for discrete)."""
 
-    def __init__(self, state_dim: int, n_actions: int, hidden_dims=(64, 64)):
-        super().__init__()
-        self.n_actions = n_actions
+        def __init__(self, state_dim: int, n_actions: int, hidden_dims=(64, 64)):
+            super().__init__()
+            self.n_actions = n_actions
 
-        # Shared feature extractor
-        self.feature_net = MLPNetwork(state_dim, hidden_dims[-1], hidden_dims[:-1])
+            # Shared feature extractor
+            self.feature_net = MLPNetwork(state_dim, hidden_dims[-1], hidden_dims[:-1])
 
-        # Action mean and log_std heads
-        self.mean_head = nn.Linear(hidden_dims[-1], n_actions)
-        self.log_std_head = nn.Linear(hidden_dims[-1], n_actions)
+            # Action mean and log_std heads
+            self.mean_head = nn.Linear(hidden_dims[-1], n_actions)
+            self.log_std_head = nn.Linear(hidden_dims[-1], n_actions)
 
-    def forward(self, state):
-        features = self.feature_net(state)
-        mean = self.mean_head(features)
-        log_std = self.log_std_head(features)
-        log_std = torch.clamp(log_std, -20, 2)  # Stability
-        return mean, log_std
+        def forward(self, state):
+            features = self.feature_net(state)
+            mean = self.mean_head(features)
+            log_std = self.log_std_head(features)
+            log_std = torch.clamp(log_std, -20, 2)  # Stability
+            return mean, log_std
 
-    def sample(self, state):
-        """Sample action from policy distribution."""
-        mean, log_std = self.forward(state)
-        std = log_std.exp()
-        normal = torch.distributions.Normal(mean, std)
-        action_logits = normal.rsample()  # Reparameterization trick
-        action = torch.softmax(action_logits, dim=-1)
-        return action, action_logits, normal
+        def sample(self, state):
+            """Sample action from policy distribution."""
+            mean, log_std = self.forward(state)
+            std = log_std.exp()
+            normal = torch.distributions.Normal(mean, std)
+            action_logits = normal.rsample()  # Reparameterization trick
+            action = torch.softmax(action_logits, dim=-1)
+            return action, action_logits, normal
 
-    def get_action_probs(self, state):
-        """Get action probabilities (for discrete action space)."""
-        mean, _ = self.forward(state)
-        return torch.softmax(mean, dim=-1)
+        def get_action_probs(self, state):
+            """Get action probabilities (for discrete action space)."""
+            mean, _ = self.forward(state)
+            return torch.softmax(mean, dim=-1)
 
 
-class ReplayBuffer:
-    """Simple replay buffer for off-policy algorithms."""
+    class ReplayBuffer:
+        """Simple replay buffer for off-policy algorithms."""
 
-    def __init__(self, capacity: int = 10000):
-        self.buffer = deque(maxlen=capacity)
+        def __init__(self, capacity: int = 10000):
+            self.buffer = deque(maxlen=capacity)
 
-    def add(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
+        def add(self, state, action, reward, next_state, done):
+            self.buffer.append((state, action, reward, next_state, done))
 
-    def sample(self, batch_size: int):
-        indices = np.random.choice(len(self.buffer), batch_size, replace=False)
-        batch = [self.buffer[i] for i in indices]
+        def sample(self, batch_size: int):
+            indices = np.random.choice(len(self.buffer), batch_size, replace=False)
+            batch = [self.buffer[i] for i in indices]
 
-        states = np.array([x[0] for x in batch])
-        actions = np.array([x[1] for x in batch])
-        rewards = np.array([x[2] for x in batch])
-        next_states = np.array([x[3] for x in batch])
-        dones = np.array([x[4] for x in batch])
+            states = np.array([x[0] for x in batch])
+            actions = np.array([x[1] for x in batch])
+            rewards = np.array([x[2] for x in batch])
+            next_states = np.array([x[3] for x in batch])
+            dones = np.array([x[4] for x in batch])
 
-        return states, actions, rewards, next_states, dones
+            return states, actions, rewards, next_states, dones
 
-    def __len__(self):
-        return len(self.buffer)
+        def __len__(self):
+            return len(self.buffer)
 
 
 # =============================================================================
