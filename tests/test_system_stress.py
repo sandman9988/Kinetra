@@ -71,6 +71,7 @@ class SystemHealthMonitor:
     
     def __init__(self):
         self.start_time = time.time()
+        self._lock = multiprocessing.Lock()
         self.metrics = {
             'cpu_samples': [],
             'memory_samples': [],
@@ -88,20 +89,22 @@ class SystemHealthMonitor:
     
     def record_operation(self, operation: str, duration: float, success: bool):
         """Record an operation."""
-        self.metrics['operations'].append({
-            'operation': operation,
-            'duration': duration,
-            'success': success,
-            'timestamp': time.time()
-        })
+        with self._lock:
+            self.metrics['operations'].append({
+                'operation': operation,
+                'duration': duration,
+                'success': success,
+                'timestamp': time.time()
+            })
     
     def record_error(self, operation: str, error: str):
         """Record an error."""
-        self.metrics['errors'].append({
-            'operation': operation,
-            'error': error,
-            'timestamp': time.time()
-        })
+        with self._lock:
+            self.metrics['errors'].append({
+                'operation': operation,
+                'error': error,
+                'timestamp': time.time()
+            })
     
     def sample_resources(self):
         """Sample current resource usage."""
