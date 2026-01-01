@@ -1,5 +1,22 @@
 # GitHub Copilot Instructions for Kinetra
 
+## Quick Reference
+
+```bash
+# Setup
+make setup              # Full development environment
+pip install -e ".[dev]" # Alternative: install with dev dependencies
+
+# Development
+make test               # Run all tests
+make lint               # Lint code with Ruff
+make format             # Format code with Black
+pytest tests/test_physics.py -v  # Run specific test
+
+# Common Commands
+python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
+```
+
 ## Project Overview
 
 **Kinetra** (Kinetic + Entropy + Alpha) is an institutional-grade, physics-first adaptive trading system that uses reinforcement learning to extract returns from market regimes. Built on first principles with **no static assumptions**, Kinetra validates every decision through rigorous statistical testing and continuous backtesting.
@@ -92,9 +109,15 @@ pytest tests/ --cov=kinetra --cov-report=html
 
 ### Setup Development Environment
 ```bash
+# Recommended: Use make for automated setup
 make setup          # Full Python dev environment
-make install        # Install dependencies only
+
+# Alternative: Manual installation
+pip install -r requirements.txt
+pip install -e ".[dev]"  # Install with dev dependencies (pytest, black, ruff, etc.)
 ```
+
+**Note**: Dev dependencies (pytest, black, ruff, mypy, hypothesis) are required for development work. These are specified in `pyproject.toml` under `[project.optional-dependencies]`.
 
 ### Code Quality
 ```bash
