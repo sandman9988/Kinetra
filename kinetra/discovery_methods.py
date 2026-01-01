@@ -395,7 +395,7 @@ class ChaosTheoryDiscovery(DiscoveryMethod):
         
         try:
             return abs(_phi(m) - _phi(m + 1))
-        except:
+        except Exception:
             return 0.0
 
 
