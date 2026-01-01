@@ -6,6 +6,12 @@
       "status": "completed",
       "run_dir": "data/test_runs/control_standard_indicators_physics_first_principles_20260101_070920_169113",
       "completed_at": "2026-01-01T07:09:41.781653"
+    },
+    "physics_first_principles_20260101_071239_321594": {
+      "created_at": "2026-01-01T07:12:39.328599",
+      "test_suite": "physics_first_principles",
+      "status": "running",
+      "run_dir": "data/test_runs/physics_first_principles_20260101_071239_321594"
     }
   }
 }
