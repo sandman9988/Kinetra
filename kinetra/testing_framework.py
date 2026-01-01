@@ -522,6 +522,13 @@ class TestingFramework:
     """
     Main testing framework coordinating all components.
     
+    Includes scientific data management:
+    - Atomic file operations
+    - Master data immutability
+    - Test run isolation
+    - Automatic caching
+    - Full reproducibility
+    
     Usage:
         framework = TestingFramework()
         framework.add_test(config)
@@ -529,7 +536,7 @@ class TestingFramework:
         framework.generate_report(results)
     """
     
-    def __init__(self, output_dir: str = "test_results"):
+    def __init__(self, output_dir: str = "test_results", use_data_management: bool = True):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -540,6 +547,23 @@ class TestingFramework:
         self.validator = StatisticalValidator()
         self.fp_validator = FirstPrinciplesValidator()
         
+        # Data management system
+        self.use_data_management = use_data_management
+        if use_data_management:
+            try:
+                from kinetra.data_management import DataCoordinator
+                self.data_coordinator = DataCoordinator()
+                logger.info("Data management system initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize data management: {e}")
+                self.data_coordinator = None
+                self.use_data_management = False
+        else:
+            self.data_coordinator = None
+        
+        self.current_run_id = None
+        self.current_run_dir = None
+        
         logger.info(f"Testing Framework initialized. GPU available: {GPU_AVAILABLE}")
     
     def add_test(self, config: TestConfiguration):
@@ -548,9 +572,30 @@ class TestingFramework:
         logger.info(f"Added test: {config.name}")
     
     def run_all_tests(self) -> List[TestResult]:
-        """Run all configured tests."""
+        """Run all configured tests with proper data management."""
         all_results = []
         
+        # Create isolated test run if data management enabled
+        if self.use_data_management and self.data_coordinator:
+            try:
+                # Collect all instruments
+                all_instruments = set()
+                for test_config in self.tests:
+                    for inst in test_config.instruments:
+                        all_instruments.add(f"{inst.symbol}_{inst.timeframe}")
+                
+                # Create test run
+                self.current_run_id, self.current_run_dir = self.data_coordinator.prepare_test_run(
+                    test_suite="_".join([t.name for t in self.tests[:3]]),  # First 3 test names
+                    instruments=list(all_instruments),
+                    config={"num_tests": len(self.tests), "timestamp": datetime.now().isoformat()}
+                )
+                logger.info(f"Created isolated test run: {self.current_run_id}")
+                logger.info(f"Results will be saved to: {self.current_run_dir / 'results'}")
+            except Exception as e:
+                logger.warning(f"Failed to create test run: {e}, continuing without isolation")
+        
+        # Run tests
         for test_config in self.tests:
             logger.info(f"\n{'='*80}")
             logger.info(f"Running test: {test_config.name}")
@@ -559,6 +604,14 @@ class TestingFramework:
             
             test_results = self._run_single_test(test_config)
             all_results.extend(test_results)
+        
+        # Mark run complete
+        if self.use_data_management and self.data_coordinator and self.current_run_id:
+            try:
+                self.data_coordinator.runs.mark_complete(self.current_run_id, "completed")
+                logger.info(f"Test run {self.current_run_id} completed successfully")
+            except Exception as e:
+                logger.warning(f"Failed to mark test run complete: {e}")
         
         self.results = all_results
         return all_results
@@ -702,7 +755,7 @@ class TestingFramework:
         """Run backtest based on agent type configuration."""
         # Calculate physics features if needed
         if config.agent_type in ['physics', 'rl_ppo', 'rl_sac', 'rl_a2c'] or 'physics' in config.agent_config.get('features', []):
-            df = self._add_physics_features(df)
+            df = self._add_physics_features(df, instrument)
         
         # Initialize trading simulation
         initial_capital = 10000.0
@@ -806,8 +859,31 @@ class TestingFramework:
             trade_history=trades,
         )
     
-    def _add_physics_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add basic physics features to dataframe."""
+    def _add_physics_features(self, df: pd.DataFrame, instrument: Optional[InstrumentSpec] = None) -> pd.DataFrame:
+        """Add basic physics features to dataframe with caching support."""
+        # Try to use cached features if available
+        if instrument and self.use_data_management and self.data_coordinator:
+            try:
+                # Compute data checksum for cache key
+                from kinetra.data_management import DataIntegrity
+                data_hash = DataIntegrity.compute_dataframe_hash(df[['time', 'open', 'high', 'low', 'close']])
+                
+                # Try to get from cache
+                cached_features = self.data_coordinator.get_cached_features(
+                    symbol=instrument.symbol,
+                    timeframe=instrument.timeframe,
+                    data_checksum=data_hash
+                )
+                
+                if cached_features is not None:
+                    logger.debug(f"Using cached physics features for {instrument.symbol}_{instrument.timeframe}")
+                    # Merge cached features with original data
+                    df = df.merge(cached_features, left_index=True, right_index=True, how='left')
+                    return df
+            except Exception as e:
+                logger.debug(f"Cache lookup failed: {e}, computing features")
+        
+        # Compute features
         try:
             # Calculate returns
             df['returns'] = df['close'].pct_change()
@@ -831,6 +907,25 @@ class TestingFramework:
                 bins=[-np.inf, 0.5, 1.5, np.inf],
                 labels=['LAMINAR', 'NORMAL', 'VOLATILE']
             ).astype(str)
+            
+            # Cache the computed features
+            if instrument and self.use_data_management and self.data_coordinator:
+                try:
+                    from kinetra.data_management import DataIntegrity
+                    data_hash = DataIntegrity.compute_dataframe_hash(df[['time', 'open', 'high', 'low', 'close']])
+                    
+                    # Cache only the computed features
+                    features_to_cache = df[['returns', 'energy', 'damping', 'entropy', 'regime']].copy()
+                    
+                    self.data_coordinator.cache_features(
+                        symbol=instrument.symbol,
+                        timeframe=instrument.timeframe,
+                        data_checksum=data_hash,
+                        features_df=features_to_cache
+                    )
+                    logger.debug(f"Cached physics features for {instrument.symbol}_{instrument.timeframe}")
+                except Exception as e:
+                    logger.debug(f"Failed to cache features: {e}")
             
             return df
             
@@ -1030,16 +1125,33 @@ class TestingFramework:
         )
     
     def save_results(self, filename: Optional[str] = None):
-        """Save all results to JSON."""
+        """Save all results to JSON with atomic writes."""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"test_results_{timestamp}.json"
         
-        filepath = self.output_dir / filename
+        # Use run-specific directory if available
+        if self.current_run_dir:
+            filepath = self.current_run_dir / "results" / filename
+        else:
+            filepath = self.output_dir / filename
+        
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         
         # Convert results to dict
         results_dict = [asdict(r) for r in self.results]
         
+        # Use atomic write if data management enabled
+        if self.use_data_management:
+            try:
+                from kinetra.data_management import AtomicFileWriter
+                AtomicFileWriter.write_json(results_dict, filepath)
+                logger.info(f"Results saved atomically to {filepath}")
+                return
+            except Exception as e:
+                logger.warning(f"Atomic write failed: {e}, using standard write")
+        
+        # Fallback to standard write
         with open(filepath, 'w') as f:
             json.dump(results_dict, f, indent=2, default=str)
         
