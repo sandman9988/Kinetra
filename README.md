@@ -264,8 +264,33 @@ GitHub Actions automatically validates every commit:
 4. Theorem Validation (statistical significance)
 5. Health Check (CHS > 0.85)
 6. Security Scan (Dependabot, CodeQL)
-7. Deploy (if all tests pass)
+7. Silent Failure Detection (auto-fix)
+8. Deploy (if all tests pass)
 ```
+
+## 🛠️ Silent Failure Detection & Auto-Fix
+
+Kinetra includes an automated system for detecting and fixing silent failures:
+
+```bash
+# Run complete workflow (detect → analyze → fix → validate)
+python scripts/silent_failure_workflow.py
+
+# Dry-run to preview fixes
+python scripts/silent_failure_workflow.py --dry-run
+
+# Quick mode (faster)
+python scripts/silent_failure_workflow.py --quick
+```
+
+**Features:**
+- 🔍 Automatic detection of silent errors across codebase
+- 🤖 AI-powered categorization and analysis
+- 🔧 Automated fixing with safety backups
+- ✅ Validation and rollback capabilities
+- 📊 Comprehensive reporting for analysis
+
+See [SILENT_FAILURE_README.md](SILENT_FAILURE_README.md) for quick start or [docs/SILENT_FAILURE_WORKFLOW.md](docs/SILENT_FAILURE_WORKFLOW.md) for full documentation.
 
 ## 📈 Monitoring & Observability
 
