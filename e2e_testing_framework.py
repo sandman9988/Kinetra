@@ -538,21 +538,30 @@ class E2ETestRunner:
         }
         
         # Aggregate results
+        completed_results = [r for r in self.results if r['status'] == 'completed']
+        num_completed = len(completed_results)
+
         for result in self.results:
             test_id = result['test_id']
             parts = test_id.split('_')
-            
+        
             if len(parts) >= 4:
                 asset_class = parts[0]
                 timeframe = parts[2]
                 agent_type = parts[3]
-                
+            
                 status = 'completed' if result['status'] == 'completed' else 'failed'
-                
+            
                 summary['by_asset_class'][asset_class][status] += 1
                 summary['by_timeframe'][timeframe][status] += 1
                 summary['by_agent_type'][agent_type][status] += 1
-        
+
+        if num_completed > 0:
+            summary['metrics']['avg_omega_ratio'] = sum(r['metrics']['omega_ratio'] for r in completed_results) / num_completed
+            summary['metrics']['avg_z_factor'] = sum(r['metrics']['z_factor'] for r in completed_results) / num_completed
+            summary['metrics']['avg_energy_captured'] = sum(r['metrics']['energy_captured'] for r in completed_results) / num_completed
+            summary['metrics']['avg_chs'] = sum(r['metrics']['chs'] for r in completed_results) / num_completed
+    
         return summary
     
     def save_results(self, e2e_result: E2ETestResult):
