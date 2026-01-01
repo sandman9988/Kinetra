@@ -13,7 +13,8 @@ class TestRiskManagement:
     
     def test_risk_of_ruin_calculation(self):
         """Test non-linear RoR calculation."""
-        # Create profitable returns
+        # Create profitable returns with fixed seed for reproducibility
+        # Using np.random.default_rng() for better test isolation in parallel execution
         rng = np.random.default_rng(123)
         returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
         
@@ -103,8 +104,9 @@ class TestRiskManagement:
     
     def test_risk_gates(self):
         """Test risk gate checking."""
-        np.random.seed(123)  # Fixed seed for reproducibility
-        returns = pd.Series(np.random.randn(100) * 0.01 + 0.001)
+        # Use modern RNG API for better test isolation in parallel execution
+        rng = np.random.default_rng(123)
+        returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
         manager = RiskManager()
         
         # Good conditions
