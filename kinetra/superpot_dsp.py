@@ -108,7 +108,12 @@ class DSPSuperPotExtractor:
         
         # === 2. ASYMMETRIC RETURNS (up/down SEPARATE) ===
         # NEVER combine up and down moves - that's symmetric!
-        returns = np.diff(prices[-lookback:]) / prices[-lookback-1:-1] if lookback > 1 else np.array([0])
+        if lookback > 1:
+            recent_prices = prices[-lookback-1:]  # Need lookback+1 for diff
+            returns = np.diff(recent_prices) / recent_prices[:-1]
+        else:
+            returns = np.array([0])
+        
         up_returns = returns[returns > 0]
         down_returns = returns[returns < 0]
         
