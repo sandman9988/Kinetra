@@ -54,7 +54,7 @@ from kinetra.workflow_manager import WorkflowManager
 
 # Optional imports for testing framework
 try:
-    from kinetra.testing_framework import TestConfiguration, InstrumentSpec, TestingFramework
+    from kinetra.testing_framework import TestConfiguration, InstrumentSpec
     TESTING_FRAMEWORK_AVAILABLE = True
 except ImportError:
     TESTING_FRAMEWORK_AVAILABLE = False
