@@ -90,9 +90,10 @@ class SystemHealthMonitor:
     def record_operation(self, operation: str, duration: float, success: bool):
         """Record an operation."""
         with self._lock:
+            safe_duration = duration if (duration >= 0 and duration != float('inf') and duration == duration) else 0.0
             self.metrics['operations'].append({
                 'operation': operation,
-                'duration': duration,
+                'duration': safe_duration,
                 'success': success,
                 'timestamp': time.time()
             })
