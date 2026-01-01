@@ -230,15 +230,15 @@ def stress_test_data_management(operation_id: int, monitor: SystemHealthMonitor)
         from pathlib import Path
         
         # Test data directory existence
-        start = time.time()
         data_dirs = ['data/master', 'data/prepared', 'data/results', 'logs']
-        
+
         for dir_path in data_dirs:
+            start = time.time()
             path = Path(dir_path)
             exists = path.exists()
-            
-            results['checks_completed'] += 1
+    
             monitor.record_operation(f'data_check_{operation_id}', time.time() - start, True)
+            results['checks_completed'] += 1
         
         # Test workflow manager creation
         start = time.time()
