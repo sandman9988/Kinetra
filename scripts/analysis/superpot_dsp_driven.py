@@ -137,7 +137,7 @@ class AlgorithmComparator:
                     superpot_empirical = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(superpot_empirical)
                     agent = superpot_empirical.SimpleRLAgent(self.tracker.n_active, n_actions=4)
-            except Exception as e:
+            except (ImportError, AttributeError, TypeError) as e:
                 if verbose:
                     print(f"   ⚠️  Failed to create {algo_name}: {e}")
                     print(f"   Using fallback agent")

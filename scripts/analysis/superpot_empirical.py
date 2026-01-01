@@ -46,12 +46,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # Import existing extractors
 try:
     from scripts.analysis.superpot_physics import PhysicsExtractor
-except:
+except (ImportError, ModuleNotFoundError):
     PhysicsExtractor = None
 
 try:
     from scripts.analysis.superpot_explorer import SuperPotExtractor
-except:
+except (ImportError, ModuleNotFoundError):
     SuperPotExtractor = None
 
 
@@ -783,7 +783,7 @@ def run_empirical_testing(
                     agent.m_W = agent.m_W[:, active_indices]
                     agent.n_features = tracker.n_active
         
-        except Exception as e:
+        except (ValueError, KeyError, IndexError, TypeError) as e:
             if verbose:
                 import traceback
                 print(f"Error in episode {ep}: {e}")
