@@ -1,0 +1,122 @@
+# Kinetra Git Configuration
+# Add to your ~/.gitconfig or include this file:
+#   [include]
+#       path = /path/to/Kinetra/.gitconfig-kinetra
+
+[alias]
+    # Create IDE-prefixed branch
+    # Usage: git cb claude "feature description"
+    # Creates: claude/feature-description
+    cb = "!f() { \
+        if [ -z \"$1\" ] || [ -z \"$2\" ]; then \
+            echo 'Usage: git cb <ide> <description>'; \
+            echo 'Example: git cb claude \"fix authentication\"'; \
+            echo 'Valid IDEs: claude, copilot, cursor, windsurf, manual'; \
+            return 1; \
+        fi; \
+        branch=\"$1/$(echo \"$2\" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')\"; \
+        git checkout -b \"$branch\"; \
+    }; f"
+
+    # Clean merged branches (local)
+    clean-merged = "!git branch --merged main | grep -v '^\\*' | grep -v 'main' | xargs -r git branch -d"
+
+    # Clean merged branches (with confirmation)
+    clean-merged-safe = "!f() { \
+        branches=$(git branch --merged main | grep -v '^\\*' | grep -v 'main'); \
+        if [ -z \"$branches\" ]; then \
+            echo 'No merged branches to delete'; \
+            return 0; \
+        fi; \
+        echo 'Branches to delete:'; \
+        echo \"$branches\"; \
+        read -p 'Delete these branches? (y/N) ' confirm; \
+        if [ \"$confirm\" = \"y\" ] || [ \"$confirm\" = \"Y\" ]; then \
+            echo \"$branches\" | xargs git branch -d; \
+        fi; \
+    }; f"
+
+    # Show branches by IDE
+    branches-claude = "!git branch -a | grep -E '(^|/)claude/'"
+    branches-copilot = "!git branch -a | grep -E '(^|/)copilot/'"
+    branches-cursor = "!git branch -a | grep -E '(^|/)cursor/'"
+    branches-windsurf = "!git branch -a | grep -E '(^|/)windsurf/'"
+    branches-manual = "!git branch -a | grep -E '(^|/)manual/'"
+
+    # Show all IDE branches with status
+    branches-status = "!f() { \
+        echo '=== Claude Branches ==='; \
+        git branch -a | grep -E '(^|/)claude/' || echo 'None'; \
+        echo ''; \
+        echo '=== Copilot Branches ==='; \
+        git branch -a | grep -E '(^|/)copilot/' || echo 'None'; \
+        echo ''; \
+        echo '=== Cursor Branches ==='; \
+        git branch -a | grep -E '(^|/)cursor/' || echo 'None'; \
+        echo ''; \
+        echo '=== Windsurf Branches ==='; \
+        git branch -a | grep -E '(^|/)windsurf/' || echo 'None'; \
+        echo ''; \
+        echo '=== Manual Branches ==='; \
+        git branch -a | grep -E '(^|/)manual/' || echo 'None'; \
+    }; f"
+
+    # Sync branch with main
+    sync-main = "!f() { \
+        current=$(git branch --show-current); \
+        git fetch origin main; \
+        git rebase origin/main; \
+        echo \"Branch '$current' synced with main\"; \
+    }; f"
+
+    # Quick commit with AI attribution
+    aicommit = "!f() { \
+        if [ -z \"$1\" ]; then \
+            echo 'Usage: git aicommit \"commit message\"'; \
+            return 1; \
+        fi; \
+        git commit -m \"$1\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\"; \
+    }; f"
+
+    # Show branch history tree
+    tree = log --graph --oneline --decorate --all
+
+    # Show current branch info
+    info = "!f() { \
+        current=$(git branch --show-current); \
+        echo \"Current branch: $current\"; \
+        ahead=$(git rev-list --count origin/main..$current 2>/dev/null || echo 0); \
+        behind=$(git rev-list --count $current..origin/main 2>/dev/null || echo 0); \
+        echo \"Commits ahead of main: $ahead\"; \
+        echo \"Commits behind main: $behind\"; \
+        echo \"Last commit: $(git log -1 --format='%h - %s (%cr)')\"; \
+    }; f"
+
+[core]
+    # Prevent accidental commits to main
+    hooksPath = .github/hooks
+
+[branch]
+    # Auto-setup remote tracking
+    autoSetupMerge = always
+    autoSetupRebase = always
+
+[pull]
+    # Always rebase on pull to keep history clean
+    rebase = true
+
+[fetch]
+    # Automatically prune deleted remote branches
+    prune = true
+
+[push]
+    # Push current branch to same name on remote
+    default = current
+    # Auto-setup remote tracking on first push
+    autoSetupRemote = true
+
+[rebase]
+    # Automatically stash uncommitted changes
+    autoStash = true
+    # Show better diff in rebase conflicts
+    autoSquash = true

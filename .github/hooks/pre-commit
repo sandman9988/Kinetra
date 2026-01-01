@@ -1,0 +1,19 @@
+#!/bin/bash
+# Pre-commit hook to prevent direct commits to main
+
+branch=$(git branch --show-current)
+
+if [ "$branch" = "main" ]; then
+    echo "❌ ERROR: Direct commits to main are not allowed!"
+    echo ""
+    echo "Please create a branch using:"
+    echo "  git cb <ide> \"feature description\""
+    echo ""
+    echo "Example:"
+    echo "  git cb claude \"fix authentication\""
+    echo ""
+    echo "Valid IDE prefixes: claude, copilot, cursor, windsurf, manual"
+    exit 1
+fi
+
+exit 0
