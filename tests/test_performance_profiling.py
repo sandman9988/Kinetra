@@ -700,11 +700,7 @@ def calculate_performance_score(report: ProfilingReport) -> int:
         score -= 10
     
     # Deduct for meaningful bottlenecks (only those >1ms)
-    meaningful_bottlenecks = sum(
-        1 for op in report.operations 
-        for b in op.bottlenecks 
-        if float(b.split('(')[-1].rstrip('s)')) > 0.001
-    )
+    meaningful_bottlenecks = sum(len(op.bottlenecks) for op in report.operations)
     score -= min(meaningful_bottlenecks * 3, 20)
     
     # Deduct for overall recommendations (but cap at reasonable level)
