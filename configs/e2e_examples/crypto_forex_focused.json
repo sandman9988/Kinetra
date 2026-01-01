@@ -1,0 +1,13 @@
+{
+  "name": "crypto_forex_focused",
+  "description": "Focused test on crypto and forex with intraday timeframes",
+  "asset_classes": ["crypto", "forex"],
+  "instruments": ["top_5"],
+  "timeframes": ["M15", "M30", "H1"],
+  "agent_types": ["ppo", "dqn"],
+  "episodes": 100,
+  "parallel_execution": true,
+  "auto_data_management": true,
+  "statistical_validation": true,
+  "monte_carlo_runs": 100
+}

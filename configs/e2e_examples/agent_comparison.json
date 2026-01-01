@@ -1,0 +1,13 @@
+{
+  "name": "agent_comparison_study",
+  "description": "Compare all agent types across diverse market conditions",
+  "asset_classes": ["crypto", "forex", "indices"],
+  "instruments": ["top_3"],
+  "timeframes": ["H1", "H4"],
+  "agent_types": ["ppo", "dqn", "linear", "berserker", "triad"],
+  "episodes": 100,
+  "parallel_execution": true,
+  "auto_data_management": true,
+  "statistical_validation": true,
+  "monte_carlo_runs": 100
+}

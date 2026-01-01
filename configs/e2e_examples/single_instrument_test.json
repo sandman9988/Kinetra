@@ -1,0 +1,13 @@
+{
+  "name": "btc_comprehensive_test",
+  "description": "Comprehensive test for BTCUSD across all timeframes and agents",
+  "asset_classes": ["crypto"],
+  "instruments": ["BTCUSD"],
+  "timeframes": ["M15", "M30", "H1", "H4", "D1"],
+  "agent_types": ["ppo", "dqn", "linear"],
+  "episodes": 200,
+  "parallel_execution": true,
+  "auto_data_management": true,
+  "statistical_validation": true,
+  "monte_carlo_runs": 150
+}
