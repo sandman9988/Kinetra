@@ -404,7 +404,7 @@ n_required = 87 (per group)
 **Tools**:
 - `scripts/testing/validate_theorems.py` - Hypothesis testing framework
 - `scripts/testing/unified_test_framework.py` - Multi-algorithm comparison
-- `scripts/analysis/superpot_dsp_driven.py` - Feature exploration
+- `scripts/analysis/superpot_dsp_driven.py` - Feature exploration *(planned; script not yet implemented, currently a blocker for Theorem E2)*
 
 **Best Practices**:
 - Randomize data splits
