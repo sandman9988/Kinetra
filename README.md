@@ -329,6 +329,9 @@ See [SILENT_FAILURE_README.md](SILENT_FAILURE_README.md) for quick start or [doc
 ## 🧪 Development Workflow
 
 ```bash
+# Set up local main branch (first time only)
+python scripts/branch_manager.py --setup
+
 # Create feature branch
 git checkout -b feature/new-physics-model
 
@@ -348,12 +351,15 @@ git push origin feature/new-physics-model
 # - If pass → auto-merge to develop
 ```
 
+For complete branching workflow, see the [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md) or [Quick Reference](docs/BRANCHING_QUICK_REF.md).
+
 ## 📚 Documentation
 
 - **Design Bible**: Complete system architecture and mathematical proofs
 - **API Reference**: Detailed function documentation
 - **Deployment Guide**: Production setup and monitoring
 - **Research Papers**: Theorem validation and empirical results
+- **[Branching Strategy](docs/BRANCHING_STRATEGY.md)**: Git workflow and branch management guide
 
 Visit the [GitHub Wiki](https://github.com/sandman9988/Kinetra/wiki) or [GitHub Pages](https://sandman9988.github.io/Kinetra/) for full documentation.
 
@@ -362,10 +368,23 @@ Visit the [GitHub Wiki](https://github.com/sandman9988/Kinetra/wiki) or [GitHub 
 Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (see [Branching Strategy](docs/BRANCHING_STRATEGY.md))
 3. Add comprehensive tests
 4. Ensure all CI checks pass
 5. Submit a pull request with theorem validation
+
+For detailed branch management instructions and git workflow, see the [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md). You can also use the branch management helper script:
+
+```bash
+# Set up local main branch tracking remote
+python scripts/branch_manager.py --setup
+
+# Check branch status
+python scripts/branch_manager.py --status
+
+# Sync with remote
+python scripts/branch_manager.py --sync
+```
 
 ## 📄 License
 
