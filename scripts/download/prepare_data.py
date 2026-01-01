@@ -24,6 +24,7 @@ from datetime import datetime, time
 import json
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -320,8 +321,9 @@ class DataPreparer:
             return None
 
     def prepare_all(self, test_ratio: float = 0.2, n_workers: int = None):
-        """Prepare all files in parallel."""
-        csv_files = sorted(self.master_dir.glob('*.csv'))
+        """Prepare all files in parallel with progress bar."""
+        # Search recursively for CSV files
+        csv_files = sorted(self.master_dir.rglob('*.csv'))
 
         if not csv_files:
             print(f"\n❌ No CSV files found in {self.master_dir}")
@@ -337,9 +339,8 @@ class DataPreparer:
         print(f"  Test ratio: {test_ratio:.1%} (chronologically AFTER train)")
 
         results = []
-        completed = 0
 
-        # Process files in parallel
+        # Process files in parallel with progress bar
         with ProcessPoolExecutor(max_workers=n_workers) as executor:
             # Submit all tasks
             future_to_file = {
@@ -348,19 +349,23 @@ class DataPreparer:
                 for filepath in csv_files
             }
 
-            # Collect results as they complete
-            for future in as_completed(future_to_file):
-                completed += 1
-                if completed % 10 == 0 or completed == len(csv_files):
-                    print(f"  Progress: {completed}/{len(csv_files)}", end='\r')
-
-                try:
-                    result = future.result()
-                    if result:
-                        results.append(result)
-                except Exception as e:
-                    filepath = future_to_file[future]
-                    print(f"\n❌ Error preparing {filepath.name}: {e}")
+            # Collect results with progress bar
+            with tqdm(total=len(csv_files), desc="Preparing files", unit="file") as pbar:
+                for future in as_completed(future_to_file):
+                    try:
+                        result = future.result()
+                        if result:
+                            results.append(result)
+                            pbar.set_postfix({
+                                'symbol': result['symbol'],
+                                'train': f"{result['train_bars']:,}",
+                                'test': f"{result['test_bars']:,}"
+                            })
+                    except Exception as e:
+                        filepath = future_to_file[future]
+                        print(f"\n❌ Error preparing {filepath.name}: {e}")
+                    
+                    pbar.update(1)
 
         print(f"\n✅ Prepared {len(results)} files")
 
@@ -428,33 +433,44 @@ def main():
         print(f"   Run download script first")
         return
 
-    # Check if data integrity was verified
-    print(f"\n⚠️  Reminder: Run data integrity check first")
-    print(f"   python scripts/check_data_integrity.py")
+    # Check for --auto flag for non-interactive mode
+    auto_mode = '--auto' in sys.argv or any(arg.startswith('--test-ratio=') for arg in sys.argv)
+    
+    # Get test ratio from command line or use default
+    test_ratio = 0.2
+    for arg in sys.argv:
+        if arg.startswith('--test-ratio='):
+            test_ratio = float(arg.split('=')[1])
+    
+    if not auto_mode:
+        # Interactive mode
+        # Check if data integrity was verified
+        print(f"\n⚠️  Reminder: Run data integrity check first")
+        print(f"   python scripts/check_data_integrity.py")
 
-    response = input(f"\nProceed with preparation? [1=Yes, 2=No]: ").strip()
-    if response != '1':
-        print(f"\n⚠️  Preparation cancelled")
-        return
+        response = input(f"\nProceed with preparation? [1=Yes, 2=No]: ").strip()
+        if response != '1':
+            print(f"\n⚠️  Preparation cancelled")
+            return
 
-    # Get test ratio
-    print(f"\nTrain/Test split:")
-    print(f"  1. 80% train / 20% test (default)")
-    print(f"  2. 70% train / 30% test")
-    print(f"  3. 90% train / 10% test")
-    print(f"  4. Custom")
+        # Get test ratio
+        print(f"\nTrain/Test split:")
+        print(f"  1. 80% train / 20% test (default)")
+        print(f"  2. 70% train / 30% test")
+        print(f"  3. 90% train / 10% test")
+        print(f"  4. Custom")
 
-    choice = input(f"\nSelect split [1-4]: ").strip()
+        choice = input(f"\nSelect split [1-4]: ").strip()
 
-    if choice == '2':
-        test_ratio = 0.3
-    elif choice == '3':
-        test_ratio = 0.1
-    elif choice == '4':
-        test_pct = input(f"Enter test percentage (e.g., 20 for 20%): ").strip()
-        test_ratio = float(test_pct) / 100
-    else:
-        test_ratio = 0.2
+        if choice == '2':
+            test_ratio = 0.3
+        elif choice == '3':
+            test_ratio = 0.1
+        elif choice == '4':
+            test_pct = input(f"Enter test percentage (e.g., 20 for 20%): ").strip()
+            test_ratio = float(test_pct) / 100
+        else:
+            test_ratio = 0.2
 
     print(f"\n✅ Using {int((1-test_ratio)*100)}% train / {int(test_ratio*100)}% test split")
 

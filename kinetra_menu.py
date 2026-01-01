@@ -24,6 +24,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
+from tqdm import tqdm
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -140,6 +141,39 @@ def print_submenu_header(text: str, breadcrumb: str = "", width: int = 80):
     else:
         print(f"  {text}")
     print("-" * width)
+
+
+def create_progress_bar(total: int, desc: str = "Processing", unit: str = "item") -> tqdm:
+    """
+    Create a progress bar for tracking operations.
+    
+    Args:
+        total: Total number of items
+        desc: Description for the progress bar
+        unit: Unit name (e.g., 'file', 'iteration')
+        
+    Returns:
+        tqdm progress bar object
+    """
+    return tqdm(
+        total=total,
+        desc=desc,
+        unit=unit,
+        bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+    )
+
+
+def show_progress_message(current: int, total: int, message: str):
+    """
+    Show progress message with counter.
+    
+    Args:
+        current: Current item number
+        total: Total items
+        message: Progress message
+    """
+    percentage = (current / total * 100) if total > 0 else 0
+    print(f"  [{current}/{total}] ({percentage:.0f}%) {message}")
 
 
 from typing import Dict, List, Optional, Tuple, Callable, Any
@@ -277,7 +311,7 @@ def get_input(
                 return input_type(choice)
             except (ValueError, TypeError):
                 print(f"❌ Invalid input. Please enter a valid {input_type.__name__}.")
-        except EOFError:
+        except (EOFError, StopIteration):
             print("\n\n⚠️  Input stream ended (EOF)")
             print("Exiting gracefully...")
             sys.exit(0)
@@ -292,7 +326,7 @@ def wait_for_enter(message: str = "\n📊 Press Enter to return to menu..."):
     """
     try:
         input(message)
-    except EOFError:
+    except (EOFError, StopIteration):
         # Input stream ended, just return silently
         pass
 
@@ -307,7 +341,7 @@ def confirm_action(message: str, default: bool = True) -> bool:
             return default
         
         return response in ['y', 'yes']
-    except EOFError:
+    except (EOFError, StopIteration):
         # Input stream ended, return default
         return default
 
