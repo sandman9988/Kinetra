@@ -160,7 +160,13 @@ def compare_fixed_vs_adaptive(df):
     wavelet = WaveletExtractor()
     features = wavelet.extract_features(df['close'])
     dominant_cycle = features['dominant_scale']
-    df['ma_adaptive'] = df['close'].rolling(dominant_cycle).mean()
+    # The .rolling(Series) syntax is invalid. This requires an iterative approach.
+    # The following is a conceptual, albeit slow, implementation for clarity.
+    ma_adaptive_values = [
+        df['close'].iloc[max(0, i - int(window) + 1):i + 1].mean()
+        for i, window in enumerate(dominant_cycle.fillna(1))
+    ]
+    df['ma_adaptive'] = ma_adaptive_values
     
     # Compare trading performance
     results_fixed = backtest_strategy(df, 'ma_fixed')
