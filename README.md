@@ -13,6 +13,33 @@ Kinetra is a **self-validating, physics-grounded algorithmic trading system** th
 - 🛡️ **Defense-in-Depth**: Multi-layer validation from unit tests to Monte Carlo backtesting
 - 🔄 **Self-Adaptive**: No fixed thresholds—all parameters are rolling percentiles
 - 🎯 **Regime-Aware**: Automatically detects underdamped, critical, and overdamped markets
+- 🔍 **Scientific Testing**: Comprehensive discovery methods with PBO/CPCV validation
+
+## 🧪 NEW: Scientific Testing Framework
+
+**Systematic discovery and validation of trading strategies**
+
+The Scientific Testing Framework implements a rigorous, automated testing programme:
+
+- **Discovery Methods**: Hidden dimensions (PCA/ICA), Chaos theory, Adversarial filtering, Meta-learning
+- **Statistical Validation**: PBO (Probability of Backtest Overfitting), CPCV, Bootstrap CI, Monte Carlo tests
+- **Auto-Execution**: Automatic error fixing, retry logic, checkpointing
+- **Integrated Backtesting**: Realistic cost modeling, efficiency metrics (MFE/MAE, Pythagorean)
+
+### Quick Start with Testing Framework
+
+```bash
+# Run complete scientific testing programme
+python scripts/run_scientific_testing.py --full
+
+# Quick validation run (10-20 minutes)
+python scripts/run_scientific_testing.py --quick
+
+# Run specific phase
+python scripts/run_scientific_testing.py --phase discovery
+```
+
+See [Scientific Testing Guide](docs/SCIENTIFIC_TESTING_GUIDE.md) for complete documentation.
 
 ## 🚀 Key Features
 
