@@ -104,7 +104,7 @@ class TestRiskManagement:
     
     def test_risk_gates(self):
         try:
-            rng = np.random.default_rng(123)  # Fixed seed for reproducibility
+            returns = pd.Series(rng.normal(loc=0, scale=1, size=100) * 0.01 + 0.001)
         except AttributeError:
             rng = np.random.RandomState(123)  # Fallback for older NumPy
         rng = np.random.default_rng(123)  # Fixed seed for reproducibility
