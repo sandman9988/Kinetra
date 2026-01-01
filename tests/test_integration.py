@@ -53,7 +53,8 @@ class TestIntegration:
         returns = prices.pct_change().dropna()
         ror = risk_mgr.calculate_risk_of_ruin(100000, 50000, returns)
         
-        # Agent - explicitly set state_dim to match the test state vector
+        # Agent - use simplified state_dim=10 for this test (not full physics state)
+        # This tests basic agent initialization and action selection, not full pipeline integration
         test_state_dim = 10
         agent = KinetraAgent(state_dim=test_state_dim)
         action = agent.select_action(np.zeros(test_state_dim))

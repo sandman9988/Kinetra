@@ -783,7 +783,7 @@ class PhysicsBacktestRunner:
         if strategies is None:
             strategies = list_strategies()
 
-        def run_strategy(strategy_name: str) -> Dict:
+        def run_strategy(strategy_name: str) -> Dict[str, Any]:
             """Run single strategy for parallel execution."""
             try:
                 result = self.run(data, strategy=strategy_name)

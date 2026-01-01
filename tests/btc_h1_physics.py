@@ -292,7 +292,9 @@ def run_backtest(df: pd.DataFrame, symbol_spec: SymbolSpec, physics_state: pd.Da
         timeframe="H1",
     )
 
-    # Create a wrapper that captures physics_state in closure
+    # Use closure to capture physics_state for signal function
+    # BacktestEngine expects signal_func(row, bar_index), so we wrap
+    # our physics_based_signal(row, physics_state, bar_index) accordingly
     def signal_wrapper(row: pd.Series, bar_index: int) -> int:
         return physics_based_signal(row, physics_state, bar_index)
 
