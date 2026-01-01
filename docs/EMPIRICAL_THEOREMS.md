@@ -522,7 +522,7 @@ From `docs/ACTION_PLAN.md`, Phase 3 is complete when:
 ### Validation Tools
 - `scripts/testing/validate_theorems.py` - Hypothesis testing
 - `scripts/testing/unified_test_framework.py` - Multi-algorithm comparison
-- `scripts/analysis/superpot_dsp_driven.py` - Feature exploration
+- `scripts/analysis/superpot_dsp_driven.py` - Feature exploration **(planned - see docs/ACTION_PLAN.md P0)**
 - `scripts/training/explore_specialization.py` - Specialization testing
 
 ### Academic References
