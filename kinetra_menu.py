@@ -786,6 +786,324 @@ def run_comparative_analysis(wf_manager: WorkflowManager):
 
 
 # =============================================================================
+# LIVE TESTING MENU
+# =============================================================================
+
+def show_live_testing_menu(wf_manager: WorkflowManager):
+    """Show live testing menu."""
+    print_header("LIVE TESTING (Virtual, Demo & Live Trading)")
+    
+    print("""
+Live testing with safety gates and real-time monitoring:
+  • Virtual/Paper trading (no real connection)
+  • Demo account testing (MT5 demo)
+  • Live connection testing
+  • Real-time CHS monitoring with circuit breakers
+  
+Safety Philosophy:
+  • NEVER deploy to live without demo validation
+  • Circuit breakers halt on CHS < 0.55
+  • All trades validated by OrderValidator
+  • Max trades limit prevents runaway execution
+
+Available options:
+  1. Virtual Trading (Paper Trading - No Connection Required)
+  2. Demo Account Testing (MT5 Demo - Safe Testing)
+  3. Test MT5 Connection (Connection Check Only)
+  4. View Live Testing Guide
+  0. Back to Main Menu
+    """)
+    
+    choice = get_input("Select option", ['0', '1', '2', '3', '4'])
+    
+    if choice == '0':
+        return
+    elif choice == '1':
+        run_virtual_trading(wf_manager)
+    elif choice == '2':
+        run_demo_account_testing(wf_manager)
+    elif choice == '3':
+        test_mt5_connection(wf_manager)
+    elif choice == '4':
+        show_live_testing_guide(wf_manager)
+
+
+def run_virtual_trading(wf_manager: WorkflowManager):
+    """Run virtual/paper trading test."""
+    print_submenu_header("Virtual Trading (Paper Trading)")
+    
+    print("""
+Virtual trading mode uses synthetic data stream for testing.
+  • No MT5 connection required
+  • Safe testing environment
+  • Real-time simulation with circuit breakers
+  • Identical code to live trading
+    """)
+    
+    # Configuration
+    print("\n🎯 Configuration:")
+    
+    # Select symbol
+    print("\nSymbol (default: EURUSD):")
+    symbol = input("  Enter symbol (or press Enter for default): ").strip() or "EURUSD"
+    
+    # Select agent type
+    print("\n🤖 Agent Type:")
+    print("  a. PPO (Proximal Policy Optimization)")
+    print("  b. DQN (Deep Q-Network)")
+    print("  c. Linear Q-Learning")
+    print("  d. Berserker Strategy")
+    print("  e. Triad System")
+    
+    agent_choice = get_input("Select agent", ['a', 'b', 'c', 'd', 'e'])
+    agent_map = {'a': 'ppo', 'b': 'dqn', 'c': 'linear', 'd': 'berserker', 'e': 'triad'}
+    agent_type = agent_map[agent_choice]
+    
+    # Duration
+    duration = get_input("Duration in minutes (default 60)", None)
+    duration = int(duration) if duration else 60
+    
+    # Max trades
+    max_trades = get_input("Max trades (default 10)", None)
+    max_trades = int(max_trades) if max_trades else 10
+    
+    # CHS threshold
+    chs_threshold = get_input("CHS circuit breaker (default 0.55)", None)
+    chs_threshold = float(chs_threshold) if chs_threshold else 0.55
+    
+    print("\n📋 Summary:")
+    print(f"  Mode: Virtual/Paper Trading")
+    print(f"  Symbol: {symbol}")
+    print(f"  Agent: {agent_type.upper()}")
+    print(f"  Duration: {duration} minutes")
+    print(f"  Max Trades: {max_trades}")
+    print(f"  CHS Threshold: {chs_threshold}")
+    
+    if not confirm_action("Start virtual trading test?"):
+        return
+    
+    print("\n🚀 Starting virtual trading test...")
+    
+    try:
+        import subprocess
+        result = subprocess.run([
+            sys.executable,
+            "scripts/testing/run_live_test.py",
+            "--mode", "virtual",
+            "--symbol", symbol,
+            "--agent", agent_type,
+            "--duration", str(duration),
+            "--max-trades", str(max_trades),
+            "--chs-threshold", str(chs_threshold)
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Virtual trading test complete!")
+        else:
+            print(f"\n❌ Test failed (exit code {result.returncode})")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
+
+
+def run_demo_account_testing(wf_manager: WorkflowManager):
+    """Run demo account testing."""
+    print_submenu_header("Demo Account Testing")
+    
+    print("""
+⚠️  IMPORTANT: Demo account testing requires:
+  1. MT5 terminal running
+  2. Demo account configured
+  3. MetaTrader5 Python package installed
+  
+This will execute REAL trades on your DEMO account!
+    """)
+    
+    # Safety check
+    if not confirm_action("Have you verified MT5 is running with demo account?", default=False):
+        print("\n⚠️  Please set up MT5 demo account first")
+        print("   1. Launch MT5 terminal")
+        print("   2. Create/login to demo account")
+        print("   3. Enable automated trading (Tools → Options → Expert Advisors)")
+        input("\nPress Enter to return to menu...")
+        return
+    
+    # Configuration (similar to virtual)
+    print("\n🎯 Configuration:")
+    
+    symbol = input("  Symbol (default: EURUSD): ").strip() or "EURUSD"
+    
+    print("\n🤖 Agent Type:")
+    print("  a. PPO  b. DQN  c. Linear  d. Berserker  e. Triad")
+    agent_choice = get_input("Select agent", ['a', 'b', 'c', 'd', 'e'])
+    agent_map = {'a': 'ppo', 'b': 'dqn', 'c': 'linear', 'd': 'berserker', 'e': 'triad'}
+    agent_type = agent_map[agent_choice]
+    
+    duration = int(input("  Duration in minutes (default 30): ").strip() or "30")
+    max_trades = int(input("  Max trades (default 5): ").strip() or "5")
+    chs_threshold = float(input("  CHS threshold (default 0.55): ").strip() or "0.55")
+    
+    print("\n📋 Summary:")
+    print(f"  Mode: DEMO ACCOUNT (Real trades on demo)")
+    print(f"  Symbol: {symbol}")
+    print(f"  Agent: {agent_type.upper()}")
+    print(f"  Duration: {duration} minutes")
+    print(f"  Max Trades: {max_trades}")
+    print(f"  CHS Threshold: {chs_threshold}")
+    
+    print("\n⚠️  Final confirmation: This will trade on your demo account!")
+    if not confirm_action("Proceed with demo testing?", default=False):
+        return
+    
+    print("\n🚀 Starting demo account test...")
+    
+    try:
+        import subprocess
+        result = subprocess.run([
+            sys.executable,
+            "scripts/testing/run_live_test.py",
+            "--mode", "demo",
+            "--symbol", symbol,
+            "--agent", agent_type,
+            "--duration", str(duration),
+            "--max-trades", str(max_trades),
+            "--chs-threshold", str(chs_threshold)
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Demo test complete!")
+        else:
+            print(f"\n❌ Test failed (exit code {result.returncode})")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
+
+
+def test_mt5_connection(wf_manager: WorkflowManager):
+    """Test MT5 connection."""
+    print_submenu_header("Test MT5 Connection")
+    
+    print("\n🔌 Testing connection to MT5 terminal...")
+    print("   This will verify:")
+    print("   • MT5 terminal is running")
+    print("   • Python can connect to MT5")
+    print("   • Account is accessible")
+    print("   • Automated trading is enabled")
+    print("")
+    
+    try:
+        import subprocess
+        result = subprocess.run([
+            sys.executable,
+            "scripts/testing/run_live_test.py",
+            "--test-connection"
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Connection test passed!")
+        else:
+            print("\n❌ Connection test failed")
+            print("\n   Troubleshooting:")
+            print("   1. Make sure MT5 terminal is running")
+            print("   2. Check that MetaTrader5 package is installed:")
+            print("      pip install MetaTrader5")
+            print("   3. Enable automated trading in MT5:")
+            print("      Tools → Options → Expert Advisors → Allow automated trading")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
+
+
+def show_live_testing_guide(wf_manager: WorkflowManager):
+    """Show live testing guide."""
+    print_submenu_header("Live Testing Guide")
+    
+    print("""
+KINETRA LIVE TESTING GUIDE
+==========================
+
+1. TESTING PROGRESSION (ALWAYS follow this order!)
+   
+   Step 1: Virtual Trading (Paper Trading)
+   ├─→ No MT5 connection required
+   ├─→ Safe testing environment
+   ├─→ Validates agent logic
+   └─→ Identifies obvious issues
+   
+   Step 2: Demo Account Testing
+   ├─→ Real MT5 connection
+   ├─→ Real market data
+   ├─→ Real trade execution (but demo money)
+   └─→ Final validation before live
+   
+   Step 3: Live Trading (NOT in this menu - requires approval)
+   ├─→ Only after successful demo testing
+   ├─→ Start with minimal capital
+   ├─→ Monitor CHS continuously
+   └─→ Have kill switch ready
+
+2. SAFETY FEATURES
+   
+   Circuit Breakers:
+   • Automatically halt if CHS < 0.55
+   • Monitor in real-time
+   • Resume when CHS recovers
+   
+   Trade Limits:
+   • Max trades per session
+   • Position size limits
+   • Drawdown gates
+   
+   Validation:
+   • All orders validated by OrderValidator
+   • MT5 constraints enforced (stops level, freeze level)
+   • Automatic adjustment of invalid parameters
+
+3. REQUIRED SETUP
+   
+   For Demo/Live Testing:
+   a) Install MetaTrader5 package:
+      pip install MetaTrader5
+   
+   b) Launch MT5 terminal
+   
+   c) Enable automated trading:
+      Tools → Options → Expert Advisors
+      ✓ Allow automated trading
+      ✓ Allow DLL imports
+      ✓ Disable "Ask manual confirmation"
+   
+   d) Verify connection:
+      Use "Test MT5 Connection" option in menu
+
+4. BEST PRACTICES
+   
+   • ALWAYS start with virtual trading
+   • Test on demo for at least 1 week
+   • Monitor CHS continuously
+   • Never override circuit breakers
+   • Keep detailed logs
+   • Review all trades manually
+   
+5. PERFORMANCE TARGETS
+   
+   Before moving to next stage:
+   • CHS > 0.90 consistently
+   • Omega Ratio > 2.7
+   • % Energy Captured > 65%
+   • Zero validator rejections
+   • Circuit breakers working correctly
+
+Press Enter to return to menu...
+    """)
+    
+    input()
+
+
+# =============================================================================
 # DATA MANAGEMENT MENU
 # =============================================================================
 
@@ -1383,8 +1701,9 @@ Main Options:
   1. Login & Authentication
   2. Exploration Testing (Hypothesis & Theorem Generation)
   3. Backtesting (ML/RL EA Validation)
-  4. Data Management
-  5. System Status & Health
+  4. Live Testing (Virtual, Demo & Live Trading)
+  5. Data Management
+  6. System Status & Health
   0. Exit
 
 Philosophy:
@@ -1394,7 +1713,7 @@ Philosophy:
   • Automated workflows
     """)
     
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5'])
+    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'])
     
     if choice == '0':
         return False
@@ -1405,8 +1724,10 @@ Philosophy:
     elif choice == '3':
         show_backtesting_menu(wf_manager)
     elif choice == '4':
-        show_data_management_menu(wf_manager)
+        show_live_testing_menu(wf_manager)
     elif choice == '5':
+        show_data_management_menu(wf_manager)
+    elif choice == '6':
         show_system_status_menu(wf_manager)
     
     return True
