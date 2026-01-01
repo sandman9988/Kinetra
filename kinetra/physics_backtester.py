@@ -799,6 +799,7 @@ class PhysicsBacktestRunner:
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
 
         # Use parallel execution only if explicitly enabled and there are enough strategies
+        # Threshold of 3 ensures overhead of parallelization is worthwhile
         if parallel and n_workers > 1 and len(strategies) >= 3:
             # Parallel strategy comparison
             with ProcessPoolExecutor(max_workers=n_workers) as executor:
