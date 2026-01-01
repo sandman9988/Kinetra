@@ -215,8 +215,12 @@ class E2ETestOrchestrator:
         }
         
         with open(self.checkpoint_file, 'w') as f:
-            json.dump(checkpoint, f, indent=2, default=str)
-        
+            import os, tempfile
+
+            tmp_path = self.checkpoint_file.with_suffix('.tmp')
+            with open(tmp_path, 'w') as f:
+                json.dump(checkpoint, f, indent=2, default=str)
+            os.replace(tmp_path, self.checkpoint_file)
         self.workflow_manager.logger.debug(f"Checkpoint saved: {self.checkpoint_file}")
     
     def load_checkpoint(self, checkpoint_file: Path) -> bool:
