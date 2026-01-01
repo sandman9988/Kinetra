@@ -239,6 +239,34 @@ class PhysicsEngine:
         uncertainty = x.rolling(chaos_window).std() * momentum.rolling(chaos_window).std()
         phase = pd.Series(np.angle(analytic), index=prices.index)
 
+        # Non-linear and asymmetric features
+        v_skew = v.rolling(chaos_window, min_periods=1).apply(lambda x: skew(x), raw=True).fillna(0)
+        v_kurt = v.rolling(chaos_window, min_periods=1).apply(lambda x: kurtosis(x), raw=True).fillna(0)
+        
+        # Asymmetric rate of return (up vs down moves)
+        asymmetric_ror_up = v.where(v > 0, 0).rolling(chaos_window, min_periods=1).mean().fillna(0)
+        asymmetric_ror_down = v.where(v < 0, 0).rolling(chaos_window, min_periods=1).mean().fillna(0)
+        
+        # Asymmetric mean reversion (up vs down)
+        asymmetric_mr_up = (x - x.rolling(damping_window).mean()).where(v > 0, 0).rolling(damping_window, min_periods=1).mean().fillna(0)
+        asymmetric_mr_down = (x - x.rolling(damping_window).mean()).where(v < 0, 0).rolling(damping_window, min_periods=1).mean().fillna(0)
+        
+        # Non-symmetric entropy (separate entropy for up vs down moves)
+        def directional_entropy(series, direction='up'):
+            if direction == 'up':
+                filtered = series[series > 0]
+            else:
+                filtered = series[series < 0]
+            if len(filtered) < 2:
+                return 0.0
+            hist, _ = np.histogram(filtered, bins=10)
+            p = hist / (hist.sum() + 1e-12)
+            return -np.sum(p * np.log(p + 1e-12))
+        
+        non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
+            lambda s: directional_entropy(s, 'up') - directional_entropy(s, 'down'), raw=True
+        ).fillna(0)
+
         # Update df_raw with new non-linear features
 
         # Regime clustering (unsupervised, no gating, auto-select n_components via BIC)
@@ -421,7 +449,7 @@ class PhysicsEngine:
                     .fillna(0.5)
                 )
 
-        return result.fillna(method="bfill").fillna(0.0)
+        return result.bfill().fillna(0.0)
 
     @staticmethod
     def _compute_regime_age(regime_series: pd.Series) -> pd.Series:
@@ -463,6 +491,17 @@ def analyze_regime_quality(
             "Hs": physics_state["entropy"],
             "PE": physics_state["PE"],
             "eta": physics_state["eta"],
+            "v": physics_state["v"],
+            "geometric_v": np.exp(physics_state["v"]) - 1,
+            "mr_exp_rate": physics_state["v"].rolling(50, min_periods=5).mean(),  # Simplified MR rate
+            "v_skew": physics_state["v_skew"],
+            "v_kurt": physics_state["v_kurt"],
+            "asymmetric_ror_up": physics_state["asymmetric_ror_up"],
+            "asymmetric_ror_down": physics_state["asymmetric_ror_down"],
+            "asymmetric_mr_up": physics_state["asymmetric_mr_up"],
+            "asymmetric_mr_down": physics_state["asymmetric_mr_down"],
+            "symmetry_index": 0.0,  # Will be computed below
+            "asym_divergence": 0.0,  # Will be computed below
         }
     ).dropna()
 
@@ -561,7 +600,7 @@ def analyze_regime_quality(
 
     return {
         "stats": cluster_stats.to_dict(),
-        "correlations": corr_matrix.to_dict(),
+        "correlations": pearson_corr.to_dict(),
         "distances": distances,
     }
 
@@ -740,24 +779,6 @@ def main():
 
     # ML/RL analysis
     ml_rl_results = ml_rl_analysis(physics_state, df)
-
-
-if __name__ == "__main__":
-    main()
-    # Universality linearity check (example for BTC; extend to combined DF)
-    print("\nUniversality Linearity Check (Divergence % across assets):")
-    # Placeholder - in full impl, loop over symbols from combined DF
-    print("BTC: 25% clusters show >20% divergence between linear/non-linear metrics")
-    # e.g., FX: 40%, Indices: 15% - high divergence in non-linear assets
-
-    print("\nQuestioning Symmetry in Universality:")
-    print("Average symmetry index across clusters: {:.2f} (0 = perfect symmetry)".format(symmetry_per_cluster.mean()))
-    # Extend to cross-asset: e.g., FX high asymmetry in down moves, crypto symmetric in energy
-
-    print("\nUniversality of Return Divergence (avg diff bps across assets):")
-    # Placeholder - in full impl, compute from combined DF
-    print("BTC: Avg diff 5.2 bps, 30% divergence")
-
 
 if __name__ == "__main__":
     main()
