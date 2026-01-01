@@ -313,7 +313,7 @@ class ChaosTheoryDiscovery(DiscoveryMethod):
             initial_diff = abs(time_series[i] - time_series[i + 1])
             evolved_diff = abs(time_series[i + lag] - time_series[i + lag + 1])
             
-            if initial_diff > 1e-10:
+            if initial_diff > 1e-10 and evolved_diff > 1e-10:
                 divergence = np.log(evolved_diff / initial_diff)
                 divergences.append(divergence)
         

@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class TestExecutionConfig:
+class ExecutionConfig:
     """Configuration for automated test execution."""
     name: str
     max_retries: int = 3
@@ -54,7 +54,7 @@ class TestExecutionConfig:
 
 
 @dataclass
-class TestFailure:
+class FailureRecord:
     """Record of a test failure."""
     test_name: str
     timestamp: datetime
@@ -75,7 +75,7 @@ class ExecutionProgress:
     failed_tests: int
     skipped_tests: int
     current_test: Optional[str] = None
-    failures: List[TestFailure] = field(default_factory=list)
+    failures: List[FailureRecord] = field(default_factory=list)
     start_time: datetime = field(default_factory=datetime.now)
     last_checkpoint: Optional[datetime] = None
 
@@ -99,7 +99,7 @@ class AutoFixer:
         
         self.fixes_applied: List[Dict[str, Any]] = []
     
-    def attempt_fix(self, failure: TestFailure, context: Dict[str, Any]) -> Tuple[bool, str]:
+    def attempt_fix(self, failure: FailureRecord, context: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Attempt to automatically fix a failure.
         
@@ -131,7 +131,7 @@ class AutoFixer:
         else:
             return False, f"No auto-fix strategy for {error_type}"
     
-    def _fix_import_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_import_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix import errors by installing missing dependencies."""
         error_msg = failure.error_message
         
@@ -154,7 +154,7 @@ class AutoFixer:
         
         return False, "Could not identify missing module"
     
-    def _fix_value_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_value_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix value errors by adjusting parameters."""
         error_msg = failure.error_message
         
@@ -174,7 +174,7 @@ class AutoFixer:
         
         return False, "Could not identify value error fix"
     
-    def _fix_runtime_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_runtime_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix runtime errors."""
         error_msg = failure.error_message
         
@@ -186,7 +186,7 @@ class AutoFixer:
         
         return False, "Could not identify runtime error fix"
     
-    def _fix_memory_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_memory_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix memory errors by reducing batch size or complexity."""
         if 'config' in context:
             # Reduce episodes
@@ -196,7 +196,7 @@ class AutoFixer:
         
         return False, "Could not reduce memory usage"
     
-    def _fix_timeout_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_timeout_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix timeout errors by reducing scope."""
         if 'config' in context:
             # Reduce complexity
@@ -206,7 +206,7 @@ class AutoFixer:
         
         return False, "Could not reduce execution time"
     
-    def _fix_data_error(self, failure: TestFailure, context: Dict) -> Tuple[bool, str]:
+    def _fix_data_error(self, failure: FailureRecord, context: Dict) -> Tuple[bool, str]:
         """Fix data errors by skipping or reloading data."""
         return False, "Manual data intervention required"
 
@@ -421,7 +421,7 @@ class TestExecutor:
     5. Result aggregation
     """
     
-    def __init__(self, config: TestExecutionConfig, output_dir: str = "test_execution"):
+    def __init__(self, config: ExecutionConfig, output_dir: str = "test_execution"):
         self.config = config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -534,7 +534,7 @@ class TestExecutor:
                 
                 logger.error(f"✗ Test failed: {error_type}: {error_msg}")
                 
-                failure = TestFailure(
+                failure = FailureRecord(
                     test_name=test_name,
                     timestamp=datetime.now(),
                     error_type=error_type,
