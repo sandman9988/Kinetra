@@ -491,9 +491,10 @@ def profile_file_operations(profiler: PerformanceProfiler):
     test_dir = Path("logs/profile_test_io")
     
     def create_and_cleanup():
-        test_dir.mkdir(parents=True, exist_ok=True)
-        test_dir.rmdir()
-    
+        import tempfile
+        with tempfile.TemporaryDirectory(dir="logs", prefix="profile_test_io_") as tmp:
+            Path(tmp).mkdir(parents=True, exist_ok=True)
+
     profiler.profile_operation(
         "file_create_directory",
         create_and_cleanup
