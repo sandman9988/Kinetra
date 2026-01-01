@@ -39,7 +39,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kinetra.discovery_methods import DiscoveryMethodRunner
-from kinetra.test_executor import TestExecutor, ExecutionConfig, StatisticalRigor
+from kinetra.test_executor import StatisticalRigor
 from kinetra.testing_framework import TestingFramework, TestConfiguration, InstrumentSpec
 from kinetra.integrated_backtester import IntegratedBacktester
 
