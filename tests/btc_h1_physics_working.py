@@ -253,17 +253,20 @@ class PhysicsEngine:
         
         # Non-symmetric entropy (separate entropy for up vs down moves)
         def combined_directional_entropy(series):
+            series = np.asarray(series, dtype=float)
+            series = series[np.isfinite(series)]
+
             up_filtered = series[series > 0]
             down_filtered = series[series < 0]
 
             up_entropy = 0.0
-            if len(up_filtered) >= 2:
+            if up_filtered.size >= 2:
                 up_hist, _ = np.histogram(up_filtered, bins=10)
                 up_p = up_hist / (up_hist.sum() + 1e-12)
                 up_entropy = -np.sum(up_p * np.log(up_p + 1e-12))
 
             down_entropy = 0.0
-            if len(down_filtered) >= 2:
+            if down_filtered.size >= 2:
                 down_hist, _ = np.histogram(down_filtered, bins=10)
                 down_p = down_hist / (down_hist.sum() + 1e-12)
                 down_entropy = -np.sum(down_p * np.log(down_p + 1e-12))
