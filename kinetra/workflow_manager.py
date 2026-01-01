@@ -32,6 +32,23 @@ from dataclasses import dataclass, field, asdict
 from contextlib import contextmanager
 
 
+# Instance pool for WorkflowManager
+_workflow_manager_pool: Dict[str, "WorkflowManager"] = {}
+
+
+def _get_pool_key(
+    log_dir: str,
+    backup_dir: str,
+    state_dir: str,
+    enable_backups: bool,
+    enable_checksums: bool,
+    max_retries: int,
+    retry_delay: float
+) -> str:
+    """Generate a unique key for WorkflowManager instance pooling."""
+    return f"{log_dir}:{backup_dir}:{state_dir}:{enable_backups}:{enable_checksums}:{max_retries}:{retry_delay}"
+
+
 @dataclass
 class WorkflowStep:
     """Represents a single workflow step."""

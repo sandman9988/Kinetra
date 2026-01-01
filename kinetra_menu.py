@@ -21,6 +21,7 @@ Usage:
 """
 
 import sys
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -135,16 +136,19 @@ class MenuConfig:
     }
     
     @classmethod
+    @lru_cache(maxsize=1)
     def get_all_asset_classes(cls) -> List[str]:
         """Get list of all asset classes."""
         return list(cls.ASSET_CLASSES.keys())
     
     @classmethod
+    @lru_cache(maxsize=1)
     def get_all_timeframes(cls) -> List[str]:
         """Get list of all timeframes."""
         return list(cls.TIMEFRAMES.keys())
     
     @classmethod
+    @lru_cache(maxsize=1)
     def get_all_agent_types(cls) -> List[str]:
         """Get list of all agent types."""
         return list(cls.AGENT_TYPES.keys())
