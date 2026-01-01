@@ -53,9 +53,13 @@ class TestIntegration:
         returns = prices.pct_change().dropna()
         ror = risk_mgr.calculate_risk_of_ruin(100000, 50000, returns)
         
-        # Agent (placeholder) - use state_dim=10 to match test state
-        agent = KinetraAgent(state_dim=10)
-        action = agent.select_action(np.zeros(10))
+        # Agent - use simplified state_dim=10 for this test (not full physics state)
+        # This tests basic agent initialization and action selection, not full pipeline integration
+        # Note: state_dim=10 is arbitrary but small enough to test without heavy computation
+        # The full physics state has 43 dimensions, but this test only validates API contract
+        test_state_dim = 10
+        agent = KinetraAgent(state_dim=test_state_dim)
+        action = agent.select_action(np.zeros(test_state_dim))
         
         # Should complete pipeline
         assert state is not None

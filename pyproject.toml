@@ -39,6 +39,10 @@ include = ["kinetra*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# Exclude demo/standalone scripts that are not actual tests
+norecursedirs = [".git", ".tox", "dist", "build", "*.egg"]
 
 [tool.black]
 line-length = 100
