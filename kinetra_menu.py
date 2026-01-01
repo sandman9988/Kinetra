@@ -248,45 +248,68 @@ def get_input(
         User input (validated and type-converted)
     """
     while True:
-        # Show navigation hints
-        hint = ""
-        if allow_back and valid_choices:
-            hint = " (0=back, q=exit)"
-            
-        choice = input(f"\n{prompt}{hint}: ").strip()
-        choice_lower = choice.lower()
-        
-        # Handle navigation shortcuts
-        if allow_back:
-            if choice_lower in ['exit', 'quit', 'q']:
-                print("\n👋 Exiting Kinetra...")
-                sys.exit(0)
-            elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
-                choice = '0'  # Normalize to '0'
-                
-        if valid_choices and choice not in valid_choices:
-            print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
-            print("   Shortcuts: 0=back, q=quit")
-            continue
-
-        if not choice and input_type is not str:
-            return None
-
         try:
-            return input_type(choice)
-        except (ValueError, TypeError):
-            print(f"❌ Invalid input. Please enter a valid {input_type.__name__}.")
+            # Show navigation hints
+            hint = ""
+            if allow_back and valid_choices:
+                hint = " (0=back, q=exit)"
+                
+            choice = input(f"\n{prompt}{hint}: ").strip()
+            choice_lower = choice.lower()
+            
+            # Handle navigation shortcuts
+            if allow_back:
+                if choice_lower in ['exit', 'quit', 'q']:
+                    print("\n👋 Exiting Kinetra...")
+                    sys.exit(0)
+                elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
+                    choice = '0'  # Normalize to '0'
+                    
+            if valid_choices and choice not in valid_choices:
+                print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
+                print("   Shortcuts: 0=back, q=quit")
+                continue
+
+            if not choice and input_type is not str:
+                return None
+
+            try:
+                return input_type(choice)
+            except (ValueError, TypeError):
+                print(f"❌ Invalid input. Please enter a valid {input_type.__name__}.")
+        except EOFError:
+            print("\n\n⚠️  Input stream ended (EOF)")
+            print("Exiting gracefully...")
+            sys.exit(0)
+
+
+def wait_for_enter(message: str = "\n📊 Press Enter to return to menu..."):
+    """
+    Wait for user to press Enter, handling EOF gracefully.
+    
+    Args:
+        message: Message to display
+    """
+    try:
+        input(message)
+    except EOFError:
+        # Input stream ended, just return silently
+        pass
 
 
 def confirm_action(message: str, default: bool = True) -> bool:
     """Ask user to confirm an action."""
-    default_str = "Y/n" if default else "y/N"
-    response = input(f"\n{message} [{default_str}]: ").strip().lower()
-    
-    if not response:
+    try:
+        default_str = "Y/n" if default else "y/N"
+        response = input(f"\n{message} [{default_str}]: ").strip().lower()
+        
+        if not response:
+            return default
+        
+        return response in ['y', 'yes']
+    except EOFError:
+        # Input stream ended, return default
         return default
-    
-    return response in ['y', 'yes']
 
 
 # =============================================================================
@@ -1192,7 +1215,7 @@ KINETRA LIVE TESTING GUIDE
 Press Enter to return to menu...
     """)
     
-    input()
+    wait_for_enter("")
 
 
 # =============================================================================
