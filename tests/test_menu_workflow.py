@@ -436,9 +436,10 @@ def test_input_validation(logger: WorkflowTestLogger):
         
         # Test invalid main menu choice (should retry)
         logger.log_action("Testing: Invalid input → retry → valid input")
-        with mock_input_sequence('99', 'invalid', '0'):
+        with mock_input_sequence('99', 'invalid', '0', '0'):
             with capture_output():
-                kinetra_menu.show_main_menu(wf_manager)
+                result = kinetra_menu.show_main_menu(wf_manager)
+        assert result == False, "Menu should exit cleanly after invalid inputs"
         
         logger.log_action("Input validation handles invalid choices correctly")
         
