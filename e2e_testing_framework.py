@@ -306,7 +306,18 @@ class E2ETestRunner:
             if self.config.instruments == ['all']:
                 instruments_by_class[asset_class] = InstrumentRegistry.get_instruments(asset_class)
             elif self.config.instruments[0].startswith('top_'):
-                n = int(self.config.instruments[0].split('_')[1])
+                parts = self.config.instruments[0].split('_', 1)
+                if len(parts) != 2 or not parts[1].isdigit():
+                    raise ValueError(
+                        f"Invalid instruments specification '{self.config.instruments[0]}'. "
+                        "Expected format 'top_<positive_integer>'."
+                    )
+                n = int(parts[1])
+                if n <= 0:
+                    raise ValueError(
+                        f"Invalid instruments specification '{self.config.instruments[0]}'. "
+                        "Value after 'top_' must be a positive integer."
+                    )
                 instruments_by_class[asset_class] = InstrumentRegistry.get_top_instruments(asset_class, n)
             else:
                 instruments_by_class[asset_class] = self.config.instruments
