@@ -6,7 +6,6 @@ Tests the core components of the E2E test without requiring actual MetaAPI conne
 """
 
 import sys
-import json
 import tempfile
 import asyncio
 from pathlib import Path
