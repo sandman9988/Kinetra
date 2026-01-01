@@ -9,7 +9,6 @@ import sys
 import tempfile
 import asyncio
 from pathlib import Path
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
 
 import pytest
 
