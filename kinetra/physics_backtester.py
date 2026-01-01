@@ -742,10 +742,31 @@ class PhysicsBacktestRunner:
 
         return self._process_results(stats, strategy)
 
+    @staticmethod
+    def _create_error_result(strategy_name: str, error: Exception) -> Dict[str, Any]:
+        """
+        Create a standardized error result dictionary.
+        
+        Args:
+            strategy_name: Name of the strategy that failed
+            error: The exception that was raised
+            
+        Returns:
+            Dict with error info and zero metrics
+        """
+        return {
+            "strategy": strategy_name,
+            "error": str(error),
+            "Return [%]": 0.0,
+            "Max. Drawdown [%]": 0.0,
+            "# Trades": 0,
+        }
+
     def compare_strategies(
         self,
         data: pd.DataFrame,
-        strategies: Optional[List[str]] = None
+        strategies: Optional[List[str]] = None,
+        parallel: bool = False
     ) -> pd.DataFrame:
         """
         Compare multiple strategies on the same data.
@@ -753,6 +774,7 @@ class PhysicsBacktestRunner:
         Args:
             data: OHLCV DataFrame
             strategies: List of strategy names (all if None)
+            parallel: If True, use parallel execution (may have pickling issues in some environments)
 
         Returns:
             DataFrame comparing strategy performance
@@ -767,13 +789,18 @@ class PhysicsBacktestRunner:
                 result["strategy"] = strategy_name
                 return result
             except Exception as e:
-                print(f"Error running {strategy_name}: {e}")
-                return None
+                import traceback
+                error_msg = f"Error running {strategy_name}: {e}\n{traceback.format_exc()}"
+                print(error_msg)
+                # Return a dict with error info instead of None to help debugging
+                return self._create_error_result(strategy_name, e)
 
         results = []
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
 
-        if n_workers > 1 and len(strategies) >= 3:
+        # Use parallel execution only if explicitly enabled and there are enough strategies
+        # Threshold of 3 ensures overhead of parallelization is worthwhile
+        if parallel and n_workers > 1 and len(strategies) >= 3:
             # Parallel strategy comparison
             with ProcessPoolExecutor(max_workers=n_workers) as executor:
                 futures = {executor.submit(run_strategy, name): name for name in strategies}
@@ -782,7 +809,7 @@ class PhysicsBacktestRunner:
                     if result is not None:
                         results.append(result)
         else:
-            # Sequential for small comparisons
+            # Sequential execution (safer, especially for tests)
             for strategy_name in strategies:
                 result = run_strategy(strategy_name)
                 if result is not None:
@@ -947,4 +974,6 @@ def calculate_physics_metrics(data: pd.DataFrame, results: Dict) -> Dict[str, fl
         "regime_underdamped_pct": float(regime_dist.get('underdamped', 0)),
         "regime_critical_pct": float(regime_dist.get('critical', 0)),
         "regime_overdamped_pct": float(regime_dist.get('overdamped', 0)),
+        "regime_laminar_pct": float(regime_dist.get('laminar', 0)),
+        "regime_breakout_pct": float(regime_dist.get('breakout', 0)),
     }

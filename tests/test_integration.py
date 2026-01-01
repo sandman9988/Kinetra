@@ -53,9 +53,10 @@ class TestIntegration:
         returns = prices.pct_change().dropna()
         ror = risk_mgr.calculate_risk_of_ruin(100000, 50000, returns)
         
-        # Agent (placeholder)
-        agent = KinetraAgent()
-        action = agent.select_action(np.zeros(10))
+        # Agent (placeholder) - use state_dim=10 to match test state vector size
+        test_state_dim = 10
+        agent = KinetraAgent(state_dim=test_state_dim)
+        action = agent.select_action(np.zeros(test_state_dim))
         
         # Should complete pipeline
         assert state is not None

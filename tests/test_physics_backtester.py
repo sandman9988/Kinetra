@@ -436,7 +436,9 @@ class TestPhysicsMetrics:
 
         total = (metrics['regime_underdamped_pct'] +
                  metrics['regime_critical_pct'] +
-                 metrics['regime_overdamped_pct'])
+                 metrics['regime_overdamped_pct'] +
+                 metrics.get('regime_laminar_pct', 0) +
+                 metrics.get('regime_breakout_pct', 0))
 
         assert abs(total - 100) < 1  # Within 1% due to rounding
 
