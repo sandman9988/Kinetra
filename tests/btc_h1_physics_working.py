@@ -273,6 +273,13 @@ class PhysicsEngine:
         non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
             combined_directional_entropy, raw=True
         ).fillna(0)
+                down_entropy = -np.sum(down_p * np.log(down_p + 1e-12))
+    
+            return up_entropy - down_entropy
+
+        non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
+            combined_directional_entropy, raw=True
+        ).fillna(0)
 
         # Update df_raw with new non-linear features
 
