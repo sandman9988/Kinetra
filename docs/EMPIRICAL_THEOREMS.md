@@ -67,7 +67,7 @@ For a hypothesis to be promoted to an empirical theorem, it **MUST** satisfy:
 
 ### Hypothesis
 
-Underdamped regime states have significantly higher probability of high-energy release in the next time period compared to the baseline (general population) probability.
+Underdamped regime states have significantly higher probability of high-energy release in the next time period compared to the baseline probability.
 
 ### Mathematical Formulation
 
@@ -169,10 +169,14 @@ def compare_fixed_vs_adaptive(df):
     # Statistical comparison (paired t-test on Sharpe ratios)
     # Run multiple bootstrap samples to get Sharpe distribution
     from scipy.stats import ttest_rel
+    # Note: bootstrap_sharpe() is a utility function to be implemented
+    # that resamples trades and recalculates Sharpe ratio n_samples times
     sharpe_samples_fixed = bootstrap_sharpe(results_fixed, n_samples=1000)
     sharpe_samples_adaptive = bootstrap_sharpe(results_adaptive, n_samples=1000)
     t_stat, p_value = ttest_rel(sharpe_samples_adaptive, sharpe_samples_fixed)
     
+    # Note: cohen_d() calculates standardized effect size (mean diff / pooled std)
+    # Reference: kinetra/statistical_utils.py (to be implemented)
     effect_size = cohen_d(sharpe_samples_adaptive, sharpe_samples_fixed)
     
     return {
