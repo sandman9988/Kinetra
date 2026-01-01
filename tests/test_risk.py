@@ -103,10 +103,7 @@ class TestRiskManagement:
         assert position == 0  # Circuit breaker
     
     def test_risk_gates(self):
-        rng = np.random.Generator(np.random.PCG64(123))  # Fixed seed + explicit algorithm for reproducibility
-        returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
-        except AttributeError:
-            rng = np.random.RandomState(123)  # Fallback for older NumPy
+        """Test risk gates with fixed seed for reproducibility."""
         rng = np.random.default_rng(123)  # Fixed seed for reproducibility
         returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
         manager = RiskManager()
