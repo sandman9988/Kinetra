@@ -456,7 +456,25 @@ def run_comprehensive_exploration(
     n_loaded = loader.load_all(verbose=verbose)
 
     if n_loaded == 0:
+        print("\n" + "=" * 80)
         print("[ERROR] No instruments loaded!")
+        print("=" * 80)
+        print("\n🔍 Troubleshooting:")
+        print(f"  1. Check that data files exist in: {standardized_dir}")
+        print(f"  2. Files should be in subdirectories (crypto/, forex/, etc.)")
+        print(f"  3. File format: INSTRUMENT_TIMEFRAME_START_END.csv")
+        print(f"  4. Run data download: python scripts/download/download_interactive.py")
+        print(f"\n📁 Directory contents:")
+        from pathlib import Path
+        data_path = Path(standardized_dir)
+        if data_path.exists():
+            subdirs = [d.name for d in data_path.iterdir() if d.is_dir()]
+            print(f"  Subdirectories: {subdirs if subdirs else 'None found'}")
+            csv_count = len(list(data_path.glob("**/*.csv")))
+            print(f"  Total CSV files: {csv_count}")
+        else:
+            print(f"  ❌ Directory does not exist: {standardized_dir}")
+        print("=" * 80)
         return None
 
     # Create feature extractor
@@ -727,8 +745,13 @@ def standardize_data(source_dir: str) -> str:
     output_dir = str(source_path) + "_standardized"
     output_path = Path(output_dir)
 
+    # Search for CSV files in root and all subdirectories
     csv_files = list(source_path.glob("*.csv"))
+    csv_files.extend(source_path.glob("**/*.csv"))
+    csv_files = list(set(csv_files))  # Remove duplicates
+    
     if not csv_files:
+        print(f"  [WARN] No CSV files found in {source_dir}")
         return source_dir
 
     # Find earliest end date
@@ -748,8 +771,8 @@ def standardize_data(source_dir: str) -> str:
 
     output_path.mkdir(exist_ok=True)
 
-    # Clear old files
-    for old in output_path.glob("*.csv"):
+    # Clear old files (including in subdirectories)
+    for old in output_path.glob("**/*.csv"):
         old.unlink()
 
     truncated = 0
@@ -760,8 +783,14 @@ def standardize_data(source_dir: str) -> str:
             match = re.search(r'_(\d{12})\.csv$', csv_file.name)
             if match:
                 ts = datetime.strptime(match.group(1), "%Y%m%d%H%M")
+                
+                # Preserve subdirectory structure
+                rel_path = csv_file.relative_to(source_path)
+                dest_file = output_path / rel_path
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                
                 if ts <= cutoff:
-                    shutil.copy(csv_file, output_path / csv_file.name)
+                    shutil.copy(csv_file, dest_file)
                     copied += 1
                 else:
                     # Truncate
@@ -780,7 +809,10 @@ def standardize_data(source_dir: str) -> str:
 
                             df = df.drop(columns=['datetime'])
                             df.columns = ['<' + c.upper() + '>' for c in df.columns]
-                            df.to_csv(output_path / new_name, sep='\t', index=False)
+                            
+                            # Save to appropriate subdirectory
+                            new_dest = dest_file.parent / new_name
+                            df.to_csv(new_dest, sep='\t', index=False)
                             truncated += 1
         except Exception as e:
             print(f"    [WARN] {csv_file.name}: {e}")
