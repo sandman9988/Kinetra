@@ -103,7 +103,8 @@ class FailureRecord:
     
     def to_json(self) -> str:
         """Convert to JSON string."""
-        return json.dumps(self.to_dict(), indent=2, default=str)
+        # Use compact JSON suitable for JSONL (one record per line).
+        return json.dumps(self.to_dict(), default=str, separators=(",", ":"))
 
 
 class SilentFailureLogger:
