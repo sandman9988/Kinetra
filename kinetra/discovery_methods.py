@@ -278,16 +278,25 @@ class ChaosTheoryDiscovery(DiscoveryMethod):
         }
         
         # Statistical test: is the Lyapunov exponent significantly different from 0?
-        # Use bootstrap to estimate distribution
+        # Use bootstrap to estimate confidence interval
         bootstrap_lyaps = []
-        for _ in range(100):
+        for _ in range(1000):  # Increased for better CI estimation
             sample = np.random.choice(returns, size=len(returns), replace=True)
             bootstrap_lyaps.append(self._estimate_lyapunov_exponent(sample))
-        
+
         bootstrap_lyaps = np.array(bootstrap_lyaps)
-        p_value = np.mean(np.abs(bootstrap_lyaps) >= abs(lyapunov))
-        
-        is_significant = p_value < 0.05
+
+        # Calculate 95% confidence interval
+        lower_bound = np.percentile(bootstrap_lyaps, 2.5)
+        upper_bound = np.percentile(bootstrap_lyaps, 97.5)
+
+        # Significant if confidence interval does not contain zero
+        is_significant = not (lower_bound <= 0 <= upper_bound)
+
+        # p-value can be estimated from the bootstrap distribution, but it's complex.
+        # A common practice is to report the CI and significance.
+        # For a p-value, we can check how many bootstrapped values cross zero.
+        p_value = min(np.mean(bootstrap_lyaps > 0), np.mean(bootstrap_lyaps < 0)) * 2
         
         self.logger.info(f"Lyapunov: {lyapunov:.4f}, Hurst: {hurst:.4f}, Entropy: {approx_entropy:.4f}")
         
