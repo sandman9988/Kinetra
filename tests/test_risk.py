@@ -103,7 +103,10 @@ class TestRiskManagement:
         assert position == 0  # Circuit breaker
     
     def test_risk_gates(self):
-        """Test risk gate checking."""
+        try:
+            rng = np.random.default_rng(123)  # Fixed seed for reproducibility
+        except AttributeError:
+            rng = np.random.RandomState(123)  # Fallback for older NumPy
         rng = np.random.default_rng(123)  # Fixed seed for reproducibility
         returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
         manager = RiskManager()
