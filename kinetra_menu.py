@@ -49,27 +49,38 @@ def print_submenu_header(text: str, width: int = 80):
     print("-" * width)
 
 
-def get_input(prompt: str, valid_choices: Optional[List[str]] = None) -> str:
+from typing import Dict, List, Optional, Tuple, Callable, Any
+
+def get_input(
+    prompt: str,
+    valid_choices: Optional[List[str]] = None,
+    input_type: Callable[[str], Any] = str
+) -> Any:
     """
-    Get user input with optional validation.
+    Get user input with optional validation and type conversion.
     
     Args:
         prompt: Input prompt to display
         valid_choices: List of valid choices (None = any input accepted)
+        input_type: The type to convert the input to (e.g., int, float)
         
     Returns:
-        User input (validated if choices provided)
+        User input (validated and type-converted)
     """
     while True:
         choice = input(f"\n{prompt}: ").strip()
         
-        if valid_choices is None:
-            return choice
-        
-        if choice in valid_choices:
-            return choice
-        
-        print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
+        if valid_choices and choice not in valid_choices:
+            print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
+            continue
+
+        if not choice and input_type is not str:
+            return None
+
+        try:
+            return input_type(choice)
+        except (ValueError, TypeError):
+            print(f"❌ Invalid input. Please enter a valid {input_type.__name__}.")
 
 
 def confirm_action(message: str, default: bool = True) -> bool:
