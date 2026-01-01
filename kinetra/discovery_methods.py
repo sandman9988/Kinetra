@@ -583,17 +583,34 @@ class MetaLearningDiscovery(DiscoveryMethod):
             for feature in combo['features']:
                 importance_scores[feature] = importance_scores.get(feature, 0) + combo['score']
         
-        # TODO: Implement proper statistical validation
-        # For now, return conservative defaults
-        # Statistical validation should test if discovered combinations
-        # perform better than random on held-out data
+        # Basic statistical validation:
+        # Treat the (placeholder) scores in discovered_patterns as samples and
+        # test whether their mean is significantly greater than a random baseline.
+        # For the current placeholder scoring (uniform on [0, 1]), the natural
+        # null-hypothesis mean is 0.5.
+        alpha = 0.05
+        if discovered_patterns:
+            scores = np.array([combo["score"] for combo in discovered_patterns], dtype=float)
+            # One-sample t-test against baseline mean 0.5
+            t_stat, p_value = stats.ttest_1samp(scores, popmean=0.5, alternative="greater")
+            # If ttest_1samp returns nan (e.g. constant scores), fall back to non-significant
+            if np.isnan(p_value):
+                p_value = 1.0
+                statistical_significance = False
+            else:
+                statistical_significance = (p_value < alpha) and (float(scores.mean()) > 0.5)
+        else:
+            # No patterns discovered; cannot establish significance
+            p_value = 1.0
+            statistical_significance = False
+
         return DiscoveryResult(
             method_name=self.name,
             discovered_patterns=discovered_patterns,
             feature_importance=importance_scores,
             optimal_parameters={'best_combination': discovered_patterns[0] if discovered_patterns else {}},
-            statistical_significance=False,  # Conservative default - needs real validation
-            p_value=1.0  # Conservative default - needs real validation
+            statistical_significance=statistical_significance,
+            p_value=float(p_value)
         )
 
 
