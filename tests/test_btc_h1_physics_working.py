@@ -239,6 +239,37 @@ class PhysicsEngine:
         uncertainty = x.rolling(chaos_window).std() * momentum.rolling(chaos_window).std()
         phase = pd.Series(np.angle(analytic), index=prices.index)
 
+        # Non-linear and asymmetric features
+        v_skew = v.rolling(damping_window, min_periods=1).apply(lambda s: skew(s), raw=True).fillna(0)
+        v_kurt = v.rolling(damping_window, min_periods=1).apply(lambda s: kurtosis(s), raw=True).fillna(0)
+        
+        # Asymmetric rate of return (separate up/down moves)
+        asymmetric_ror_up = v.where(v > 0, 0).rolling(damping_window, min_periods=1).mean()
+        asymmetric_ror_down = v.where(v < 0, 0).rolling(damping_window, min_periods=1).mean()
+        
+        # Asymmetric mean reversion (deviation from mean, up/down)
+        v_mean = v.rolling(damping_window, min_periods=1).mean()
+        asymmetric_mr_up = (v - v_mean).where(v > v_mean, 0).rolling(damping_window, min_periods=1).mean()
+        asymmetric_mr_down = (v - v_mean).where(v < v_mean, 0).rolling(damping_window, min_periods=1).mean()
+        
+        # Non-symmetric entropy (entropy of positive vs negative returns)
+        def non_symmetric_entropy(series, bins=10):
+            pos = series[series > 0]
+            neg = series[series < 0]
+            if len(pos) == 0 or len(neg) == 0:
+                return 0.0
+            hist_pos, _ = np.histogram(pos, bins=bins)
+            hist_neg, _ = np.histogram(neg, bins=bins)
+            p_pos = hist_pos / (hist_pos.sum() + 1e-12)
+            p_neg = hist_neg / (hist_neg.sum() + 1e-12)
+            H_pos = -np.sum(p_pos * np.log(p_pos + 1e-12))
+            H_neg = -np.sum(p_neg * np.log(p_neg + 1e-12))
+            return H_pos - H_neg
+        
+        non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
+            lambda s: non_symmetric_entropy(s), raw=True
+        ).fillna(0)
+
         # Update df_raw with new non-linear features
 
         # Regime clustering (unsupervised, no gating, auto-select n_components via BIC)
@@ -315,29 +346,6 @@ class PhysicsEngine:
                 print(f"Clustering failed: {e} - falling back to single cluster")
                 clusters = np.zeros(len(df_raw), dtype=int)
 
-        # Standardize
-        scaler = StandardScaler()
-        X = scaler.fit_transform(df_clean)
-
-        # Auto-select n_components via BIC
-        bics = []
-        for n in range(1, self.max_clusters + 1):
-            gmm_temp = GaussianMixture(
-                n_components=n, random_state=self.random_state, covariance_type="full"
-            )
-            gmm_temp.fit(X)
-            bics.append(gmm_temp.bic(X))
-        optimal_n = np.argmin(bics) + 1
-        print(f"Optimal clusters via BIC: {optimal_n}")
-
-        # Fit with optimal n
-        gmm = GaussianMixture(
-            n_components=optimal_n, random_state=self.random_state, covariance_type="full"
-        )
-        clusters = np.full(len(df_raw), -1, dtype=int)
-        positions = df_raw.index.get_indexer(df_clean.index)
-        clusters[positions] = gmm.fit_predict(X)
-
         # Neutral labels
         regimes = pd.Series(
             [f"Cluster_{c}" if c != -1 else "UNKNOWN" for c in clusters], index=df_raw.index
@@ -349,6 +357,7 @@ class PhysicsEngine:
         # Combine (include all new features)
         data = {
             "v": v,
+            "geometric_v": geometric_v,
             "a": a,
             "j": j,
             "snap": snap,
@@ -387,6 +396,7 @@ class PhysicsEngine:
             "asymmetric_mr_up": asymmetric_mr_up,
             "asymmetric_mr_down": asymmetric_mr_down,
             "non_sym_entropy": non_sym_entropy,
+            "mr_exp_rate": mr_exp_rate,
             "cluster": clusters,
             "regime": regimes,
             "regime_age_frac": regime_age,
@@ -463,6 +473,13 @@ def analyze_regime_quality(
             "Hs": physics_state["entropy"],
             "PE": physics_state["PE"],
             "eta": physics_state["eta"],
+            "v": physics_state["v"],
+            "geometric_v": physics_state["geometric_v"],
+            "mr_exp_rate": physics_state["mr_exp_rate"],
+            "v_skew": physics_state["v_skew"],
+            "v_kurt": physics_state["v_kurt"],
+            "asymmetric_ror_up": physics_state["asymmetric_ror_up"],
+            "asymmetric_ror_down": physics_state["asymmetric_ror_down"],
         }
     ).dropna()
 
@@ -561,8 +578,9 @@ def analyze_regime_quality(
 
     return {
         "stats": cluster_stats.to_dict(),
-        "correlations": corr_matrix.to_dict(),
+        "correlations": pearson_corr.to_dict(),
         "distances": distances,
+        "symmetry_per_cluster": symmetry_per_cluster,
     }
 
 
@@ -724,7 +742,7 @@ def main():
     warnings.filterwarnings("ignore")
     import os
 
-    MASTER_PATH = "data/master/BTCUSD_H1_202401020000_202512282200.csv"
+    MASTER_PATH = "data/master/crypto/BTCUSD_H1_202401020000_202512282200.csv"
     LOCAL_PATH = "data/BTCUSD_H1_202401020000_202512282200.csv"
     DATA_PATH = MASTER_PATH if os.path.exists(MASTER_PATH) else LOCAL_PATH
 
@@ -740,10 +758,7 @@ def main():
 
     # ML/RL analysis
     ml_rl_results = ml_rl_analysis(physics_state, df)
-
-
-if __name__ == "__main__":
-    main()
+    
     # Universality linearity check (example for BTC; extend to combined DF)
     print("\nUniversality Linearity Check (Divergence % across assets):")
     # Placeholder - in full impl, loop over symbols from combined DF
@@ -751,6 +766,7 @@ if __name__ == "__main__":
     # e.g., FX: 40%, Indices: 15% - high divergence in non-linear assets
 
     print("\nQuestioning Symmetry in Universality:")
+    symmetry_per_cluster = regime_results["symmetry_per_cluster"]
     print("Average symmetry index across clusters: {:.2f} (0 = perfect symmetry)".format(symmetry_per_cluster.mean()))
     # Extend to cross-asset: e.g., FX high asymmetry in down moves, crypto symmetric in energy
 
