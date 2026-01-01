@@ -227,10 +227,6 @@ class SilentFailureLogger:
         context: Dict[str, Any]
     ) -> FailureSeverity:
         """Determine the severity of a failure."""
-        # Critical: System-breaking errors
-        if isinstance(exc, (SystemExit, KeyboardInterrupt)):
-            return FailureSeverity.CRITICAL
-        
         # High: Import errors, permission errors
         if category in (FailureCategory.IMPORT_ERROR, FailureCategory.PERMISSION_ERROR):
             return FailureSeverity.HIGH
