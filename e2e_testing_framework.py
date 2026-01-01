@@ -37,8 +37,9 @@ import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent))
@@ -132,11 +133,13 @@ class InstrumentRegistry:
     }
     
     @classmethod
+    @lru_cache(maxsize=16)
     def get_instruments(cls, asset_class: str) -> List[str]:
         """Get instruments for asset class."""
-        return cls.INSTRUMENTS.get(asset_class, [])
+        return list(cls.INSTRUMENTS.get(asset_class, []))
     
     @classmethod
+    @lru_cache(maxsize=1)
     def get_all_instruments(cls) -> List[str]:
         """Get all instruments."""
         all_instruments = []
@@ -145,6 +148,7 @@ class InstrumentRegistry:
         return all_instruments
     
     @classmethod
+    @lru_cache(maxsize=32)
     def get_top_instruments(cls, asset_class: str, n: int = 3) -> List[str]:
         """Get top N instruments for asset class."""
         instruments = cls.get_instruments(asset_class)
@@ -159,6 +163,7 @@ class E2EPresets:
     """Preset configurations for common E2E testing scenarios."""
     
     @staticmethod
+    @lru_cache(maxsize=1)
     def full_system_test() -> E2ETestConfig:
         """Full system test across all combinations."""
         return E2ETestConfig(
@@ -176,6 +181,7 @@ class E2EPresets:
         )
     
     @staticmethod
+    @lru_cache(maxsize=16)
     def asset_class_test(asset_class: str) -> E2ETestConfig:
         """Test specific asset class."""
         return E2ETestConfig(
@@ -193,6 +199,7 @@ class E2EPresets:
         )
     
     @staticmethod
+    @lru_cache(maxsize=16)
     def agent_type_test(agent_type: str) -> E2ETestConfig:
         """Test specific agent type."""
         return E2ETestConfig(
@@ -210,6 +217,7 @@ class E2EPresets:
         )
     
     @staticmethod
+    @lru_cache(maxsize=16)
     def timeframe_test(timeframe: str) -> E2ETestConfig:
         """Test specific timeframe."""
         return E2ETestConfig(
@@ -227,6 +235,7 @@ class E2EPresets:
         )
     
     @staticmethod
+    @lru_cache(maxsize=1)
     def quick_validation() -> E2ETestConfig:
         """Quick validation test (subset for fast testing)."""
         return E2ETestConfig(
@@ -283,7 +292,8 @@ class E2ETestRunner:
             enable_checksums=True
         )
         
-        # Test matrix
+        # Test matrix - cache to avoid regeneration
+        self._test_matrix_cache: Optional[List[Dict]] = None
         self.test_matrix: List[Dict] = []
         self.results: List[Dict] = []
         
@@ -296,11 +306,13 @@ class E2ETestRunner:
         Returns:
             List of test specifications
         """
+        # Return cached result if available
+        if self._test_matrix_cache is not None:
+            return self._test_matrix_cache
+        
         logger.info("Generating test matrix...")
         
-        test_matrix = []
-        
-        # Get instruments
+        # Get instruments for all asset classes at once (batch operation)
         instruments_by_class = {}
         for asset_class in self.config.asset_classes:
             if self.config.instruments == ['all']:
@@ -322,22 +334,24 @@ class E2ETestRunner:
             else:
                 instruments_by_class[asset_class] = self.config.instruments
         
-        # Generate combinations
-        for asset_class in self.config.asset_classes:
-            for instrument in instruments_by_class[asset_class]:
-                for timeframe in self.config.timeframes:
-                    for agent_type in self.config.agent_types:
-                        test_spec = {
-                            'asset_class': asset_class,
-                            'instrument': instrument,
-                            'timeframe': timeframe,
-                            'agent_type': agent_type,
-                            'episodes': self.config.episodes,
-                            'test_id': f"{asset_class}_{instrument}_{timeframe}_{agent_type}"
-                        }
-                        test_matrix.append(test_spec)
+        # Generate combinations using list comprehension for better performance
+        test_matrix = [
+            {
+                'asset_class': asset_class,
+                'instrument': instrument,
+                'timeframe': timeframe,
+                'agent_type': agent_type,
+                'episodes': self.config.episodes,
+                'test_id': f"{asset_class}_{instrument}_{timeframe}_{agent_type}"
+            }
+            for asset_class in self.config.asset_classes
+            for instrument in instruments_by_class[asset_class]
+            for timeframe in self.config.timeframes
+            for agent_type in self.config.agent_types
+        ]
         
         self.test_matrix = test_matrix
+        self._test_matrix_cache = test_matrix  # Cache the result
         
         logger.info(f"Generated {len(test_matrix)} test combinations")
         

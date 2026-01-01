@@ -158,12 +158,20 @@ class PerformanceProfiler:
         )[:10]
         
         # Identify bottlenecks
+        # Only flag as bottleneck if:
+        # 1. Takes >10% of total time AND
+        # 2. Takes at least 1ms (0.001s) absolute time
+        # This filters out profiler overhead on very fast operations
         for func_key, func_stats in stats_list:
             filename, line, func_name = func_key
             cumtime = func_stats[3]
             
-            # Check if this function is a bottleneck (>10% of total time)
-            if cumtime > metrics.cpu_time * 0.1:
+            # Skip profiler overhead and built-in methods
+            if func_name.startswith('<') or 'profiler' in func_name.lower():
+                continue
+            
+            # Check if this function is a meaningful bottleneck
+            if cumtime > metrics.cpu_time * 0.1 and cumtime > 0.001:
                 bottleneck = f"{func_name} in {Path(filename).name}:{line} ({cumtime:.3f}s)"
                 metrics.bottlenecks.append(bottleneck)
         
@@ -677,9 +685,13 @@ def calculate_performance_score(report: ProfilingReport) -> int:
     """Calculate overall performance score (0-100)."""
     score = 100
     
-    # Deduct for slow operations
+    # Deduct for slow operations (>100ms)
     slow_ops = sum(1 for op in report.operations if op.execution_time > 0.1)
     score -= min(slow_ops * 5, 30)
+    
+    # Deduct for very slow operations (>1s)
+    very_slow_ops = sum(1 for op in report.operations if op.execution_time > 1.0)
+    score -= min(very_slow_ops * 10, 30)
     
     # Deduct for high memory usage
     if report.memory_profile['peak_usage'] > 100 * 1024 * 1024:  # > 100MB
@@ -687,14 +699,23 @@ def calculate_performance_score(report: ProfilingReport) -> int:
     elif report.memory_profile['peak_usage'] > 50 * 1024 * 1024:  # > 50MB
         score -= 10
     
-    # Deduct for bottlenecks
-    bottleneck_count = sum(len(op.bottlenecks) for op in report.operations)
-    score -= min(bottleneck_count * 5, 30)
+    # Deduct for meaningful bottlenecks (only those >1ms)
+    meaningful_bottlenecks = sum(len(op.bottlenecks) for op in report.operations)
+    score -= min(meaningful_bottlenecks * 3, 20)
     
-    # Deduct for recommendations
-    score -= min(len(report.recommendations) * 3, 20)
+    # Deduct for overall recommendations (but cap at reasonable level)
+    score -= min(len(report.recommendations) * 2, 15)
     
-    return max(score, 0)
+    # Bonus for fast operations (avg < 5ms)
+    avg_time = report.total_time / len(report.operations) if report.operations else 0
+    if avg_time < 0.005:  # < 5ms average
+        score += 10
+    
+    # Bonus for low memory usage (< 1MB peak)
+    if report.memory_profile['peak_usage'] < 1 * 1024 * 1024:
+        score += 5
+    
+    return max(min(score, 100), 0)  # Clamp to 0-100
 
 
 # =============================================================================

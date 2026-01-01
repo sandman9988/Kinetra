@@ -130,9 +130,16 @@ class WorkflowManager:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = self.log_dir / f"workflow_{timestamp}.log"
         
-        # Configure logger
-        self.logger = logging.getLogger("WorkflowManager")
+        # Configure logger - get or create logger for this instance
+        logger_name = f"WorkflowManager.{id(self)}"  # Unique logger per instance
+        self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.DEBUG)
+        
+        # Clear existing handlers to avoid duplicates
+        self.logger.handlers.clear()
+        
+        # Prevent propagation to avoid duplicate logs
+        self.logger.propagate = False
         
         # File handler (detailed)
         file_handler = logging.FileHandler(log_file)
