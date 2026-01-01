@@ -493,7 +493,7 @@ class E2ETestOrchestrator:
                     'nulls': int(n_nulls),
                     'start': str(df['timestamp'].min()),
                     'end': str(df['timestamp'].max()),
-                    'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(time_diffs) > 0 else 0,
+                    'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(time_diffs) > 1 else 0,
                 }
                 
                 self.workflow_manager.logger.info(
@@ -754,8 +754,13 @@ class E2ETestOrchestrator:
         }
     
     def _generate_html_report(self, report: Dict) -> str:
-        """Generate HTML report."""
+        """Generate HTML report with HTML-escaped content."""
+        import html as html_module
         summary = report['summary']
+        
+        # Helper function for safe HTML escaping
+        def escape(text):
+            return html_module.escape(str(text))
         
         html = f"""<!DOCTYPE html>
 <html>
@@ -785,8 +790,8 @@ class E2ETestOrchestrator:
 <body>
     <div class="container">
         <h1>🧪 E2E Test Report</h1>
-        <p><strong>Test ID:</strong> {report['test_id']}</p>
-        <p><strong>Timestamp:</strong> {report['timestamp']}</p>
+        <p><strong>Test ID:</strong> {escape(report['test_id'])}</p>
+        <p><strong>Timestamp:</strong> {escape(report['timestamp'])}</p>
         
         <div class="summary">
             <h2>📊 Summary</h2>
@@ -819,14 +824,14 @@ class E2ETestOrchestrator:
 """
         
         for stage in report['stages']:
-            status_class = f"stage-{stage['status']}"
+            status_class = f"stage-{escape(stage['status'])}"
             duration = f"{stage['duration']:.1f}s" if stage['duration'] else "N/A"
             html += f"""
             <tr>
-                <td>{stage['stage_name']}</td>
-                <td class="{status_class}">{stage['status'].upper()}</td>
-                <td>{duration}</td>
-                <td>{stage['retry_count']}</td>
+                <td>{escape(stage['stage_name'])}</td>
+                <td class="{status_class}">{escape(stage['status']).upper()}</td>
+                <td>{escape(duration)}</td>
+                <td>{escape(stage['retry_count'])}</td>
             </tr>
 """
         
