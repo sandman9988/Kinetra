@@ -255,6 +255,9 @@ class PhysicsEngine:
         def combined_directional_entropy(series):
             series = np.asarray(series, dtype=float)
             series = series[np.isfinite(series)]
+        def combined_directional_entropy(series):
+            series = np.asarray(series, dtype=float)
+            series = series[np.isfinite(series)]
 
             up_filtered = series[series > 0]
             down_filtered = series[series < 0]
