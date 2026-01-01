@@ -105,10 +105,34 @@ This provides a comprehensive interface for:
 - **Login & Authentication** - Secure MetaAPI account selection
 - **Exploration Testing** - Hypothesis & theorem generation through empirical testing
 - **Backtesting** - ML/RL EA validation with realistic cost modeling
+- **Live Testing** - Virtual, demo, and live trading with safety gates (NEW!)
 - **Data Management** - Automated download, integrity checks, and preparation
 - **System Status** - Health monitoring and performance tracking
 
 See [Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md) for complete documentation.
+
+### Live Testing (NEW!)
+
+Progressive pathway from virtual testing to live trading:
+
+```bash
+# Virtual/paper trading (no connection required)
+python scripts/testing/run_live_test.py --mode virtual
+
+# Demo account testing (requires MT5)
+python scripts/testing/run_live_test.py --mode demo
+
+# Connection test
+python scripts/testing/run_live_test.py --test-connection
+```
+
+Features:
+- **Circuit Breakers**: Auto-halt on CHS < 0.55
+- **Trade Limits**: Prevent runaway execution
+- **Order Validation**: All trades validated before execution
+- **Real-time Monitoring**: CHS tracking and logging
+
+See [Live Testing Guide](docs/LIVE_TESTING_GUIDE.md) for complete documentation.
 
 ### End-to-End Testing
 

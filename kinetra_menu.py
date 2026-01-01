@@ -124,14 +124,106 @@ def print_header(text: str, width: int = 80):
     print("=" * width)
 
 
-def print_submenu_header(text: str, width: int = 80):
-    """Print formatted submenu header."""
+def print_submenu_header(text: str, breadcrumb: str = "", width: int = 80):
+    """
+    Print formatted submenu header with breadcrumb navigation.
+    
+    Args:
+        text: Submenu title
+        breadcrumb: Navigation breadcrumb (e.g., "Main Menu > Live Testing")
+        width: Header width
+    """
     print("\n" + "-" * width)
-    print(f"  {text}")
+    if breadcrumb:
+        print(f"  {breadcrumb}")
+        print(f"  └─ {text}")
+    else:
+        print(f"  {text}")
     print("-" * width)
 
 
 from typing import Dict, List, Optional, Tuple, Callable, Any
+
+
+# =============================================================================
+# STATUS CHECKING UTILITIES
+# =============================================================================
+
+class SystemStatus:
+    """Check and display system status."""
+    
+    @staticmethod
+    def check_data_ready() -> tuple[bool, str]:
+        """
+        Check if data is prepared and ready.
+        
+        Returns:
+            (status, message) tuple
+        """
+        prepared_dir = Path("data/prepared")
+        train_dir = prepared_dir / "train"
+        test_dir = prepared_dir / "test"
+        
+        if not train_dir.exists() or not test_dir.exists():
+            return False, "❌ Data not prepared"
+        
+        train_files = list(train_dir.glob("*.csv"))
+        test_files = list(test_dir.glob("*.csv"))
+        
+        if len(train_files) == 0 or len(test_files) == 0:
+            return False, "❌ No data files found"
+        
+        return True, f"✅ Data ready ({len(train_files)} train, {len(test_files)} test files)"
+    
+    @staticmethod
+    def check_mt5_available() -> tuple[bool, str]:
+        """
+        Check if MT5 is available.
+        
+        Returns:
+            (status, message) tuple
+        """
+        try:
+            import MetaTrader5 as mt5
+            return True, "✅ MT5 available"
+        except ImportError:
+            return False, "⚠️  MT5 not installed"
+    
+    @staticmethod
+    def check_credentials() -> tuple[bool, str]:
+        """
+        Check if credentials are configured.
+        
+        Returns:
+            (status, message) tuple
+        """
+        env_file = Path(".env")
+        if not env_file.exists():
+            return False, "⚠️  No credentials (.env not found)"
+        
+        # Check for MetaAPI token
+        with open(env_file, 'r') as f:
+            content = f.read()
+        
+        if 'METAAPI_TOKEN' in content or 'METAAPI_ACCOUNT_ID' in content:
+            return True, "✅ Credentials configured"
+        
+        return False, "⚠️  Credentials incomplete"
+    
+    @staticmethod
+    def get_status_summary() -> str:
+        """
+        Get summary status bar.
+        
+        Returns:
+            Status bar string
+        """
+        data_status, data_msg = SystemStatus.check_data_ready()
+        mt5_status, mt5_msg = SystemStatus.check_mt5_available()
+        creds_status, creds_msg = SystemStatus.check_credentials()
+        
+        return f"  {data_msg} | {mt5_msg} | {creds_msg}"
+
 
 def get_input(
     prompt: str,
@@ -830,7 +922,7 @@ Available options:
 
 def run_virtual_trading(wf_manager: WorkflowManager):
     """Run virtual/paper trading test."""
-    print_submenu_header("Virtual Trading (Paper Trading)")
+    print_submenu_header("Virtual Trading (Paper Trading)", "Main Menu > Live Testing")
     
     print("""
 Virtual trading mode uses synthetic data stream for testing.
@@ -909,7 +1001,7 @@ Virtual trading mode uses synthetic data stream for testing.
 
 def run_demo_account_testing(wf_manager: WorkflowManager):
     """Run demo account testing."""
-    print_submenu_header("Demo Account Testing")
+    print_submenu_header("Demo Account Testing", "Main Menu > Live Testing")
     
     print("""
 ⚠️  IMPORTANT: Demo account testing requires:
@@ -983,7 +1075,7 @@ This will execute REAL trades on your DEMO account!
 
 def test_mt5_connection(wf_manager: WorkflowManager):
     """Test MT5 connection."""
-    print_submenu_header("Test MT5 Connection")
+    print_submenu_header("Test MT5 Connection", "Main Menu > Live Testing")
     
     print("\n🔌 Testing connection to MT5 terminal...")
     print("   This will verify:")
@@ -1019,7 +1111,7 @@ def test_mt5_connection(wf_manager: WorkflowManager):
 
 def show_live_testing_guide(wf_manager: WorkflowManager):
     """Show live testing guide."""
-    print_submenu_header("Live Testing Guide")
+    print_submenu_header("Live Testing Guide", "Main Menu > Live Testing")
     
     print("""
 KINETRA LIVE TESTING GUIDE
@@ -1694,6 +1786,11 @@ def show_main_menu(wf_manager: WorkflowManager):
     """Show main menu."""
     print_header("KINETRA MAIN MENU")
     
+    # Show system status
+    status_summary = SystemStatus.get_status_summary()
+    print(f"\nSystem Status:")
+    print(status_summary)
+    
     print("""
 Welcome to Kinetra - Physics-First Adaptive Trading System
 
@@ -1711,6 +1808,8 @@ Philosophy:
   • Physics-based (energy, entropy, damping)
   • Statistical rigor (p < 0.01)
   • Automated workflows
+  
+Navigation: Type 0 to go back | Type q to quit
     """)
     
     choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'])
