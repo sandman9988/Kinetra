@@ -745,7 +745,8 @@ class PhysicsBacktestRunner:
     def compare_strategies(
         self,
         data: pd.DataFrame,
-        strategies: Optional[List[str]] = None
+        strategies: Optional[List[str]] = None,
+        parallel: bool = False
     ) -> pd.DataFrame:
         """
         Compare multiple strategies on the same data.
@@ -753,6 +754,7 @@ class PhysicsBacktestRunner:
         Args:
             data: OHLCV DataFrame
             strategies: List of strategy names (all if None)
+            parallel: If True, use parallel execution (may have pickling issues in some environments)
 
         Returns:
             DataFrame comparing strategy performance
@@ -782,12 +784,21 @@ class PhysicsBacktestRunner:
         results = []
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
 
-        # Always use sequential execution to avoid pickling issues in tests
-        # Parallel execution can be enabled in production if needed
-        for strategy_name in strategies:
-            result = run_strategy(strategy_name)
-            if result is not None:
-                results.append(result)
+        # Use parallel execution only if explicitly enabled and there are enough strategies
+        if parallel and n_workers > 1 and len(strategies) >= 3:
+            # Parallel strategy comparison
+            with ProcessPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(run_strategy, name): name for name in strategies}
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result is not None:
+                        results.append(result)
+        else:
+            # Sequential execution (safer, especially for tests)
+            for strategy_name in strategies:
+                result = run_strategy(strategy_name)
+                if result is not None:
+                    results.append(result)
 
         return pd.DataFrame(results)
 

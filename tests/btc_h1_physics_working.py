@@ -343,29 +343,6 @@ class PhysicsEngine:
                 print(f"Clustering failed: {e} - falling back to single cluster")
                 clusters = np.zeros(len(df_raw), dtype=int)
 
-        # Standardize
-        scaler = StandardScaler()
-        X = scaler.fit_transform(df_clean)
-
-        # Auto-select n_components via BIC
-        bics = []
-        for n in range(1, self.max_clusters + 1):
-            gmm_temp = GaussianMixture(
-                n_components=n, random_state=self.random_state, covariance_type="full"
-            )
-            gmm_temp.fit(X)
-            bics.append(gmm_temp.bic(X))
-        optimal_n = np.argmin(bics) + 1
-        print(f"Optimal clusters via BIC: {optimal_n}")
-
-        # Fit with optimal n
-        gmm = GaussianMixture(
-            n_components=optimal_n, random_state=self.random_state, covariance_type="full"
-        )
-        clusters = np.full(len(df_raw), -1, dtype=int)
-        positions = df_raw.index.get_indexer(df_clean.index)
-        clusters[positions] = gmm.fit_predict(X)
-
         # Neutral labels
         regimes = pd.Series(
             [f"Cluster_{c}" if c != -1 else "UNKNOWN" for c in clusters], index=df_raw.index
