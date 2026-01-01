@@ -102,7 +102,7 @@ class SystemHealthMonitor:
         with self._lock:
             self.metrics['errors'].append({
                 'operation': operation,
-                'error': error,
+                'error': str(error)[:5000],
                 'timestamp': time.time()
             })
     
