@@ -12,7 +12,6 @@ and verifying that each menu path executes correctly.
 
 import sys
 import io
-import logging
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 from contextlib import contextmanager
