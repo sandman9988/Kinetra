@@ -175,6 +175,8 @@ class HiddenDimensionDiscovery(DiscoveryMethod):
             returns = data['close'].pct_change().fillna(0).values
             
             # Test if any latent dimension correlates with returns
+        # TODO: Implement proper statistical validation based on correlation strength
+        # For now, use correlation-based heuristic with conservative threshold
             p_values = []
             for pattern in discovered_patterns:
                 if 'latent_features' in pattern:
@@ -532,17 +534,27 @@ class MetaLearningDiscovery(DiscoveryMethod):
             )
         
         # Try different feature subsets
+        max_features = config.get('max_features_to_test', 20)  # Configurable limit
         max_combinations = min(50, len(feature_cols) * (len(feature_cols) - 1) // 2)
         
         best_combinations = []
         
         # Random feature combinations
+        # TODO: Implement actual feature combination scoring based on:
+        # - Predictive power (correlation with returns)
+        # - Feature interaction effects
+        # - Cross-validation performance
+        # Current implementation uses placeholder scoring
         for _ in range(max_combinations):
             n_features = np.random.randint(2, min(6, len(feature_cols)))
-            selected_features = np.random.choice(feature_cols, size=n_features, replace=False).tolist()
+            selected_features = np.random.choice(feature_cols[:max_features], size=n_features, replace=False).tolist()
             
-            # Score this combination (placeholder - would use actual prediction)
-            score = np.random.random()  # Placeholder
+            # TODO: Implement actual scoring based on:
+            # - Prediction accuracy on returns
+            # - Sharpe ratio of signal
+            # - Statistical significance
+            # Placeholder scoring for now
+            score = np.random.random()  # PLACEHOLDER - replace with actual scoring
             
             best_combinations.append({
                 'features': selected_features,
@@ -562,13 +574,17 @@ class MetaLearningDiscovery(DiscoveryMethod):
             for feature in combo['features']:
                 importance_scores[feature] = importance_scores.get(feature, 0) + combo['score']
         
+        # TODO: Implement proper statistical validation
+        # For now, return conservative defaults
+        # Statistical validation should test if discovered combinations
+        # perform better than random on held-out data
         return DiscoveryResult(
             method_name=self.name,
             discovered_patterns=discovered_patterns,
             feature_importance=importance_scores,
             optimal_parameters={'best_combination': discovered_patterns[0] if discovered_patterns else {}},
-            statistical_significance=True,  # Placeholder
-            p_value=0.01  # Placeholder
+            statistical_significance=False,  # Conservative default - needs real validation
+            p_value=1.0  # Conservative default - needs real validation
         )
 
 

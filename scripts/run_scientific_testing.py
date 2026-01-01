@@ -41,7 +41,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kinetra.discovery_methods import DiscoveryMethodRunner
-from kinetra.test_executor import TestExecutor, TestExecutionConfig, StatisticalRigor
+from kinetra.test_executor import TestExecutor, ExecutionConfig, StatisticalRigor
 from kinetra.testing_framework import TestingFramework, TestConfiguration, InstrumentSpec
 from kinetra.integrated_backtester import IntegratedBacktester
 
@@ -389,6 +389,8 @@ class ScientificTestingOrchestrator:
                     
                 except Exception as e:
                     logger.error(f"Backtest failed for {strategy_name}: {e}")
+                    # Continue with other strategies instead of crashing
+                    continue
         
         logger.info(f"\nCompleted {len(backtest_results)} backtests")
         

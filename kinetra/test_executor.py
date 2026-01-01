@@ -166,11 +166,12 @@ class AutoFixer:
                 return True, f"Reduced min_sample_size to {context['config'].min_sample_size}"
         
         elif "dimension" in error_msg.lower():
-            # Reduce dimensionality
-            if 'config' in context and 'latent_dims' in context['config'].agent_config:
-                dims = context['config'].agent_config['latent_dims']
-                context['config'].agent_config['latent_dims'] = [d // 2 for d in dims if d > 2]
-                return True, f"Reduced latent dimensions"
+            # Reduce dimensionality - only if config has the right structure
+            if 'config' in context and hasattr(context['config'], 'agent_config'):
+                if isinstance(context['config'].agent_config, dict) and 'latent_dims' in context['config'].agent_config:
+                    dims = context['config'].agent_config['latent_dims']
+                    context['config'].agent_config['latent_dims'] = [d // 2 for d in dims if d > 2]
+                    return True, f"Reduced latent dimensions"
         
         return False, "Could not identify value error fix"
     
@@ -179,8 +180,8 @@ class AutoFixer:
         error_msg = failure.error_message
         
         if "gpu" in error_msg.lower() or "cuda" in error_msg.lower():
-            # Disable GPU
-            if 'config' in context:
+            # Disable GPU - only if config has use_gpu attribute
+            if 'config' in context and hasattr(context['config'], 'use_gpu'):
                 context['config'].use_gpu = False
                 return True, "Disabled GPU acceleration"
         
