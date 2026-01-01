@@ -72,6 +72,7 @@ performance_metrics/
 *.html
 *.json
 !.github/workflows/*.json
+!configs/e2e_examples/*.json
 
 # ML artifacts
 mlruns/
