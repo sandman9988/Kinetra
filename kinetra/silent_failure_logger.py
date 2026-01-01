@@ -469,6 +469,7 @@ class SilentFailureLogger:
                     "record": self.failure_signatures[sig].to_dict()
                 }
                 for sig, count in top_failures
+                if sig in self.failure_signatures
             ],
         }
     
