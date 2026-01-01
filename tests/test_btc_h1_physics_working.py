@@ -775,5 +775,10 @@ def main():
     print("BTC: Avg diff 5.2 bps, 30% divergence")
 
 
+def test_btc_h1_physics_working():
+    """Pytest wrapper for the BTC H1 physics pipeline test."""
+    main()
+
+
 if __name__ == "__main__":
     main()
