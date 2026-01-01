@@ -14,7 +14,7 @@ import sys
 import io
 import logging
 from pathlib import Path
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 from contextlib import contextmanager
 
 # Add project root
