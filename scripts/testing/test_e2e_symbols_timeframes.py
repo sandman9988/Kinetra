@@ -56,7 +56,6 @@ load_dotenv()
 
 # Kinetra imports
 from kinetra.workflow_manager import WorkflowManager
-from kinetra.testing_framework import InstrumentSpec
 
 # Import data download module
 try:
