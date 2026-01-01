@@ -255,9 +255,6 @@ class PhysicsEngine:
         def combined_directional_entropy(series):
             series = np.asarray(series, dtype=float)
             series = series[np.isfinite(series)]
-        def combined_directional_entropy(series):
-            series = np.asarray(series, dtype=float)
-            series = series[np.isfinite(series)]
 
             up_filtered = series[series > 0]
             down_filtered = series[series < 0]
@@ -273,14 +270,7 @@ class PhysicsEngine:
                 down_hist, _ = np.histogram(down_filtered, bins=10)
                 down_p = down_hist / (down_hist.sum() + 1e-12)
                 down_entropy = -np.sum(down_p * np.log(down_p + 1e-12))
-    
-            return up_entropy - down_entropy
 
-        non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
-            combined_directional_entropy, raw=True
-        ).fillna(0)
-                down_entropy = -np.sum(down_p * np.log(down_p + 1e-12))
-    
             return up_entropy - down_entropy
 
         non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
