@@ -252,19 +252,26 @@ class PhysicsEngine:
         asymmetric_mr_down = (x - x.rolling(damping_window).mean()).where(v < 0, 0).rolling(damping_window, min_periods=1).mean().fillna(0)
         
         # Non-symmetric entropy (separate entropy for up vs down moves)
-        def directional_entropy(series, direction='up'):
-            if direction == 'up':
-                filtered = series[series > 0]
-            else:
-                filtered = series[series < 0]
-            if len(filtered) < 2:
-                return 0.0
-            hist, _ = np.histogram(filtered, bins=10)
-            p = hist / (hist.sum() + 1e-12)
-            return -np.sum(p * np.log(p + 1e-12))
-        
+        def combined_directional_entropy(series):
+            up_filtered = series[series > 0]
+            down_filtered = series[series < 0]
+
+            up_entropy = 0.0
+            if len(up_filtered) >= 2:
+                up_hist, _ = np.histogram(up_filtered, bins=10)
+                up_p = up_hist / (up_hist.sum() + 1e-12)
+                up_entropy = -np.sum(up_p * np.log(up_p + 1e-12))
+
+            down_entropy = 0.0
+            if len(down_filtered) >= 2:
+                down_hist, _ = np.histogram(down_filtered, bins=10)
+                down_p = down_hist / (down_hist.sum() + 1e-12)
+                down_entropy = -np.sum(down_p * np.log(down_p + 1e-12))
+    
+            return up_entropy - down_entropy
+
         non_sym_entropy = v.rolling(entropy_window, min_periods=1).apply(
-            lambda s: directional_entropy(s, 'up') - directional_entropy(s, 'down'), raw=True
+            combined_directional_entropy, raw=True
         ).fillna(0)
 
         # Update df_raw with new non-linear features
