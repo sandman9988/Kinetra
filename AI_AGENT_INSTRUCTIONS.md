@@ -3,6 +3,174 @@
 
 ---
 
+## ⚡ KEYWORD SHORTCUTS (Quick Commands)
+
+**For rapid navigation and execution, use these keywords:**
+
+### Primary Workflows
+
+| Keyword | Action | Details |
+|---------|--------|---------|
+| **THEOREM** | Start theorem production workflow | Integration → Testing → Empirical validation → Theorem formalization (p < 0.01) |
+| **INTEGRATE** | Execute integration tasks | Wire P0-P5: DSP-SuperPot, RL agents, physics env, discovery, analytics, CLI |
+| **SUPERPOT** | Run empirical testing | Throw all measurements in, prune worst, discover universal/class/instrument features |
+| **VALIDATE** | Statistical validation | Run tests with p-value < 0.01, effect size > 0.5, Bonferroni/FDR corrections |
+| **DSP** | Use DSP-driven features | Wavelet cycle detection (`dominant_scale`), Hilbert transform, asymmetric analysis |
+| **ASYMMETRIC** | Enforce asymmetry | Up/down separate (NEVER combined), no abs(), no symmetric averaging |
+| **COMPARE** | Algorithm/strategy comparison | PPO vs TD3 vs SAC, universal vs specialized, physics vs chaos vs traditional |
+| **PRUNE** | Feature pruning | Remove empirically worst performers (adaptive, not magic number intervals) |
+
+### Theorem Production Pipeline
+
+**Keyword: `THEOREM`**
+
+Executes 3-phase workflow:
+
+1. **Phase 1: Integration** (Week 1-2)
+   - Wire P0-P5 integration tasks
+   - Verify DSP-driven (no fixed periods)
+   - Ensure asymmetric (up/down separate)
+   - Output: All 18 test suites executable
+
+2. **Phase 2: Testing** (Week 3)
+   - Run end-to-end tests
+   - Statistical validation (p < 0.01)
+   - Generate comparison plots
+   - Output: Results with p-values and effect sizes
+
+3. **Phase 3: Empirical Discovery** (Week 4+)
+   - MotherLoad SuperPot testing
+   - Algorithm comparison
+   - Specialization testing
+   - Alpha source ranking
+   - Output: ≥3 theorems with p < 0.01
+
+**Success Criteria**: Can state with p < 0.01: "Algorithm X using strategy Y on instruments Z achieves Omega > 2.7 through alpha source W"
+
+### Integration Tasks
+
+**Keyword: `INTEGRATE`**
+
+Priority order (P0-P5):
+
+```bash
+# P0: DSP-SuperPot Integration (2-3 days)
+Create kinetra/superpot_dsp.py
+- Use WaveletExtractor for dominant_scale
+- Replace fixed periods (5,10,20) with adaptive cycles
+- Asymmetric features (up/down separate)
+
+# P1: Testing ↔ RL Agents (2-3 days)
+Create kinetra/agent_factory.py
+- Instantiate PPO, DQN, TD3, SAC, LinearQ, Triad agents
+- Wire to testing framework
+- Enable comparative testing
+
+# P2: Physics ↔ Environments (1-2 days)
+Create kinetra/trading_env.py
+- Unified environment with physics integration
+- Regime detection and filtering
+- DSP-based state construction
+
+# P3: Discovery Methods (3-5 days)
+Implement chaos, hidden dimensions, meta-learning
+- Lyapunov exponents, strange attractors
+- PCA, ICA, autoencoders
+- MAML, transfer learning
+
+# P4: Results ↔ Analytics (1-2 days)
+Create kinetra/results_analyzer.py
+- Statistical comparison plots
+- P-values, effect sizes, confidence intervals
+- Automated theorem candidate detection
+
+# P5: Unified Training CLI (1 day)
+Create scripts/train.py
+- Single interface for all agent types
+- Replace 10+ scattered training scripts
+```
+
+### SuperPot Testing
+
+**Keyword: `SUPERPOT`**
+
+Empirical feature discovery workflow:
+
+```bash
+# Throw all ~150+ measurements in
+python scripts/analysis/superpot_dsp_driven.py \
+    --episodes 500 \
+    --all-instruments \
+    --all-measurements \
+    --prune-adaptive
+
+# Outputs:
+# - Universal features (survive ALL asset classes)
+# - Class-specific features (crypto vs forex vs metals)
+# - Instrument-specific features
+# - Pruned features (empirically useless)
+```
+
+**Philosophy**: Don't assume what matters - test empirically, let data decide
+
+### Statistical Validation
+
+**Keyword: `VALIDATE`**
+
+Requirements for empirical claims:
+
+- **Significance**: p-value < 0.01 (1% false positive rate)
+- **Effect Size**: Cohen's d > 0.5 (medium effect) or d > 0.8 (large effect)
+- **Multiple Testing**: Bonferroni or FDR correction applied
+- **Out-of-Sample**: Validated on holdout data
+- **Sample Size**: Minimum 30 observations
+
+**Theorem Requirements**:
+1. Statistical significance (p < 0.01)
+2. Practical significance (effect size > 0.5)
+3. Out-of-sample validation
+4. Reproducible across instruments/regimes
+5. Documented in `EMPIRICAL_THEOREMS.md`
+
+### Quick Reference
+
+**Architecture Docs**: Use keyword to jump to documentation
+- `ARCH` → `docs/ARCHITECTURE_COMPLETE.md` (system design)
+- `GUIDE` → `docs/INTEGRATION_GUIDE.md` (wiring tasks)
+- `PLAN` → `docs/ACTION_PLAN.md` (critical path)
+- `REF` → `docs/ARCHITECTURE_QUICK_REF.md` (quick lookup)
+
+**Philosophy Principles**: Use keyword to enforce principle
+- `NO-PERIODS` → Reject fixed periods (use DSP-detected cycles)
+- `NO-SYMMETRY` → Reject symmetric calculations (up ≠ down)
+- `NO-LINEAR` → Reject linearity assumptions (no Pearson, no regression)
+- `NO-MAGIC` → Reject magic numbers (20-period MA, 14-period RSI, etc.)
+- `EMPIRICAL` → Test everything, assume nothing
+
+**Example Usage**:
+```
+User: "THEOREM"
+Agent: Executes 3-phase theorem production:
+       1. Integration (P0-P5)
+       2. Testing (validation)
+       3. Discovery (empirical theorems)
+       
+User: "SUPERPOT crypto"
+Agent: Runs SuperPot testing on crypto instruments
+       - Loads all crypto datasets
+       - Extracts ~150+ features
+       - Trains agents, prunes worst
+       - Reports universal vs crypto-specific features
+       
+User: "DSP + ASYMMETRIC"
+Agent: Enforces DSP-driven + asymmetric approach
+       - Uses WaveletExtractor for cycles
+       - Separates up/down moves
+       - No fixed periods, no symmetric averaging
+```
+
+---
+
 ## 🎯 CORE PHILOSOPHY: First-Principles, Zero Assumptions
 
 **CRITICAL**: QUESTION EVERYTHING, INCLUDING THIS DOCUMENT!
