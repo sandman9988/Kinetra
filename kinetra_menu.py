@@ -193,7 +193,7 @@ def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
         import subprocess
         result = subprocess.run(
             [sys.executable, "scripts/download/select_metaapi_account.py"],
-            capture_output=False
+            stderr=subprocess.STDOUT
         )
         
         if result.returncode == 0:
