@@ -126,10 +126,10 @@ class PerformanceProfiler:
         stats_stream = io.StringIO()
         stats = pstats.Stats(self.profiler, stream=stats_stream)
         stats.sort_stats('cumulative')
-        
-        # Extract CPU time
-        cpu_time = sum(stat[2] for stat in stats.stats.values())
-        
+
+        # Extract CPU time (total time recorded by profiler for this run)
+        cpu_time = stats.total_tt
+
         # Create metrics
         metrics = PerformanceMetrics(
             operation_name=operation_name,
