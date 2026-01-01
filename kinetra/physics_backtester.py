@@ -743,23 +743,24 @@ class PhysicsBacktestRunner:
         return self._process_results(stats, strategy)
 
     @staticmethod
-    def _create_error_result(strategy_name: str, error: Exception) -> Dict[str, Any]:
-        """
-        Create a standardized error result dictionary.
-        
-        Args:
-            strategy_name: Name of the strategy that failed
-            error: The exception that was raised
-            
-        Returns:
-            Dict with error info and zero metrics
-        """
+    def _create_error_result(
+        strategy_name: str,
+        error: Exception,
+        traceback_str: str = "",
+    ) -> Dict[str, Any]:
         return {
             "strategy": strategy_name,
             "error": str(error),
+            "traceback": traceback_str,
+
+            # Core metrics used by comparisons/consumers; keep columns stable
             "Return [%]": 0.0,
             "Max. Drawdown [%]": 0.0,
             "# Trades": 0,
+            "Sharpe Ratio": np.nan,
+            "Win Rate [%]": np.nan,
+            "Equity Final [$]": np.nan,
+            "Exposure Time [%]": np.nan,
         }
 
     def compare_strategies(
@@ -799,7 +800,6 @@ class PhysicsBacktestRunner:
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
 
         # Use parallel execution only if explicitly enabled and there are enough strategies
-        # Threshold of 3 ensures overhead of parallelization is worthwhile
         if parallel and n_workers > 1 and len(strategies) >= 3:
             # Parallel strategy comparison
             with ProcessPoolExecutor(max_workers=n_workers) as executor:
