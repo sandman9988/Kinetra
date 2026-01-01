@@ -114,10 +114,11 @@ class SystemHealthMonitor:
         try:
             cpu_percent = self.psutil.cpu_percent(interval=0.1)
             memory = self.psutil.virtual_memory()
-            
-            self.metrics['cpu_samples'].append(cpu_percent)
-            self.metrics['memory_samples'].append(memory.percent)
-            
+        
+            with self._lock:
+                self.metrics['cpu_samples'].append(cpu_percent)
+                self.metrics['memory_samples'].append(memory.percent)
+        
         except Exception as e:
             logger.warning(f"Error sampling resources: {e}")
     
