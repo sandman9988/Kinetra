@@ -1,13 +1,32 @@
 # Kinetra Menu System - Quick Start
 
-## Installation
+## First-Time Setup
+
+### 1. Installation
 
 ```bash
+# Clone repository
 git clone https://github.com/sandman9988/Kinetra.git
 cd Kinetra
+
+# Install dependencies
 pip install -r requirements.txt
 pip install -e ".[dev]"
 ```
+
+### 2. Configure API Token
+
+Set up your MetaAPI credentials (encrypted storage):
+
+```bash
+# Create .env file from template
+cp .env.example .env
+
+# Edit .env and add your MetaAPI token
+# METAAPI_TOKEN=your_token_here
+```
+
+**Security Note:** Credentials are encrypted using Fernet encryption and stored securely.
 
 ## Launch Menu
 
@@ -30,18 +49,52 @@ python kinetra_menu.py
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Quick Workflows
+## Menu System Workflows
 
-### First-Time Setup (5 minutes)
+### System Status & Health Menu
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   System Status & Health                         │
+└────────────┬────────────────────────────────────────────────────┘
+             │
+             ├─→ [1] Current System Health
+             │   ├─→ Composite Health Score (CHS)
+             │   ├─→ Active agents status
+             │   ├─→ Circuit breaker status
+             │   └─→ Risk management gates
+             │
+             ├─→ [2] Recent Test Results
+             │   ├─→ Last 10 test runs
+             │   ├─→ Success/failure summary
+             │   └─→ Performance metrics
+             │
+             ├─→ [3] Data Summary
+             │   ├─→ Master data inventory
+             │   ├─→ Prepared data status
+             │   └─→ Data integrity scores
+             │
+             ├─→ [4] Performance Metrics
+             │   ├─→ Current Omega Ratio
+             │   ├─→ Z-Factor trend
+             │   ├─→ Energy capture efficiency
+             │   └─→ MFE capture rate
+             │
+             └─→ [0] Back to Main Menu
+```
+
+### Quick Workflows
+
+#### Authentication Setup (5 minutes)
 
 ```
 1. Launch: python kinetra_menu.py
 2. Select: 1 → 1 (Login → Select MetaAPI Account)
 3. Choose account from list
-4. Done!
+4. Done! Credentials encrypted and stored
 ```
 
-### Quick Exploration (30-60 minutes)
+#### Quick Exploration (30-60 minutes)
 
 ```
 1. Launch: python kinetra_menu.py
@@ -50,7 +103,12 @@ python kinetra_menu.py
 4. Review results in data/results/
 ```
 
-### Quick Backtest (15-30 minutes)
+**Features:**
+- Automatic data orchestration (download, verify, prepare)
+- Resumable on interruption (checkpointed state)
+- Statistical validation (p < 0.01 required)
+
+#### Quick Backtest (15-30 minutes)
 
 ```
 1. Launch: python kinetra_menu.py
@@ -59,7 +117,12 @@ python kinetra_menu.py
 4. Review performance metrics
 ```
 
-### Check Data Status (1 minute)
+**Features:**
+- MT5-accurate friction modeling (spread, slippage, commission)
+- Monte Carlo validation (100 runs)
+- Realistic cost analysis
+
+#### Check Data Status (1 minute)
 
 ```
 1. Launch: python kinetra_menu.py
@@ -67,7 +130,9 @@ python kinetra_menu.py
 3. System scans and reports missing data
 ```
 
-## E2E Testing
+## End-to-End (E2E) Testing
+
+**Note:** E2E testing is a command-line framework (not in the interactive menu) for comprehensive system validation across all combinations.
 
 ### Quick Validation (15 minutes)
 
@@ -133,7 +198,7 @@ python kinetra_menu.py
 # Quick E2E validation
 python e2e_testing_framework.py --quick
 
-# Dry run (no execution)
+# Dry run (no execution - preview test matrix)
 python e2e_testing_framework.py --quick --dry-run
 
 # Asset class test
@@ -145,18 +210,35 @@ python e2e_testing_framework.py --agent-type ppo
 # Timeframe test
 python e2e_testing_framework.py --timeframe H1
 
-# Full system test
+# Full system test (24-48 hours)
 python e2e_testing_framework.py --full
 
 # Custom configuration
 python e2e_testing_framework.py --config my_config.json
 ```
 
+### Advanced Usage
+
+**Parallel Execution** (automatic in E2E framework):
+```bash
+# Parallel execution enabled by default in config
+# Set "parallel_execution": true in JSON config
+python e2e_testing_framework.py --config parallel_config.json
+```
+
+**Resume Interrupted Runs:**
+```bash
+# Runs are automatically checkpointed
+# Re-run the same command to resume from last checkpoint
+python e2e_testing_framework.py --full
+# System detects previous state and asks to resume
+```
+
 ## Configuration Files
 
 ### Custom E2E Configuration
 
-Create `my_config.json`:
+Create `config/my_test_config.json` (or any location):
 
 ```json
 {
@@ -174,10 +256,17 @@ Create `my_config.json`:
 }
 ```
 
+**Default values:**
+- `episodes`: 100
+- `parallel_execution`: true
+- `auto_data_management`: true
+- `statistical_validation`: true
+- `monte_carlo_runs`: 100
+
 Run with:
 
 ```bash
-python e2e_testing_framework.py --config my_config.json
+python e2e_testing_framework.py --config config/my_test_config.json
 ```
 
 ## Key Concepts
@@ -190,11 +279,11 @@ python e2e_testing_framework.py --config my_config.json
 - **commodities**: Commodities (Oil, Gas, etc.)
 
 ### Timeframes
-- **M15**: 15 Minutes
-- **M30**: 30 Minutes
-- **H1**: 1 Hour
-- **H4**: 4 Hours
-- **D1**: 1 Day
+- **M15**: 15 Minutes (intraday scalping)
+- **M30**: 30 Minutes (intraday trading)
+- **H1**: 1 Hour (short-term swing)
+- **H4**: 4 Hours (medium-term swing)
+- **D1**: 1 Day (position trading)
 
 ### Agent Types
 - **ppo**: Proximal Policy Optimization
@@ -203,15 +292,95 @@ python e2e_testing_framework.py --config my_config.json
 - **berserker**: Berserker Strategy
 - **triad**: Triad System (Incumbent/Competitor/Researcher)
 
-## Performance Targets
+## Key Metrics Glossary
 
-| Metric | Target |
-|--------|--------|
-| Omega Ratio | > 2.7 |
-| Z-Factor | > 2.5 |
-| % Energy Captured | > 65% |
-| Composite Health Score | > 0.90 |
-| % MFE Captured | > 60% |
+### Performance Targets
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| **Omega Ratio** | > 2.7 | Asymmetric returns measure (upside vs downside probability ratio) |
+| **Z-Factor** | > 2.5 | Statistical robustness score (edge significance, similar to Sharpe but stricter) |
+| **% Energy Captured** | > 65% | Physics-based efficiency: % of kinetic energy (from price momentum) extracted |
+| **Composite Health Score (CHS)** | > 0.90 | Weighted system health: combines Omega, Z-Factor, Energy, Risk metrics |
+| **% MFE Captured** | > 60% | Execution quality: % of Maximum Favorable Excursion captured before exit |
+
+### Metric Details
+
+**Composite Health Score (CHS):**
+
+CHS is a proprietary holistic health metric that aggregates multiple performance, risk, and efficiency factors into a single normalized score (0-1 scale). It serves as a real-time "health check" to prevent overfitting, ensure risk management, and guide decisions like halting tests or flagging underperforming agents.
+
+**Calculation Process:**
+
+1. **Data Collection**: Gather raw metrics from BacktestEngine/HealthMonitor
+   - Omega Ratio (Ω): Gains/Losses ratio (threshold-adjusted)
+   - Z-Factor (Z): Statistical robustness score
+   - Energy Captured (E): % of market kinetic energy extracted
+   - MFE Captured (M): % of Maximum Favorable Excursion realized
+   - Risk-of-Ruin (RoR): Probability of catastrophic loss
+   - Statistical Validity: p-values, Monte Carlo confidence intervals
+
+2. **Normalization**: Scale each metric to [0,1] range
+   ```
+   Normalized_X = (X - Min_Target) / (Max_Target - Min_Target)
+   ```
+   Example: If Omega = 3.0, Normalized_Ω ≈ 0.60 (scaled to 0-5 range)
+   
+   For inverse metrics (RoR): `Normalized_RoR = 1 - (RoR / Max_Acceptable)`
+
+3. **Weighting**: Assign importance weights (sum to 1.0)
+   - Performance (Omega, Z-Factor): 40% (0.20 each)
+   - Efficiency (Energy, MFE): 30% (0.15 each)
+   - Risk/Stability (RoR, circuit factors): 20%
+   - Statistical Validity (p-values, MC CI): 10%
+
+4. **Aggregation**: Compute weighted sum
+   ```
+   CHS = Σ (Normalized_Metric_i × Weight_i)
+   ```
+   
+   Example:
+   ```
+   CHS = (0.80×0.25) + (0.75×0.25) + (0.90×0.25) + (0.85×0.25) = 0.825
+   ```
+
+5. **Validation & Thresholds**:
+   - CHS > 0.90: Strong health (viable for production)
+   - CHS 0.55-0.90: Marginal (needs tuning)
+   - CHS < 0.55: Critical (circuit breaker triggers halt)
+
+**Circuit Breaker Logic:**
+```python
+if CHS < 0.55:
+    halt_trading()
+    log_alert("CHS below threshold - system halted")
+```
+
+**Usage in Kinetra:**
+- Real-time monitoring during exploration/backtesting
+- Triggers auto-actions via risk gates
+- Reported in performance matrices
+- Checkpointed for reproducibility
+
+**Z-Factor:**
+Custom robustness metric incorporating:
+- Statistical significance (p-value)
+- Win rate asymmetry
+- Profit factor
+- Drawdown recovery
+
+**% Energy Captured:**
+Based on physics-first approach:
+```
+Energy = 0.5 * m * (ΔP / Δt)²
+Efficiency = PnL_extracted / Total_Market_Energy
+```
+
+**Pythagorean Distance:**
+MFE/MAE efficiency vector:
+```
+Efficiency = sqrt(MFE² + MAE²) / Ideal_Distance
+```
 
 ## File Locations
 
