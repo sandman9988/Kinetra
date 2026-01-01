@@ -66,8 +66,8 @@ except ImportError:
 # Import Superpot components
 try:
     from scripts.analysis.superpot_complete import (
-        SuperPotExtractor, FeatureImportanceTracker, DimensionTrainer,
-        classify_asset, classify_timeframe, ROLE_CONFIGS
+        DimensionTrainer,
+        classify_asset,
     )
     SUPERPOT_AVAILABLE = True
 except ImportError:
