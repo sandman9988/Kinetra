@@ -32,23 +32,6 @@ from dataclasses import dataclass, field, asdict
 from contextlib import contextmanager
 
 
-# Instance pool for WorkflowManager
-_workflow_manager_pool: Dict[str, "WorkflowManager"] = {}
-
-
-def _get_pool_key(
-    log_dir: str,
-    backup_dir: str,
-    state_dir: str,
-    enable_backups: bool,
-    enable_checksums: bool,
-    max_retries: int,
-    retry_delay: float
-) -> str:
-    """Generate a unique key for WorkflowManager instance pooling."""
-    return f"{log_dir}:{backup_dir}:{state_dir}:{enable_backups}:{enable_checksums}:{max_retries}:{retry_delay}"
-
-
 @dataclass
 class WorkflowStep:
     """Represents a single workflow step."""
@@ -147,9 +130,16 @@ class WorkflowManager:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = self.log_dir / f"workflow_{timestamp}.log"
         
-        # Configure logger
-        self.logger = logging.getLogger("WorkflowManager")
+        # Configure logger - get or create logger for this instance
+        logger_name = f"WorkflowManager.{id(self)}"  # Unique logger per instance
+        self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.DEBUG)
+        
+        # Clear existing handlers to avoid duplicates
+        self.logger.handlers.clear()
+        
+        # Prevent propagation to avoid duplicate logs
+        self.logger.propagate = False
         
         # File handler (detailed)
         file_handler = logging.FileHandler(log_file)
