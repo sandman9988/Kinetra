@@ -989,7 +989,7 @@ def run_exploration_script(wf_manager: WorkflowManager, config: Dict):
         script = "run_comprehensive_exploration.py"
         
         print(f"  🚀 Launching {script}...")
-        subprocess.run([sys.executable, script])
+        subprocess.run([sys.executable, script], check=True)
         
         print("  ✅ Exploration complete!")
         
