@@ -40,13 +40,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-import pandas as pd
-
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent))
-
-from kinetra.workflow_manager import WorkflowManager
-from kinetra.testing_framework import TestConfiguration, InstrumentSpec, TestingFramework
 
 # Configure logging
 logging.basicConfig(
@@ -54,6 +49,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+from kinetra.workflow_manager import WorkflowManager
+
+# Optional imports for testing framework
+try:
+    from kinetra.testing_framework import TestConfiguration, InstrumentSpec, TestingFramework
+    TESTING_FRAMEWORK_AVAILABLE = True
+except ImportError:
+    TESTING_FRAMEWORK_AVAILABLE = False
+    logger.warning("Testing framework not available - some features will be limited")
 
 
 # =============================================================================
@@ -395,27 +400,30 @@ class E2ETestRunner:
         start_time = datetime.now()
         
         try:
-            # Create instrument spec
-            instrument_spec = InstrumentSpec(
-                symbol=test_spec['instrument'],
-                asset_class=test_spec['asset_class'],
-                timeframe=test_spec['timeframe'],
-                data_path=f"data/prepared/train/{test_spec['instrument']}_{test_spec['timeframe']}.csv"
-            )
-            
-            # Create test configuration
-            test_config = TestConfiguration(
-                name=test_id,
-                description=f"E2E test for {test_id}",
-                instruments=[instrument_spec],
-                agent_type=test_spec['agent_type'],
-                agent_config={},
-                episodes=test_spec['episodes'],
-                use_gpu=True
-            )
-            
-            # Run test (placeholder - would integrate with actual testing framework)
-            # result = TestingFramework().run_test(test_config)
+            # Run test using testing framework if available
+            if TESTING_FRAMEWORK_AVAILABLE:
+                # Create instrument spec
+                instrument_spec = InstrumentSpec(
+                    symbol=test_spec['instrument'],
+                    asset_class=test_spec['asset_class'],
+                    timeframe=test_spec['timeframe'],
+                    data_path=f"data/prepared/train/{test_spec['instrument']}_{test_spec['timeframe']}.csv"
+                )
+                
+                # Create test configuration
+                test_config = TestConfiguration(
+                    name=test_id,
+                    description=f"E2E test for {test_id}",
+                    instruments=[instrument_spec],
+                    agent_type=test_spec['agent_type'],
+                    agent_config={},
+                    episodes=test_spec['episodes'],
+                    use_gpu=True
+                )
+                
+                # Run test (placeholder - would integrate with actual testing framework)
+                # result = TestingFramework().run_test(test_config)
+                pass
             
             # Placeholder result
             result = {

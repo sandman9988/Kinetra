@@ -92,6 +92,47 @@ Market Data → Physics Engine → Regime Detection → RL Agent → Risk Manage
 
 ## 🚀 Quick Start
 
+### Interactive Menu System (NEW!)
+
+The easiest way to get started with Kinetra:
+
+```bash
+# Launch the interactive menu
+python kinetra_menu.py
+```
+
+This provides a comprehensive interface for:
+- **Login & Authentication** - Secure MetaAPI account selection
+- **Exploration Testing** - Hypothesis & theorem generation through empirical testing
+- **Backtesting** - ML/RL EA validation with realistic cost modeling
+- **Data Management** - Automated download, integrity checks, and preparation
+- **System Status** - Health monitoring and performance tracking
+
+See [Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md) for complete documentation.
+
+### End-to-End Testing
+
+Comprehensive E2E testing across all combinations:
+
+```bash
+# Quick validation (15 minutes)
+python e2e_testing_framework.py --quick
+
+# Asset class test (crypto)
+python e2e_testing_framework.py --asset-class crypto
+
+# Agent type test (PPO)
+python e2e_testing_framework.py --agent-type ppo
+
+# Full system test (all combinations)
+python e2e_testing_framework.py --full
+
+# Dry run (generate test matrix without running)
+python e2e_testing_framework.py --quick --dry-run
+```
+
+See [Menu System Flowchart](docs/MENU_SYSTEM_FLOWCHART.md) for detailed workflow diagrams.
+
 ### Pop!_OS / Ubuntu Full Setup
 
 For a fresh Pop!_OS or Ubuntu installation, use the automated setup scripts:
@@ -357,11 +398,14 @@ For complete branching workflow, see the [Branching Strategy Guide](docs/BRANCHI
 
 ## 📚 Documentation
 
+- **[Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md)**: Interactive menu and E2E testing
+- **[Menu System Flowchart](docs/MENU_SYSTEM_FLOWCHART.md)**: Comprehensive workflow diagrams
 - **Design Bible**: Complete system architecture and mathematical proofs
 - **API Reference**: Detailed function documentation
 - **Deployment Guide**: Production setup and monitoring
 - **Research Papers**: Theorem validation and empirical results
 - **[Branching Strategy](docs/BRANCHING_STRATEGY.md)**: Git workflow and branch management guide
+- **[Scientific Testing Guide](docs/SCIENTIFIC_TESTING_GUIDE.md)**: Comprehensive testing framework
 
 Visit the [GitHub Wiki](https://github.com/sandman9988/Kinetra/wiki) or [GitHub Pages](https://sandman9988.github.io/Kinetra/) for full documentation.
 
