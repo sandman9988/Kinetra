@@ -5,7 +5,6 @@ Unit tests for E2E test orchestrator
 Tests the core components of the E2E test without requiring actual MetaAPI connection.
 """
 
-import os
 import sys
 import json
 import tempfile
