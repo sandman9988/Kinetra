@@ -1,0 +1,17 @@
+{
+  "run_id": "control_standard_indicators_physics_first_principles_20260101_070920_169113",
+  "timestamp": "2026-01-01T07:09:20.170351",
+  "test_suite": "control_standard_indicators_physics_first_principles",
+  "instruments": [
+    "BTCJPY_M30",
+    "AUDUSD+_H4"
+  ],
+  "config": {
+    "num_tests": 2,
+    "timestamp": "2026-01-01T07:09:20.169108"
+  },
+  "data_snapshot_path": "data/test_runs/control_standard_indicators_physics_first_principles_20260101_070920_169113/data",
+  "results_path": "data/test_runs/control_standard_indicators_physics_first_principles_20260101_070920_169113/results",
+  "cache_path": "data/test_runs/control_standard_indicators_physics_first_principles_20260101_070920_169113/cache",
+  "status": "completed"
+}

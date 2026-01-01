@@ -1,0 +1,11 @@
+{
+  "runs": {
+    "control_standard_indicators_physics_first_principles_20260101_070920_169113": {
+      "created_at": "2026-01-01T07:09:20.170351",
+      "test_suite": "control_standard_indicators_physics_first_principles",
+      "status": "completed",
+      "run_dir": "data/test_runs/control_standard_indicators_physics_first_principles_20260101_070920_169113",
+      "completed_at": "2026-01-01T07:09:41.781653"
+    }
+  }
+}
