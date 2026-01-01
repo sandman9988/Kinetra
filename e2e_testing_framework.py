@@ -312,14 +312,6 @@ class E2ETestRunner:
         
         logger.info("Generating test matrix...")
         
-        # Pre-allocate list with estimated size for better performance
-        estimated_size = (
-            len(self.config.asset_classes) * 
-            len(self.config.timeframes) * 
-            len(self.config.agent_types) * 10  # Rough estimate of instruments per class
-        )
-        test_matrix = []
-        
         # Get instruments for all asset classes at once (batch operation)
         instruments_by_class = {}
         for asset_class in self.config.asset_classes:
