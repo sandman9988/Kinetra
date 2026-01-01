@@ -445,7 +445,15 @@ class E2ETestOrchestrator:
         
         self.downloaded_files = downloaded
         
-        # Disconnect
+
+        # Verify all combinations downloaded
+        expected = [
+            f"{s}_{tf}" for s in self.config.symbols for tf in self.config.timeframes
+        ]
+        missing = [key for key in expected if key not in downloaded]
+        if missing:
+            raise RuntimeError(f"Missing downloads for: {missing}")
+
         await self._metaapi_sync.disconnect()
         
         return {
