@@ -20,7 +20,6 @@ Usage:
     python kinetra_menu.py
 """
 
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
