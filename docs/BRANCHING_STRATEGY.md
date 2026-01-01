@@ -4,6 +4,33 @@
 
 This document defines the branching strategy for the Kinetra project, establishing clear workflows for local development, feature branches, and production releases.
 
+## Visual Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     GitHub Remote (origin)                   │
+│                                                              │
+│  main ──●──●──────●──●────────●──●──────────●               │
+│           ╲       ╱   ╲      ╱   ╲        ╱                 │
+│            ╲     ╱     ╲    ╱     ╲      ╱                  │
+│             ╲   ╱       ╲  ╱       ╲    ╱                   │
+│              ╲ ╱         ╲╱         ╲  ╱                    │
+│  feature/a ──●──●──●    feature/b ──●──●                    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+                          ↕ (git fetch/pull/push)
+┌──────────────────────────────────────────────────────────────┐
+│                      Local Repository                        │
+│                                                              │
+│  main ──●──●──────●──●                                       │
+│         ↑ (tracking origin/main)                             │
+│         │                                                    │
+│  feature/my-work ──●──●──●                                   │
+│         ↑ (working branch)                                   │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ## Branch Structure
 
 ### Main Branches
