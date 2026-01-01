@@ -476,48 +476,51 @@ class E2ETestRunner:
         completed = 0
         failed = 0
         skipped = 0
-        
-        for i, test_spec in enumerate(self.test_matrix, 1):
-            logger.info(f"Progress: {i}/{len(self.test_matrix)}")
+    
+        try:
+            for i, test_spec in enumerate(self.test_matrix, 1):
+                logger.info(f"Progress: {i}/{len(self.test_matrix)}")
             
-            result = self.run_single_test(test_spec)
-            self.results.append(result)
+                result = self.run_single_test(test_spec)
+                self.results.append(result)
             
-            if result['status'] == 'completed':
-                completed += 1
-            elif result['status'] == 'failed':
-                failed += 1
-            else:
-                skipped += 1
+                if result['status'] == 'completed':
+                    completed += 1
+                elif result['status'] == 'failed':
+                    failed += 1
+                else:
+                    skipped += 1
+        finally:
+            end_time = datetime.now()
+            total_duration = (end_time - start_time).total_seconds()
         
-        end_time = datetime.now()
-        total_duration = (end_time - start_time).total_seconds()
+            # Create summary
+            summary = self.generate_summary()
         
-        # Create summary
-        summary = self.generate_summary()
+            # Create result object
+            e2e_result = E2ETestResult(
+                config_name=self.config.name,
+                total_tests=len(self.test_matrix),
+                completed_tests=completed,
+                failed_tests=failed,
+                skipped_tests=skipped,
+                total_duration=total_duration,
+                start_time=start_time.isoformat(),
+                end_time=end_time.isoformat(),
+                results=self.results,
+                summary=summary
+            )
         
-        # Create result object
-        e2e_result = E2ETestResult(
-            config_name=self.config.name,
-            total_tests=len(self.test_matrix),
-            completed_tests=completed,
-            failed_tests=failed,
-            skipped_tests=skipped,
-            total_duration=total_duration,
-            start_time=start_time.isoformat(),
-            end_time=end_time.isoformat(),
-            results=self.results,
-            summary=summary
-        )
+            # Save results
+            if self.results:
+                self.save_results(e2e_result)
         
-        # Save results
-        self.save_results(e2e_result)
+            # Print summary
+            if self.results:
+                self.print_summary(e2e_result)
         
-        # Print summary
-        self.print_summary(e2e_result)
-        
-        logger.info(f"E2E test run complete: {self.config.name}")
-        
+            logger.info(f"E2E test run finished: {self.config.name}")
+    
         return e2e_result
     
     def generate_summary(self) -> Dict:
