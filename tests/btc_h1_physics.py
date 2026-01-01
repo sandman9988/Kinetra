@@ -279,7 +279,7 @@ def physics_based_signal(
     return 0
 
 
-def run_backtest(df: pd.DataFrame, symbol_spec: SymbolSpec) -> Tuple[Any, pd.DataFrame]:
+def run_backtest(df: pd.DataFrame, symbol_spec: SymbolSpec, physics_state: pd.DataFrame) -> Tuple[Any, pd.DataFrame]:
     """Run the backtest with physics-based signals."""
     print(f"\n{'=' * 60}")
     print("RUNNING BACKTEST")
@@ -292,13 +292,17 @@ def run_backtest(df: pd.DataFrame, symbol_spec: SymbolSpec) -> Tuple[Any, pd.Dat
         timeframe="H1",
     )
 
+    # Create a wrapper that captures physics_state in closure
+    def signal_wrapper(row: pd.Series, bar_index: int) -> int:
+        return physics_based_signal(row, physics_state, bar_index)
+
     result = engine.run_backtest(
         data=df,
         symbol_spec=symbol_spec,
-        signal_func=physics_based_signal,
+        signal_func=signal_wrapper,
     )
 
-    return result, engine.physics.compute_physics_state(df["close"])
+    return result, physics_state
 
 
 def analyze_trade_results(result: Any) -> None:
@@ -535,7 +539,7 @@ def main():
 
     # Step 5: Create symbol spec and run backtest
     symbol_spec = create_btc_symbol_spec()
-    backtest_result, _ = run_backtest(df, symbol_spec)
+    backtest_result, _ = run_backtest(df, symbol_spec, physics_state)
 
     # Step 6: Analyze results
     analyze_trade_results(backtest_result)

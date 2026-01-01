@@ -783,7 +783,7 @@ class PhysicsBacktestRunner:
         if strategies is None:
             strategies = list_strategies()
 
-        def run_strategy(strategy_name: str) -> Optional[Dict]:
+        def run_strategy(strategy_name: str) -> Dict:
             """Run single strategy for parallel execution."""
             try:
                 result = self.run(data, strategy=strategy_name)
@@ -793,8 +793,8 @@ class PhysicsBacktestRunner:
                 import traceback
                 error_msg = f"Error running {strategy_name}: {e}\n{traceback.format_exc()}"
                 print(error_msg)
-                # Return a dict with error info instead of None to help debugging
-                return self._create_error_result(strategy_name, e)
+                # Always return a dict with error info for debugging
+                return self._create_error_result(strategy_name, e, traceback.format_exc())
 
         results = []
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
@@ -806,14 +806,12 @@ class PhysicsBacktestRunner:
                 futures = {executor.submit(run_strategy, name): name for name in strategies}
                 for future in as_completed(futures):
                     result = future.result()
-                    if result is not None:
-                        results.append(result)
+                    results.append(result)
         else:
             # Sequential execution (safer, especially for tests)
             for strategy_name in strategies:
                 result = run_strategy(strategy_name)
-                if result is not None:
-                    results.append(result)
+                results.append(result)
 
         return pd.DataFrame(results)
 
