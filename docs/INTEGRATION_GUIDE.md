@@ -26,11 +26,155 @@
 
 | Integration Point | Status | Priority |
 |-------------------|--------|----------|
-| Testing Framework ↔ RL Agents | ❌ Not connected | 🔥 CRITICAL |
-| Discovery Methods ↔ Testing | ❌ Stub implementations | 🔥 HIGH |
-| Physics Engine ↔ Test Environments | ⚠️ Partially wired | 🔥 HIGH |
-| Results ↔ Analytics Dashboard | ❌ Manual analysis | 🟡 MEDIUM |
-| Training Scripts ↔ Unified Interface | ⚠️ Scattered | 🟡 MEDIUM |
+| **DSP Features ↔ SuperPot** | ❌ Legacy uses fixed periods | 🔥 **P0 - CRITICAL** |
+| Testing Framework ↔ RL Agents | ❌ Not connected | 🔥 P1 - CRITICAL |
+| Discovery Methods ↔ Testing | ❌ Stub implementations | 🔥 P2 - HIGH |
+| Physics Engine ↔ Test Environments | ⚠️ Partially wired | 🔥 P2 - HIGH |
+| Results ↔ Analytics Dashboard | ❌ Manual analysis | 🟡 P3 - MEDIUM |
+| Training Scripts ↔ Unified Interface | ⚠️ Scattered | 🟡 P4 - MEDIUM |
+
+**⚠️ NEW P0 PRIORITY**: Replace fixed-period superpot with DSP-driven adaptive cycles
+
+---
+
+## 🔌 Integration Task 0: DSP-Driven Features → SuperPot (P0 - CRITICAL)
+
+### Current Gap
+
+**Philosophy Violation**: Legacy superpot uses fixed periods (5, 10, 20 bars), violating core principle of "no fixed periods, no magic numbers"
+
+```python
+# scripts/analysis/superpot_explorer.py (CURRENT - WRONG):
+features[fi] = np.mean(ret[-5:])   # Magic number 5!
+features[fi] = np.mean(ret[-10:])  # Magic number 10!
+features[fi] = np.mean(ret[-20:])  # Magic number 20!
+```
+
+### Integration Steps
+
+#### Step 0.1: Create DSP-Driven Feature Extractor
+
+```python
+# File: kinetra/superpot_dsp.py (NEW)
+
+from kinetra.dsp_features import WaveletExtractor, HilbertExtractor
+from kinetra.assumption_free_measures import AsymmetricReturns
+
+class DSPSuperPotExtractor:
+    """
+    SuperPot feature extraction using DSP-detected cycles.
+    NO FIXED PERIODS. EVER.
+    
+    Replaces: scripts/analysis/superpot_explorer.py (legacy)
+    """
+    
+    def __init__(self):
+        self.wavelet = WaveletExtractor(min_scale=2, max_scale=64)
+        self.hilbert = HilbertExtractor()
+        self.feature_names = self._build_feature_names()
+    
+    def extract(self, df: pd.DataFrame, idx: int) -> np.ndarray:
+        """Extract features using DSP-detected cycles (not fixed periods)."""
+        
+        if idx < 100:
+            return np.zeros(len(self.feature_names))
+        
+        # Get price data
+        prices = df['close'].values[:idx+1]
+        
+        # DSP: Detect market's natural cycles
+        wavelet_features = self.wavelet.extract_features(prices)
+        dominant_cycle = wavelet_features['dominant_scale']  # Market tells us!
+        
+        # Use detected cycle for all calculations (not 5, 10, 20)
+        features = []
+        
+        # Price action over DETECTED cycle (not fixed 20)
+        if dominant_cycle > 0:
+            cycle_return = (prices[-1] / prices[-dominant_cycle] - 1)
+        else:
+            cycle_return = 0
+        features.append(cycle_return)
+        
+        # ASYMMETRIC returns (up/down separate)
+        asymm = AsymmetricReturns.extract_features(prices, lookback=dominant_cycle)
+        features.extend([
+            asymm['up_sum'],      # Total upside (positive)
+            asymm['down_sum'],    # Total downside (negative) 
+            # NEVER COMBINED!
+        ])
+        
+        # Hilbert instantaneous frequency (not bar-count based)
+        hilbert = self.hilbert.extract_features(prices)
+        features.append(hilbert['frequency'])  # Actual market rhythm
+        
+        # Wavelet energy PER SCALE (multiple cycles, not just one)
+        for scale in wavelet_features['energy'].keys():
+            features.append(wavelet_features['energy'][scale])
+        
+        # DIRECTIONAL wavelet features (up/down separate)
+        for scale in wavelet_features['energy'].keys():
+            # Get positive and negative coefficients SEPARATELY
+            # (never square and sum together - that's symmetric!)
+            pass  # Implementation needed
+        
+        return np.array(features, dtype=np.float32)
+    
+    def _build_feature_names(self) -> List[str]:
+        """Build feature names WITHOUT fixed periods."""
+        return [
+            'cycle_return',        # Over DETECTED cycle, not 20
+            'up_sum',              # Asymmetric (separate)
+            'down_sum',            # Asymmetric (separate)
+            'inst_frequency',      # Hilbert (instantaneous)
+            # ... wavelet energies per scale (data-driven)
+            # ... directional features (asymmetric)
+        ]
+```
+
+#### Step 0.2: Update SuperPot Scripts
+
+```python
+# File: scripts/analysis/superpot_dsp_driven.py (NEW)
+
+from kinetra.superpot_dsp import DSPSuperPotExtractor
+
+def run_dsp_superpot(instruments, episodes=100):
+    """
+    SuperPot with DSP-detected cycles.
+    Replaces legacy superpot_explorer.py
+    """
+    
+    extractor = DSPSuperPotExtractor()  # NO fixed periods!
+    tracker = FeatureImportanceTracker(
+        extractor.n_features,
+        extractor.feature_names
+    )
+    
+    # Same empirical discovery methodology
+    # BUT: Features use adaptive cycles, not magic numbers
+    
+    for ep in range(episodes):
+        # ... training loop ...
+        
+        # Prune based on performance (adaptive, not every 20)
+        if tracker.should_prune():  # When improvement plateaus
+            tracker.prune_bottom_performers(adaptive_count)
+```
+
+#### Step 0.3: Validation
+
+```bash
+# Compare legacy vs DSP-driven superpot
+python scripts/analysis/superpot_explorer.py --episodes 50  # Legacy (fixed)
+python scripts/analysis/superpot_dsp_driven.py --episodes 50  # New (adaptive)
+
+# Verify:
+# 1. DSP version has NO fixed periods (5, 10, 20) in code
+# 2. DSP version uses dominant_scale from wavelets
+# 3. DSP version separates up/down moves (asymmetric)
+# 4. Both discover similar alpha (methodology works)
+```
 
 ---
 
@@ -889,13 +1033,16 @@ cat test_results/comparison.png  # Should show comparison plots
 
 | Priority | Task | Effort | Impact | Status |
 |----------|------|--------|--------|--------|
+| 🔥 **P0** | DSP Features ↔ SuperPot | 2-3 days | **PHILOSOPHY VIOLATION FIX** | ❌ TODO |
 | 🔥 **P1** | Testing Framework ↔ RL Agents | 2-3 days | Critical | ❌ TODO |
 | 🔥 **P2** | Physics Engine ↔ Environments | 1-2 days | High | ⚠️ Partial |
 | 🟡 **P3** | Discovery Methods Implementation | 3-5 days | High | ❌ TODO |
 | 🟡 **P4** | Results ↔ Analytics Dashboard | 1-2 days | Medium | ❌ TODO |
 | 🟢 **P5** | Unified Training Interface | 1 day | Medium | ❌ TODO |
 
-**Total Estimated Effort**: 8-13 days (1.5-2.5 weeks)
+**Total Estimated Effort**: 11-16 days (2-3 weeks)
+
+**P0 is NEW and CRITICAL**: Legacy superpot violates "no fixed periods" philosophy. Must evolve to DSP-driven adaptive cycles before meaningful testing.
 
 ---
 

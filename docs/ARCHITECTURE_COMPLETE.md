@@ -492,6 +492,181 @@ risk_manager = TriplegangerRiskManager(mode=config)
 
 ## 🔍 Measurement Framework
 
+### Core Philosophy: Reject Symmetry, Linearity, Magic Numbers, Fixed Periods
+
+**RUTHLESSLY PURGED**:
+- ❌ **Symmetry**: Up moves ≠ down moves (ALWAYS measured separately)
+- ❌ **Linearity**: No linear regression, no Pearson correlation, no linear combinations
+- ❌ **Magic Numbers**: No "20-period MA", no "14-period RSI", no arbitrary thresholds
+- ❌ **Fixed Periods**: No assumption that 5, 10, or 20 bars = meaningful
+
+**WHAT SURVIVES**:
+- ✅ **Asymmetric**: Directional, signed, up/down measured separately
+- ✅ **Non-parametric**: Rank-based, order-based, median-based
+- ✅ **DSP-Adaptive**: Cycles detected via wavelets, not assumed
+- ✅ **Entropy-based**: Complexity/disorder measured, not distribution shape
+- ✅ **Tail-specific**: Left tail vs right tail separately (no CVaR averaging)
+
+### DSP-Driven Cycle Detection (No Fixed Periods!)
+
+**Key Principle**: Let the market tell us its rhythm via Digital Signal Processing
+
+**Implementation** (`kinetra/dsp_features.py`):
+```python
+# WRONG (legacy superpot):
+lookback = 20  # Magic number!
+features = calculate_momentum(prices[-20:])
+
+# RIGHT (DSP-driven):
+wavelet_features = WaveletExtractor().extract_features(prices)
+dominant_scale = wavelet_features['dominant_scale']  # Data tells us the cycle!
+features = calculate_momentum(prices[-dominant_scale:])
+
+# Even better - use multiple scales asymmetrically:
+for scale in detected_scales:
+    up_energy[scale] = positive_coefficients_at_scale(scale)
+    down_energy[scale] = negative_coefficients_at_scale(scale)
+    # Never combine up and down!
+```
+
+**DSP Components Available**:
+
+| Module | Purpose | Adaptive Feature |
+|--------|---------|------------------|
+| `WaveletExtractor` | Continuous Wavelet Transform | Dominant scale = market's natural cycle |
+| `HilbertExtractor` | Instantaneous amplitude/frequency | Phase-based timing, not bar count |
+| `EntropyExtractor` | Sample entropy, permutation entropy | Complexity measured, not assumed |
+| `DirectionalWaveletExtractor` | **Asymmetric** wavelet analysis | Up/down coefficients NEVER combined |
+| `AsymmetricReturns` | Directional return decomposition | Up moves vs down moves separately |
+
+**Cycle Detection Example**:
+```python
+from kinetra.dsp_features import WaveletExtractor
+
+extractor = WaveletExtractor(min_scale=2, max_scale=64)
+features = extractor.extract_features(price_data)
+
+# Market tells us the dominant cycle:
+dominant_cycle = features['dominant_scale']  # e.g., 17 bars (NOT 20!)
+
+# Energy concentration tells us regime:
+if features['energy_concentration'] > 0.7:
+    regime = "SINGLE_CYCLE"  # Clean trend
+else:
+    regime = "MULTI_CYCLE"   # Choppy, multiple frequencies
+```
+
+### The "SuperPot" Testing Philosophy
+
+**CRITICAL**: Empirical testing approach - throw ALL measurements in, let agents discover what matters
+
+**⚠️ IMPORTANT: Legacy vs First-Principles Tension**
+
+The current superpot implementation (legacy scripts in `scripts/analysis/`) uses **fixed lookback periods** (5, 10, 20 bars), which **VIOLATES the core philosophy**. This is being evolved:
+
+**Evolution Path**:
+```
+Legacy SuperPot (Current):
+├─ Fixed lookbacks: 5, 10, 20 bars
+├─ Fixed pruning intervals: every 20 episodes
+├─ Why: Pragmatic starting point for exploration
+└─ Issue: Assumes bar count = meaningful time
+
+Target (DSP-Driven SuperPot):
+├─ Adaptive lookbacks from DSP (dominant_scale, not 20)
+├─ Asymmetric features (up/down separate, not combined)
+├─ Pruning based on improvement plateaus (not episode count)
+├─ No linearity (no regressions, no correlations)
+└─ No assumptions about what "5" or "20" mean
+```
+
+**SuperPot Feature Categories** (~150+ measurements):
+- Price action (returns, ranges, gaps) - **ASYMMETRIC** (up/down separate)
+- Volume dynamics (CVD, Amihud, pressure) - **SIGNED** (directional)
+- Volatility (Parkinson, GK, RS, YZ estimators) - **ADAPTIVE** estimators
+- Momentum (signed, directional, acceleration) - **NO LINEAR REGRESSION**
+- Entropy & chaos (permutation, recurrence, Lyapunov) - **NON-PARAMETRIC**
+- Tail behavior (asymmetric, CVaR, skew) - **LEFT vs RIGHT SEPARATELY**
+- Microstructure (spread, depth, VPIN) - **RANK-BASED**
+- Higher moments (skew, kurtosis) - **SIGNED** (not squared)
+- Regime indicators (trend strength, stability) - **DSP-DETECTED**
+- Cross-feature patterns - **CORRELATION-FREE** (mutual information instead)
+
+**Existing SuperPot Scripts** (Legacy - Fixed Periods):
+```bash
+# ⚠️  WARNING: These use fixed periods (5, 10, 20) - legacy approach
+# Useful for understanding empirical testing methodology
+# But need evolution to DSP-driven adaptive periods
+
+# Complete superpot exploration (all instruments, all roles)
+python scripts/analysis/superpot_complete.py
+
+# By asset class (find universal vs class-specific features)
+python scripts/analysis/superpot_by_class.py --prune-every 20 --prune-count 10
+
+# Interactive explorer (original superpot implementation)
+python scripts/analysis/superpot_explorer.py --episodes 100
+
+# Physics-focused superpot
+python scripts/analysis/superpot_physics.py
+```
+
+**DSP-Driven Feature Extraction** (First-Principles Approach):
+```python
+# Use these modules instead of fixed-period superpot:
+from kinetra.dsp_features import (
+    WaveletExtractor,      # Cycle detection via CWT
+    HilbertExtractor,      # Instantaneous amplitude/frequency
+    EntropyExtractor,      # Sample/permutation entropy
+    DirectionalWaveletExtractor  # ASYMMETRIC wavelet analysis
+)
+
+from kinetra.assumption_free_measures import (
+    AsymmetricReturns,     # Up/down separate, never combined
+    TailAnalysis,          # Left/right tails separate
+    RecurrenceAnalysis     # Structural patterns (non-linear)
+)
+
+# Example: Adaptive momentum calculation
+extractor = WaveletExtractor()
+wavelet_features = extractor.extract_features(prices)
+cycle = wavelet_features['dominant_scale']  # Market's natural rhythm
+
+# Calculate momentum over detected cycle (not fixed 20):
+momentum = (prices[-1] / prices[-cycle] - 1) if cycle > 0 else 0
+```
+
+**Pruning Strategy** (Empirical Feature Discovery):
+- Train agent with all features
+- Calculate feature importance via gradients/usage frequency
+- Prune bottom performers iteratively
+- Repeat until convergence
+- **Result**: Surviving features = empirically valuable measurements
+
+**⚠️ Known Issues in Legacy Scripts**:
+1. `--prune-every 20` → Magic number! Should be adaptive (e.g., when improvement plateaus)
+2. `--prune-count 10` → Magic number! Should scale with feature count
+3. Fixed lookbacks (5, 10, 20) → Should use `dominant_scale` from wavelets
+4. Symmetric calculations → Should separate up/down moves
+
+**Discovery Levels**:
+```
+Universal Features
+├─ Survive across ALL asset classes
+├─ Core market physics (energy, momentum, vol)
+└─ Example: ATR, CVD, signed momentum
+
+Asset Class Features
+├─ Survive within one class (crypto, forex, metals)
+├─ Class-specific dynamics
+└─ Example: Crypto - 24/7 volatility patterns
+
+Instrument-Specific Features
+├─ Survive for one instrument only
+├─ Unique characteristics
+└─ Example: BTCUSD - whale activity proxies
+```
+
 ### Metrics Hierarchy
 
 ```
@@ -513,32 +688,43 @@ Individual Instrument Level
 ├─ MFE/MAE captured
 └─ Trade efficiency (Pythagorean distance)
 
-Physics Level
-├─ Energy captured (%)
-├─ Regime classification accuracy
-├─ Damping/entropy correlation with PnL
-└─ Chaos indicators (Lyapunov, entropy)
+Feature Importance Level (SuperPot)
+├─ Universal features (survive all classes)
+├─ Class-specific features (survive one class)
+├─ Instrument-specific features (survive one instrument)
+└─ Pruned features (empirically useless)
 ```
 
-### Alpha Sources to Test
+### Alpha Sources to Test (SuperPot Approach)
 
-**Category 1: Traditional** (control group)
+**METHODOLOGY**: Don't assume - test empirically via superpot!
+
+**Category 1: Traditional** (control group baseline)
 - Moving averages crossovers
 - RSI divergences
 - MACD signals
 - Bollinger Band bounces
+- **Test**: Do these survive pruning?
 
 **Category 2: Physics** (first principles)
 - Energy regime transitions (underdamped → laminar)
 - Damping coefficient thresholds
 - Entropy collapse (order from chaos)
 - Viscosity extremes (liquidity events)
+- **Test**: Which physics features survive?
 
-**Category 3: Advanced** (discovery)
+**Category 3: Advanced** (discovery via superpot)
 - Hidden dimensions (PCA/ICA)
 - Chaos theory (Lyapunov exponents)
 - Information theory (mutual information)
 - Quantum-inspired (strategy superposition)
+- **Test**: Do advanced features outperform traditional?
+
+**Category 4: SuperPot Discoveries** (empirical winners)
+- Features that survive across all asset classes = **universal alpha**
+- Features that survive in one class = **class-specific edge**
+- Correlation between feature survival and regime type
+- Pruned features = **empirically worthless** (ignore regardless of theory)
 
 ---
 
