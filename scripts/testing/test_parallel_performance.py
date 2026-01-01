@@ -166,6 +166,7 @@ def main():
     print("=" * 70)
 
     resources = get_system_resources()
+    gpu_speedup = 0.0  # Initialize before conditional block
     if resources.gpu_available:
         print("\n[CPU Physics]")
         runner_cpu = ParallelBacktestRunner(n_workers=30, use_gpu=False, verbose=False)

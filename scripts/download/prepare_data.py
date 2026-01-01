@@ -17,7 +17,7 @@ Usage:
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import pandas as pd
 import numpy as np
 from datetime import datetime, time
@@ -57,7 +57,8 @@ class DataPreparer:
         self.test_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
-    def _prepare_file_worker(filepath: Path, test_ratio: float, train_dir: Path, test_dir: Path) -> Dict:
+    def _prepare_file_worker(filepath: Path, test_ratio: float, train_dir: Path, test_dir: Path) -> dict[
+                                                                                                        str | Any, str | int | Any] | None:
         """
         Worker function for parallel file preparation.
         Must be static for multiprocessing pickle compatibility.
@@ -259,7 +260,7 @@ class DataPreparer:
 
         return train, test
 
-    def prepare_file(self, filepath: Path, test_ratio: float = 0.2) -> Dict:
+    def prepare_file(self, filepath: Path, test_ratio: float = 0.2) -> dict[str | Any, str | int | Any] | None:
         """Prepare a single file."""
         # Parse filename - preserve original filename for prepared files
         parts = filepath.stem.split('_')

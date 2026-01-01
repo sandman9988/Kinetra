@@ -681,7 +681,7 @@ class AsyncExecutor:
         coros: List[Coroutine],
         timeout: float = None,
         return_exceptions: bool = False,
-    ) -> List[Any]:
+    ) -> tuple[BaseException | Any] | tuple[Any]:
         """
         Execute multiple coroutines concurrently.
         

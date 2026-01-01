@@ -28,6 +28,8 @@ from datetime import datetime
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import pytest
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -233,11 +235,13 @@ def stress_test_data_management(operation_id: int, monitor: SystemHealthMonitor)
     
     try:
         from pathlib import Path
-        
+
         # Test data directory existence
         data_dirs = ['data/master', 'data/prepared', 'data/results', 'logs']
 
         for dir_path in data_dirs:
+            start = time.time()  # Initialize start time for each iteration
+            exists = Path(dir_path).exists()
 
             if not exists:
                 results['errors'].append(f"Missing directory: {dir_path}")
@@ -397,6 +401,22 @@ def stress_test_custom_config_loading(test_id: int, monitor: SystemHealthMonitor
         monitor.record_error(f'config_test_{test_id}', str(e))
     
     return results
+
+
+# =============================================================================
+# PYTEST FIXTURES
+# =============================================================================
+
+@pytest.fixture
+def config():
+    """Create a StressTestConfig instance for tests."""
+    return StressTestConfig()
+
+
+@pytest.fixture
+def monitor():
+    """Create a SystemHealthMonitor instance for tests."""
+    return SystemHealthMonitor()
 
 
 # =============================================================================

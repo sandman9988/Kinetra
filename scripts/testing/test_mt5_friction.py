@@ -21,6 +21,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from kinetra import (
     MT5Bridge,
+)
+from kinetra.market_microstructure import (
     FrictionModel,
     get_symbol_spec,
     compute_friction_series,

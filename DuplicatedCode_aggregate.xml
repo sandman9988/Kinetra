@@ -1,0 +1,1230 @@
+<root>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" line="259" start="9091" end="9312" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" line="615" start="21450" end="21696" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" line="683" start="23950" end="24228" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" line="691" start="24271" end="24562" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/backtest_engine.py" line="566" start="19448" end="19900" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" line="631" start="20832" end="21274" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/backtest_engine.py" line="912" start="31632" end="32134" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" line="744" start="28835" end="29222" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/backtest_engine.py" line="915" start="31758" end="32134" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" line="747" start="28930" end="29222" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/backtest_engine.py" line="951" start="33090" end="33355" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" line="773" start="30003" end="30268" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/backtest_engine.py" line="1076" start="38199" end="38793" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" line="1007" start="39615" end="40231" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" line="95" start="2803" end="3096" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py" line="30" start="818" end="1091" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_thesis.py" line="35" start="845" end="1154" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" line="164" start="6221" end="6677" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/rl_physics_env.py" line="108" start="3456" end="3912" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" line="165" start="6259" end="6615" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/rl_physics_env.py" line="109" start="3494" end="3850" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py" line="90" start="3479" end="3823" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" line="231" start="8165" end="8911" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" line="132" start="4626" end="5404" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" line="671" start="25012" end="25604" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_berserker_strategy.py" line="37" start="899" end="1461" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_berserker_strategy.py" line="102" start="3318" end="3880" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/broker_compliance.py" line="33" start="841" end="1390" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" line="38" start="857" end="1217" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data/download.py" line="21" start="419" end="949" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/unified_data_manager.py" line="52" start="1285" end="1815" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data/test_isolation.py" line="23" start="441" end="797" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_management.py" line="67" start="1679" end="2035" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_loader.py" line="413" start="14237" end="14619" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_loader.py" line="436" start="15013" end="15493" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_loader.py" line="453" start="15590" end="15979" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_loader.py" line="477" start="16456" end="16825" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_loader.py" line="491" start="16919" end="17284" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_manager.py" line="610" start="18784" end="19209" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_manager.py" line="694" start="21407" end="21790" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_quality.py" line="312" start="9773" end="10043" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py" line="298" start="8824" end="9074" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/data_utils.py" line="103" start="2981" end="3243" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/debug_csv.py" line="23" start="592" end="786" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="34" start="1099" end="1631" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="838" start="28188" end="28720" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="147" start="5073" end="5743" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="925" start="30933" end="31603" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="298" start="10187" end="10549" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="1078" start="36268" end="36630" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="319" start="11052" end="11980" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="1104" start="37215" end="38143" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="357" start="12340" end="13065" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="1142" start="38476" end="39201" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="379" start="13114" end="13967" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="1164" start="39250" end="40103" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" line="458" start="16206" end="16925" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="1246" start="42476" end="43222" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/exploration_integration.py" line="58" start="1769" end="2260" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="60" start="2168" end="2730" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="61" start="2224" end="2795" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="63" start="2285" end="2854" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="64" start="2338" end="2903" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="65" start="2389" end="2962" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="67" start="2449" end="3032" />
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="68" start="2512" end="3101" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/financial_audit.py" line="558" start="17824" end="18143" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/financial_audit.py" line="594" start="19004" end="19322" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" line="1144" start="40266" end="40738" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" line="1145" start="40344" end="40738" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" line="1218" start="42699" end="43225" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" line="1219" start="42787" end="43225" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" line="340" start="10839" end="11151" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/performance.py" line="366" start="11458" end="11793" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" line="343" start="10913" end="11151" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/performance.py" line="369" start="11532" end="11793" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" line="344" start="10946" end="11179" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/performance.py" line="401" start="12572" end="12793" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" line="435" start="13852" end="14084" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/performance.py" line="391" start="12247" end="12505" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/market_microstructure.py" line="153" start="5983" end="6518" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/market_microstructure.py" line="154" start="6063" end="6518" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/market_microstructure.py" line="189" start="8416" end="8918" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/market_microstructure.py" line="190" start="8463" end="8918" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/measurements.py" line="1015" start="34464" end="34802" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/measurements.py" line="1041" start="35294" end="35625" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/metrics_server.py" line="256" start="10224" end="10483" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/metrics_server.py" line="262" start="10492" end="10749" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/metrics_server.py" line="336" start="13020" end="13423" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/metrics_server.py" line="342" start="13432" end="13886" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" line="81" start="2198" end="4180" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="205" start="5492" end="7482" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" line="223" start="6774" end="7872" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="67" start="2006" end="3071" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" line="348" start="10180" end="10489" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="1880" start="64595" end="64898" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" line="526" start="15932" end="16417" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" line="535" start="16436" end="16922" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2195" start="74899" end="75520" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2196" start="74936" end="75520" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2222" start="75769" end="76392" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2223" start="75807" end="76392" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2249" start="76639" end="77258" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2250" start="76675" end="77258" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2276" start="77506" end="78127" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" line="2277" start="77543" end="78127" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/order_executor.py" line="144" start="3783" end="4552" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/order_executor.py" line="340" start="9843" end="10626" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/parallel.py" line="307" start="9260" end="9575" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/parallel.py" line="370" start="11837" end="12115" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/persistence.py" line="168" start="4381" end="4684" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/persistence.py" line="182" start="4862" end="5193" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_backtester.py" line="273" start="9213" end="9570" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_backtester.py" line="387" start="13352" end="13709" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_backtester.py" line="625" start="21975" end="22332" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_engine.py" line="155" start="5239" end="5554" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="152" start="4422" end="4654" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_engine.py" line="261" start="9479" end="10292" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="185" start="5358" end="6012" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/physics_engine.py" line="655" start="23832" end="24281" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="444" start="16669" end="17069" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="625" start="28988" end="29388" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" line="386" start="13650" end="14719" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" line="455" start="16839" end="17728" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" line="215" start="7762" end="8101" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trading_env.py" line="263" start="10621" end="10960" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" line="498" start="18380" end="18741" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trading_env.py" line="535" start="20686" end="21050" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/reporting.py" line="500" start="15900" end="16122" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/reporting.py" line="608" start="19974" end="20303" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/reporting.py" line="714" start="24079" end="24678" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/reporting.py" line="740" start="24951" end="25521" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" line="289" start="10493" end="10785" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/rl_physics_env.py" line="95" start="2952" end="3286" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="182" start="5604" end="6341" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="286" start="9427" end="10119" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="204" start="6440" end="7319" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="307" start="10192" end="11011" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="208" start="6566" end="7319" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="311" start="10318" end="11011" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/strategies_v7.py" line="434" start="14627" end="15232" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/testing_framework.py" line="1201" start="44887" end="45664" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="49" start="1091" end="1868" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/testing_framework.py" line="1259" start="47123" end="47508" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/testing_framework.py" line="1445" start="54009" end="54394" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="96" start="3078" end="3676" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="362" start="12225" end="12823" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="307" start="10385" end="10634" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="406" start="13768" end="14017" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="541" start="18769" end="19212" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/trend_discovery.py" line="550" start="19291" end="19718" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="417" start="15874" end="16058" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="512" start="19504" end="19688" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="599" start="22866" end="23050" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="714" start="31353" end="31537" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="448" start="16977" end="17208" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="239" start="7453" end="7683" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="467" start="17830" end="18336" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="326" start="15367" end="15788" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="522" start="20009" end="20277" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="609" start="23371" end="23690" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="537" start="20615" end="21001" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="755" start="33018" end="33339" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="644" start="24854" end="25434" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="418" start="18844" end="19428" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/triad_system.py" line="647" start="24954" end="25434" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="421" start="18948" end="19428" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" line="419" start="15903" end="16626" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reversal.py" line="25" start="628" end="1286" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" line="445" start="16797" end="16994" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="153" start="5093" end="5290" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="338" start="11041" end="11238" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="352" start="12851" end="13048" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="129" start="4389" end="4586" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="222" start="6705" end="6902" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="300" start="11125" end="11322" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="146" start="4696" end="4893" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="243" start="7823" end="8020" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="187" start="6467" end="6664" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="404" start="14822" end="15019" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" line="459" start="17284" end="17778" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" line="46" start="1252" end="1746" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/volatility.py" line="36" start="927" end="1102" />
+  <fragment file="file://$PROJECT_DIR$/kinetra/volatility.py" line="82" start="2297" end="2472" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/kinetra/volatility.py" line="86" start="2477" end="2684" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="104" start="3325" end="3532" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="395" start="13525" end="13836" />
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="566" start="19749" end="20060" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="424" start="14705" end="15018" />
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="598" start="21001" end="21351" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="448" start="15491" end="15857" />
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="628" start="21991" end="22385" />
+  <fragment file="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" line="631" start="22193" end="22591" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="99" start="3612" end="4454" />
+  <fragment file="file://$PROJECT_DIR$/run_exploration_heartbeat.py" line="37" start="1074" end="1912" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_comprehensive_exploration.py" line="565" start="21298" end="21615" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="191" start="6818" end="7135" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_exploration_heartbeat.py" line="132" start="4208" end="4741" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" line="375" start="13628" end="14113" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_exploration_heartbeat.py" line="340" start="11226" end="11698" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="356" start="12741" end="13185" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="90" start="2346" end="2790" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_exploration_heartbeat.py" line="432" start="14913" end="15182" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="160" start="4968" end="5237" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/run_exploration_heartbeat.py" line="451" start="15649" end="15944" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="167" start="5242" end="5533" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="48" start="1315" end="1831" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="75" start="2300" end="2799" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="4438" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="310" start="10080" end="10341" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="324" start="11841" end="12102" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="3734" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6030" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py" line="371" start="14452" end="14713" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="276" start="10315" end="10576" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4041" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="219" start="7013" end="7274" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="374" start="12298" end="12559" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="153" start="5177" end="5438" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_berserker_strategy.py" line="219" start="8069" end="8330" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="376" start="13803" end="14064" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" line="21" start="421" end="682" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="4601" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="310" start="10080" end="10504" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="324" start="11841" end="12265" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="3897" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6193" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py" line="371" start="14452" end="14876" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="276" start="10315" end="10739" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4204" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="219" start="7013" end="7437" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="374" start="12298" end="12722" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="153" start="5177" end="5601" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="376" start="13803" end="14227" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" line="21" start="421" end="846" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="4623" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="3919" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6215" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="276" start="10315" end="10761" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4226" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="219" start="7013" end="7459" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="374" start="12298" end="12744" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="153" start="5177" end="5623" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="376" start="13803" end="14249" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" line="21" start="421" end="868" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="4715" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="4011" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6307" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="276" start="10315" end="10853" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4318" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="219" start="7013" end="7551" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="374" start="12298" end="12836" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="153" start="5177" end="5715" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" line="21" start="421" end="960" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="4821" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="4117" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6413" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4424" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="153" start="5177" end="5821" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="5312" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" line="103" start="3473" end="4608" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="6924" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="4915" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" line="127" start="4177" end="5489" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="196" start="5769" end="7113" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="120" start="3780" end="5092" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="138" start="4662" end="5136" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="243" start="8974" end="9471" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="144" start="4859" end="5136" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="224" start="7229" end="7506" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="249" start="9173" end="9471" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="328" start="10654" end="11011" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="342" start="12440" end="12821" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py" line="389" start="15046" end="15403" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" line="328" start="10654" end="11548" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" line="342" start="12440" end="13358" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py" line="22" start="599" end="1091" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_thesis.py" line="24" start="578" end="1154" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py" line="187" start="6971" end="7350" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_thesis.py" line="323" start="12146" end="12525" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py" line="42" start="1113" end="1458" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py" line="34" start="846" end="1119" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="54" start="1368" end="1641" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py" line="42" start="1113" end="1951" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py" line="34" start="846" end="1425" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py" line="45" start="1188" end="1458" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py" line="35" start="892" end="1119" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_predictor.py" line="52" start="1571" end="1798" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="55" start="1414" end="1641" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="212" start="6312" end="7167" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="394" start="14449" end="15278" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="251" start="7751" end="8079" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="296" start="9684" end="10017" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="307" start="10129" end="10643" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" line="317" start="10649" end="11170" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="99" start="3455" end="4129" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="159" start="5962" end="6636" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" line="276" start="10315" end="11632" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="219" start="7013" end="8339" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="171" start="5585" end="6214" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="186" start="6326" end="6985" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="205" start="7193" end="7518" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="215" start="7609" end="7944" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="245" start="8821" end="9199" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" line="253" start="9205" end="9614" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="45" start="1304" end="1620" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" line="178" start="5779" end="6034" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="243" start="7567" end="7824" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" line="293" start="9284" end="9507" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py" line="454" start="18244" end="18654" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_predictor.py" line="30" start="887" end="1292" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="371" start="11388" end="11793" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="27" start="711" end="993" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="36" start="1018" end="1324" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="68" start="2087" end="2262" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="100" start="3145" end="3320" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="138" start="4645" end="4898" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="276" start="10055" end="10308" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="300" start="11043" end="11284" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" line="181" start="6224" end="6949" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="398" start="14579" end="15306" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="17" start="281" end="944" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/quick_results.py" line="18" start="363" end="1093" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="23" start="492" end="1297" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="22" start="515" end="1196" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="25" start="619" end="826" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/quick_results.py" line="27" start="768" end="975" />
+  <fragment file="file://$PROJECT_DIR$/scripts/cache_manager.py" line="71" start="1757" end="1964" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="55" start="1507" end="1714" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" line="51" start="1450" end="1717" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="57" start="1395" end="1602" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="38" start="972" end="1179" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="32" start="871" end="1078" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="25" start="619" end="944" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/quick_results.py" line="26" start="709" end="1093" />
+  <fragment file="file://$PROJECT_DIR$/scripts/cache_manager.py" line="70" start="1724" end="2082" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="37" start="939" end="1297" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="31" start="838" end="1196" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="35" start="1080" end="1323" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="70" start="2159" end="2402" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="44" start="1370" end="1548" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="79" start="2449" end="2627" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="76" start="2098" end="2268" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="44" start="1370" end="1725" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="76" start="2098" end="2417" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="118" start="3477" end="7093" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="122" start="4149" end="7809" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="199" start="6235" end="6442" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="205" start="6981" end="7188" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="312" start="14823" end="15030" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="224" start="7182" end="7556" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="231" start="8062" end="8425" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="238" start="7595" end="7820" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="244" start="8464" end="8689" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="248" start="7934" end="8287" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="253" start="8785" end="9138" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="419" start="13506" end="13879" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" line="279" start="8799" end="9185" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="290" start="9972" end="10340" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="120" start="3617" end="4045" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="278" start="10991" end="11393" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="679" start="24053" end="24478" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="120" start="3617" end="4080" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="679" start="24053" end="24509" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="135" start="4164" end="4583" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="295" start="11609" end="12025" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="146" start="4625" end="5461" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="894" start="38112" end="38929" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1057" start="48181" end="48945" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="153" start="4976" end="5312" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="718" start="25504" end="25858" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="901" start="38459" end="38771" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1064" start="48504" end="48816" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="164" start="5453" end="5893" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="323" start="12915" end="13355" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" line="165" start="5482" end="5893" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="324" start="12944" end="13355" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="145" start="4059" end="4220" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="870" start="40769" end="40930" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="175" start="5248" end="7970" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="191" start="8760" end="11084" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="142" start="5731" end="8055" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="211" start="9719" end="12043" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="200" start="7980" end="8249" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="215" start="8645" end="8933" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="722" start="31631" end="31951" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="742" start="32441" end="32753" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="876" start="41024" end="41293" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="890" start="41667" end="41955" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="200" start="7980" end="8492" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="722" start="31631" end="32203" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="214" start="8575" end="9289" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="741" start="32371" end="33128" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="889" start="41597" end="42311" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="214" start="8575" end="9754" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="889" start="41597" end="42776" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="233" start="9465" end="9754" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="765" start="33402" end="33715" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="908" start="42487" end="42776" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="531" start="21230" end="22019" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" line="559" start="22285" end="23074" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" line="638" start="22983" end="23425" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="860" start="31365" end="31841" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" line="651" start="23522" end="23833" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="875" start="31913" end="32226" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" line="785" start="28938" end="29315" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="944" start="34807" end="35203" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="697" start="24632" end="25099" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="880" start="37618" end="38078" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1046" start="47779" end="48147" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="730" start="25986" end="26581" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="909" start="38805" end="39400" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" line="774" start="27736" end="28049" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="941" start="40152" end="40445" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1096" start="49959" end="50260" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="187" start="6537" end="7018" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="301" start="10094" end="10575" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="206" start="7305" end="7522" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="254" start="10138" end="10373" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="275" start="11385" end="11540" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="280" start="11691" end="11846" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="285" start="11938" end="12093" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="501" start="23595" end="24068" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="502" start="23630" end="24068" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="514" start="22575" end="23000" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="530" start="24873" end="25241" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="531" start="24904" end="25241" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="744" start="35766" end="36124" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="626" start="28243" end="28701" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="811" start="38516" end="38855" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="648" start="29079" end="29751" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="649" start="29121" end="29751" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="828" start="39159" end="39631" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="785" start="34061" end="35269" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="923" start="42955" end="44107" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="869" start="37235" end="37541" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1036" start="47418" end="47702" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="880" start="37618" end="39086" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1046" start="47779" end="49102" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="940" start="40095" end="40445" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1095" start="49902" end="50260" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" line="966" start="41025" end="41298" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="1139" start="51556" end="51841" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="406" start="15768" end="15907" />
+  <fragment file="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" line="468" start="19925" end="20128" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" line="331" start="11637" end="11979" />
+  <fragment file="file://$PROJECT_DIR$/scripts/silent_failure_workflow.py" line="242" start="7368" end="7710" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" line="206" start="5400" end="6037" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="308" start="10943" end="11678" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" line="208" start="5495" end="6037" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="311" start="11069" end="11678" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" line="244" start="6816" end="7323" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="492" start="18130" end="18637" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" line="277" start="7821" end="8421" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="542" start="19744" end="20372" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" line="432" start="13220" end="13684" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="184" start="5606" end="6102" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/check_data_integrity.py" line="29" start="505" end="825" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="30" start="650" end="970" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/download_interactive.py" line="119" start="3281" end="3559" />
+  <fragment file="file://$PROJECT_DIR$/scripts/master_workflow.py" line="104" start="3052" end="3350" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="84" start="2345" end="3105" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="139" start="4698" end="5713" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="140" start="4746" end="5713" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="118" start="3932" end="4513" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="302" start="10166" end="10747" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="120" start="3981" end="4513" />
+  <fragment file="file://$PROJECT_DIR$/scripts/download/prepare_data.py" line="304" start="10215" end="10747" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/research/analyze_results.py" line="258" start="9730" end="10109" />
+  <fragment file="file://$PROJECT_DIR$/scripts/research/analyze_results.py" line="418" start="17183" end="17568" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py" line="179" start="6205" end="6887" />
+  <fragment file="file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py" line="207" start="7533" end="8218" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="54" start="1483" end="1868" />
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="55" start="1507" end="1868" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="57" start="1395" end="1756" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/run_local.py" line="245" start="8541" end="8775" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="411" start="13258" end="13496" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" line="182" start="5531" end="6204" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" line="89" start="2373" end="3046" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" line="187" start="5727" end="6204" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" line="137" start="4230" end="4707" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" line="94" start="2569" end="3046" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" line="79" start="2262" end="2712" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" line="84" start="2205" end="2655" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" line="337" start="12728" end="13051" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" line="417" start="14009" end="14353" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" line="374" start="14435" end="14815" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" line="461" start="15975" end="16355" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/phase2_validation.py" line="87" start="2390" end="2706" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py" line="46" start="1306" end="1622" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/phase2_validation.py" line="151" start="4252" end="4762" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py" line="93" start="2730" end="3247" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" line="48" start="1464" end="1861" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py" line="39" start="1029" end="1425" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py" line="38" start="972" end="1453" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_transaction_log.py" line="35" start="935" end="1416" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="160" start="5475" end="5827" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="219" start="7636" end="7988" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="297" start="10513" end="10865" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="161" start="5513" end="5827" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="220" start="7674" end="7988" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="298" start="10551" end="10865" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" line="346" start="11926" end="12240" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_compare.py" line="1" start="0" end="668" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_compare.py" line="11" start="131" end="667" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_full.py" line="1" start="0" end="656" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_full.py" line="11" start="125" end="655" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_risk.py" line="1" start="0" end="656" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_risk.py" line="11" start="125" end="655" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_specialists.py" line="1" start="0" end="684" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_specialists.py" line="11" start="139" end="683" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_universal.py" line="1" start="0" end="676" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/backtest_universal.py" line="11" start="135" end="675" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_compare_agents.py" line="1" start="0" end="692" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_compare_agents.py" line="11" start="143" end="691" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_full.py" line="1" start="0" end="652" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_full.py" line="11" start="123" end="651" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_measurements.py" line="1" start="0" end="684" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_measurements.py" line="11" start="139" end="683" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_policies.py" line="1" start="0" end="668" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_policies.py" line="11" start="131" end="667" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_risk.py" line="1" start="0" end="652" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_risk.py" line="11" start="123" end="651" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_stacking.py" line="1" start="0" end="668" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_stacking.py" line="11" start="131" end="667" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_universal.py" line="1" start="0" end="672" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/explore_universal.py" line="11" start="133" end="671" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_full.py" line="1" start="0" end="656" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_full.py" line="11" start="125" end="655" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_params.py" line="1" start="0" end="664" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_params.py" line="11" start="129" end="663" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_replay.py" line="1" start="0" end="664" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_replay.py" line="11" start="129" end="663" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_risk.py" line="1" start="0" end="656" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/scripts/optimize_risk.py" line="11" start="125" end="655" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" line="606" start="20973" end="22252" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_infrastructure_modules.py" line="665" start="21018" end="22297" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" line="475" start="12628" end="13907" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" line="608" start="21014" end="22252" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_infrastructure_modules.py" line="667" start="21059" end="22297" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" line="477" start="12669" end="13907" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" line="341" start="10904" end="11609" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics.py" line="325" start="10368" end="11019" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" line="344" start="10999" end="11609" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics.py" line="328" start="10456" end="11019" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py" line="337" start="11060" end="11468" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py" line="366" start="12572" end="13014" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" line="54" start="1336" end="1602" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py" line="33" start="879" end="1163" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" line="131" start="3773" end="4113" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py" line="93" start="2618" end="3073" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" line="168" start="4991" end="5373" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" line="169" start="5029" end="5373" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py" line="142" start="4317" end="4732" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py" line="143" start="4363" end="4732" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="267" start="9769" end="10424" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" line="292" start="10805" end="11390" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="202" start="6002" end="6472" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="409" start="13660" end="14130" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="491" start="16693" end="17582" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/demo_continual_learning.py" line="281" start="9841" end="10730" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="549" start="18631" end="19586" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/demo_continual_learning.py" line="331" start="11475" end="12430" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="619" start="21094" end="21432" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_freeze_zones.py" line="292" start="9985" end="10323" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py" line="355" start="11312" end="11650" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="619" start="21094" end="21832" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py" line="355" start="11312" end="12050" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" line="637" start="21519" end="21812" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_freeze_zones.py" line="310" start="10406" end="10699" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py" line="373" start="11737" end="12030" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py" line="260" start="7631" end="7947" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" line="312" start="9278" end="9607" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py" line="468" start="14768" end="15550" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" line="406" start="12275" end="13057" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py" line="510" start="16078" end="16928" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" line="449" start="13674" end="14524" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py" line="350" start="10952" end="11596" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" line="775" start="25168" end="25813" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py" line="23" start="452" end="1969" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py" line="20" start="403" end="2218" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_transaction_log.py" line="18" start="409" end="2181" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_infrastructure_modules.py" line="727" start="23342" end="23690" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="97" start="2751" end="3118" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="154" start="4876" end="5238" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py" line="319" start="10786" end="11331" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="276" start="9380" end="9925" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_vantage_full.py" line="136" start="3879" end="4435" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py" line="337" start="11407" end="12231" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="294" start="10005" end="10829" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="71" start="1911" end="2313" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" line="121" start="3674" end="4093" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py" line="38" start="1015" end="1637" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py" line="25" start="487" end="963" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py" line="133" start="3518" end="3909" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py" line="148" start="4066" end="4457" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" line="138" start="3577" end="3933" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" line="159" start="4196" end="4514" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" line="823" start="28333" end="29225" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" line="853" start="29705" end="30623" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="254" start="7599" end="7850" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="275" start="8252" end="8484" />
+  <fragment file="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" line="305" start="9202" end="9450" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="51" start="1227" end="4977" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="36" start="624" end="4374" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="37" start="787" end="8644" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="639" start="29450" end="37307" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="51" start="1227" end="6271" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="37" start="787" end="10048" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="131" start="4980" end="6271" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="207" start="8647" end="10048" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="200" start="7145" end="8315" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="405" start="15190" end="16371" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="365" start="13460" end="13821" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="260" start="10539" end="10900" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="523" start="18466" end="18833" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="506" start="19628" end="20003" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" line="524" start="18490" end="18833" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="507" start="19660" end="20003" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="25" start="419" end="4374" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="26" start="582" end="8644" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="304" start="11171" end="12104" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="293" start="11562" end="12554" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="353" start="12687" end="13100" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="539" start="18182" end="18635" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="392" start="14767" end="15180" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="87" start="2292" end="2705" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="353" start="12687" end="13226" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="87" start="2292" end="2831" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" line="393" start="14230" end="14535" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/run_exploration_batch.py" line="123" start="3557" end="3862" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="249" start="8138" end="9665" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="306" start="9981" end="11494" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="255" start="8294" end="9479" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="312" start="10133" end="11310" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" line="456" start="15406" end="16678" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="460" start="17424" end="17862" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="471" start="17950" end="18379" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explore_universal.py" line="482" start="18473" end="18920" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="197" start="6228" end="6383" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="229" start="11701" end="11918" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="172" start="8396" end="8638" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="217" start="6774" end="6948" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="278" start="8815" end="8989" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="336" start="10684" end="10858" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="292" start="9219" end="9457" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="400" start="18104" end="18410" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="304" start="9605" end="9826" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="414" start="18618" end="18890" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="309" start="9852" end="10152" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" line="367" start="11675" end="11975" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="227" start="11610" end="11998" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="169" start="8296" end="8751" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="272" start="13195" end="13489" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="379" start="17119" end="17490" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="489" start="21483" end="21810" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="295" start="14237" end="14580" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" line="505" start="22110" end="22698" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" line="309" start="14754" end="15407" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_berserker.py" line="514" start="17486" end="17925" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_sniper.py" line="459" start="16264" end="16735" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_berserker.py" line="527" start="18020" end="18335" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_fast_multi.py" line="117" start="3892" end="4231" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_berserker.py" line="611" start="22474" end="22780" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_fast_multi.py" line="177" start="6836" end="7142" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_fast_multi.py" line="149" start="5577" end="5960" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_sniper.py" line="490" start="17762" end="18095" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_fast_multi.py" line="172" start="6609" end="6920" />
+  <fragment file="file://$PROJECT_DIR$/scripts/training/train_sniper.py" line="511" start="18639" end="18950" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/specialist_agents.py" line="133" start="4766" end="5028" />
+  <fragment file="file://$PROJECT_DIR$/specialist_agents.py" line="158" start="5501" end="5763" />
+  <fragment file="file://$PROJECT_DIR$/specialist_agents.py" line="189" start="6455" end="6717" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/specialist_agents.py" line="158" start="5501" end="6024" />
+  <fragment file="file://$PROJECT_DIR$/specialist_agents.py" line="189" start="6455" end="6916" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics.py" line="151" start="4729" end="5008" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="255" start="7781" end="8037" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="1017" start="44719" end="44975" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics.py" line="173" start="5315" end="5527" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="266" start="8158" end="8353" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="220" start="6559" end="6993" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="51" start="1449" end="1906" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" line="255" start="7781" end="8149" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="1017" start="44719" end="45087" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="162" start="5838" end="6103" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="150" start="6066" end="6331" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="262" start="10112" end="10353" />
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="268" start="10367" end="10628" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" line="443" start="16626" end="17128" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="624" start="28945" end="29447" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="173" start="5888" end="6420" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="262" start="9321" end="9798" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="279" start="9967" end="10505" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="309" start="11319" end="11861" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="371" start="13732" end="14090" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" line="418" start="15273" end="15599" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_backtester.py" line="58" start="1446" end="2123" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_backtester.py" line="92" start="2425" end="3027" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="1661" start="70205" end="70943" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="1675" start="70996" end="71753" />
+  <fragment file="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" line="1682" start="71432" end="72166" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="251" start="8054" end="8977" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="343" start="11222" end="12079" />
+</duplicate>
+<duplicate cost="1" hash="0">
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="307" start="10003" end="10544" />
+  <fragment file="file://$PROJECT_DIR$/tripleganger_system.py" line="455" start="15270" end="15815" />
+</duplicate>
+</root>

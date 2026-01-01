@@ -499,7 +499,7 @@ def parallel_walk_forward(
     total_bars = len(data)
     step_size = (total_bars - is_bars - oos_bars) // (n_windows - 1) if n_windows > 1 else 0
 
-    def run_window(window_idx: int) -> Dict[str, Any]:
+    def run_window(window_idx: int) -> dict[str, int | Any] | None:
         start_idx = window_idx * step_size
         is_end = start_idx + is_bars
         oos_end = is_end + oos_bars

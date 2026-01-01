@@ -7,6 +7,8 @@ from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
+from numpy import floating
+from pandas import DataFrame
 from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
@@ -832,7 +834,7 @@ class ProbabilisticBreakoutPredictor:
         self.models = None
         self.feature_names = None
 
-    def prepare_labels(self, df: pd.DataFrame) -> pd.Series:
+    def prepare_labels(self, df: pd.DataFrame) -> DataFrame:
         """Create binary labels for breakout events.
 
         Breakout = cumulative return over lookahead exceeds threshold.
@@ -916,7 +918,8 @@ class ProbabilisticBreakoutPredictor:
         print(f"[OK] Trained {len(self.models)} calibrated models ({self.calibration_method})")
         return self
 
-    def predict_proba(self, physics_state: pd.DataFrame, bar_index: int) -> Dict[str, float]:
+    def predict_proba(self, physics_state: pd.DataFrame, bar_index: int) -> dict[str, float] | dict[
+        str, floating[Any] | dict[Any, Any]]:
         """Get calibrated probability for breakout at current bar.
 
         Returns dict with:

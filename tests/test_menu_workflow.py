@@ -19,6 +19,7 @@ from contextlib import contextmanager
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import pytest
 import kinetra_menu
 from kinetra.workflow_manager import WorkflowManager
 
@@ -112,6 +113,16 @@ class WorkflowTestLogger:
         for test_name, passed in self.tests_run:
             status = "✅ PASS" if passed else "❌ FAIL"
             print(f"{status}: {test_name}")
+
+
+# =============================================================================
+# PYTEST FIXTURES
+# =============================================================================
+
+@pytest.fixture
+def logger():
+    """Create a WorkflowTestLogger instance for tests."""
+    return WorkflowTestLogger()
 
 
 # =============================================================================

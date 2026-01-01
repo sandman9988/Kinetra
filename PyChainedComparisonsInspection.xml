@@ -1,0 +1,134 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_events.py</file>
+  <line>526</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_events.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>e.date &lt;= start and e.date + timedelta(hours=e.recovery_hours) &gt;= start</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>71</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>451</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>self.max_retries &gt; 0 and self._retry_count &gt;= self.max_retries</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>62</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>459</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>velocity &gt; 0 and accel &lt; 0</highlighted_element>
+  <language>Python</language>
+  <offset>13</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>462</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>velocity &lt; 0 and accel &gt; 0</highlighted_element>
+  <language>Python</language>
+  <offset>13</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>998</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>current_position &gt; 0 and momentum &lt; 0</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>998</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>current_position &lt; 0 and momentum &gt; 0</highlighted_element>
+  <language>Python</language>
+  <offset>67</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>400</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>dt.weekday() == 6 and # Sunday gap &gt;= 40 and gap &lt;= 60</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>75</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>344</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>self.position.tp &gt; 0 and high &gt;= self.position.tp</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>49</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>347</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>self.position.sl &gt; 0 and high &gt;= self.position.sl</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>49</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>280</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>count_in &gt; 0 and count_out &gt; count_in</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_system_stress.py</file>
+  <line>93</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_system_stress.py" />
+  <problem_class id="PyChainedComparisonsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Too complex chained comparisons</problem_class>
+  <description>Simplify chained comparison</description>
+  <highlighted_element>duration &gt;= 0 and duration != float('inf') and duration == duration</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>67</length>
+</problem>
+</problems>

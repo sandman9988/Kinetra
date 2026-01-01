@@ -1,0 +1,194 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(True, &quot;&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>237</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(True, &quot;&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/order_executor.py</file>
+  <line>282</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/order_executor.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(fill_price, slippage, spread_price)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>36</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/order_validator.py</file>
+  <line>358</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/order_validator.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(sl, tp)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>339</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(True, MT5ErrorCode.SUCCESS, &quot;&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(False, MT5ErrorCode.INVALID_STOPS, error_msg)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>46</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>347</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(True, MT5ErrorCode.SUCCESS, &quot;&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>416</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(fill_price, slippage)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>479</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(fill_price, slippage)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>135</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(max(5, n // 10), max(20, n // 3))</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>34</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>172</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(max(5, n // 20), max(50, n // 5))</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>34</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>199</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(dominant[0], dominant[1])</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>348</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(0.0, 0.0)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>366</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(lower, upper)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py</file>
+  <line>195</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>('sl' in line.lower() or 'tp' in line.lower() or 'stop' in line.lower())</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>72</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>166</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyRedundantParenthesesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant parentheses</problem_class>
+  <description>Remove redundant parentheses</description>
+  <highlighted_element>(mean - n_sigma * std, mean + n_sigma * std)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>44</length>
+</problem>
+</problems>

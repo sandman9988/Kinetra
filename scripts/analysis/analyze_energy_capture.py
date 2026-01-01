@@ -10,7 +10,9 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass
-from typing import List
+from typing import List, Any
+
+from numpy import floating
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -129,7 +131,9 @@ def calculate_omega(pnls: List[float]) -> float:
     return gains / losses if losses > 0 else float('inf')
 
 
-def test_strategy(df: pd.DataFrame, signals: pd.Index, ts_pct: float, sl_pct: float = None) -> dict:
+def test_strategy(df: pd.DataFrame, signals: pd.Index, ts_pct: float, sl_pct: float = None) -> dict[str, int | float |
+                                                                                                         floating[
+                                                                                                             Any]] | None:
     """Test a trailing stop strategy."""
     trades = []
 
@@ -310,6 +314,7 @@ def main():
         print(f"    Avg MFE opportunity: {best_base['avg_mfe']:.3f}%")
         print(f"    Energy capture rate: {best_base['energy_capture']:.1f}%")
 
+    best_plus = None  # Initialize before conditional block
     if plus_results:
         best_plus = max(plus_results, key=lambda x: x['total_pnl'])
         print(f"\n  BERSERKER+ (High Flow + Volume):")
@@ -324,7 +329,7 @@ def main():
     print("\n  " + "-" * 50)
     print("  RECOMMENDED SETUP:")
     print("  " + "-" * 50)
-    if plus_results:
+    if plus_results and best_plus:
         print(f"    Signal: BERSERKER + High Flow + High Volume")
         print(f"    Direction: COUNTER-TREND (fade momentum)")
         print(f"    Exit: Trailing Stop {best_plus['ts']}%")

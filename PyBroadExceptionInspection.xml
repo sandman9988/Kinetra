@@ -1,0 +1,914 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>87</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>471</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/cache.py</file>
+  <line>77</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/cache.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_management.py</file>
+  <line>536</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_management.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_utils.py</file>
+  <line>91</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_utils.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_utils.py</file>
+  <line>181</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_utils.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>133</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>148</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>357</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>672</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/monitor.py</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/monitor.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/parallel.py</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/parallel.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>407</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/exploration_integration.py</file>
+  <line>221</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/exploration_integration.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>1125</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>530</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>583</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>408</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>826</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>837</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>847</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>854</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>801</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>1377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/persistence.py</file>
+  <line>517</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/persistence.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/persistence_manager.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/persistence_manager.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>534</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>1574</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>110</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>117</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>162</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>445</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_manager.py</file>
+  <line>322</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_manager.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>270</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>504</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>7</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2361</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2387</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>233</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py</file>
+  <line>61</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py</file>
+  <line>75</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py</file>
+  <line>195</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py</file>
+  <line>347</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>954</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/dashboard.py</file>
+  <line>378</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/dashboard.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>157</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>262</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>305</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py</file>
+  <line>281</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>241</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>395</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/run_local.py</file>
+  <line>91</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/run_local.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>110</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>122</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>135</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>317</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py</file>
+  <line>734</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>576</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py</file>
+  <line>115</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py</file>
+  <line>235</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_mql5_compliance.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/monitor_training.py</file>
+  <line>47</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/monitor_training.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>126</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>161</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>48</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>66</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>69</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>Exception</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>155</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>194</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyBroadExceptionInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Unclear exception clauses</problem_class>
+  <description>Too broad exception clause</description>
+  <highlighted_element>except</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+</problems>

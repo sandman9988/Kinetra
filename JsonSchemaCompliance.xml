@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/data/prepared/manifest.json</file>
+  <line>5</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/prepared/manifest.json" />
+  <problem_class id="JsonSchemaCompliance" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Compliance with JSON schema</problem_class>
+  <description>Incompatible types.
+ Required: object. Actual: array.</description>
+  <highlighted_element>[ { &quot;symbol&quot;: &quot;ADAJPY&quot;, &quot;timeframe&quot;: &quot;D1&quot;, &quot;market_type&quot;: &quot;forex&quot;, &quot;init...</highlighted_element>
+  <language>JSON</language>
+  <offset>11</offset>
+  <length>35673</length>
+</problem>
+</problems>

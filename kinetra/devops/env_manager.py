@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -91,7 +92,6 @@ class EnvManager:
                 capture_output=True, text=True, timeout=30
             )
             if result.returncode == 0:
-                import json
                 for pkg in json.loads(result.stdout):
                     packages[pkg['name'].lower()] = pkg['version']
         except (subprocess.SubprocessError, json.JSONDecodeError):

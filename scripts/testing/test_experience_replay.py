@@ -660,4 +660,6 @@ def run_all_tests():
 
 if __name__ == "__main__":
     success = run_all_tests()
-    sys.exit(0 if success else 1)
+    # Don't exit during pytest - let tests run naturally
+    if not success:
+        raise RuntimeError("Experience replay tests failed")

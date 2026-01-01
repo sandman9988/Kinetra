@@ -1,0 +1,1118 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>98</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument(s). Possible callees: KinetraAgent(self: KinetraAgent, state_dim: int = 43, action_dim: int = 4, hidden_dim: int = 128, lr: float = 3e-4, gamma: float = 0.99, gae_lambda: float = 0.95, clip_epsilon: float = 0.2, entropy_coef: float = 0.01, value_coef: float = 0.5, max_grad_norm: float = 0.5, ppo_epochs: int = 4, batch_size: int = 64) NeuralAgent(self: NeuralAgent, state_dim: int, action_dim: int, hidden_sizes: tuple[int, int] = (64, 32), learning_rate: float = 0.001, gamma: float = 0.99, epsilon: float = 1.0, epsilon_decay: float = 0.995, epsilon_min: float = 0.01, batch_size: int = 32, buffer_size: int = 10000)</description>
+  <highlighted_element>( n_features=state_dim, n_actions=action_dim, ...</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>132</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>156</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument(s). Possible callees: DiscoveredStrategyConverter._convert_hidden_dimensions(result: dict) DiscoveredStrategyConverter._convert_chaos_theory(result: dict) DiscoveredStrategyConverter._convert_meta_learning(result: dict) DiscoveredStrategyConverter._convert_cross_regime(result: dict) DiscoveredStrategyConverter._convert_information_theory(result: dict) DiscoveredStrategyConverter._convert_emergent(result: dict)</description>
+  <highlighted_element>(discovery_result)</highlighted_element>
+  <language>Python</language>
+  <offset>57</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>432</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>pnl_pct=pnl_pct</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>435</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>holding_time=bars_held</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>436</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>entry_energy=self.position.entry_energy</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>437</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>regime=self.features.loc[self.position.entry_bar, 'regime']</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>59</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'atr' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'energy' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'pnl' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'time_in_trade' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>325</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>symbol_spec=stressed_spec</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>326</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>physics=backtest_kwargs.get(&quot;physics&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>332</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>initial_capital=initial_capital</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>333</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>338</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>symbol_spec=symbol_spec</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>339</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>physics=backtest_kwargs.get(&quot;physics&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>344</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>initial_capital=initial_capital</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>407</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>symbol_spec=symbol_spec</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>408</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>physics=backtest_kwargs.get(&quot;physics&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>413</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>initial_capital=initial_capital</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>414</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>symbol_spec=symbol_spec</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>474</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>physics=backtest_kwargs.get(&quot;physics&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>479</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>initial_capital=initial_capital</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>480</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>499</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>symbol_spec=stressed_spec</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>500</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>physics=backtest_kwargs.get(&quot;physics&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>506</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>initial_capital=initial_capital</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>507</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>117</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument(s). Possible callees: AutoFixer._fix_import_error(failure: FailureRecord, context: dict) AutoFixer._fix_value_error(failure: FailureRecord, context: dict) AutoFixer._fix_runtime_error(failure: FailureRecord, context: dict) AutoFixer._fix_memory_error(failure: FailureRecord, context: dict) AutoFixer._fix_timeout_error(failure: FailureRecord, context: dict) AutoFixer._fix_data_error(failure: FailureRecord, context: dict)</description>
+  <highlighted_element>(failure, context)</highlighted_element>
+  <language>Python</language>
+  <offset>66</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1386</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>total_trades=0</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1387</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>avg_trade_return=0.0</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1407</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>total_trades=sum(m['num_trades'] for m in all_metrics)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>54</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1408</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>avg_trade_return=float(np.mean(avg_rewards))</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>44</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1492</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>total_trades=0</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1493</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>avg_trade_return=0.0</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1521</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>total_trades=len(all_discoveries)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1522</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>avg_trade_return=avg_lyapunov</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/batch_backtest.py</file>
+  <line>50</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/batch_backtest.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/batch_backtest.py</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/batch_backtest.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>agent=None</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/batch_backtest.py</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/batch_backtest.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'symbol_spec' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>82</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>463</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument(s). Possible callees: ContinuousMenuTester.fix_missing_script(error: Exception) ContinuousMenuTester.fix_data_preparation(error: Exception) ContinuousMenuTester.fix_import_error(error: Exception) ContinuousMenuTester.fix_file_not_found(error: Exception)</description>
+  <highlighted_element>(error)</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>471</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>data_quality_check=False</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>500</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>stop_distance=stop_distance</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>501</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>atr_value=atr_value</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>502</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>pe_at_entry=pe_at_entry</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>503</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>forward_release_5=forward_release_5</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>35</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>504</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>forward_release_10=forward_release_10</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>80</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>asset_class=AssetClass.FOREX</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>85</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>filling_mode=&quot;IOC&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>86</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>order_mode=&quot;MARKET_LIMIT&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>87</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>trade_mode=&quot;FULL&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>88</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>spread_typical=80</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>89</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>commission_per_lot=0.0</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>90</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>swap_long=-0.3</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>91</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>swap_short=0.1</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>92</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>trade_freeze_level=50</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>93</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>trade_stops_level=100</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>asset_class=AssetClass.FOREX</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>422</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>trade_freeze_level=10</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>423</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>trade_stops_level=20</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py</file>
+  <line>151</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>max_positions_per_symbol=1</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py</file>
+  <line>152</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>portfolio_stop_out_level=0.5</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_strategies.py</file>
+  <line>329</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>data_quality_check=True</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py</file>
+  <line>347</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>data_quality_check=False</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>93</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>72</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>121</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>spread_points</highlighted_element>
+  <language>Python</language>
+  <offset>62</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>203</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>72</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>217</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>spread_points</highlighted_element>
+  <language>Python</language>
+  <offset>57</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>72</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>400</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>412</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>427</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>442</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>469</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>483</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'close_price' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>220</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>spread_cost_multiplier=1.0</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>222</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>commission_value=0.0</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>224</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>swap_long=-0.01</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>225</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>swap_short=0.005</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>229</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Unexpected argument</description>
+  <highlighted_element>margin_percent=10.0</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>262</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>286</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>310</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>352</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>380</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>409</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>437</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>459</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>479</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter 'self' unfilled</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>410</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter(s) unfilled. Possible callees: _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max: Any | None = None, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None, max, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None = None, *, max, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max: Any | None = None, *, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None, max, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None = None, *, max, out: _ArrayT, **kwargs)</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>441</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyArgumentListInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect call arguments</problem_class>
+  <description>Parameter(s) unfilled. Possible callees: _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max: Any | None = None, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None, max, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None = None, *, max, out: None = None, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min, max: Any | None = None, *, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None, max, out: _ArrayT, **kwargs) _ArrayOrScalarCommon.clip(self: _ArrayOrScalarCommon, /, min: None = None, *, max, out: _ArrayT, **kwargs)</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>1</length>
+</problem>
+</problems>

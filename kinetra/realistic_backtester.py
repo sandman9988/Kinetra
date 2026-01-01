@@ -116,6 +116,46 @@ class Trade:
             return max(0, 1 - self.mae / self.mfe)
         return 0.0
 
+    def to_dict(self) -> Dict:
+        """
+        Convert Trade to dictionary with numeric-safe types.
+
+        Converts datetime to timestamps (float) to prevent dtype incompatibility
+        when aggregating trades in pandas DataFrames or numpy operations.
+        """
+        return {
+            'entry_time': self.entry_time.timestamp() if isinstance(self.entry_time, datetime) else float(self.entry_time),
+            'exit_time': self.exit_time.timestamp() if isinstance(self.exit_time, datetime) else float(self.exit_time),
+            'direction': int(self.direction),
+            'entry_price': float(self.entry_price),
+            'exit_price': float(self.exit_price),
+            'volume': float(self.volume),
+            'pnl': float(self.pnl),
+            'pnl_pct': float(self.pnl_pct),
+            'entry_spread': float(self.entry_spread),
+            'exit_spread': float(self.exit_spread),
+            'commission': float(self.commission),
+            'swap': float(self.swap),
+            'entry_slippage': float(self.entry_slippage),
+            'exit_slippage': float(self.exit_slippage),
+            'mfe': float(self.mfe),
+            'mae': float(self.mae),
+            # Store regime strings as-is (won't be aggregated numerically)
+            'entry_physics_regime': self.entry_physics_regime,
+            'entry_vol_regime': self.entry_vol_regime,
+            'entry_momentum_regime': self.entry_momentum_regime,
+            'entry_energy': float(self.entry_energy),
+            'rejected_modifications': int(self.rejected_modifications),
+            'freeze_zone_violations': int(self.freeze_zone_violations),
+            # Computed properties
+            'holding_time': float(self.holding_time),
+            'total_cost': float(self.total_cost),
+            'gross_pnl': float(self.gross_pnl),
+            'price_captured': float(self.price_captured),
+            'mfe_efficiency': float(self.mfe_efficiency),
+            'mae_efficiency': float(self.mae_efficiency),
+        }
+
 
 @dataclass
 class BacktestResult:
@@ -170,37 +210,52 @@ class BacktestResult:
     # Equity curve
     equity_curve: Optional[pd.Series] = None
 
-    def to_dict(self) -> Dict:
-        """Convert to dictionary for JSON export."""
-        return {
-            'total_trades': self.total_trades,
-            'winning_trades': self.winning_trades,
-            'losing_trades': self.losing_trades,
-            'win_rate': self.win_rate,
-            'total_pnl': self.total_pnl,
-            'total_return_pct': self.total_return_pct,
-            'sharpe_ratio': self.sharpe_ratio,
-            'sortino_ratio': self.sortino_ratio,
-            'omega_ratio': self.omega_ratio,
-            'max_drawdown': self.max_drawdown,
-            'max_drawdown_pct': self.max_drawdown_pct,
-            'cvar_95': self.cvar_95,
-            'cvar_99': self.cvar_99,
-            'total_spread_cost': self.total_spread_cost,
-            'total_commission': self.total_commission,
-            'total_swap': self.total_swap,
-            'total_slippage': self.total_slippage,
-            'avg_mfe': self.avg_mfe,
-            'avg_mae': self.avg_mae,
-            'avg_mfe_mae_ratio': self.avg_mfe_mae_ratio,
-            'mfe_capture_pct': self.mfe_capture_pct,
+    def to_dict(self, include_trades: bool = False) -> Dict:
+        """
+        Convert to dictionary for JSON export.
+
+        Args:
+            include_trades: If True, include full trade list (serialized with Trade.to_dict())
+
+        Returns:
+            Dictionary with numeric-safe types for all fields
+        """
+        result = {
+            'total_trades': int(self.total_trades),
+            'winning_trades': int(self.winning_trades),
+            'losing_trades': int(self.losing_trades),
+            'win_rate': float(self.win_rate),
+            'total_pnl': float(self.total_pnl),
+            'total_return_pct': float(self.total_return_pct),
+            'sharpe_ratio': float(self.sharpe_ratio),
+            'sortino_ratio': float(self.sortino_ratio),
+            'omega_ratio': float(self.omega_ratio),
+            'max_drawdown': float(self.max_drawdown),
+            'max_drawdown_pct': float(self.max_drawdown_pct),
+            'cvar_95': float(self.cvar_95),
+            'cvar_99': float(self.cvar_99),
+            'total_spread_cost': float(self.total_spread_cost),
+            'total_commission': float(self.total_commission),
+            'total_swap': float(self.total_swap),
+            'total_slippage': float(self.total_slippage),
+            'avg_mfe': float(self.avg_mfe),
+            'avg_mae': float(self.avg_mae),
+            'avg_mfe_mae_ratio': float(self.avg_mfe_mae_ratio),
+            'mfe_capture_pct': float(self.mfe_capture_pct),
+            'z_factor': float(self.z_factor),
+            'energy_captured_pct': float(self.energy_captured_pct),
             'regime_performance': self.regime_performance,
             'constraint_violations': {
-                'freeze_violations': self.total_freeze_violations,
-                'invalid_stops': self.total_invalid_stops,
-                'rejected_orders': self.total_rejected_orders,
+                'freeze_violations': int(self.total_freeze_violations),
+                'invalid_stops': int(self.total_invalid_stops),
+                'rejected_orders': int(self.total_rejected_orders),
             }
         }
+
+        if include_trades:
+            result['trades'] = [t.to_dict() for t in self.trades]
+
+        return result
 
 
 class RealisticBacktester:
@@ -304,6 +359,7 @@ class RealisticBacktester:
             quote = symbol[3:6]
         else:
             # For symbols like XAUUSD (metals), assume quote is last 3 chars
+            base = symbol[:-3] if len(symbol) > 3 else symbol
             quote = symbol[-3:] if len(symbol) >= 3 else symbol
 
         # Determine conversion method

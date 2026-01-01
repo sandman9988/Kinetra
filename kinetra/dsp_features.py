@@ -20,7 +20,12 @@ PERFORMANCE OPTIMIZATIONS:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any, TypeVar
+
+from numpy import dtype, ndarray, signedinteger
+from numpy._typing import _32Bit, _64Bit
+# _ScalarT removed in numpy 2.x - define our own TypeVar
+_ScalarT = TypeVar('_ScalarT')
 from scipy import signal
 from scipy.stats import skew, kurtosis
 from dataclasses import dataclass
@@ -70,7 +75,9 @@ class WaveletExtractor:
         ).astype(int)
         self.scales = np.unique(self.scales)  # Remove duplicates
 
-    def compute_cwt(self, data: np.ndarray) -> np.ndarray:
+    def compute_cwt(self, data: np.ndarray) -> tuple[
+        Any, ndarray[tuple[int], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[Any, dtype] | ndarray[
+            tuple[Any, ...], dtype[_ScalarT]]]:
         """
         Compute CWT using Mexican hat wavelet via PyWavelets.
         Returns: 2D array [scales x time], scales array
@@ -171,6 +178,7 @@ class HilbertExtractor:
         phase = np.unwrap(np.angle(analytic))
 
         # Instantaneous frequency = d(phase)/dt
+        inst_freq = None
         if len(phase) > 1:
             inst_freq = np.diff(phase) / (2 * np.pi)
             current_freq = np.mean(inst_freq[-5:]) if len(inst_freq) >= 5 else np.mean(inst_freq)
@@ -183,7 +191,7 @@ class HilbertExtractor:
             'phase': float(phase[-1] % (2 * np.pi)),
             'amplitude_mean': float(np.mean(amplitude)),
             'amplitude_std': float(np.std(amplitude)),
-            'frequency_variability': float(np.std(inst_freq)) if len(phase) > 1 else 0.0
+            'frequency_variability': float(np.std(inst_freq)) if inst_freq is not None else 0.0
         }
 
 

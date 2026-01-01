@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -26,6 +27,35 @@ from kinetra.berserker_strategy import (
     Direction,
     backtest_strategy,
 )
+
+
+@pytest.fixture
+def df():
+    """Load test market data."""
+    project_root = Path(__file__).parent.parent
+    csv_files = list(project_root.glob("*BTCUSD*.csv"))
+    if not csv_files:
+        # Return synthetic data if no real data available
+        dates = pd.date_range('2024-01-01', periods=1000, freq='1h')
+        data = pd.DataFrame({
+            'open': [50000 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'high': [50100 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'low': [49900 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'close': [50000 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'volume': [1000 + i + np.random.randn()*50 for i in range(1000)]
+        }, index=dates)
+        return data
+
+    data = load_csv_data(str(csv_files[0]))
+    return data
+
+
+@pytest.fixture
+def feature_df(df):
+    """Compute physics features for test data."""
+    features = PhysicsFeatures()
+    feature_df = features.compute(df)
+    return feature_df
 
 
 def test_fat_candle_prediction(df: pd.DataFrame, feature_df: pd.DataFrame):

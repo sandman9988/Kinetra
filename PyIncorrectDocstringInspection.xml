@@ -1,0 +1,122 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/costs.py</file>
+  <line>149</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/costs.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter symbol in docstring</description>
+  <highlighted_element>symbol: str</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/costs.py</file>
+  <line>150</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/costs.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter volume in docstring</description>
+  <highlighted_element>volume: float</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/costs.py</file>
+  <line>151</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/costs.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter price in docstring</description>
+  <highlighted_element>price: float</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/costs.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/costs.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter pip_value in docstring</description>
+  <highlighted_element>pip_value: float = 0.0001</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>449</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter high in docstring</description>
+  <highlighted_element>high: float</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>450</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter low in docstring</description>
+  <highlighted_element>low: float</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>451</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter close in docstring</description>
+  <highlighted_element>close: float</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>231</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter title in docstring</description>
+  <highlighted_element>title: str = &quot;Trading Costs Breakdown&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>301</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter title in docstring</description>
+  <highlighted_element>title: str = &quot;Performance by Market Regime&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>43</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>373</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyIncorrectDocstringInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect docstring</problem_class>
+  <description>Missing parameter title in docstring</description>
+  <highlighted_element>title: str = &quot;Monte Carlo Distribution&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>39</length>
+</problem>
+</problems>

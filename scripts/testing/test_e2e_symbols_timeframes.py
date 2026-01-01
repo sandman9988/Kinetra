@@ -481,39 +481,38 @@ class E2ETestOrchestrator:
             try:
                 # Read data
                 df = pd.read_csv(filepath, sep='\t')
-                    df = pd.read_csv(filepath, sep='\t')
 
-                    if df.empty:
-                        validation_results[key] = {
-                            'valid': True, 'rows': 0, 'nulls': 0, 'start': None, 'end': None, 'mean_gap_hours': 0,
-                        }
-                        self.workflow_manager.logger.info(f"✅ {key}: 0 rows (empty file)")
-                        continue
-            
-                    # Basic validation
-                    required_cols = ['<DATE>', '<TIME>', '<OPEN>', '<HIGH>', '<LOW>', '<CLOSE>', '<TICKVOL>']
-                    missing_cols = [c for c in required_cols if c not in df.columns]
-            
-                    if missing_cols:
-                        raise ValueError(f"Missing columns: {missing_cols}")
-            
-                    # Data quality checks
-                    n_rows = len(df)
-                    n_nulls = df.isnull().sum().sum()
-            
-                    # Check for gaps
-                    df['timestamp'] = pd.to_datetime(df['<DATE>'] + ' ' + df['<TIME>'])
-                    df = df.sort_values('timestamp')
-                    time_diffs = df['timestamp'].diff()
-            
+                if df.empty:
                     validation_results[key] = {
-                        'valid': True,
-                        'rows': n_rows,
-                        'nulls': int(n_nulls),
-                        'start': str(df['timestamp'].min()),
-                        'end': str(df['timestamp'].max()),
-                        'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(df) > 1 else 0,
+                        'valid': True, 'rows': 0, 'nulls': 0, 'start': None, 'end': None, 'mean_gap_hours': 0,
                     }
+                    self.workflow_manager.logger.info(f"✅ {key}: 0 rows (empty file)")
+                    continue
+
+                # Basic validation
+                required_cols = ['<DATE>', '<TIME>', '<OPEN>', '<HIGH>', '<LOW>', '<CLOSE>', '<TICKVOL>']
+                missing_cols = [c for c in required_cols if c not in df.columns]
+
+                if missing_cols:
+                    raise ValueError(f"Missing columns: {missing_cols}")
+
+                # Data quality checks
+                n_rows = len(df)
+                n_nulls = df.isnull().sum().sum()
+
+                # Check for gaps
+                df['timestamp'] = pd.to_datetime(df['<DATE>'] + ' ' + df['<TIME>'])
+                df = df.sort_values('timestamp')
+                time_diffs = df['timestamp'].diff()
+
+                validation_results[key] = {
+                    'valid': True,
+                    'rows': n_rows,
+                    'nulls': int(n_nulls),
+                    'start': str(df['timestamp'].min()),
+                    'end': str(df['timestamp'].max()),
+                    'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(df) > 1 else 0,
+                }
                 self.workflow_manager.logger.info(
                     f"✅ {key}: {n_rows} rows, {validation_results[key]['mean_gap_hours']:.1f}h avg gap"
                 )
@@ -1077,7 +1076,6 @@ Examples:
             checkpoint_file = Path(args.checkpoint)
         else:
             # Find latest checkpoint
-            # Find latest checkpoint
             checkpoint_files = config.checkpoint_dir.glob("checkpoint_*.json")
             latest_checkpoint = None
             latest_mtime = -1
@@ -1090,18 +1088,21 @@ Examples:
                 except FileNotFoundError:
                     # File was deleted between glob and stat, ignore it
                     continue
-        
+
             if latest_checkpoint:
                 checkpoint_file = latest_checkpoint
-    
+
+        if checkpoint_file:
             orchestrator.load_checkpoint(checkpoint_file)
         else:
             print("No checkpoint found. Starting fresh.")
     
     # Run E2E test
     success = await orchestrator.run()
-    
-    sys.exit(0 if success else 1)
+
+    # Don't exit during pytest - let tests run naturally
+    if not success:
+        raise RuntimeError("E2E test failed")
 
 
 if __name__ == "__main__":

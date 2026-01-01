@@ -27,6 +27,7 @@ from enum import Enum, auto
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
+from numpy import floating
 
 
 # =============================================================================
@@ -785,7 +786,7 @@ class PortfolioHealthScore:
         self,
         specialists: List[DoppelgangerSpecialist],
         correlation_matrix: np.ndarray = None,
-    ) -> Tuple[float, Dict]:
+    ) -> tuple[float, dict[str, str]] | tuple[floating[Any], dict[str | Any, floating[Any] | str | float | int | Any]]:
         """
         Calculate portfolio health score from all specialists.
 

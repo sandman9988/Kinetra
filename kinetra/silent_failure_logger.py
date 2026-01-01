@@ -377,11 +377,11 @@ class SilentFailureLogger:
     
     def _write_to_file(self, record: FailureRecord):
         """Write failure record to JSON file."""
+        # Daily log file
+        date_str = datetime.now().strftime("%Y%m%d")
+        log_file = self.log_dir / f"failures_{date_str}.jsonl"
+
         try:
-            # Daily log file
-            date_str = datetime.now().strftime("%Y%m%d")
-            log_file = self.log_dir / f"failures_{date_str}.jsonl"
-            
             # Append to JSONL file (one JSON object per line)
             with open(log_file, 'a') as f:
                 f.write(record.to_json() + '\n')

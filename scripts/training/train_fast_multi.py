@@ -102,6 +102,7 @@ def train_fast(data_paths: list, n_episodes: int = 100, metrics_port: int = 8000
 
             while not done:
                 # Action selection
+                action = 0  # Initialize before conditional block
                 if np.random.random() < epsilon:
                     action = np.random.randint(0, action_dim)
                 else:

@@ -28,6 +28,9 @@ from collections import deque
 from abc import ABC, abstractmethod
 import warnings
 
+from numpy import dtype, ndarray, signedinteger
+from numpy._typing import _32Bit, _64Bit
+
 warnings.filterwarnings('ignore')
 
 
@@ -513,7 +516,9 @@ class CompetitorAgent(TriadAgent):
             return np.ones(len(x)) / len(x)
         return p
     
-    def select_action(self, state: np.ndarray, explore: bool = True) -> int:
+    def select_action(self, state: np.ndarray, explore: bool = True) -> int | ndarray[
+        tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[Any]] | signedinteger[
+                                                                            _32Bit | _64Bit] | Any:
         state = np.nan_to_num(state, nan=0, posinf=0, neginf=0)
         logits = state @ self.actor_W + self.actor_b
         probs = self._softmax(logits)
@@ -598,7 +603,9 @@ class ResearcherAgent(TriadAgent):
             return np.ones(len(x)) / len(x)
         return p
     
-    def select_action(self, state: np.ndarray, explore: bool = True) -> int:
+    def select_action(self, state: np.ndarray, explore: bool = True) -> int | ndarray[
+        tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[Any]] | signedinteger[
+                                                                            _32Bit | _64Bit] | Any:
         state = np.nan_to_num(state, nan=0, posinf=0, neginf=0)
         logits = state @ self.policy_W + self.policy_b
         probs = self._softmax(logits)

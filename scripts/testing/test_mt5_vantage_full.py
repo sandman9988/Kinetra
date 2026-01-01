@@ -31,6 +31,9 @@ from kinetra.trade_logger import MT5Logger
 from kinetra.grafana_exporter import GrafanaExporter
 
 # Import MetaAPI fetcher
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "download"))
 from fetch_broker_spec_from_metaapi import fetch_symbol_spec_from_metaapi
 import asyncio
 

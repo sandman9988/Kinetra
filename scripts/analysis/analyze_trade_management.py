@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 from dataclasses import dataclass
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -288,7 +288,7 @@ def analyze_berserker_trades(df: pd.DataFrame) -> Dict:
     }
 
 
-def test_stop_strategies(df: pd.DataFrame) -> Dict:
+def test_stop_strategies(df: pd.DataFrame) -> list[Any]:
     """Test different stop loss / trailing stop strategies."""
     berserker = (df['energy_pct'] > 0.75) & (df['damping_pct'] < 0.25)
     df['momentum_5'] = df['close'].pct_change(5)

@@ -17,9 +17,11 @@ Dynamic Exit: Energy-weighted cumulative PnL score S_τ
 
 import numpy as np
 import pandas as pd
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Tuple, List, Any
 from enum import Enum
 from dataclasses import dataclass
+
+from numpy import floating, dtype, ndarray
 
 
 class AgentType(Enum):
@@ -111,7 +113,7 @@ class PhysicsEngineV7:
         high: pd.Series,
         low: pd.Series,
         close: pd.Series
-    ) -> pd.Series:
+    ) -> ndarray[tuple[Any, ...], dtype[Any]]:
         """
         Calculate body ratio: |C_t - O_t| / (H_t - L_t + ε)
 
@@ -940,6 +942,8 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
 
     # Compute oscillator state if OHLCV provided (microstructure regime)
     use_oscillator = high is not None and low is not None and volume is not None
+    mass = None
+    acceleration = None
     if use_oscillator:
         high = pd.Series(high).reset_index(drop=True)
         low = pd.Series(low).reset_index(drop=True)
@@ -2502,7 +2506,7 @@ def compute_online_omega(returns: List[float], threshold: float = 0.0) -> float:
 # =============================================================================
 
 
-def wasserstein_distance_1d(p: np.ndarray, q: np.ndarray) -> float:
+def wasserstein_distance_1d(p: np.ndarray, q: np.ndarray) -> float | floating[Any]:
     """
     1D Wasserstein Distance (Earth Mover's Distance) between two samples.
 

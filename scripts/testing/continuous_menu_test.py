@@ -305,7 +305,8 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
+    # Don't exit during pytest - let tests run naturally
 '''
             
             script.write_text(stub_content)
@@ -665,3 +666,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # Don't exit during pytest - let tests run naturally

@@ -138,10 +138,18 @@ def extract_trade_details(stats, df: pd.DataFrame, physics_features: pd.DataFram
         # Direction
         is_long = entry_price < exit_price if pnl > 0 else entry_price > exit_price
 
+        # Convert times to timestamps (float) to prevent dtype incompatibility during aggregation
+        try:
+            entry_time_ts = float(pd.Timestamp(entry_time).timestamp())
+            exit_time_ts = float(pd.Timestamp(exit_time).timestamp())
+        except:
+            entry_time_ts = 0.0
+            exit_time_ts = 0.0
+
         trade_info = {
             'trade_id': int(idx),
-            'entry_time': str(entry_time),
-            'exit_time': str(exit_time),
+            'entry_time': entry_time_ts,  # Now a float timestamp instead of string
+            'exit_time': exit_time_ts,    # Now a float timestamp instead of string
             'entry_price': entry_price,
             'exit_price': exit_price,
             'pnl': pnl,
@@ -425,13 +433,11 @@ def main():
         # Find prepared test data
         test_data_dir = Path('data/prepared/test')
         if not test_data_dir.exists():
-            print(f"ERROR: Test data directory not found: {test_data_dir}")
-            sys.exit(1)
+            raise FileNotFoundError(f"Test data directory not found: {test_data_dir}")
         
         csv_files = sorted(test_data_dir.glob('*.csv'))
         if not csv_files:
-            print(f"ERROR: No CSV files found in {test_data_dir}")
-            sys.exit(1)
+            raise FileNotFoundError(f"No CSV files found in {test_data_dir}")
         
         # Limit to requested number of runs
         csv_files = [str(f) for f in csv_files[:args.monte_carlo]]
@@ -440,12 +446,13 @@ def main():
         csv_files = args.csv_files
         
         if not csv_files:
-            print("Usage: python run_comprehensive_backtest.py <csv_file1> [csv_file2] ...")
-            print("   or: python run_comprehensive_backtest.py --monte-carlo N")
-            print("\nExample:")
-            print("  python scripts/run_comprehensive_backtest.py data/*.csv")
-            print("  python scripts/run_comprehensive_backtest.py --monte-carlo 100")
-            sys.exit(1)
+            raise ValueError(
+                "Usage: python run_comprehensive_backtest.py <csv_file1> [csv_file2] ...\n"
+                "   or: python run_comprehensive_backtest.py --monte-carlo N\n\n"
+                "Example:\n"
+                "  python scripts/run_comprehensive_backtest.py data/*.csv\n"
+                "  python scripts/run_comprehensive_backtest.py --monte-carlo 100"
+            )
     
     output_dir = args.output_dir
 

@@ -1,0 +1,1358 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>487</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>588</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>593</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>178</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 4.</description>
+  <highlighted_element>4.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>179</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>180</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>183</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>184</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>185</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>186</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>72</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 2.</description>
+  <highlighted_element>2.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 3.</description>
+  <highlighted_element>3.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>113</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 2.</description>
+  <highlighted_element>2.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>174</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 4.</description>
+  <highlighted_element>4.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>175</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>176</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>177</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>150</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 3.</description>
+  <highlighted_element>3.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>151</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 4.</description>
+  <highlighted_element>4.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>155</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>156</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>159</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>209</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 4.</description>
+  <highlighted_element>4.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>210</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>214</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>215</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>216</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>129</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 2.</description>
+  <highlighted_element>2.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>135</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 3.</description>
+  <highlighted_element>3.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>866</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 4.</description>
+  <highlighted_element>4.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>868</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>873</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>877</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>879</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>881</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>885</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>887</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>889</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>123</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 5.</description>
+  <highlighted_element>5.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>125</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>126</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>130</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>131</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>132</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>367</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>369</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>370</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>371</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 5, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>374</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>375</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>376</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 13.</description>
+  <highlighted_element>13.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 14.</description>
+  <highlighted_element>14.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>380</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 15.</description>
+  <highlighted_element>15.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>381</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 16.</description>
+  <highlighted_element>16.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>382</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 17.</description>
+  <highlighted_element>17.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>383</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 18.</description>
+  <highlighted_element>18.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>457</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>462</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>467</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>478</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 6.</description>
+  <highlighted_element>6.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>37</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>38</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>39</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>43</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>44</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>45</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>46</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 13.</description>
+  <highlighted_element>13.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>47</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 5, but got 14.</description>
+  <highlighted_element>14.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SILENT_FAILURE_WORKFLOW.md</file>
+  <line>256</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SILENT_FAILURE_WORKFLOW.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 2.</description>
+  <highlighted_element>2.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>100</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>101</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>103</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>104</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 5, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 6, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>106</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 7, but got 13.</description>
+  <highlighted_element>13.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>107</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 8, but got 14.</description>
+  <highlighted_element>14.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 9, but got 15.</description>
+  <highlighted_element>15.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>109</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 10, but got 16.</description>
+  <highlighted_element>16.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>110</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 11, but got 17.</description>
+  <highlighted_element>17.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md</file>
+  <line>111</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/TESTING_FRAMEWORK.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 12, but got 18.</description>
+  <highlighted_element>18.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>187</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>188</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>189</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>190</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>191</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 5, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>192</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 6, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>193</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 7, but got 13.</description>
+  <highlighted_element>13.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>194</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 8, but got 14.</description>
+  <highlighted_element>14.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>195</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 9, but got 15.</description>
+  <highlighted_element>15.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>196</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 10, but got 16.</description>
+  <highlighted_element>16.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>197</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 11, but got 17.</description>
+  <highlighted_element>17.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>198</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 12, but got 18.</description>
+  <highlighted_element>18.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>43</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 1, but got 7.</description>
+  <highlighted_element>7.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>44</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 2, but got 8.</description>
+  <highlighted_element>8.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>45</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 3, but got 9.</description>
+  <highlighted_element>9.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>46</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 4, but got 10.</description>
+  <highlighted_element>10.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>47</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 5, but got 11.</description>
+  <highlighted_element>11.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>48</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 6, but got 12.</description>
+  <highlighted_element>12.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>49</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 7, but got 13.</description>
+  <highlighted_element>13.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>50</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 8, but got 14.</description>
+  <highlighted_element>14.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>51</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 9, but got 15.</description>
+  <highlighted_element>15.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>52</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 10, but got 16.</description>
+  <highlighted_element>16.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>53</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 11, but got 17.</description>
+  <highlighted_element>17.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_TESTING.md</file>
+  <line>54</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_TESTING.md" />
+  <problem_class id="MarkdownIncorrectlyNumberedListItem" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrectly numbered list item</problem_class>
+  <description>Item is not correctly numbered. Expected item number 12, but got 18.</description>
+  <highlighted_element>18.</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+</problems>

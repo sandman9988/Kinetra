@@ -453,8 +453,7 @@ def main():
 
     # Validate data file exists
     if not Path(args.data).exists():
-        print(f"Error: Data file not found: {args.data}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Data file not found: {args.data}")
 
     # Run appropriate mode
     try:
@@ -477,7 +476,7 @@ def main():
         print(f"\nError: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)
+        raise
 
 
 if __name__ == '__main__':

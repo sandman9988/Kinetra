@@ -23,6 +23,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from collections import defaultdict
 
+from pandas import DataFrame
+
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -78,7 +80,7 @@ class DataIntegrityChecker:
 
         return True
 
-    def check_csv_format(self, filepath: Path) -> Tuple[bool, pd.DataFrame]:
+    def check_csv_format(self, filepath: Path) -> tuple[bool, None] | tuple[bool, DataFrame]:
         """Check if CSV is valid and has required columns."""
         try:
             df = pd.read_csv(filepath)

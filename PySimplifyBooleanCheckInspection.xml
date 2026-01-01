@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py</file>
+  <line>101</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py" />
+  <problem_class id="PySimplifyBooleanCheckInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant boolean variable check</problem_class>
+  <description>Expression can be simplified</description>
+  <highlighted_element>result is False</highlighted_element>
+  <language>Python</language>
+  <offset>13</offset>
+  <length>15</length>
+</problem>
+</problems>

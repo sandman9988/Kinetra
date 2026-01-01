@@ -1,0 +1,326 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/env_manager.py</file>
+  <line>97</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/env_manager.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'json' might be referenced before assignment</description>
+  <highlighted_element>json</highlighted_element>
+  <language>Python</language>
+  <offset>44</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>192</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'inst_freq' might be referenced before assignment</description>
+  <highlighted_element>inst_freq</highlighted_element>
+  <language>Python</language>
+  <offset>105</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/order_validator.py</file>
+  <line>152</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/order_validator.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'sl_check' might be referenced before assignment</description>
+  <highlighted_element>sl_check</highlighted_element>
+  <language>Python</language>
+  <offset>75</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/order_validator.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/order_validator.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'tp_check' might be referenced before assignment</description>
+  <highlighted_element>tp_check</highlighted_element>
+  <language>Python</language>
+  <offset>75</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>1041</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'mass' might be referenced before assignment</description>
+  <highlighted_element>mass</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>1042</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'acceleration' might be referenced before assignment</description>
+  <highlighted_element>acceleration</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>313</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'base' might be referenced before assignment</description>
+  <highlighted_element>base</highlighted_element>
+  <language>Python</language>
+  <offset>13</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>391</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'log_file' might be referenced before assignment</description>
+  <highlighted_element>log_file</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra_menu.py</file>
+  <line>1797</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra_menu.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'subprocess' might be referenced before assignment</description>
+  <highlighted_element>subprocess</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2007</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'episode' might be referenced before assignment</description>
+  <highlighted_element>episode</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py</file>
+  <line>334</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'best_plus' might be referenced before assignment</description>
+  <highlighted_element>best_plus</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>338</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'candles' might be referenced before assignment</description>
+  <highlighted_element>candles</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>341</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'candles' might be referenced before assignment</description>
+  <highlighted_element>candles</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>268</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'df_truncated' might be referenced before assignment</description>
+  <highlighted_element>df_truncated</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py</file>
+  <line>52</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Name 'logger' can be undefined</description>
+  <highlighted_element>logger</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py</file>
+  <line>362</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'best_pnl' might be referenced before assignment</description>
+  <highlighted_element>best_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py</file>
+  <line>230</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'gpu_speedup' might be referenced before assignment</description>
+  <highlighted_element>gpu_speedup</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>878</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'bayes_results' might be referenced before assignment</description>
+  <highlighted_element>bayes_results</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>879</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'genetic_results' might be referenced before assignment</description>
+  <highlighted_element>genetic_results</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py</file>
+  <line>331</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'step' might be referenced before assignment</description>
+  <highlighted_element>step</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_sac.py</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_sac.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'info' might be referenced before assignment</description>
+  <highlighted_element>info</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py</file>
+  <line>790</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'closed2' might be referenced before assignment</description>
+  <highlighted_element>closed2</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>522</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'action' might be referenced before assignment</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_fast_multi.py</file>
+  <line>112</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_fast_multi.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'action' might be referenced before assignment</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>58</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_sniper.py</file>
+  <line>467</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_sniper.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'action' might be referenced before assignment</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>58</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_with_metrics.py</file>
+  <line>146</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_with_metrics.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'action' might be referenced before assignment</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_system_stress.py</file>
+  <line>246</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_system_stress.py" />
+  <problem_class id="PyUnboundLocalVariableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unbound local variables</problem_class>
+  <description>Local variable 'start' might be referenced before assignment</description>
+  <highlighted_element>start</highlighted_element>
+  <language>Python</language>
+  <offset>81</offset>
+  <length>5</length>
+</problem>
+</problems>

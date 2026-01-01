@@ -456,6 +456,7 @@ def train_sniper(
 
             while not done:
                 # Epsilon-greedy action
+                action = 0  # Initialize before conditional block
                 if np.random.random() < epsilon:
                     action = np.random.randint(0, action_dim)
                 else:

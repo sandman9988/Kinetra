@@ -38,6 +38,7 @@ from rl_exploration_framework import (
     RewardShaper,
     LinearQAgent,
     FeatureTracker,
+    PersistenceManager,
 )
 
 try:
@@ -167,8 +168,25 @@ def print_header(text: str):
     print("=" * 80)
 
 
-def train_agent(agent_name: str, agent, env, episodes: int) -> dict:
-    """Train a single agent and return performance breakdown."""
+def train_agent(agent_name: str, agent, env, episodes: int,
+                episode_sequence: list = None,
+                start_bars: list = None) -> dict:
+    """
+    Train a single agent and return performance breakdown.
+
+    Args:
+        agent_name: Name of the agent
+        agent: Agent instance
+        env: Environment instance
+        episodes: Number of episodes
+        episode_sequence: Fixed sequence of instruments for fair comparison.
+                         If None, uses random sampling (NOT scientifically comparable!)
+        start_bars: Fixed starting bar for each episode for fair comparison.
+                   If None, uses random start (NOT scientifically comparable!)
+
+    Returns:
+        Performance breakdown dict
+    """
     print(f"\n🏃 Training {agent_name}...")
 
     epsilon = 1.0
@@ -185,7 +203,19 @@ def train_agent(agent_name: str, agent, env, episodes: int) -> dict:
     })
 
     for episode in range(episodes):
-        state = env.reset()
+        # CRITICAL: For scientific comparison, all agents must see IDENTICAL data
+        # This means same instrument AND same starting bar position
+        if episode_sequence is not None and start_bars is not None:
+            instrument_key = episode_sequence[episode]
+            start_bar = start_bars[episode]
+            state = env.reset(instrument_key=instrument_key, start_bar=start_bar)
+        elif episode_sequence is not None:
+            # Using fixed instruments but random start bars - partially comparable
+            instrument_key = episode_sequence[episode]
+            state = env.reset(instrument_key=instrument_key)
+        else:
+            # Using random instruments and start bars - NOT comparable!
+            state = env.reset()
         total_reward = 0
 
         for step in range(500):
@@ -497,27 +527,121 @@ def main():
 
     print(f"\n✅ Testing {len(agents)} agent(s): {', '.join(agents.keys())}")
 
-    # Train each agent
+    # =============================================================================
+    # PRODUCTION SAFETY: Initialize persistence with atomic saves & checkpointing
+    # =============================================================================
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    experiment_name = f"agent_comparison_{timestamp}"
+    persistence = PersistenceManager(
+        base_dir="results/exploration",
+        experiment_name=experiment_name,
+        checkpoint_every=5,  # Checkpoint every 5 episodes
+        max_checkpoints=3,
+    )
+    persistence.logger.info(f"Comparing {len(agents)} agents across {episodes} episodes each")
+
+    # =============================================================================
+    # CRITICAL FOR SCIENTIFIC RIGOR: Generate fixed episode sequence & start bars
+    # =============================================================================
+    # All agents MUST see the EXACT SAME:
+    # 1. Instrument sequence (which symbol/timeframe)
+    # 2. Starting bar positions (where in the data)
+    # This ensures true apples-to-apples comparison
+    print(f"\n🔬 Generating fixed episode sequence for fair comparison...")
+    np.random.seed(42)  # Fixed seed for reproducibility
+    instrument_keys = list(loader.instruments.keys())
+
+    # Generate fixed instrument sequence (round-robin to ensure coverage)
+    episode_sequence = [
+        instrument_keys[i % len(instrument_keys)]
+        for i in range(episodes)
+    ]
+
+    # Generate fixed start bar for each episode
+    start_bars = []
+    for inst_key in episode_sequence:
+        # Get data length for this instrument (InstrumentData is an object, not dict)
+        inst_data = loader.instruments[inst_key]
+        max_start = len(inst_data.physics_state) - 500  # Use attribute, not dict key
+        if max_start > 100:
+            start_bar = np.random.randint(100, max_start)
+        else:
+            start_bar = 100
+        start_bars.append(start_bar)
+
+    print(f"   → {episodes} episodes across {len(instrument_keys)} instruments")
+    print(f"   → All agents will see IDENTICAL instrument sequence")
+    print(f"   → All agents will start at IDENTICAL bar positions")
+    print(f"   → TRUE apples-to-apples comparison ✅")
+
+    # Train each agent with FIXED episode configuration
+    # CRITICAL: Save after EACH agent to prevent data loss
     results = {}
+    agent_num = 0
+    total_agents = len(agents)
 
     for agent_name, agent in agents.items():
-        performance = train_agent(agent_name, agent, env, episodes)
-        results[agent_name] = performance
+        agent_num += 1
+        persistence.logger.info(f"Starting agent {agent_num}/{total_agents}: {agent_name}")
 
-    # Analysis
+        try:
+            performance = train_agent(
+                agent_name, agent, env, episodes,
+                episode_sequence=episode_sequence,
+                start_bars=start_bars
+            )
+            results[agent_name] = performance
+
+            # ATOMIC SAVE after each agent completes (prevents data loss)
+            partial_results = {
+                'timestamp': timestamp,
+                'agents_completed': list(results.keys()),
+                'agents_remaining': [a for a in agents.keys() if a not in results],
+                'episodes_per_agent': episodes,
+                'instruments': list(loader.instruments.keys()),
+                'episode_sequence': episode_sequence,
+                'start_bars': start_bars,
+                'results': {
+                    name: {
+                        key: {
+                            'episodes': perf['episodes'],
+                            'avg_reward': float(perf['total_reward'] / perf['episodes']) if perf['episodes'] > 0 else 0,
+                            'avg_pnl': float(perf['total_pnl'] / perf['episodes']) if perf['episodes'] > 0 else 0,
+                        }
+                        for key, perf in agent_results.items()
+                    }
+                    for name, agent_results in results.items()
+                }
+            }
+
+            # Atomic save to prevent corruption
+            results_file = persistence.results_dir / f"agent_comparison_progress.json"
+            persistence._atomic_save_json(partial_results, results_file)
+            persistence.logger.info(f"✅ Agent {agent_name} complete, results saved atomically")
+
+        except Exception as e:
+            persistence.logger.error(f"❌ Agent {agent_name} failed: {e}")
+            # Save what we have so far
+            partial_results = {
+                'timestamp': timestamp,
+                'failed_agent': agent_name,
+                'agents_completed': list(results.keys()),
+                'error': str(e),
+                'results': results,
+            }
+            emergency_file = persistence.results_dir / f"emergency_save_{agent_name}.json"
+            persistence._atomic_save_json(partial_results, emergency_file)
+            persistence.logger.info(f"Emergency save completed: {emergency_file}")
+            raise  # Re-raise to stop execution
+
+    # Analysis (only if all agents complete)
     print_agent_comparison_table(results)
 
     # Identify best agents per category
     best_agents = identify_best_agent_per_category(results)
     print_recommendations(best_agents)
 
-    # Save results
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = Path("results/exploration")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    results_file = results_dir / f"agent_comparison_{timestamp}.json"
-
-    # Convert to serializable format
+    # FINAL SAVE: Use atomic save for complete results with best agents
     results_serializable = {}
     for agent_name, agent_results in results.items():
         agent_data = {}
@@ -539,17 +663,22 @@ def main():
 
     output = {
         'timestamp': timestamp,
+        'status': 'COMPLETE',
         'agents_tested': list(agents.keys()),
         'episodes_per_agent': episodes,
         'instruments': list(loader.instruments.keys()),
+        'episode_sequence': episode_sequence,
+        'start_bars': start_bars,
         'results': results_serializable,
         'best_agents': best_agents_serializable,
     }
 
-    with open(results_file, 'w') as f:
-        json.dump(output, f, indent=2)
+    # ATOMIC SAVE - prevents corruption on crash
+    final_results_file = persistence.results_dir / f"agent_comparison_FINAL.json"
+    persistence._atomic_save_json(output, final_results_file)
+    persistence.logger.info(f"✅ Final results saved atomically: {final_results_file}")
 
-    print(f"\n💾 Results saved: {results_file}")
+    print(f"\n💾 Results saved (atomic): {final_results_file}")
 
     print_header("AGENT COMPARISON COMPLETE")
 

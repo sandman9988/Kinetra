@@ -358,4 +358,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    result = main()
+    # Don't exit during pytest - let tests run naturally
+    if result != 0:
+        raise RuntimeError(f"Phase 2 validation failed with exit code {result}")

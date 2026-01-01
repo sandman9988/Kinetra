@@ -23,12 +23,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import pytest
 
 from kinetra import (
     # Data & Backtesting
     RealisticBacktester,
-    SymbolSpec,
-    AssetClass,
     # Agents & Learning
     KinetraAgent,
     DoppelgangerTriad,
@@ -42,6 +41,161 @@ from kinetra.experience_replay import (
     PrioritizedReplayBuffer,
     TradeLabeler,
 )
+from kinetra.market_microstructure import SymbolSpec, AssetClass
+
+
+@pytest.fixture
+def data():
+    """Load or create test market data."""
+    data_path = "/home/user/Kinetra/data/master/EURJPY+_M15_202401020000_202512300900.csv"
+
+    if Path(data_path).exists():
+        # Read CSV (MT5 format)
+        df = pd.read_csv(data_path, sep='\t', nrows=1000)
+        # Rename columns
+        df.columns = df.columns.str.strip().str.replace('<', '').str.replace('>', '').str.lower()
+        # Combine date and time
+        df['timestamp'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+        # Rename and keep needed columns
+        df = df.rename(columns={'tickvol': 'volume'})
+        df = df[['timestamp', 'open', 'high', 'low', 'close', 'volume', 'spread']]
+        df = df.set_index('timestamp')
+    else:
+        # Generate synthetic data
+        dates = pd.date_range('2024-01-01', periods=1000, freq='15min')
+        df = pd.DataFrame({
+            'open': [160.0 + i*0.01 + np.random.randn()*0.1 for i in range(1000)],
+            'high': [160.1 + i*0.01 + np.random.randn()*0.1 for i in range(1000)],
+            'low': [159.9 + i*0.01 + np.random.randn()*0.1 for i in range(1000)],
+            'close': [160.0 + i*0.01 + np.random.randn()*0.1 for i in range(1000)],
+            'volume': [1000 + i + np.random.randn()*50 for i in range(1000)],
+            'spread': [8.0 + np.random.randn()*2 for _ in range(1000)]
+        }, index=dates)
+
+    return df
+
+
+@pytest.fixture
+def spec():
+    """Create EURJPY+ symbol specification."""
+    return SymbolSpec(
+        symbol="EURJPY+",
+        asset_class=AssetClass.FOREX,
+        digits=3,
+        volume_min=0.01,
+        volume_max=100.0,
+        volume_step=0.01,
+        spread_typical=80.0,
+        commission_per_lot=0.0,
+        swap_long=-0.3,
+        swap_short=0.1,
+        trade_freeze_level=50,
+        trade_stops_level=100,
+    )
+
+
+@pytest.fixture
+def triad():
+    """Initialize DoppelgangerTriad with KinetraAgent."""
+    agent = KinetraAgent(state_dim=64, action_dim=4)
+    return DoppelgangerTriad(
+        live_agent=agent,
+        drift_threshold=0.2,
+        promotion_threshold=0.1,
+        min_trades_for_drift=10,
+        min_trades_for_promotion=15,
+    )
+
+
+@pytest.fixture
+def signals(data):
+    """Generate simple MA crossover signals for testing."""
+    df = data.copy()
+    df['ma50'] = df['close'].rolling(window=50).mean()
+    df['signal'] = 0
+    df.loc[df['close'] > df['ma50'], 'signal'] = 1
+    df.loc[df['close'] < df['ma50'], 'signal'] = -1
+    df['signal_change'] = df['signal'].diff()
+
+    signals = []
+    position = None
+
+    for idx, row in df.iterrows():
+        if position is None:
+            if row['signal_change'] == 2:  # Long entry
+                entry_price = row['close']
+                signals.append({
+                    'time': idx,
+                    'action': 'open_long',
+                    'sl': entry_price - 0.200,
+                    'tp': entry_price + 0.400,
+                    'volume': 1.0,
+                })
+                position = 'long'
+            elif row['signal_change'] == -2:  # Short entry
+                entry_price = row['close']
+                signals.append({
+                    'time': idx,
+                    'action': 'open_short',
+                    'sl': entry_price + 0.200,
+                    'tp': entry_price - 0.400,
+                    'volume': 1.0,
+                })
+                position = 'short'
+        else:
+            # Exit on opposite signal
+            if (position == 'long' and row['signal_change'] < 0) or \
+               (position == 'short' and row['signal_change'] > 0):
+                signals.append({
+                    'time': idx,
+                    'action': 'close',
+                    'sl': None,
+                    'tp': None,
+                })
+                position = None
+
+    return pd.DataFrame(signals)
+
+
+@pytest.fixture
+def result(data, signals, spec):
+    """Run backtest and return results."""
+    backtester = RealisticBacktester(
+        spec=spec,
+        initial_capital=10000.0,
+        risk_per_trade=0.02,
+        timeframe="M15",
+        enable_slippage=True,
+        slippage_std_pips=0.5,
+        enable_freeze_zones=True,
+        enable_stop_validation=True,
+        verbose=False,
+    )
+    return backtester.run(data, signals, classify_regimes=False)
+
+
+@pytest.fixture
+def logger():
+    """Create trade logger."""
+    return TradeLogger(log_dir="logs/test_e2e")
+
+
+@pytest.fixture
+def buffer():
+    """Create prioritized replay buffer."""
+    return PrioritizedReplayBuffer(capacity=1000)
+
+
+@pytest.fixture
+def labeler():
+    """Create trade labeler."""
+    return TradeLabeler()
+
+
+@pytest.fixture
+def monitor():
+    """Create portfolio health monitor."""
+    return PortfolioHealthMonitor(lookback_days=30, min_trades_for_score=10)
 
 
 def load_test_data(max_rows: int = 1000) -> pd.DataFrame:

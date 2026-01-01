@@ -10,8 +10,10 @@ rolling distributions.
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
+
+from numpy import floating
 
 
 @dataclass
@@ -151,7 +153,7 @@ class RewardShaper:
         final_equity: float,
         initial_equity: float,
         max_drawdown_pct: float
-    ) -> float:
+    ) -> float | floating[Any]:
         """
         Compute reward for entire episode (run).
 

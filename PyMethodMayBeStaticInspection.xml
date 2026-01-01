@@ -1,0 +1,3878 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>412</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;run_single_test&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>run_single_test</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>667</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;extract_all&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>extract_all</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>753</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_update_mfe_mae&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_update_mfe_mae</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>777</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_mtm&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_mtm</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>818</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_build_agent_state&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_build_agent_state</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>1074</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_shuffle_returns&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_shuffle_returns</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>1095</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_bootstrap_sample&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_bootstrap_sample</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>840</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_dominates&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_dominates</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>1010</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_episode_metrics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_episode_metrics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/core.py</file>
+  <line>150</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/core.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;optimize&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>optimize</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>381</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_stops&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_stops</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>316</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_default_categorize&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_default_categorize</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>464</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_validate_volume&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_validate_volume</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>526</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_validate_price&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_validate_price</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>574</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_validate_stops&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_validate_stops</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>690</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_validate_margin&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_validate_margin</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>733</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_default_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_default_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/integrity.py</file>
+  <line>70</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/integrity.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_checksum&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_checksum</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/integrity.py</file>
+  <line>136</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/integrity.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_quality_score&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_quality_score</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/manager.py</file>
+  <line>77</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_asset_class&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_asset_class</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>161</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_filename&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_filename</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>194</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_market_type&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_market_type</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>282</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_dict_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_dict_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>412</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_forex&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_forex</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>426</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_crypto&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_crypto</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>435</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_shares&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_shares</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>452</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_indices&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_indices</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>466</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_metals&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_metals</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>476</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_energy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_energy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>490</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_preprocess_etfs&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_preprocess_etfs</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_management.py</file>
+  <line>367</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_validate_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_validate_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_management.py</file>
+  <line>516</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_create_data_snapshot&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_create_data_snapshot</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>93</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_asset_class_folder&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_asset_class_folder</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>172</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_checksum&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_checksum</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>340</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_timeframe_minutes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_timeframe_minutes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>207</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_timeframe&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_timeframe</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>290</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;check_opening_gaps&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>check_opening_gaps</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>357</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;check_ohlc_validity&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>check_ohlc_validity</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>397</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;check_timestamps&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>check_timestamps</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/dedup.py</file>
+  <line>54</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/dedup.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_hash&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_hash</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/dedup.py</file>
+  <line>173</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/dedup.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;normalize_code&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>normalize_code</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/dedup.py</file>
+  <line>184</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/dedup.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;extract_functions&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>extract_functions</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/env_manager.py</file>
+  <line>85</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/env_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_installed_packages&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_installed_packages</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>250</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;save_manifest&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>save_manifest</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>265</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;load_manifest&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>load_manifest</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/gpu.py</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/gpu.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_nvidia&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_nvidia</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/gpu.py</file>
+  <line>147</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/gpu.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_amd&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_amd</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/gpu.py</file>
+  <line>208</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/gpu.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_mps&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_mps</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/monitor.py</file>
+  <line>89</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/monitor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_current_metrics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_current_metrics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/monitor.py</file>
+  <line>248</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/monitor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_file_hash&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_file_hash</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/security.py</file>
+  <line>252</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/security.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_line&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_line</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;validate_discovery&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>validate_discovery</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>315</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_estimate_lyapunov_exponent&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_estimate_lyapunov_exponent</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>337</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_hurst_exponent&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_hurst_exponent</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>387</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_approximate_entropy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_approximate_entropy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;update&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>update</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>536</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_empty_features&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_empty_features</highlighted_element>
+  <language>Python</language>
+  <offset>9</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/experience_replay.py</file>
+  <line>372</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/experience_replay.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_regime_breakdown&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_regime_breakdown</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>53</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_base_dashboard&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_base_dashboard</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>396</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_row_panel&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_row_panel</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>2260</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;to_json&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>to_json</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>372</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;search&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>search</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>544</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;tag_keys&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>tag_keys</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>689</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_instruments_table&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_instruments_table</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>719</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_timeframes_table&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_timeframes_table</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>743</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classes_table&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classes_table</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>767</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_trades_table&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_trades_table</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>832</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_trades_by_regime_table&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_trades_by_regime_table</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>881</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_query_summary&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_query_summary</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>932</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_query_risk&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_query_risk</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>1157</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_query_distribution&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_query_distribution</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>1197</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_time_range&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_time_range</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>1232</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_to_ms&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_to_ms</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/metrics.py</file>
+  <line>449</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/metrics.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;to_json&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>to_json</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>296</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_cpu_linux&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_cpu_linux</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>361</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_cpu_macos&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_cpu_macos</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>394</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_cpu_windows&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_cpu_windows</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>441</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_memory_linux&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_memory_linux</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>469</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_memory_macos&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_memory_macos</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>507</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_memory_windows&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_memory_windows</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>560</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_nvidia_gpu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_nvidia_gpu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>597</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_amd_gpu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_amd_gpu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>619</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_apple_gpu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_apple_gpu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>649</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_intel_gpu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_intel_gpu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>672</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_disk&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_disk</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>710</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_network&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_network</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>740</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classify_tier&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classify_tier</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>879</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_optimize_ultra&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_optimize_ultra</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>921</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_optimize_high&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_optimize_high</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>956</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_optimize_medium&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_optimize_medium</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>987</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_optimize_low&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_optimize_low</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>1018</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_optimize_minimal&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_optimize_minimal</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>1046</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_adjust_for_latency&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_adjust_for_latency</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>1082</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_adjust_for_memory&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_adjust_for_memory</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>329</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_sma&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_sma</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>338</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_ema&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_ema</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>352</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_rsi&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_rsi</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>424</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_atr&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_atr</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>582</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;aggregate_signals&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>aggregate_signals</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_hidden_dimensions&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_hidden_dimensions</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>181</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_chaos_theory&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_chaos_theory</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>194</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_meta_learning&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_meta_learning</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>203</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_cross_regime&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_cross_regime</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>213</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_information_theory&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_information_theory</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_emergent&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_emergent</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>232</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_convert_generic&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_convert_generic</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>335</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_signals&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_signals</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>367</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_simulate_trades&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_simulate_trades</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>533</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_empty_metrics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_empty_metrics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_calendar.py</file>
+  <line>259</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_calendar.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_timeframe_minutes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_timeframe_minutes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>505</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_current_session&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_current_session</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/measurements.py</file>
+  <line>803</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/measurements.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_correlation_matrix&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_correlation_matrix</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/measurements.py</file>
+  <line>824</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/measurements.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;find_inverse_relationships&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>find_inverse_relationships</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>444</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoInteger&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoInteger</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>449</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoDouble&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoDouble</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>453</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoString&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoString</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>457</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;OrderProfitCheck&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>OrderProfitCheck</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>820</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;Refresh&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>Refresh</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>825</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;RefreshRates&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>RefreshRates</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>845</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;IsSynchronized&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>IsSynchronized</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1225</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoInteger&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoInteger</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1230</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoDouble&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoDouble</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1234</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;InfoString&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>InfoString</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1422</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;SelectByIndex&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>SelectByIndex</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1561</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;ReasonDescription&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>ReasonDescription</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1610</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;SelectByIndex&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>SelectByIndex</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1709</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;CheckState&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>CheckState</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1755</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;SelectByIndex&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>SelectByIndex</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1951</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;SetMarginMode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>SetMarginMode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>414</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_mt5_info_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_mt5_info_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>907</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_metaapi_data_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_metaapi_data_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>958</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_bridge_data_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_bridge_data_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>1264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_spec_to_dict&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_spec_to_dict</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>1285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_dict_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_dict_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>53</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_check_availability&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_check_availability</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>184</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_spec_to_dict&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_spec_to_dict</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>238</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_detect_asset_class&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_detect_asset_class</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>270</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_margin_mode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_margin_mode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>289</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_swap_type&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_swap_type</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>302</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_swap_triple_day&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_swap_triple_day</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>315</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_trade_mode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_trade_mode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>326</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_filling_mode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_filling_mode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>337</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_order_mode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_order_mode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>351</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_order_gtc_mode&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_order_gtc_mode</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py</file>
+  <line>361</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_spec_extractor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_extract_trading_hours&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_extract_trading_hours</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/multi_agent_design.py</file>
+  <line>322</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/multi_agent_design.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_agent_class&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_agent_class</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/multi_agent_design.py</file>
+  <line>331</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/multi_agent_design.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;is_trading_allowed&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>is_trading_allowed</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/multi_agent_design.py</file>
+  <line>349</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/multi_agent_design.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_leverage_cap&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_leverage_cap</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>237</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_jitter&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_jitter</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>672</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;test_latency&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>test_latency</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>364</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_physics_cpu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_physics_cpu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>536</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_make_key&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_make_key</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>710</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;run&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>run</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>1117</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_timeframe&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_timeframe</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/persistence_manager.py</file>
+  <line>79</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/persistence_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_checksum&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_checksum</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>910</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_process_results&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_process_results</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>422</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_liquidity&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_liquidity</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>539</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_simple_cluster&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_simple_cluster</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>566</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_map_clusters_to_regimes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_map_clusters_to_regimes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>695</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_acceleration&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_acceleration</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>707</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;classify_regime&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>classify_regime</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>198</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;classify_regime&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>classify_regime</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>220</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;determine_active_agent&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>determine_active_agent</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>422</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_find_bar_index&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_find_bar_index</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>603</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_update_mfe_mae&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_update_mfe_mae</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>619</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_should_exit&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_should_exit</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>644</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_default_signal&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_default_signal</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>668</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_build_agent_state&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_build_agent_state</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>769</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_trades_to_result&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_trades_to_result</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>443</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_max_drawdown&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_max_drawdown</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>449</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_ulcer_index&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_ulcer_index</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>456</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_recovery_time&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_recovery_time</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>478</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_edge_decay&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_edge_decay</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>499</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_health_state&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_health_state</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>698</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classify_regimes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classify_regimes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>874</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_regime_breakdown&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_regime_breakdown</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>1000</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_shuffle_returns&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_shuffle_returns</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>1030</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_bootstrap_sample&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_bootstrap_sample</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>225</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_analyze_regimes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_analyze_regimes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>303</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_find_transition_precursors&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_find_transition_precursors</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>410</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;analyze_distribution&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>analyze_distribution</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>518</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;analyze_risk&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>analyze_risk</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>592</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;analyze_physics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>analyze_physics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>660</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_streaks&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_streaks</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>778</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;export_to_json&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>export_to_json</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>784</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;export_to_dataframe&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>export_to_dataframe</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>788</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;export_trades_dataframe&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>export_trades_dataframe</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>158</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_significance&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_significance</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>278</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;identify_winner&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>identify_winner</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_manager.py</file>
+  <line>104</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;save_result&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>save_result</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_manager.py</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;load_result&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>load_result</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_risk_of_ruin&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_risk_of_ruin</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>106</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_agent_health_score&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_agent_health_score</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>142</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_risk_health_score&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_risk_health_score</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>179</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_class_health_score&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_class_health_score</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>209</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;composite_health_score&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>composite_health_score</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>63</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fast_rolling_percentile&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fast_rolling_percentile</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>120</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_dominant_periods&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_dominant_periods</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>115</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;relu&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>relu</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>119</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;relu_grad&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>relu_grad</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>197</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_categorize_exception&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_categorize_exception</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_determine_severity&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_determine_severity</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>252</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_caller_info&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_caller_info</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>278</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_failure_signature&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_failure_signature</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/single_symbol_env.py</file>
+  <line>418</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/single_symbol_env.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;select_action&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>select_action</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/spread_gate.py</file>
+  <line>296</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/spread_gate.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classify_regime_dynamic&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classify_regime_dynamic</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>528</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_apply_scenario_to_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_apply_scenario_to_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>559</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_inject_gaps&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_inject_gaps</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>618</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_report_metrics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_report_metrics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>209</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_build_feature_names&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_build_feature_names</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_spec.py</file>
+  <line>221</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_spec.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;calculate_margin_level&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>calculate_margin_level</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>133</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_import_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_import_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>156</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_value_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_value_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>177</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_runtime_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_runtime_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>189</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_memory_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_memory_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>199</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_timeout_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_timeout_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>209</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_data_error&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_data_error</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>676</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_load_flexible_csv&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_load_flexible_csv</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>736</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_create_dummy_result&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_create_dummy_result</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>937</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_signal&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_signal</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1017</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_calculate_metrics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_calculate_metrics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_costs.py</file>
+  <line>409</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_costs.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_from_decimal&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_from_decimal</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trend_discovery.py</file>
+  <line>244</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trend_discovery.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_interpret_predictor&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_interpret_predictor</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trend_discovery.py</file>
+  <line>251</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trend_discovery.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_describe_formula&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_describe_formula</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>238</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_permutation_entropy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_permutation_entropy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>416</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>511</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>598</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>693</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_surprise&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_surprise</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>728</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_ensemble_action&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_ensemble_action</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_data_manager.py</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classify_symbol&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classify_symbol</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_data_manager.py</file>
+  <line>290</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_execute_download_job&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_execute_download_job</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_data_manager.py</file>
+  <line>307</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_data_manager.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;validate_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>validate_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_trading_env.py</file>
+  <line>313</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_trading_env.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_classify_regime&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_classify_regime</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/walk_forward.py</file>
+  <line>448</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/walk_forward.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;analyze_robustness&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>analyze_robustness</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/mt5_bridge_server.py</file>
+  <line>34</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/mt5_bridge_server.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_symbol_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_symbol_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/mt5_bridge_server.py</file>
+  <line>56</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/mt5_bridge_server.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_rates&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_rates</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>335</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_atomic_save&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_atomic_save</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>354</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_atomic_save_json&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_atomic_save_json</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1294</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_sanitize_state&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_sanitize_state</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>175</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_to_tensor&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_to_tensor</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>364</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_to_tensor&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_to_tensor</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>531</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_to_tensor&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_to_tensor</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py</file>
+  <line>174</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py</file>
+  <line>144</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_build_minimal_features&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_build_minimal_features</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>500</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_perm_entropy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_perm_entropy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>514</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_approx_entropy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_approx_entropy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>529</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_recurrence_rate&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_recurrence_rate</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>542</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_safe_skew&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_safe_skew</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>551</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_safe_kurt&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_safe_kurt</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>560</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_moment&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_moment</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>713</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_build_feature_names&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_build_feature_names</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>869</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/audit_menu_system.py</file>
+  <line>282</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/audit_menu_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;generate_visual_map&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>generate_visual_map</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/detect_silent_failures.py</file>
+  <line>53</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;test_module_import&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>test_module_import</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/detect_silent_failures.py</file>
+  <line>78</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;discover_python_modules&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>discover_python_modules</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/detect_silent_failures.py</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;test_physics_engine&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>test_physics_engine</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/detect_silent_failures.py</file>
+  <line>248</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;test_explore_interactive_issue&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>test_explore_interactive_issue</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>332</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;step2_select_asset_classes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>step2_select_asset_classes</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>450</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;step4_select_timeframes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>step4_select_timeframes</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>138</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;classify_market_type&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>classify_market_type</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>165</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_trading_hours&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_trading_hours</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>234</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;handle_missing_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>handle_missing_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>247</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;split_train_test&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>split_train_test</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>100</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_determine_fix_strategy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_determine_fix_strategy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>187</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_add_len_method_to_class&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_add_len_method_to_class</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>364</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;validate_fixes&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>validate_fixes</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>325</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_top_labels&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_top_labels</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>459</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;print_report&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>print_report</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>503</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;save_report&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>save_report</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py</file>
+  <line>253</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;find_cross_class_patterns&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>find_cross_class_patterns</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>115</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_measure_raw_observables&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_measure_raw_observables</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>148</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_measure_derived&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_measure_derived</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>198</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_measure_physics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_measure_physics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>214</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_compute_statistics&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_compute_statistics</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>266</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_analyze_fat_candles&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_analyze_fat_candles</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_filename&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_filename</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_run_sequential&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_run_sequential</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/run_local.py</file>
+  <line>181</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/run_local.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/silent_failure_workflow.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/silent_failure_workflow.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;print_header&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>print_header</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>341</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_test_imports&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_test_imports</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>370</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_extract_errors&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_extract_errors</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>488</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_stopiteration&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_stopiteration</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>597</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_fix_keyerror&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_fix_keyerror</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>150</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;check_data_prepared&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>check_data_prepared</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>235</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;check_missing_scripts&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>check_missing_scripts</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py</file>
+  <line>103</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;generate_test_paths&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>generate_test_paths</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>195</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_synthetic_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_synthetic_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>213</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_asset_class&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_asset_class</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py</file>
+  <line>391</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;phase3_statistical_validation&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>phase3_statistical_validation</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py</file>
+  <line>773</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_html_report&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_html_report</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py</file>
+  <line>219</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_get_symbol_info&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_get_symbol_info</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py</file>
+  <line>625</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_trade_summary&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_trade_summary</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explorer_standalone.py</file>
+  <line>216</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_soft&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_soft</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explorer_standalone.py</file>
+  <line>277</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_soft&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_soft</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explorer_standalone.py</file>
+  <line>335</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_soft&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_soft</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py</file>
+  <line>271</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py</file>
+  <line>378</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_softmax&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_softmax</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>238</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_parse_symbol&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_parse_symbol</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>247</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;load_file&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>load_file</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>210</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_find_drawdowns&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_find_drawdowns</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>231</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;ulcer_index&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>ulcer_index</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>881</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;get_healing_actions&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>get_healing_actions</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/run_all_tests.py</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/run_all_tests.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;run_test&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>run_test</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>72</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_test_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_test_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>87</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_valid_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_valid_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>157</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_test_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_test_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>172</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_trending_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_trending_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>244</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_test_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_test_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_trending_data&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_trending_data</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>339</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_test_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_test_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>394</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;create_test_spec&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>create_test_spec</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>139</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_capture_system_state&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_capture_system_state</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_workflow.py</file>
+  <line>83</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_workflow.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;log_action&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>log_action</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_performance_profiling.py</file>
+  <line>181</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_performance_profiling.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_generate_suggestions&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_generate_suggestions</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>61</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_adaptive_window&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_adaptive_window</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>80</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;_estimate_dominant_cycle&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>_estimate_dominant_cycle</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>475</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_dsp_features&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_dsp_features</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>539</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_vpin_proxy&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_vpin_proxy</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>585</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;compute_higher_moments&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>compute_higher_moments</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyMethodMayBeStaticInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Method is not declared static</problem_class>
+  <description>Method &lt;code&gt;update&lt;/code&gt; may be 'static'</description>
+  <highlighted_element>update</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+</problems>

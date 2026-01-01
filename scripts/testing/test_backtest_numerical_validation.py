@@ -864,9 +864,10 @@ def run_full_backtest_validation():
 if __name__ == "__main__":
     # Run unit tests
     tests_passed = run_all_tests()
-    
+
     # Run full backtest validation
     backtest_passed = run_full_backtest_validation()
-    
-    # Exit code
-    sys.exit(0 if tests_passed and backtest_passed else 1)
+
+    # Don't exit during pytest - let tests run naturally
+    if not (tests_passed and backtest_passed):
+        raise RuntimeError("Numerical validation tests failed")

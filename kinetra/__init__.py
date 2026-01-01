@@ -229,6 +229,9 @@ _LAZY_MODULES = {
     "ResearcherAgent": "triad_system",
     "create_triad_system": "triad_system",
 
+    # Doppelganger Triad System
+    "DoppelgangerTriad": "doppelganger_triad",
+
     # Workflow Management
     "WorkflowManager": "workflow_manager",
 
@@ -247,6 +250,13 @@ _LAZY_MODULES = {
     "PositionState": "position_manager",
     "PositionSide": "position_manager",
     "PositionEvent": "position_manager",
+
+    # Portfolio Health
+    "PortfolioHealthMonitor": "portfolio_health",
+    "HealthState": "portfolio_health",
+    "HealthAction": "portfolio_health",
+    "PillarScore": "portfolio_health",
+    "CompositeHealthScore": "portfolio_health",
 
     # Broker Compliance
     "BrokerComplianceValidator": "broker_compliance",
@@ -520,6 +530,9 @@ __all__ = [
     "TransitionPrecursor",
     "CrossAssetRegimeAnalyzer",
     "discover_regimes",
+    # Triad Systems
+    "TriadSystem",
+    "DoppelgangerTriad",
     # Workflow Management
     "WorkflowManager",
     # Performance Module
@@ -537,4 +550,10 @@ __all__ = [
     "ParallelProcessor",
     "PerformanceMetrics",
     "PerformanceMonitor",
+    # Portfolio Health
+    "PortfolioHealthMonitor",
+    "HealthState",
+    "HealthAction",
+    "PillarScore",
+    "CompositeHealthScore",
 ]

@@ -1919,6 +1919,7 @@ class ExplorationLoop:
         # Setup graceful runner if persistence available
         runner_context = GracefulRunner(self.persistence) if self.persistence else None
 
+        episode = self.start_episode  # Initialize episode before the try block
         try:
             for episode in range(self.start_episode, self.config.n_episodes):
                 # Check for graceful shutdown

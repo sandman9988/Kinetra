@@ -1,0 +1,2342 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Assumption-Free Measurements ============================= RUTHLESSLY PURGED of: - Linearity (n...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>25389</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Assumption-Free Measurements ============================= RUTHLESSLY PURGED of: - Linearity (n...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>25389</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Backtest Engine with Realistic Friction Costs and ML/RL Integration Complete backtesting framew...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>39069</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Backtest Optimizer - Bayesian &amp; Genetic Optimization ===========================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>37185</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/core.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/core.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Core Unified Backtester ======================== Main backtesting engine with mode selection. C...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>5140</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/costs.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/costs.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Cost Models =========== Trading cost models (spread, commission, slippage, swap). Consolidated ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>4824</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/metrics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/metrics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Performance Metrics =================== Standardized performance metrics calculation. Consolida...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>5417</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Berserker Strategy: Fat Candle Hunter Berserker is a FAT CANDLE HUNTER - not a trend follower o...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>30125</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Composite Stacking Framework for Multi-Asset Exploration =======================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>27537</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/integrity.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/integrity.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Data Integrity Management ========================= Data validation, gap detection, and quality...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>5872</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/manager.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/manager.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Core Data Manager ================= Main data management interface. Consolidated from data_mana...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>5236</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_alignment.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_alignment.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Point-in-Time Data Alignment for Multi-Timeframe Backtesting Ensures no look-ahead bias when us...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11295</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; UnifiedDataLoader: One loader for all market data. Automatically handles: - CSV loading (any fo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>18433</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_management.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_management.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Scientific Data Management for Kinetra ====================================== Implements proper...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>25503</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Data Management System for Kinetra =================================== Manages data downloads w...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>23276</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_package.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_package.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; DataPackage: Standardized data container for backtesting and exploration. Bridges the gap betwe...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11040</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Data Quality Module Comprehensive data validation, gap detection, and quality reporting. Ensure...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21039</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_utils.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_utils.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Data Utilities for Physics Backtesting Loads and validates real MT5 market data for empirical t...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15011</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Discovery Method Implementations ================================= Implements the actual discov...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26100</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Discovery Method Implementations ================================= Implements the actual discov...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26100</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; DoppelgangerTriad: Shadow Agent Risk Management System A three-agent arc...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19261</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; DSP-Driven Feature Extraction (Assumption-Free) ================================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19403</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; DSP-Driven Feature Extraction (Assumption-Free) ================================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19403</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/experience_replay.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/experience_replay.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Experience Replay System for Continual Learning from Live Trading This system enables the agent...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20120</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/exploration_integration.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/exploration_integration.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Exploration Integration Module ============================== Wires up the PHYSICS-BASED measur...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20119</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Composite Health Score and Reward Shaping Computes multi-factor health scores for trading strat...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15549</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Integrated Backtesting System for Testing Framework ============================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22893</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/liquidity_features.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/liquidity_features.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Liquidity Proxy Features (Asymmetric, Non-Linear) ==============================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15011</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Market Microstructure and Friction Model Real trading costs and liquidity dynamics for physics-...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>40016</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/measurements.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/measurements.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Physics-Based Measurement Framework for Multi-Asset Exploration ================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>40642</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; MetaTrader 5 Data Connector for Kinetra Provides real-time and historical data from MT5 termina...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14258</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; MT5 Live Data Stream with Symbol Info for Friction/Viscosity Uses MT5 symbol_info for real mark...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>9408</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Parallel processing utilities for backtesting. Provides CPU multiprocessing and GPU acceleratio...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>30190</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Physics-Based Backtester using Backtesting.py Empirically tests thermodynamics/physics/kinemati...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>34065</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Physics Engine for Market Modeling Models markets as kinetic energy systems with: - Energy: Mar...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>27477</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Energy-Transfer Trading Theorem v7.0 Implementation Physics-based trading using the exact formu...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>91842</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Plotting Module for Backtest Visualization Generates publication-quality plots for: - Equity cu...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15754</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Portfolio Backtesting Engine for Multi-Instrument, Multi-Timeframe Trading Handles: - Multiple ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26972</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Portfolio Health Monitoring System Implements 4-pillar health scoring wi...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22498</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Realistic Backtesting Engine with MT5 Constraints Prevents sim-to-real gap by enforcing real br...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>40775</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Realistic Trading Environment for RL with MT5 Constraints This environment enforces realistic b...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19654</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unsupervised Regime Discovery Engine ===================================== NO pre-defined regim...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16334</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Regime-Filtered Trading Environment Extends TradingEnv with 3-regime filtering: 1. Physics Regi...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12939</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Comprehensive Reporting Engine for Backtesting Generates detailed statistics and distributions:...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>28391</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Comprehensive Reporting Engine for Backtesting Generates detailed statistics and distributions:...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>28391</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Results Analyzer ================ Analyze and visualize test results from the testing framework...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13663</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Results Analyzer ================ Analyze and visualize test results from the testing framework...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13663</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_manager.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_manager.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Results Manager - Experiment Tracking and Housekeeping Organizes backtest runs with: - Structur...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14342</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reward_shaping.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reward_shaping.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Adaptive Reward Shaping (ARS) Implements MFE/MAE-based reward with regime-adaptive coefficients...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>1192</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/risk_management.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/risk_management.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Risk Management Module Implements: - Non-Linear Risk-of-Ruin (RoR) probability - Composite Heal...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10444</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; GPU-Accelerated RL Trainer for Physics-Based Trading Uses PyTorch with ROCm (AMD GPU) or CUDA (...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>44306</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_physics_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_physics_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; RL Environment for Physics-Based Trading Let RL discover the optimal formula combining: - Energ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>18794</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/single_symbol_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/single_symbol_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Single Symbol RL Environment Offline RL environment for a single symbol / single timeframe. Use...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16010</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/spread_gate.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/spread_gate.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Spread-Aware Execution Filter (Spread Gate) Only permits trade entry when current spread is nea...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17720</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Trading Strategies based on Energy-Transfer Theorem v7.0 Implements Berserker and Sniper agents...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15920</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Stress Testing Framework Run backtests under stressed market conditions: - High volatility - Fl...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21609</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; DSP-Driven SuperPot Feature Extraction ====================================== **PHILOSOPHY ENFO...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11775</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; DSP-Driven SuperPot Feature Extraction ====================================== **PHILOSOPHY ENFO...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11775</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_spec.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_spec.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Symbol Specification and Trading Costs Complete instrument cost modeling for accurate backtesti...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21404</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Automated Test Execution Framework with Auto-Fixing and Continuation ===========================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22795</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Comprehensive Scientific Testing Framework for Kinetra =========================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>57257</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Comprehensive Scientific Testing Framework for Kinetra =========================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>57257</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Trading Environment for RL Gym-compatible environment where the agent learns to trigger entries...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22543</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trend_discovery.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trend_discovery.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Trend Definition Discovery Module ================================= CORE INSIGHT: &quot;Trend&quot; means...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20531</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Kinetra Triad System: Incumbent, Competitor, Researcher =================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>36823</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trigger_predictor.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Composite Trigger Predictor Probabilistic predictor for berserker mode entry. Uses ONLY empiric...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19122</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_data_manager.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_data_manager.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unified Data Management System =============================== Consolidates all data download, ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19605</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_trading_env.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_trading_env.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unified Trading Environment ============================ Combines physics integration, regime d...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13067</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/volatility.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/volatility.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Volatility Estimators for MAE/MFE Normalization Primary: Rogers-Satchell (handles drift in tren...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10503</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/walk_forward.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/walk_forward.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Walk-Forward Validation Engine Implements proper out-of-sample testing with variable windows: -...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16836</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; First-Principles RL Exploration Framework Philosophy: &quot;We don't know what we don't know&quot; - NO f...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>119021</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Comprehensive Exploration Runner with PHYSICS-Based Discovery Engine ====...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>32515</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_exploration_heartbeat.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_exploration_heartbeat.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Exploration Runner with Live Heartbeat Stats Shows real-time progress per...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16980</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_asymmetric_rewards.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Asymmetric Reward Shaping: The Journey Counts Key principle: Punish MAE ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11968</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_berserker_context.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Berserker Context Analysis Key insight: Extreme readings can signal REVE...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13027</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_direction.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Analyze what physics features predict DIRECTION of energy release. We kn...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12523</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Directional Tension Analysis Physics insight: Energy tells us WHEN, but ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14430</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Energy Analysis Script Analyzes potential energy across a backtest perio...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19096</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_both.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Unified Energy Analysis: Per-Bar vs Per-Trend Shows both perspectives: 1...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10607</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_energy_capture.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Energy Capture Analysis - How much of the move can we capture? Clean ana...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11643</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_extended_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Extended Physics Features Analysis Testing additional physics concepts f...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16903</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_fat_candles.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Fat Candle Analysis Berserker's prey: FAT CANDLES (big energy releases) ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12581</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_flow_entropy.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_flow_entropy.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Analyze ENTROPY and LAMINAR FLOW for direction prediction. Physics conce...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10252</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_per_bar_energy.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Per-Bar Energy Release Analysis Measure how energy dissipates bar-by-bar...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>9655</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_reversal.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_reversal.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Analyze if berserker bars are REVERSAL or CONTINUATION signals. Key find...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>8346</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Reynolds Number: Continuation vs Reversal Prediction Hypothesis: - Low R...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>9307</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_trade_management.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Trade Management Analysis for Berserker Entries Analyze how much of the ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16202</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_triggers.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Trigger Analysis Script Analyzes what happens BEFORE high-energy bars to...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26805</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_volatility_estimators.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Compare Volatility Estimators for Energy Normalization Estimators: 1. AT...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11464</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/debug_csv.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/debug_csv.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot;Debug CSV loading.&quot;&quot;&quot; import sys import pandas as pd import numpy as np f...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2374</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/pathfinder_deep_dive.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; PATHFINDER DEEP DIVE ==================== Focus on promising signals. Mo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10447</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/quick_results.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/quick_results.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; QUICK RESULTS - Get Numbers on Screen NOW ===============================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11620</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_by_class.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT BY ASSET CLASS ======================= Run SuperPot separately ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17977</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT COMPLETE EXPLORATION ============================= Run ALL comb...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>28654</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT DSP-DRIVEN EMPIRICAL DISCOVERY =================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>31962</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT DSP-DRIVEN EMPIRICAL DISCOVERY =================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>31962</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT EMPIRICAL TESTING ========================== Execute comprehens...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>37451</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT EMPIRICAL TESTING ========================== Execute comprehens...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>37451</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT EXPLORER ================= Throw ALL measurements in a pot. Let...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>42737</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; SUPERPOT PHYSICS - First Principles Measurements ========================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>54940</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/cache_manager.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/cache_manager.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; DATA CACHE MANAGER ================== Once data is prepared, save it - n...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>4187</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/demo_modular_execution.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/demo_modular_execution.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Demo: Modular Order Execution - Same Agent Code for Backtest and Live Sh...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>8942</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Check and Fill Missing Data ============================ Continuously im...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16923</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_data_integrity.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_data_integrity.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Data Integrity Checker ====================== Step 5: Check downloaded d...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13231</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Convert MT5 Format Files ======================== Converts MT5 export fo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>3537</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Interactive MetaAPI Data Downloader ==================================== ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22647</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_market_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_market_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; MT5 Market Data Downloader Downloads all active MarketWatch symbols with...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14677</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_metaapi.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_metaapi.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; MetaAPI Market Data Downloader Downloads market data via MetaAPI cloud s...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10447</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/load_all_symbols.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/load_all_symbols.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>import os import pandas as pd def parse_filename(filename): &quot;&quot;&quot;Extract symbol and timeframe f...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2123</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; MetaAPI Bulk Data Download ========================== Downloads data for all asset classes, orga...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21254</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_sync.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_sync.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; MetaAPI Cloud Data Sync Automatically downloads and categorizes instrume...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>27765</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Parallel Data Preparation Pipeline =================================== GPU-accelerated physics +...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12020</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Data Preparation ================ Step 6: Prepare data for training: - S...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17320</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_exploration_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_exploration_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Prepare Downloaded Data for Exploration Training ===============================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>8147</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Data Cutoff Standardization Utility Ensures all training data has consis...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19818</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Results Analysis &amp; Reporting Framework ==================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22643</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Results Analysis &amp; Reporting Framework ==================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22643</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/fat_candle_forensics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Fat Candle Forensics - What Triggers Big Moves? RESEARCH QUESTION: What ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14073</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Measurement Toolkit - First Principles Research ASSUMPTION: We know noth...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16357</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Multi-Dataset Testing Harness ============================== Runs assump...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17568</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/run_local.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/run_local.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; KINETRA LOCAL RUNNER ==================== Save this as run_local.py in yo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11796</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/run_predictor.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/run_predictor.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Trigger Predictor Demo Shows the probability predictor in action on hist...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>6107</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/batch_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/batch_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Batch backtesting script for multiple instruments. &quot;&quot;&quot; import argparse import pandas as pd impo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2516</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/demo_backtest_improvements.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/demo_backtest_improvements.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Demo script showing BacktestEngine improvements. Demonstrates: 1. Timeframe-aware metric calcul...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>6859</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Real Data Menu Exerciser ========================= Exercises the Kinetra...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19182</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/integrate_realistic_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/integrate_realistic_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Integration Guide: Realistic Backtesting in Exploration Framework Shows ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11631</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/multi_tf_test.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/multi_tf_test.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>import logging import multiprocessing as mp import os import random import subprocess import time i...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>3396</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/phase2_validation.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/phase2_validation.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Phase 2: Integration Testing Script ==================================== ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10606</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/rl_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/rl_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; RL-Integrated Backtester Runs backtests in VIRTUAL mode (no gates) and c...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17935</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Comprehensive Physics Backtest Runner with Detailed Logging Runs all phy...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20739</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Kinetra Exploration Backtest Comprehensive exploration of trading strate...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>18825</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_full_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_full_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Full Physics Backtest Runner with Plotting Runs all physics strategies (...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12523</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Live Testing Script for Kinetra ================================ Impleme...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>18630</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Physics-Based Backtesting Runner Empirically tests thermodynamics/physic...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17304</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_scientific_testing.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Master Orchestrator for Scientific Testing Framework ====================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22980</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Comprehensive Backtest Numerical Validation =============================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>30730</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Incremental Backtest Test - T3 MA Crossover + ADX + Chandelier Exit Strat...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>30220</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_berserker_strategy.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_berserker_strategy.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test Berserker Strategy: Fat Candle Hunter with Energy Recovery Exit Tes...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>9406</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; End-to-End Integration Test Tests the complete adaptive trading system p...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16669</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_energy_recovery_hypotheses.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Empirical Test of Energy Recovery Hypotheses from Theorem Proofs Hypothe...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16687</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_experience_replay.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test Experience Replay System - Integration Test Tests the continual lea...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>22400</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_exploration_strategies.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Exploration-Based ML/RL Strategy Testing FIRST PRINCIPLES APPROACH - No ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17718</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Framework Integration Test Tests the complete pipeline: 1. UnifiedDataLo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12297</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_friction_costs.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_friction_costs.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Friction Costs Test - Comprehensive Validation Tests all transaction cos...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10922</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Grafana Export Test Demonstrates exporting all Kinetra metrics to Grafan...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>9427</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_marginal_gains.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test marginal/incremental gains of stacking direction filters. Question:...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>6774</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; MetaAPI Authentication &amp; Data Download Test &quot;&quot;&quot; import sys from pathlib import Path from datetim...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19747</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; MT5 Terminal Authentication &amp; Data Download Test ===============================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13606</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_friction.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_friction.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test MT5 Bridge and Friction Model Demonstrates: 1. Connecting to MT5 (a...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>6893</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; MT5-Style Logger Test Demonstrates enhanced transaction logging with: - ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10011</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_vantage_full.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_vantage_full.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Complete MT5 Vantage Backtest - End to End ========================================== Full pipe...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17969</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test multi-instrument backtest functionality. Uses two instruments from a...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>7106</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Numerical Safety &amp; Data Validation Tests Tests for production-critical i...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26484</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Integration Test for P0-P5 Components ===================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>7578</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_parallel_performance.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Parallel Performance Benchmark Tests the parallel backtest runner with m...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>7134</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Quick test of physics calculations and strategies. Generates synthetic O...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10323</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_portfolio_health.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_portfolio_health.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Portfolio Health Monitoring Integration Test Tests the 4-pillar health m...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10701</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Real Data Backtest &amp; Optimization Test ==================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>32061</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_regime_filtering.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test 3-Regime Filtering in TradingEnv Validates that regime filtering wo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>12163</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_sac.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_sac.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot;Quick SAC test on physics data.&quot;&quot;&quot; import os import sys from pathlib impo...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>7602</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_strategies.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Test Strategies for Backtesting Engine Validation Three strategy types w...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>15297</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle_real_data.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Trade Lifecycle Test with Real Market Data Tests the complete trade life...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>13599</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_transaction_log.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_transaction_log.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Transaction Log Test - Detailed Cost Breakdown Validates that all fricti...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14230</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/unified_test_framework.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/unified_test_framework.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Unified Testing Framework - Consolidates All Test Scripts ===============...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>43650</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; BTC H1 Layer-1 Validation Script Validates the enhanced physics engine a...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16334</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_theorems.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Theorem Validation Framework Systematically tests physics hypotheses and...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14530</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_thesis.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_thesis.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Empirical Validation of Energy-Transfer Trading Thesis Tests each claim ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14544</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/train.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/train.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Unified Training Interface ========================== Single CLI entry p...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11200</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/demo_continual_learning.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/demo_continual_learning.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Demo: Continual Learning from Live Trading Shows how the agent improves ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>14661</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Agent Comparison - Exploration Step 2 ===================================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20223</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Interactive Exploration Training ================================= One u...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17050</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_specialization.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Specialization Strategy Explorer Systematically compares different agent...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>26682</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_universal.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_universal.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Universal Agent Baseline - Exploration Step 1 ===========================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21585</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explorer_standalone.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; STANDALONE EXPLORER - No broken dependencies ============================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>18408</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; PATHFINDER EXPLORATION ====================== &quot;We don't know what we don...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>29139</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/quick_rl_test.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; QUICK RL TEST - Test RL Agents Without Breaking =========================...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21141</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Berserker Entry Training - GPU Accelerated NEW ARCHITECTURE: - Train ONE...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>37006</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Automated RL Training Loop - Physics Only Continuous training cycle: 1. ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>29978</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Train RL Agent on Physics Features Cross-validation across: 1. Multiple ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10544</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_sniper.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_sniper.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Sniper Strategy RL Training Learns to identify stable, laminar trending ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>21354</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_triad.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_triad.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Triad Training System ===================== Train Incumbent (PPO), Compe...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>20001</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; BTC H1 Physics Engine Test Pipeline This script demonstrates: 1. Loading BTC H1 data and comput...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>19257</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot;BTC H1 Physics Engine Test Pipeline (Fixed Version) This script demonstrates: 1. Loading BTC H1 ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11183</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_fixed.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot;BTC H1 Physics Engine Test Pipeline (Fixed Version) This script demonstrates: 1. Loading BTC H1 ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11183</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; BTC H1 Physics Engine Test Pipeline (Working Version) This script demonstrates: 1. Loading BTC ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>29592</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'scipy-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; BTC H1 Physics Engine Test Pipeline (Working Version) This script demonstrates: 1. Loading BTC ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>29592</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_assumption_free.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_assumption_free.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Unit tests for assumption-free framework. Tests the new directional, asym...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>11258</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_backtest_engine_comprehensive.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Comprehensive BacktestEngine Tests Tests for critical bug fixes and new features: 1. Timeframe ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16938</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_integration.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_integration.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Integration tests for complete system. &quot;&quot;&quot; import pytest import numpy as np import pandas as pd...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2353</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unit tests for Physics Engine &quot;&quot;&quot; import pytest import numpy as np import pandas as pd from kin...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2727</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_backtester.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_backtester.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Tests for Physics-Based Backtester Tests the thermodynamics/physics/kinematics trading strategi...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>17757</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; BTC H1 Physics Engine Test Pipeline Tests the physics-based regime detection and backtesting. &quot;&quot;...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>81295</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_risk.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_risk.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unit tests for Risk Management &quot;&quot;&quot; import pytest import numpy as np import pandas as pd from ki...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>3657</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_scientific_framework.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_scientific_framework.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>&quot;&quot;&quot; Unit tests for scientific testing framework components. &quot;&quot;&quot; import unittest import numpy as np ...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>10277</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyStubPackagesAdvertiser" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Stub packages advertiser</problem_class>
+  <description>Install 'pandas-stubs' to improve code insight experience.</description>
+  <highlighted_element>#!/usr/bin/env python3 &quot;&quot;&quot; Tripleganger Risk Management System A comprehensive risk management fram...</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>45613</length>
+</problem>
+</problems>

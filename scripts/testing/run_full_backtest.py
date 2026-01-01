@@ -272,11 +272,12 @@ def analyze_physics(df: pd.DataFrame):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python run_full_backtest.py <csv_file1> [csv_file2] ...")
-        print("\nExample:")
-        print("  python run_full_backtest.py data/*.csv")
-        print("  python run_full_backtest.py /home/renier/QuantumHunter/*.csv")
-        sys.exit(1)
+        raise ValueError(
+            "Usage: python run_full_backtest.py <csv_file1> [csv_file2] ...\n\n"
+            "Example:\n"
+            "  python run_full_backtest.py data/*.csv\n"
+            "  python run_full_backtest.py /home/renier/QuantumHunter/*.csv"
+        )
 
     csv_files = sys.argv[1:]
 

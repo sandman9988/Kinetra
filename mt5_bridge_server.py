@@ -53,7 +53,7 @@ class MT5BridgeServer:
             "ask": tick.ask if tick else 0,
         }
 
-    def get_rates(self, symbol: str, timeframe: str, count: int) -> list:
+    def get_rates(self, symbol: str, timeframe: str, count: int) -> list[dict[str, int | float]] | dict[str, str]:
         tf_map = {
             "M1": mt5.TIMEFRAME_M1, "M5": mt5.TIMEFRAME_M5, "M15": mt5.TIMEFRAME_M15,
             "M30": mt5.TIMEFRAME_M30, "H1": mt5.TIMEFRAME_H1, "H4": mt5.TIMEFRAME_H4,

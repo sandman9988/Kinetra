@@ -465,7 +465,6 @@ def run_comprehensive_exploration(
         print(f"  3. File format: INSTRUMENT_TIMEFRAME_START_END.csv")
         print(f"  4. Run data download: python scripts/download/download_interactive.py")
         print(f"\n📁 Directory contents:")
-        from pathlib import Path
         data_path = Path(standardized_dir)
         if data_path.exists():
             subdirs = [d.name for d in data_path.iterdir() if d.is_dir()]

@@ -1,0 +1,2198 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>47</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'agent_type' from outer scope</description>
+  <highlighted_element>agent_type</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>50</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'config' from outer scope</description>
+  <highlighted_element>config</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'config' from outer scope</description>
+  <highlighted_element>config</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>84</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'agent' from outer scope</description>
+  <highlighted_element>agent</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>98</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'agent' from outer scope</description>
+  <highlighted_element>agent</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>147</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'agent_type' from outer scope</description>
+  <highlighted_element>agent_type</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/context_aware_menu.py</file>
+  <line>68</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/context_aware_menu.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'ctx' from outer scope</description>
+  <highlighted_element>ctx</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>398</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'm' from outer scope</description>
+  <highlighted_element>m</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>467</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'next_state' from outer scope</description>
+  <highlighted_element>next_state</highlighted_element>
+  <language>Python</language>
+  <offset>48</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>473</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'done' from outer scope</description>
+  <highlighted_element>done</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/doppelganger_triad.py</file>
+  <line>476</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/doppelganger_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/metrics.py</file>
+  <line>308</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/metrics.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'value' from outer scope</description>
+  <highlighted_element>value</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/metrics_server.py</file>
+  <line>252</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/metrics_server.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'metrics' from outer scope</description>
+  <highlighted_element>metrics</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/metrics_server.py</file>
+  <line>320</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/metrics_server.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'metrics' from outer scope</description>
+  <highlighted_element>metrics</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/metrics_server.py</file>
+  <line>446</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/metrics_server.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'server' from outer scope</description>
+  <highlighted_element>server</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>168</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>373</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>376</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>378</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>402</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>408</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>411</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_connector.py</file>
+  <line>429</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_connector.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>59</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbols' from outer scope</description>
+  <highlighted_element>symbols</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>76</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>118</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>129</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'friction' from outer scope</description>
+  <highlighted_element>friction</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>189</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>190</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>207</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_live.py</file>
+  <line>239</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_live.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'friction' from outer scope</description>
+  <highlighted_element>friction</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>344</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'i' from outer scope</description>
+  <highlighted_element>i</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'window' from outer scope</description>
+  <highlighted_element>window</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>389</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'i' from outer scope</description>
+  <highlighted_element>i</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>390</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'window' from outer scope</description>
+  <highlighted_element>window</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>786</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'strategy_name' from outer scope</description>
+  <highlighted_element>strategy_name</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>789</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>1667</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'm' from outer scope</description>
+  <highlighted_element>m</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>70</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'equity' from outer scope</description>
+  <highlighted_element>equity</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>145</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'trades_df' from outer scope</description>
+  <highlighted_element>trades_df</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>300</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'trades_df' from outer scope</description>
+  <highlighted_element>trades_df</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>449</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'trades_df' from outer scope</description>
+  <highlighted_element>trades_df</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>302</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'winner' from outer scope</description>
+  <highlighted_element>winner</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/results_analyzer.py</file>
+  <line>333</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/results_analyzer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'comparison' from outer scope</description>
+  <highlighted_element>comparison</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>79</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>101</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>788</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'stats' from outer scope</description>
+  <highlighted_element>stats</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>922</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'stats' from outer scope</description>
+  <highlighted_element>stats</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>1036</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'trainer' from outer scope</description>
+  <highlighted_element>trainer</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>1037</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'stats' from outer scope</description>
+  <highlighted_element>stats</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state_dim' from outer scope</description>
+  <highlighted_element>state_dim</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action_dim' from outer scope</description>
+  <highlighted_element>action_dim</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/spread_gate.py</file>
+  <line>459</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/spread_gate.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'analysis' from outer scope</description>
+  <highlighted_element>analysis</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>272</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'extractor' from outer scope</description>
+  <highlighted_element>extractor</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'name' from outer scope</description>
+  <highlighted_element>name</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'k' from outer scope</description>
+  <highlighted_element>k</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'v' from outer scope</description>
+  <highlighted_element>v</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>243</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>257</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'spec' from outer scope</description>
+  <highlighted_element>spec</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>265</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'k' from outer scope</description>
+  <highlighted_element>k</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>265</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'v' from outer scope</description>
+  <highlighted_element>v</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>273</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'k' from outer scope</description>
+  <highlighted_element>k</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>273</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'v' from outer scope</description>
+  <highlighted_element>v</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>287</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>292</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>315</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'spec' from outer scope</description>
+  <highlighted_element>spec</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>465</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'key' from outer scope</description>
+  <highlighted_element>key</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>465</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'value' from outer scope</description>
+  <highlighted_element>value</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>133</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'price_change' from outer scope</description>
+  <highlighted_element>price_change</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>245</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'i' from outer scope</description>
+  <highlighted_element>i</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>366</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>366</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>430</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>432</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>530</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>530</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>618</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>618</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>631</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'i' from outer scope</description>
+  <highlighted_element>i</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>724</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>735</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>799</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'i' from outer scope</description>
+  <highlighted_element>i</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>806</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'df' from outer scope</description>
+  <highlighted_element>df</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>836</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>841</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'info' from outer scope</description>
+  <highlighted_element>info</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>852</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/walk_forward.py</file>
+  <line>255</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/walk_forward.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'wf_window' from outer scope</description>
+  <highlighted_element>wf_window</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/mt5_bridge_server.py</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/mt5_bridge_server.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'server' from outer scope</description>
+  <highlighted_element>server</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'results' from outer scope</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2023</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'results' from outer scope</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2188</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'results' from outer scope</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2905</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'results' from outer scope</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>816</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>94</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'data' from outer scope</description>
+  <highlighted_element>data</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>96</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'n' from outer scope</description>
+  <highlighted_element>n</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>152</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'data' from outer scope</description>
+  <highlighted_element>data</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'n' from outer scope</description>
+  <highlighted_element>n</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>194</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'window' from outer scope</description>
+  <highlighted_element>window</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/backup_data.py</file>
+  <line>51</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/backup_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>157</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py</file>
+  <line>262</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_and_fill_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_data_integrity.py</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_data_integrity.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/check_data_integrity.py</file>
+  <line>111</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/check_data_integrity.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py</file>
+  <line>62</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/convert_mt5_format.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>126</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>150</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>296</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>328</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>387</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>510</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>370</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'output_file' from outer scope</description>
+  <highlighted_element>output_file</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_sync.py</file>
+  <line>553</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_sync.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'args' from outer scope</description>
+  <highlighted_element>args</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py</file>
+  <line>311</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/parallel_data_prep.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'args' from outer scope</description>
+  <highlighted_element>args</highlighted_element>
+  <language>Python</language>
+  <offset>72</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>83</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>134</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>318</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>365</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>114</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>155</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>244</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>381</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>696</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>483</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'stats' from outer scope</description>
+  <highlighted_element>stats</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>191</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>478</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py</file>
+  <line>256</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py</file>
+  <line>120</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'exporter' from outer scope</description>
+  <highlighted_element>exporter</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py</file>
+  <line>139</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_grafana_export.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py</file>
+  <line>169</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_logger.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py</file>
+  <line>103</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_multi_instrument.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'symbol' from outer scope</description>
+  <highlighted_element>symbol</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py</file>
+  <line>270</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'a' from outer scope</description>
+  <highlighted_element>a</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py</file>
+  <line>270</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'b' from outer scope</description>
+  <highlighted_element>b</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py</file>
+  <line>556</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'c' from outer scope</description>
+  <highlighted_element>c</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py</file>
+  <line>560</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_numerical_safety.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'c' from outer scope</description>
+  <highlighted_element>c</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py</file>
+  <line>224</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_p0_p5_integration.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_performance_module.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'results' from outer scope</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>663</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'p1' from outer scope</description>
+  <highlighted_element>p1</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>663</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'p2' from outer scope</description>
+  <highlighted_element>p2</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>664</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'child' from outer scope</description>
+  <highlighted_element>child</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>398</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>61</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>399</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'e' from outer scope</description>
+  <highlighted_element>e</highlighted_element>
+  <language>Python</language>
+  <offset>55</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_triad.py</file>
+  <line>452</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_triad.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'tf' from outer scope</description>
+  <highlighted_element>tf</highlighted_element>
+  <language>Python</language>
+  <offset>64</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>924</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>930</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>930</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>930</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'reward' from outer scope</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>930</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'next_state' from outer scope</description>
+  <highlighted_element>next_state</highlighted_element>
+  <language>Python</language>
+  <offset>48</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>301</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>310</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>359</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'result' from outer scope</description>
+  <highlighted_element>result</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>145</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>149</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 't' from outer scope</description>
+  <highlighted_element>t</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>149</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'a' from outer scope</description>
+  <highlighted_element>a</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>161</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>166</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'power' from outer scope</description>
+  <highlighted_element>power</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>175</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>189</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>243</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'x' from outer scope</description>
+  <highlighted_element>x</highlighted_element>
+  <language>Python</language>
+  <offset>69</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>244</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'x' from outer scope</description>
+  <highlighted_element>x</highlighted_element>
+  <language>Python</language>
+  <offset>69</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>255</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>256</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>257</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'series' from outer scope</description>
+  <highlighted_element>series</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>670</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'np' from outer scope</description>
+  <highlighted_element>np</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'x' from outer scope</description>
+  <highlighted_element>x</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_workflow_manager.py</file>
+  <line>84</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_workflow_manager.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_workflow_manager.py</file>
+  <line>175</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_workflow_manager.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_workflow_manager.py</file>
+  <line>243</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_workflow_manager.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_workflow_manager.py</file>
+  <line>291</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_workflow_manager.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_workflow_manager.py</file>
+  <line>331</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_workflow_manager.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'success' from outer scope</description>
+  <highlighted_element>success</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1255</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'action' from outer scope</description>
+  <highlighted_element>action</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tripleganger_system.py</file>
+  <line>1264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tripleganger_system.py" />
+  <problem_class id="PyShadowingNamesInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing names from outer scopes</problem_class>
+  <description>Shadows name 'state' from outer scope</description>
+  <highlighted_element>state</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>5</length>
+</problem>
+</problems>

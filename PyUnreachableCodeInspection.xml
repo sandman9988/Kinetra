@@ -1,0 +1,74 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>386</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>action = 'open_long' if direction == 1 else 'open_short'</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>56</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>389</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>sl, tp = self.executor.validator.get_safe_sl_tp( price=current_price, direct...</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>190</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>396</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>result = self.executor.execute_order( action=action, volume=0.1, # Small lo...</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>207</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>404</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>trade_log = { 'timestamp': datetime.now().isoformat(), 'action': action, ...</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>345</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>415</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>if result.success: logger.info(f&quot;✅ Trade {self.trades_executed + 1}: {action} @ {result....</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>203</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyUnreachableCodeInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unreachable code</problem_class>
+  <description>This code is unreachable</description>
+  <highlighted_element>return trade_log</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+</problems>

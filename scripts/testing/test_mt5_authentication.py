@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -28,11 +29,11 @@ try:
     MT5_AVAILABLE = True
 except ImportError:
     MT5_AVAILABLE = False
-    print("❌ MetaTrader5 package not installed")
-    print("   Install with: pip install MetaTrader5")
-    sys.exit(1)
+    mt5 = None
+    # Don't exit during import - let tests check MT5_AVAILABLE
 
 
+@pytest.mark.skipif(not MT5_AVAILABLE, reason="MetaTrader5 not installed (optional dependency)")
 def test_mt5_authentication(
     login: int = None,
     password: str = None,

@@ -768,26 +768,30 @@ def main():
     manager.current_time += timedelta(hours=1)
     close_reason = manager.update_position(pos2.ticket, 2655.00, 2655.30)
     print(f"  Tick 1: Ask 2655.30 - Unrealized: ${pos2.unrealized_pnl:.2f}")
-    
+
     # Price hits SL
     manager.current_time += timedelta(hours=1)
     close_reason = manager.update_position(pos2.ticket, 2660.00, 2660.30)
-    
+
+    closed2 = None  # Initialize before conditional block
     if close_reason == CloseReason.STOP_LOSS:
         closed2 = manager.close_position(pos2.ticket, 2660.00, 2660.30, close_reason)
         print(f"\n  Trade closed by STOP LOSS")
         print(f"  Net P&L: ${closed2.net_pnl:.2f}")
-    
+
     # =========================================================================
     # FINAL ACCOUNT STATE
     # =========================================================================
     print("\n" + "═" * 70)
     print("FINAL ACCOUNT STATE")
     print("═" * 70)
-    
+
     print(f"\n  Starting Balance:  ${10000.00:>10,.2f}")
     print(f"  Trade 1 P&L:       ${summary['net_pnl']:>10,.2f}")
-    print(f"  Trade 2 P&L:       ${closed2.net_pnl:>10,.2f}")
+    if closed2:
+        print(f"  Trade 2 P&L:       ${closed2.net_pnl:>10,.2f}")
+    else:
+        print(f"  Trade 2 P&L:       $0.00")
     print(f"  ─────────────────────────────────")
     print(f"  Final Balance:     ${manager.account.Balance():>10,.2f}")
     

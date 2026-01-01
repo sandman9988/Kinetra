@@ -1,0 +1,2017 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>45</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ')' expected #loc</description>
+  <highlighted_element>²</highlighted_element>
+  <language>Markdown</language>
+  <offset>26</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>²</highlighted_element>
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Markdown</language>
+  <offset>34</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:RPAR #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>35</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:OR #loc</description>
+  <highlighted_element>P</highlighted_element>
+  <language>Markdown</language>
+  <offset>19</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>23</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:DIV #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>25</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>11</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>13</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>159</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>31</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>159</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>34</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>']' or ',' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>']' or ',' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>163</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>']' or ',' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>43</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>164</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>²</highlighted_element>
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>164</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>28</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot assign to function call #loc</description>
+  <highlighted_element>P(ruin)</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ')' expected #loc</description>
+  <highlighted_element>μ</highlighted_element>
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>²</highlighted_element>
+  <language>Markdown</language>
+  <offset>32</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element>_</highlighted_element>
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Markdown</language>
+  <offset>35</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:RPAR #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>36</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>·</highlighted_element>
+  <language>Markdown</language>
+  <offset>21</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element>(</highlighted_element>
+  <language>Markdown</language>
+  <offset>22</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>·</highlighted_element>
+  <language>Markdown</language>
+  <offset>35</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element>(</highlighted_element>
+  <language>Markdown</language>
+  <offset>36</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>·</highlighted_element>
+  <language>Markdown</language>
+  <offset>49</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found BAD_CHARACTER #loc</description>
+  <highlighted_element>T</highlighted_element>
+  <language>Markdown</language>
+  <offset>50</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>190</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>193</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>35</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md</file>
+  <line>157</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>14</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md</file>
+  <line>176</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md</file>
+  <line>178</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>19</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'import' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>13</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>76</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return response in ['y', 'yes']</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md</file>
+  <line>78</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_LOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return default # Return default value</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>38</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>70</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:EXCEPT_KEYWORD #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>70</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>19</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>71</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Unexpected indent #loc</description>
+  <highlighted_element>M</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>73</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:DEDENT #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>15</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>76</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:EXCEPT_KEYWORD #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>76</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>19</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>77</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Unexpected indent #loc</description>
+  <highlighted_element>M</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>79</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:DEDENT #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>30</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>96</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>An illegal target for a variable annotation #loc</description>
+  <highlighted_element>&quot;DoppelgangerTriad&quot;</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>96</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>,</highlighted_element>
+  <language>Markdown</language>
+  <offset>41</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>96</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COMMA #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>42</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>141</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>142</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>143</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>144</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>263</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>265</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>266</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>26</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>267</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>25</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>30</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>d</highlighted_element>
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>32</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>d</highlighted_element>
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>32</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>25</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>33</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>d</highlighted_element>
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>33</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>33</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>47</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>161</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>10</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:EXCEPT_KEYWORD #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>A variable annotation cannot be combined with tuple unpacking #loc</description>
+  <highlighted_element>EOFError, StopIteration</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>42</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Unexpected indent #loc</description>
+  <highlighted_element>p</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md</file>
+  <line>178</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_FIXES.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return None</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>38</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>52</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>3</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>52</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>11</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_OPTIMIZATION.md</file>
+  <line>21</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_OPTIMIZATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PHASE2_INTEGRATION_SUMMARY.md</file>
+  <line>159</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PHASE2_INTEGRATION_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Positional argument after keyword argument #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>63</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PHASE2_INTEGRATION_SUMMARY.md</file>
+  <line>162</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PHASE2_INTEGRATION_SUMMARY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Positional argument after keyword argument #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>77</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>123</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:EXCEPT_KEYWORD #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>123</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>A variable annotation cannot be combined with tuple unpacking #loc</description>
+  <highlighted_element>EOFError, StopIteration</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>123</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Expression expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Unexpected indent #loc</description>
+  <highlighted_element>s</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>7</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/QUICK_REFERENCE_CLI_E2E.md</file>
+  <line>136</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/QUICK_REFERENCE_CLI_E2E.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;value&gt; expected, got ':' #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>13</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or '}' expected, got 'or' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '[' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;value&gt; expected, got ',' #loc</description>
+  <highlighted_element>,</highlighted_element>
+  <language>Markdown</language>
+  <offset>61</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>100</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>112</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>117</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>15</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_ENGINE_IMPROVEMENTS.md</file>
+  <line>310</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_ENGINE_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>2</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BRANCHING_STRATEGY.md</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BRANCHING_STRATEGY.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;ini section&gt; or key expected, got 'name = Your Name' #loc</description>
+  <highlighted_element>name = Your Name</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>275</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>13</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>21</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>25</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>277</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>17</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>277</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>277</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>31</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>278</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>14</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>336</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>6</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>337</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>14</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>400</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ')' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>31</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>400</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Markdown</language>
+  <offset>41</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>400</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:RPAR #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>42</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ')' expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Markdown</language>
+  <offset>26</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:RPAR #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md</file>
+  <line>528</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>23</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md</file>
+  <line>120</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>12</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md</file>
+  <line>121</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>10</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md</file>
+  <line>168</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>58</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md</file>
+  <line>169</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md</file>
+  <line>171</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>78</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md</file>
+  <line>172</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_GUIDE.md</file>
+  <line>540</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_GUIDE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_GUIDE.md</file>
+  <line>545</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_GUIDE.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SILENT_FAILURE_WORKFLOW.md</file>
+  <line>382</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SILENT_FAILURE_WORKFLOW.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return &quot;fix_custom_pattern&quot;</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md</file>
+  <line>126</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>'return' outside of function #loc</description>
+  <highlighted_element>return 0.0 # No swap for intraday</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>34</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md</file>
+  <line>208</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>61</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md</file>
+  <line>528</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Positional argument after keyword argument #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>35</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>132</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ']' expected, got 'more' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>11</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md</file>
+  <line>132</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_TEST_FRAMEWORK_IMPLEMENTATION.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ']' expected, got 'trades...' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>55</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Indent expected #loc</description>
+  <highlighted_element>#</highlighted_element>
+  <language>Markdown</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>361</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>An illegal target for a variable annotation #loc</description>
+  <highlighted_element>WorkflowManager( log_dir</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>361</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot assign to function call #loc</description>
+  <highlighted_element>WorkflowManager( log_dir</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>362</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>',' or ')' expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>11</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>363</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>14</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>363</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>15</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>364</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>13</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>364</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>14</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>365</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>18</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>365</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>19</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>366</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>366</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>21</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>367</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>15</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>367</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element>:</highlighted_element>
+  <language>Markdown</language>
+  <offset>15</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:COLON #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>16</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>368</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>End of statement expected #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>28</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>369</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Statement expected, found Py:RPAR #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>1</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/results/superpot/superpot_complete_20251231_223449.json</file>
+  <line>697</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/results/superpot/superpot_complete_20251231_223449.json" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;value&gt; expected #loc</description>
+  <highlighted_element />
+  <language>JSON</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/results/superpot/superpot_complete_20260101_000243.json</file>
+  <line>676</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/results/superpot/superpot_complete_20260101_000243.json" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;value&gt; expected #loc</description>
+  <highlighted_element />
+  <language>JSON</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/results/superpot/superpot_complete_20260101_004902.json</file>
+  <line>635</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/results/superpot/superpot_complete_20260101_004902.json" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>&lt;value&gt; expected #loc</description>
+  <highlighted_element />
+  <language>JSON</language>
+  <offset>20</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>9</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md</file>
+  <line>164</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>23</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md</file>
+  <line>166</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>9</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md</file>
+  <line>169</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '&quot;comparison&quot;' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>5</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md</file>
+  <line>252</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/README_SPECIALIZATION_EXPLORER.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Formal parameter name expected #loc</description>
+  <highlighted_element>...</highlighted_element>
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md</file>
+  <line>243</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>7</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md</file>
+  <line>298</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element />
+  <language>Markdown</language>
+  <offset>7</offset>
+  <length>0</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md</file>
+  <line>334</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/E2E_TEST_README.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>':' expected, got '}' #loc</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>24</offset>
+  <length>1</length>
+</problem>
+</problems>

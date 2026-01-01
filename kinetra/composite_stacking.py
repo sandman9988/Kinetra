@@ -23,11 +23,13 @@ Let the physics state and RL discover the patterns.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Callable
+from typing import Dict, List, Optional, Tuple, Callable, Any
 from enum import Enum
 import numpy as np
 import pandas as pd
 from collections import defaultdict
+
+from numpy import floating
 
 
 # =============================================================================
@@ -83,7 +85,7 @@ class SignalGenerator:
         agreement = signal_value * np.sign(actual_pnl)
         self.performance_history.append(agreement)
 
-    def get_reliability(self, window: int = 100) -> float:
+    def get_reliability(self, window: int = 100) -> float | floating[Any]:
         """Get recent reliability of this signal."""
         if len(self.performance_history) < window:
             return 0.5  # Neutral

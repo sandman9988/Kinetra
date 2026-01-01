@@ -1,0 +1,1838 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md</file>
+  <line>60</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible agreement error. You should probably use: Compute physics or Computes physic.</description>
+  <highlighted_element>Computes physics</highlighted_element>
+  <language>Markdown</language>
+  <offset>4</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Loose punctuation mark.</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>2</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md</file>
+  <line>218</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Unpaired symbol: ''' seems to be missing</description>
+  <highlighted_element>'</highlighted_element>
+  <language>Markdown</language>
+  <offset>58</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md</file>
+  <line>226</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Loose punctuation mark.</description>
+  <highlighted_element>}</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>98</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean the idiom Dos and don'ts?</description>
+  <highlighted_element>Do's and don'ts</highlighted_element>
+  <language>Markdown</language>
+  <offset>22</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>385</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>36</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>141</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>multi-core</highlighted_element>
+  <language>Markdown</language>
+  <offset>52</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/HOUSEKEEPING_AUDIT.md</file>
+  <line>65</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/HOUSEKEEPING_AUDIT.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean maybe (= perhaps)?</description>
+  <highlighted_element>may be</highlighted_element>
+  <language>Markdown</language>
+  <offset>38</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MENU_SYSTEM_USER_GUIDE.md</file>
+  <line>40</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MENU_SYSTEM_USER_GUIDE.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean whereby?</description>
+  <highlighted_element>where by</highlighted_element>
+  <language>Markdown</language>
+  <offset>33</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/UNIFIED_SYSTEM_GUIDE.md</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/UNIFIED_SYSTEM_GUIDE.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>An apostrophe may be missing.</description>
+  <highlighted_element>indicators</highlighted_element>
+  <language>Markdown</language>
+  <offset>28</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md</file>
+  <line>386</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/WORKFLOW_IMPROVEMENTS.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Markdown</language>
+  <offset>18</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/architecture.md</file>
+  <line>5</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/architecture.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The noun decision-making (= the process of deciding something) is spelled with a hyphen.</description>
+  <highlighted_element>decision making</highlighted_element>
+  <language>Markdown</language>
+  <offset>237</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>450</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A comma may be missing after the conjunctive/linking adverb 'Currently'.</description>
+  <highlighted_element>Currently</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/constraints.py</file>
+  <line>45</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/constraints.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean for sale?</description>
+  <highlighted_element>for sell</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>457</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>688</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>288</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/broker_compliance.py</file>
+  <line>771</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/broker_compliance.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>Auto-correct</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>323</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>Wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>332</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>auto-loaded</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>191</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Unpaired symbol: '&quot;' seems to be missing</description>
+  <highlighted_element>&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>323</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/experience_replay.py</file>
+  <line>104</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/experience_replay.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Consider using most potential or most of the potential.</description>
+  <highlighted_element>most of potential</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>109</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>oldest</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>196</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This expression is normally spelled as one or with a hyphen.</description>
+  <highlighted_element>live streaming</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>308</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>In American English, abbreviations like &quot;etc.&quot; require a period.</description>
+  <highlighted_element>etc</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/datasource.py</file>
+  <line>1037</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/datasource.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This expression is normally spelled as one or with a hyphen.</description>
+  <highlighted_element>live streaming</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>4</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>multi-factor</highlighted_element>
+  <language>Python</language>
+  <offset>9</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>Multi-factor</highlighted_element>
+  <language>Python</language>
+  <offset>7</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>198</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>Multi-factor</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_calendar.py</file>
+  <line>496</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_calendar.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It appears that a possessive apostrophe is missing, if you mean the legal holiday Presidents' Day.</description>
+  <highlighted_element>Presidents Day</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_calendar.py</file>
+  <line>512</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_calendar.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It appears that a possessive apostrophe is missing, if you mean the legal holiday Presidents' Day.</description>
+  <highlighted_element>Presidents Day</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_events.py</file>
+  <line>158</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_events.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>Pre-loaded</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_events.py</file>
+  <line>164</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_events.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>event</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_events.py</file>
+  <line>165</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_events.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>event</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>546</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>566</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_compliance.py</file>
+  <line>535</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_compliance.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean for sale?</description>
+  <highlighted_element>For sell</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>622</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>1895</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>An apostrophe may be missing.</description>
+  <highlighted_element>operations</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>103</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>Auto-detect best</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>575</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>Wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>687</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean for sale?</description>
+  <highlighted_element>for sell</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>720</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean for sale?</description>
+  <highlighted_element>for sell</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/multi_agent_design.py</file>
+  <line>46</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/multi_agent_design.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'Doppelganger' is an imported foreign name or expression, which originally has a diacritic.</description>
+  <highlighted_element>Doppelganger</highlighted_element>
+  <language>Python</language>
+  <offset>3</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/multi_agent_design.py</file>
+  <line>506</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/multi_agent_design.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>450</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>567</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>650</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>lowest</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/order_validator.py</file>
+  <line>67</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/order_validator.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Unpaired symbol: '&quot;' seems to be missing</description>
+  <highlighted_element>&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>620</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you just mean , or )?</description>
+  <highlighted_element>,</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/parallel.py</file>
+  <line>621</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/parallel.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you just mean , or )?</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>1031</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/persistence.py</file>
+  <line>120</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/persistence.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Unpaired symbol: '&quot;' seems to be missing</description>
+  <highlighted_element>&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/persistence_manager.py</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/persistence_manager.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>745</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>highest</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>782</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>highest</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>206</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>lowest</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>132</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you just mean , or )?</description>
+  <highlighted_element>,</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>133</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you just mean , or )?</description>
+  <highlighted_element>)</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>135</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>health</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>136</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>health</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>48</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean too None to?</description>
+  <highlighted_element>to None to</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Probably a preposition is missing after 'Prior'.</description>
+  <highlighted_element>Prior state</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>738</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>Φ</highlighted_element>
+  <language>Python</language>
+  <offset>66</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>740</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>Φ</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py</file>
+  <line>741</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_gpu_trainer.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Unpaired symbol: ''' seems to be missing</description>
+  <highlighted_element>'</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>25</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>logger</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/silent_failure_logger.py</file>
+  <line>26</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/silent_failure_logger.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>logger</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/superpot_dsp.py</file>
+  <line>11</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/superpot_dsp.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Do not use 's with a verb.</description>
+  <highlighted_element>market's</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_specs.py</file>
+  <line>134</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_specs.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>biggest</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/test_executor.py</file>
+  <line>264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/test_executor.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>IS is</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_costs.py</file>
+  <line>284</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_costs.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It appears that a possessive apostrophe is missing, if you mean the legal holiday Presidents' Day.</description>
+  <highlighted_element>Presidents Day</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_costs.py</file>
+  <line>927</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_costs.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The adjective widespread is spelled as one word.</description>
+  <highlighted_element>Wide spread</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trigger_predictor.py</file>
+  <line>125</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trigger_predictor.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one. Did you mean uptrend?</description>
+  <highlighted_element>up trend</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/unified_trading_env.py</file>
+  <line>5</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/unified_trading_env.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible agreement error. You should probably use: Combine physics or Combines physic.</description>
+  <highlighted_element>Combines physics</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/workflow_manager.py</file>
+  <line>282</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/workflow_manager.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/workflow_manager.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/workflow_manager.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra_menu.py</file>
+  <line>29</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra_menu.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1565</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1566</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>reward</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>756</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>earliest</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_exploration_heartbeat.py</file>
+  <line>97</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_exploration_heartbeat.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>earliest</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py</file>
+  <line>100</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_directional_tension.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use only lower (without 'more') when you use the comparative.</description>
+  <highlighted_element>more lower</highlighted_element>
+  <language>Python</language>
+  <offset>65</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_flow_entropy.py</file>
+  <line>198</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_flow_entropy.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>Find best</highlighted_element>
+  <language>Python</language>
+  <offset>7</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py</file>
+  <line>3</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Put a period after 'vs' in American English</description>
+  <highlighted_element>vs</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py</file>
+  <line>43</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Put a period after 'vs' in American English</description>
+  <highlighted_element>vs</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py</file>
+  <line>64</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_reynolds_continuation.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'direction' usually goes with an article</description>
+  <highlighted_element>momentum direction</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py</file>
+  <line>44</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_dsp_driven.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>9</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>worst</highlighted_element>
+  <language>Python</language>
+  <offset>9</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>379</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>worst</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>6</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Missing article</description>
+  <highlighted_element>first principles</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>69</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Missing article</description>
+  <highlighted_element>complete list</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>300</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Missing article</description>
+  <highlighted_element>given index</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>1103</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Missing article</description>
+  <highlighted_element>new feature count</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/detect_silent_failures.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/detect_silent_failures.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/devops_manager.py</file>
+  <line>205</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/devops_manager.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/fetch_broker_spec_from_metaapi.py</file>
+  <line>15</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/fetch_broker_spec_from_metaapi.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py</file>
+  <line>193</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_bulk_download.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled with a hyphen.</description>
+  <highlighted_element>Case insensitive</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_exploration_data.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_exploration_data.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/select_metaapi_account.py</file>
+  <line>19</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/select_metaapi_account.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>127</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>earliest</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py</file>
+  <line>314</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/standardize_data_cutoff.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It appears that a possessive apostrophe is missing, if you mean the legal holiday Presidents' Day.</description>
+  <highlighted_element>Presidents Day</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>299</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to back up?</description>
+  <highlighted_element>to backup</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>647</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to exit?</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>656</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to exit?</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/master_workflow.py</file>
+  <line>665</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/master_workflow.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean to exit?</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/monitor_daemon.py</file>
+  <line>12</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/monitor_daemon.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The word 'install' is not a noun.</description>
+  <highlighted_element>install</highlighted_element>
+  <language>Python</language>
+  <offset>3</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/monitor_daemon.py</file>
+  <line>110</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/monitor_daemon.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean the adverb even?</description>
+  <highlighted_element>event</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>165</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>strongest</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py</file>
+  <line>24</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/multi_dataset_harness.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/setup/README.md</file>
+  <line>58</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/setup/README.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The verb 'set up' is spelled as two words. The noun 'setup' is spelled as one.</description>
+  <highlighted_element>setup</highlighted_element>
+  <language>Markdown</language>
+  <offset>27</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/silent_failure_workflow.py</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/silent_failure_workflow.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>611</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>It seems that a pronoun is missing.</description>
+  <highlighted_element>if</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>24</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>PATH Path</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>38</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py</file>
+  <line>29</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>34</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>106</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>closest</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py</file>
+  <line>16</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>data data</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py</file>
+  <line>19</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>data data</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>data data</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py</file>
+  <line>25</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_physics_backtest.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>data data</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py</file>
+  <line>28</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py</file>
+  <line>741</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_numerical_validation.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Interjections are usually punctuated.</description>
+  <highlighted_element>HMM</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>196</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>represents best</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>833</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>(best</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py</file>
+  <line>50</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_e2e_symbols_timeframes.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_infrastructure_modules.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_infrastructure_modules.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py</file>
+  <line>10</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py</file>
+  <line>21</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_authentication.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_mt5_vantage_full.py</file>
+  <line>23</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_mt5_vantage_full.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_performance_module.py</file>
+  <line>25</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_performance_module.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_strategies.py</file>
+  <line>14</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_strategies.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>data data</highlighted_element>
+  <language>Python</language>
+  <offset>56</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py</file>
+  <line>305</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean for sale?</description>
+  <highlighted_element>for sell</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/unified_test_framework.py</file>
+  <line>811</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/unified_test_framework.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>An apostrophe may be missing.</description>
+  <highlighted_element>principles</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py</file>
+  <line>22</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py</file>
+  <line>197</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>highest</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py</file>
+  <line>203</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_btc_h1_layer1.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>best</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_thesis.py</file>
+  <line>385</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_thesis.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>Find best</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py</file>
+  <line>510</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>Identify best</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py</file>
+  <line>532</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>Add best</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_specialization.py</file>
+  <line>11</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>yields best</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_berserker.py</file>
+  <line>45</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_berserker.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>728</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A determiner may be missing.</description>
+  <highlighted_element>from best</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_assumption_free.py</file>
+  <line>12</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_assumption_free.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>'path' usually goes with an article</description>
+  <highlighted_element>path</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>75</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>window</highlighted_element>
+  <language>Python</language>
+  <offset>73</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_physics_pipeline.py</file>
+  <line>76</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_physics_pipeline.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>Window</highlighted_element>
+  <language>Python</language>
+  <offset>10</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_scientific_framework.py</file>
+  <line>255</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_scientific_framework.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo: you repeated a word.</description>
+  <highlighted_element>Test test</highlighted_element>
+  <language>Python</language>
+  <offset>7</offset>
+  <length>9</length>
+</problem>
+</problems>

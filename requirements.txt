@@ -1,45 +1,121 @@
-# Core Scientific Computing
+# =============================================================================
+# KINETRA LOCKED DEPENDENCIES FOR PRODUCTION FINANCIAL SYSTEM
+# =============================================================================
+#
+# CRITICAL: All versions are LOCKED for deterministic behavior
+# DO NOT modify versions without full regression testing
+# Last Updated: 2026-01-01
+#
+# Installation:
+#   pip install -r requirements.txt
+#
+# ROCm PyTorch Installation (AMD GPUs):
+#   pip install torch==2.5.1+rocm6.2 torchvision==0.20.1+rocm6.2 --index-url https://download.pytorch.org/whl/rocm6.2
+#
+# CUDA PyTorch Installation (NVIDIA GPUs):
+#   pip install torch==2.5.1+cu124 torchvision==0.20.1+cu124 --index-url https://download.pytorch.org/whl/cu124
+#
+# =============================================================================
+
+# Core Scientific Computing - LOCKED
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+PyWavelets==1.7.0
+
+# Data Validation - LOCKED
+pydantic==2.10.6
+pydantic-core==2.27.2
+
+# Machine Learning - LOCKED
+scikit-learn==1.5.2
+hmmlearn==0.3.2
+joblib==1.4.2
+
+# Reinforcement Learning - LOCKED
+gymnasium==1.0.0
+stable-baselines3==2.7.1
+sb3-contrib==2.7.0
+
+# PyTorch (CPU version - override with ROCm/CUDA commands above) - LOCKED
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+
+# JIT Compilation for Performance - LOCKED
+numba==0.60.0
+llvmlite==0.43.0
+
+# MetaAPI - PRIMARY MT5 Connection - LOCKED
+metaapi-cloud-sdk==31.1.0
+aiohttp==3.11.11
+async-timeout==5.0.1
+multidict==6.1.0
+yarl==1.18.3
+
+# Interactive CLI - LOCKED
+inquirer==3.4.0
+python-editor==1.0.4
+readchar==4.2.1
+blessed==1.20.0
+wcwidth==0.2.13
+
+# System Utilities - LOCKED
+psutil==7.2.1
+tqdm==4.67.1
+
+# Configuration - LOCKED
+python-dotenv==1.0.1
+pyyaml==6.0.2
+
+# Backtesting - LOCKED
+backtesting==0.3.3
+
+# Plotting and Visualization - LOCKED
+matplotlib==3.10.0
+seaborn==0.13.2
+plotly==5.24.1
+pillow==11.1.0
+kiwisolver==1.4.7
+cycler==0.12.1
+contourpy==1.3.1
+fonttools==4.55.3
+packaging==24.2
+pyparsing==3.2.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+tenacity==9.0.0
+
+# Monitoring & Logging - LOCKED
+prometheus-client==0.21.1
+python-json-logger==3.2.1
+
+# Security - LOCKED
 cryptography==46.0.3
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
-PyWavelets>=1.4.0  # For wavelet transforms in DSP features
 
-# Machine Learning & RL
-torch>=2.0.0  # For GPU support: pip install torch --index-url https://download.pytorch.org/whl/rocm6.0 (AMD) or /cu121 (NVIDIA)
-scikit-learn>=1.3.0
-stable-baselines3>=2.0.0
-gymnasium>=0.28.0
-scikit-learn>=1.3.0
-hmmlearn>=0.3.0
+# Testing and Coverage - LOCKED
+pytest==9.0.2
+pytest-cov==6.0.0
+coverage==7.13.1
+hypothesis==6.122.4
+iniconfig==2.0.0
+pluggy==1.5.0
+exceptiongroup==1.2.2
 
-# Data Validation
-pydantic>=2.0.0
+# Code Quality - LOCKED
+black==25.12.0
+ruff==0.9.1
+mypy==1.14.1
+mypy-extensions==1.0.0
+click==8.3.1
+pathspec==0.12.1
+platformdirs==4.3.6
+tomli==2.2.1
+typing-extensions==4.12.2
+pytokens==0.3.0
 
-# Backtesting & Analysis
-backtesting>=0.6.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-plotly>=5.14.0
+# Color Support - LOCKED
+colorama==0.4.6
 
-# Monitoring & Logging
-prometheus-client>=0.16.0
-python-json-logger>=2.0.0
-
-# Configuration
-python-dotenv>=1.0.0
-pyyaml>=6.0
-
-# Testing
-pytest>=7.3.0
-pytest-cov>=4.1.0
-hypothesis>=6.75.0
-
-# Code Quality
-black>=23.3.0
-ruff>=0.0.270
-mypy>=1.3.0
-
-# Optional: ML Experiment Tracking
-# mlflow>=2.3.0
-# wandb>=0.15.0
+# Annotation Types - LOCKED
+annotated-types==0.7.0

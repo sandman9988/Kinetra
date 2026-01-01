@@ -259,7 +259,7 @@ class ParallelExecutor:
         items: List,
         timeout: float,
         on_error: str
-    ) -> List[TaskResult]:
+    ) -> list[None]:
         """Execute tasks in parallel."""
         n_workers = self.scaler.get_worker_count() if self.scaler else self.config.max_workers
 

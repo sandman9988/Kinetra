@@ -32,6 +32,7 @@ from typing import Any, Dict, List, Optional, Tuple, Callable
 
 import numpy as np
 import pandas as pd
+from numpy import floating
 from scipy import stats
 
 warnings.filterwarnings("ignore")
@@ -503,7 +504,7 @@ class GPUMonitor:
         except Exception:
             return 0.0
     
-    def get_average_utilization(self) -> float:
+    def get_average_utilization(self) -> float | floating[Any]:
         """Get average GPU utilization over all samples."""
         if not self.samples:
             return 0.0

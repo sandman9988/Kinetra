@@ -1,0 +1,2894 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>589</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, float) Possible type(s): (_KT, dict[str, int]) (_KT, dict[str, int])</description>
+  <highlighted_element>'avg_omega_ratio'</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>590</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, float) Possible type(s): (_KT, dict[str, int]) (_KT, dict[str, int])</description>
+  <highlighted_element>'avg_z_factor'</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>591</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, float) Possible type(s): (_KT, dict[str, int]) (_KT, dict[str, int])</description>
+  <highlighted_element>'avg_energy_captured'</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/e2e_testing_framework.py</file>
+  <line>592</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/e2e_testing_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, float) Possible type(s): (_KT, dict[str, int]) (_KT, dict[str, int])</description>
+  <highlighted_element>'avg_chs'</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/agent_factory.py</file>
+  <line>118</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/agent_factory.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'type[KinetraAgent | NeuralAgent]' (matched generic type '_VT'), got 'type' instead</description>
+  <highlighted_element>agent_class</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>382</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type '_ScalarT' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1e-10</highlighted_element>
+  <language>Python</language>
+  <offset>53</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>383</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type '_ScalarT' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1e-10</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>569</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type '_ScalarT' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'int' instead</description>
+  <highlighted_element>1</highlighted_element>
+  <language>Python</language>
+  <offset>52</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>min(1.0, self.price_captured / self.mfe)</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>40</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>160</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1 - self.mae / self.mfe</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>729</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got '() -&gt; Any | () -&gt; Any' instead</description>
+  <highlighted_element>trade.direction.value</highlighted_element>
+  <language>Python</language>
+  <offset>44</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_engine.py</file>
+  <line>989</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_engine.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>t.gross_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtest_optimizer.py</file>
+  <line>1003</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtest_optimizer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>raw_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>62</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>600</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>captured / self.mfe * 100</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>642</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_mfe=avg_mfe</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>643</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_mae=avg_mae</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>645</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_bars_to_mfe=np.mean(bars_arr)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>149</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>confidence</highlighted_element>
+  <language>Python</language>
+  <offset>65</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>549</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | dict[str, float] | dict[str, float | floating[Any]] | dict' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>best_generator[1]</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>565</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>weight</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/composite_stacking.py</file>
+  <line>568</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/composite_stacking.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'float | floating[Any]' instead</description>
+  <highlighted_element>generator.get_reliability()</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>537</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'symbols'</highlighted_element>
+  <language>Python</language>
+  <offset>71</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>538</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'symbols'</highlighted_element>
+  <language>Python</language>
+  <offset>58</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_manager.py</file>
+  <line>542</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_manager.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'total_bars'</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>523</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean(gap_pcts)</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_quality.py</file>
+  <line>570</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_quality.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>score</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>146</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[str]', got 'IO[Any]' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>340</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]' (matched generic type 'SupportsWrite[AnyStr ≤: str | bytes]'), got 'GzipFile' instead</description>
+  <highlighted_element>f_out</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/file_safety.py</file>
+  <line>436</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/file_safety.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]' (matched generic type 'SupportsWrite[AnyStr ≤: str | bytes]'), got 'BufferedWriter' instead</description>
+  <highlighted_element>f_out</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/parallel.py</file>
+  <line>254</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/parallel.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'list[TaskResult]', got 'list[None]' instead</description>
+  <highlighted_element>results</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/parallel.py</file>
+  <line>300</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/parallel.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (Any, TaskResult) Possible type(s): (SupportsIndex, None) (slice[Any, Any, Any], Iterable[None])</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>187</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'ndarray[tuple[Any, ...], Any]' instead</description>
+  <highlighted_element>latent_dim</highlighted_element>
+  <language>Python</language>
+  <offset>58</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/discovery_methods.py</file>
+  <line>312</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/discovery_methods.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>p_value=p_value</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/experience_replay.py</file>
+  <line>261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/experience_replay.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/experience_replay.py</file>
+  <line>531</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/experience_replay.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>56</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/exploration_integration.py</file>
+  <line>218</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/exploration_integration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'list[dict]', got 'list[tuple[str, str, float]]' instead</description>
+  <highlighted_element>self.measurement_engine.find_inverse_relationships( inst_meas.correlation_matrix...</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>118</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/financial_audit.py</file>
+  <line>573</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/financial_audit.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>mean_excess</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/financial_audit.py</file>
+  <line>573</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/financial_audit.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>std_returns</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/financial_audit.py</file>
+  <line>614</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/financial_audit.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>mean_excess</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/financial_audit.py</file>
+  <line>614</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/financial_audit.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>downside_std</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>753</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>profile.memory.total_ram_gb * 2</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/hardware_optimizer.py</file>
+  <line>758</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/hardware_optimizer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>profile.gpu.memory_gb * 3</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>350</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>streak_ratio * 25 + 25</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>353</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 - return_std * 1000</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/health_score.py</file>
+  <line>390</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/health_score.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>symc_diff * 20</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/high_performance_engine.py</file>
+  <line>260</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/high_performance_engine.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | None' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time()</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>67</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>403</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['size']</highlighted_element>
+  <language>Python</language>
+  <offset>93</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>67</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/integrated_backtester.py</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/integrated_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>position['size']</highlighted_element>
+  <language>Python</language>
+  <offset>93</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>578</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>vol_ratio - 1.0</highlighted_element>
+  <language>Python</language>
+  <offset>75</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>586</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>range_ratio - 1.5</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>635</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>vol_ratio - 1.0</highlighted_element>
+  <language>Python</language>
+  <offset>75</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/market_microstructure.py</file>
+  <line>935</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/market_microstructure.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>vol_ratio - 1.0</highlighted_element>
+  <language>Python</language>
+  <offset>79</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py</file>
+  <line>588</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mql5_trade_classes.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>min(self._margin_free / margin_per_lot, 100.0)</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>46</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/mt5_bridge.py</file>
+  <line>948</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/mt5_bridge.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>current_spread * 0.5</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/network_resilience.py</file>
+  <line>87</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/network_resilience.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>0.4 - (self.latency_ms / 1000)</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>344</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, int) Possible type(s): (int, None) (int, ndarray[tuple[Any, ...], dtype[Any]]) (int, int)</description>
+  <highlighted_element>('_version', -1)</highlighted_element>
+  <language>Python</language>
+  <offset>83</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>357</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_KT'), got 'str' instead</description>
+  <highlighted_element>'_version'</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>357</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'ndarray[tuple[Any, ...], dtype[Any]]' (matched generic type '_VT'), got 'int' instead</description>
+  <highlighted_element>self._cache_version</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>362</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str, int) Possible type(s): (int, None) (int, ndarray[tuple[Any, ...], dtype[Any]]) (int, int)</description>
+  <highlighted_element>('_version', -1)</highlighted_element>
+  <language>Python</language>
+  <offset>83</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_KT'), got 'str' instead</description>
+  <highlighted_element>'_version'</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'ndarray[tuple[Any, ...], dtype[Any]]' (matched generic type '_VT'), got 'int' instead</description>
+  <highlighted_element>self._cache_version</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>739</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'Queue', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>1355</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>elapsed</highlighted_element>
+  <language>Python</language>
+  <offset>67</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>279</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'Series', got 'ndarray[tuple[Any, ...], dtype[Any]]' instead</description>
+  <highlighted_element>body_ratio</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_v7.py</file>
+  <line>397</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_v7.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>trade.cumulative_score</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_backtest.py</file>
+  <line>762</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_margin_used=np.mean(self.margin_history)</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>44</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>245</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float]', got 'dict[str, str]' instead</description>
+  <highlighted_element>metrics={'status': 'insufficient_data'}</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>307</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float]', got 'dict[str, str]' instead</description>
+  <highlighted_element>metrics={'status': 'insufficient_data'}</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>322</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 - max_dd_pct * 3</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>325</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 - ulcer * 5</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>328</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 - (recovery_days / 90) * 100</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>355</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float]', got 'dict[str, str]' instead</description>
+  <highlighted_element>metrics={'status': 'insufficient_data'}</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>407</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float]', got 'dict[str, str]' instead</description>
+  <highlighted_element>metrics={'status': 'insufficient_data'}</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 + edge_decay * 2</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/portfolio_health.py</file>
+  <line>428</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/portfolio_health.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>100 - (promotions_per_month - 2) * 25</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/position_manager.py</file>
+  <line>177</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/position_manager.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>self.realized_pnl / self.max_favorable_excursion</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>48</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>109</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>min(1.0, self.price_captured / self.mfe)</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>40</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>116</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1 - self.mae / self.mfe</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>594</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>594</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>direction</highlighted_element>
+  <language>Python</language>
+  <offset>77</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>595</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>596</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>600</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>604</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_spread']</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>604</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>95</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>605</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>75</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>608</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>100</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>612</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>60</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>616</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'type[None[Any]]' instead</description>
+  <highlighted_element>direction</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>617</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>618</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_time']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>620</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>629</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_time=current_position['entry_time']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>41</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>631</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'type[None[Any]]' instead</description>
+  <highlighted_element>direction=direction</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>632</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_price=current_position['entry_price']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>43</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>634</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>volume=current_position['volume']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>637</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_spread=current_position['entry_spread']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>45</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>641</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_slippage=current_position['entry_slippage']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>49</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>643</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>mfe=current_position['mfe']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>644</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>mae=current_position['mae']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>648</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_energy=current_position['entry_energy']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>45</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>649</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'type[None[Any]]' instead</description>
+  <highlighted_element>rejected_modifications=current_position['rejected_modifications']</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>65</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>819</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>t.pnl</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>863</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_mfe=avg_mfe</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>864</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>avg_mae=avg_mae</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>328</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>333</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>334</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>340</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>346</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_trading_env.py</file>
+  <line>351</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | bool | bool | unsignedinteger[_8Bit] | unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | unsignedinteger[_32Bit | _64Bit] | unsignedinteger[_64Bit] | signedinteger[_8Bit] | signedinteger[_16Bit] | signedinteger[_32Bit] | signedinteger[_32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | ndarray[tuple[Any, ...], dtype[unsignedinteger[_32Bit | _64Bit]]]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'position'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_discovery.py</file>
+  <line>295</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_discovery.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>volume_mean=vol_mean</highlighted_element>
+  <language>Python</language>
+  <offset>16</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>242</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'list[Any]' (matched generic type 'list[_T]'), got 'int' instead</description>
+  <highlighted_element>min_bar</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>242</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'list[Any]' (matched generic type 'list[_T]'), got 'int' instead</description>
+  <highlighted_element>max_bar</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>266</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'list[Any]' (matched generic type 'list[_T]'), got 'int' instead</description>
+  <highlighted_element>self.current_bar</highlighted_element>
+  <language>Python</language>
+  <offset>59</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>358</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float | int]' (matched generic type '_VT'), got 'dict[str, dict]' instead</description>
+  <highlighted_element>{k: v.to_dict() for k, v in self.instrument_reports.items()}</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>60</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>359</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float | int]' (matched generic type '_VT'), got 'dict[str, dict]' instead</description>
+  <highlighted_element>{k: v.to_dict() for k, v in self.timeframe_reports.items()}</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>59</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>360</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, float | int]' (matched generic type '_VT'), got 'dict[Any, dict]' instead</description>
+  <highlighted_element>{k.value: v.to_dict() for k, v in self.class_reports.items()}</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>61</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>482</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean([t.net_pnl for t in closed_trades])</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>43</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/reporting.py</file>
+  <line>508</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/reporting.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>t.gross_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>201</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float | None', got 'floating[Any]' instead</description>
+  <highlighted_element>loss</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/rl_neural_agent.py</file>
+  <line>267</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/rl_neural_agent.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>222</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>self.cumulative_score</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>324</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>self.cumulative_score</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>447</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>self.cumulative_score</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>652</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>abs(report.avg_pnl_degradation) * 100</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>37</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/stress_test.py</file>
+  <line>659</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/stress_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>score</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>5</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_spec.py</file>
+  <line>265</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_spec.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>max_lots</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/testing_framework.py</file>
+  <line>1149</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/testing_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict', got 'list[dict[str, Any]]' instead</description>
+  <highlighted_element>results_dict</highlighted_element>
+  <language>Python</language>
+  <offset>44</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>423</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>428</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>429</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>435</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>440</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'long'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>441</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'short'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trading_env.py</file>
+  <line>446</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trading_env.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>'position'</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/trend_discovery.py</file>
+  <line>283</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/trend_discovery.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | int' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>corr</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>167</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>(recent_sell - prior_sell) / (prior_sell + 1e-10)</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>49</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>180</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean(lower_wick[-10:] - upper_wick[-10:])</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>44</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>193</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean(np.sign(returns - mean_ret) * (returns - mean_ret) ** 2)</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>64</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>378</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>sharpe</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>345</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>769</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>current_spread</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>782</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>current_vol</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>843</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'bool' instead</description>
+  <highlighted_element>spread_blocked</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>858</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'bool' instead</description>
+  <highlighted_element>trade_closed</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>859</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'Literal[0, 1, -1] | int' instead</description>
+  <highlighted_element>self.trade_state.position</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>860</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'int' instead</description>
+  <highlighted_element>self.trade_state.bars_held</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1107</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>mae</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1871</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str' (matched generic type '_VT'), got 'dict[Any, Any] | dict[str, Any] | dict[str, str] | dict[bytes, bytes]' instead</description>
+  <highlighted_element>dict(self.agent.q_table)</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1962</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_T'), got 'float' instead</description>
+  <highlighted_element>stats[&quot;trades&quot;]</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1991</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>reward=recent_reward</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>1993</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>pnl=recent_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2386</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>66</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>2774</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float' (matched generic type '_VT'), got 'str | None' instead</description>
+  <highlighted_element>self.current_key</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>53</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'Path' instead</description>
+  <highlighted_element>_kinetra_path / 'measurements.py'</highlighted_element>
+  <language>Python</language>
+  <offset>49</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>54</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'Path' instead</description>
+  <highlighted_element>_kinetra_path / 'composite_stacking.py'</highlighted_element>
+  <language>Python</language>
+  <offset>52</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>55</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'Path' instead</description>
+  <highlighted_element>_kinetra_path / 'exploration_integration.py'</highlighted_element>
+  <language>Python</language>
+  <offset>59</offset>
+  <length>44</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>56</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'Path' instead</description>
+  <highlighted_element>_kinetra_path / 'multi_agent_design.py'</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'Path' instead</description>
+  <highlighted_element>_kinetra_path / 'trend_discovery.py'</highlighted_element>
+  <language>Python</language>
+  <offset>55</offset>
+  <length>36</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>271</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>&quot;long&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>279</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>&quot;short&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/run_comprehensive_exploration.py</file>
+  <line>408</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/run_comprehensive_exploration.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>self.total_pnl</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>balance</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>312</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'ndarray[tuple[Any, ...], Any]' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>312</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'ndarray[tuple[Any, ...], dtype[_ScalarT]]' instead</description>
+  <highlighted_element>rewards</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>549</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean(((arr - m) / s) ** 3)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>558</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean(((arr - m) / s) ** 4)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>564</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'float', got 'floating[Any]' instead</description>
+  <highlighted_element>np.mean((arr - m) ** n)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py</file>
+  <line>736</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_explorer.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'signedinteger[_32Bit | _64Bit]' instead</description>
+  <highlighted_element>np.argmax(probs)</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py</file>
+  <line>886</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_physics.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'signedinteger[_32Bit | _64Bit]' instead</description>
+  <highlighted_element>np.argmax(self._softmax(logits))</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/cache_manager.py</file>
+  <line>44</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/cache_manager.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'SupportsWrite[bytes]', got 'BufferedWriter' instead</description>
+  <highlighted_element>f</highlighted_element>
+  <language>Python</language>
+  <offset>11</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/dashboard.py</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/dashboard.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type '(Any, Any, HTTPServer) -&gt; BaseRequestHandler' (matched generic type '(Any, Any, Self) -&gt; BaseRequestHandler'), got 'type[DashboardHandler]' instead</description>
+  <highlighted_element>DashboardHandler</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>271</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>48</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_interactive.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_interactive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>52</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/fetch_broker_spec_from_metaapi.py</file>
+  <line>183</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/fetch_broker_spec_from_metaapi.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'None' instead</description>
+  <highlighted_element>account_id=ACCOUNT_ID</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/metaapi_sync.py</file>
+  <line>468</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/metaapi_sync.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict', got 'list[dict[str, Any]]' instead</description>
+  <highlighted_element>data</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>237</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'LiteralString' (matched generic type '_T'), got 'LiteralString' instead</description>
+  <highlighted_element>len_method</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>78</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict[str, str | int] | list[Any] | dict[Any, Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>&quot;Insufficient successful results for analysis&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>46</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>237</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'list[int]' instead</description>
+  <highlighted_element>tf_minutes</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/analyze_results.py</file>
+  <line>237</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/analyze_results.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int', got 'list[Any]' instead</description>
+  <highlighted_element>regimes</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py</file>
+  <line>681</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_fix_pipeline.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime | int | defaultdict[Any, int] | list[Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>stats_copy['start_time'].isoformat()</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>36</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>527</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (int | dict[Any, Any] | None) Possible type(s): (datetime) (timedelta)</description>
+  <highlighted_element>self.stats['start_time']</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>581</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | dict[Any, Any] | None' (matched generic type '_VT'), got 'datetime' instead</description>
+  <highlighted_element>datetime.now()</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py</file>
+  <line>612</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/continuous_menu_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int | dict[Any, Any] | None' (matched generic type '_VT'), got 'datetime' instead</description>
+  <highlighted_element>datetime.now()</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py</file>
+  <line>375</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime | None | int | list[Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>report['start_time'].isoformat()</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py</file>
+  <line>377</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_continuous.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime | None | int | list[Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>report['end_time'].isoformat()</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | int | list[Any]' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time() - start_time</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>224</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'file'</highlighted_element>
+  <language>Python</language>
+  <offset>50</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>224</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'time'</highlighted_element>
+  <language>Python</language>
+  <offset>72</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>224</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'rows'</highlighted_element>
+  <language>Python</language>
+  <offset>93</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>227</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'time'</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>227</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (float) Possible type(s): (str) (str)</description>
+  <highlighted_element>2.0</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>230</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'file'</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>231</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'time'</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>232</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'time'</highlighted_element>
+  <language>Python</language>
+  <offset>57</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>232</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex | slice[Any, Any, Any]) (SupportsIndex | slice[Any, Any, Any])</description>
+  <highlighted_element>'rows'</highlighted_element>
+  <language>Python</language>
+  <offset>81</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>297</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | bool | int | None' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time() - start_time</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>362</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | bool | int | None' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time() - start_time</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>396</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | bool | int | None' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time() - start_time</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>409</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | bool | int | None' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>time.time() - start_time</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>462</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime | None | int | list[Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>report['start_time'].isoformat()</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py</file>
+  <line>464</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/exercise_menu_with_real_data.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime | None | int | list[Any]' (matched generic type '_VT'), got 'str' instead</description>
+  <highlighted_element>report['end_time'].isoformat()</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/rl_backtest.py</file>
+  <line>416</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/rl_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | Buffer | SupportsFloat | SupportsIndex', got 'type[None[Any]]' instead</description>
+  <highlighted_element>entry_state[5]</highlighted_element>
+  <language>Python</language>
+  <offset>51</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_live_test.py</file>
+  <line>359</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_live_test.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str | list[Any] | int' (matched generic type '_VT'), got 'float' instead</description>
+  <highlighted_element>(end_time - start_time).total_seconds()</highlighted_element>
+  <language>Python</language>
+  <offset>38</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>105</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>162</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'Trade', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>313</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'Trade', got 'None' instead</description>
+  <highlighted_element>None</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>497</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>47</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>503</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>66</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>505</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>66</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>515</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>64</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>521</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>89</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>526</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>64</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>532</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'datetime', got 'Hashable' instead</description>
+  <highlighted_element>idx</highlighted_element>
+  <language>Python</language>
+  <offset>90</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>607</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]]' instead</description>
+  <highlighted_element>best_params['fast_period'] + np.random.randint(-5, 6)</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>53</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>610</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]]' instead</description>
+  <highlighted_element>best_params['slow_period'] + np.random.randint(-10, 11)</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>55</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py</file>
+  <line>613</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_real_data_backtest.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'ndarray[tuple[Any, ...], dtype[float64]]' instead</description>
+  <highlighted_element>best_params['atr_multiplier'] + np.random.uniform(-0.5, 0.5)</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>60</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py</file>
+  <line>605</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_trade_lifecycle.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>self.account.Margin() - margin_released</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>39</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>293</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'Sized', got 'InstrumentData' instead</description>
+  <highlighted_element>data</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex) (slice[Any, Any, Any])</description>
+  <highlighted_element>action_idx</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_interactive.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_interactive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'int' instead</description>
+  <highlighted_element>len(action_names)</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_specialization.py</file>
+  <line>689</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_specialization.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'dict' (matched generic type '_VT'), got 'list[Any]' instead</description>
+  <highlighted_element>comparison</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_universal.py</file>
+  <line>495</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_universal.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Unexpected type(s): (str) Possible type(s): (SupportsIndex) (slice[Any, Any, Any])</description>
+  <highlighted_element>action_idx</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_universal.py</file>
+  <line>495</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_universal.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'str', got 'int' instead</description>
+  <highlighted_element>len(action_names)</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>808</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'floating[Any]' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'int' instead</description>
+  <highlighted_element>0</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>809</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'floating[Any]' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'int' instead</description>
+  <highlighted_element>0</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>810</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'floating[Any]' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'int' instead</description>
+  <highlighted_element>0</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>1</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>811</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'floating[Any]' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1.0</highlighted_element>
+  <language>Python</language>
+  <offset>43</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>819</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'float' instead</description>
+  <highlighted_element>1 - max_dd_across / self.max_acceptable_dd</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>42</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/specialist_agents.py</file>
+  <line>820</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/specialist_agents.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'int' (matched generic type 'SupportsRichComparisonT ≤: SupportsDunderLT[Any] | SupportsDunderGT[Any]'), got 'floating[Any]' instead</description>
+  <highlighted_element>1 - avg_ulcer</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>261</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'MenuTestScenarios', got 'str' instead</description>
+  <highlighted_element>'1'</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'MenuTestScenarios', got 'str' instead</description>
+  <highlighted_element>'2'</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>309</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'MenuTestScenarios', got 'str' instead</description>
+  <highlighted_element>'2'</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>458</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'MenuTestScenarios', got 'str' instead</description>
+  <highlighted_element>submenu</highlighted_element>
+  <language>Python</language>
+  <offset>39</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_comprehensive.py</file>
+  <line>478</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_comprehensive.py" />
+  <problem_class id="PyTypeCheckerInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Incorrect type</problem_class>
+  <description>Expected type 'MenuTestScenarios', got 'str' instead</description>
+  <highlighted_element>'99'</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>4</length>
+</problem>
+</problems>

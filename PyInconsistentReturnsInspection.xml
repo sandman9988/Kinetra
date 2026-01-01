@@ -1,0 +1,26 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py</file>
+  <line>280</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/analyze_energy.py" />
+  <problem_class id="PyInconsistentReturnsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Inconsistent return statements</problem_class>
+  <description>'return' without value is inconsistent with other paths</description>
+  <highlighted_element>return</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/prepare_data.py</file>
+  <line>331</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/prepare_data.py" />
+  <problem_class id="PyInconsistentReturnsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Inconsistent return statements</problem_class>
+  <description>'return' without value is inconsistent with other paths</description>
+  <highlighted_element>return</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>6</length>
+</problem>
+</problems>

@@ -30,6 +30,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from numpy import floating
 
 
 # =============================================================================
@@ -148,7 +149,7 @@ class AdaptiveThreshold:
         sigma: Optional[float] = None,
         direction: str = "upper",  # "upper", "lower", "both"
         multiplier: float = 1.0,
-    ) -> float:
+    ) -> float | floating[Any] | tuple[floating[Any], floating[Any]]:
         """Get threshold at mean ± N*std."""
         if len(self.history) < self.min_samples:
             return float('inf') if direction == "upper" else float('-inf')
@@ -164,7 +165,7 @@ class AdaptiveThreshold:
         else:  # both - return tuple
             return (mean - n_sigma * std, mean + n_sigma * std)
 
-    def get_current_zscore(self, value: float) -> float:
+    def get_current_zscore(self, value: float) -> float | floating[Any]:
         """Get z-score of current value."""
         if len(self.history) < self.min_samples:
             return 0.0

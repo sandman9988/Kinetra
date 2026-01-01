@@ -19,7 +19,7 @@ import asyncio
 import getpass
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Any
 import pandas as pd
 from collections import defaultdict
 
@@ -224,7 +224,7 @@ class DataFiller:
             print(f"❌ Connection failed: {e}")
             return False
 
-    async def download_candles(self, symbol: str, timeframe: str, days: int = 365) -> pd.DataFrame:
+    async def download_candles(self, symbol: str, timeframe: str, days: int = 365) -> Any | None:
         """Download candles for symbol/timeframe."""
         try:
             start_time = datetime.now(timezone.utc) - timedelta(days=days)

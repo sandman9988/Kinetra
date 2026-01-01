@@ -1,0 +1,386 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run1/models/best_model.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run1/models/best_model.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_model.pt/data.pklFB??ZZZZZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>54496</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run1/models/checkpoint.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run1/models/checkpoint.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.checkpoint.pt/data.pklFB??ZZZZZZZ�?}q?(X????episodeq?K?X????model_sta...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>164856</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_BTCUSD_H1.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207191</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_BTCUSD_H4.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207206</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_M15.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_M15.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_BTCUSD_M15.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207173</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_BTCUSD_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_BTCUSD_M30.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206632</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_DJ30ft_H1.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206872</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_DJ30ft_H4.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206933</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_M15.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_M15.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_DJ30ft_M15.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206904</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_DJ30ft_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_DJ30ft_M30.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206797</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_GBPUSD+_H1.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206466</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_GBPUSD+_H4.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207127</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_M15.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_GBPUSD+_M15.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_GBPUSD+_M15.pt/data.pklFB??Z�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206380</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_NAS100_H1.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207045</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_NAS100_H4.pt/data.pklFB??ZZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>207193</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_M15.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_M15.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_NAS100_M15.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206573</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/best_NAS100_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.best_NAS100_M30.pt/data.pklFB??ZZ�?}q?(X????model_state_dictq?ccollec...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>206582</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_BTCUSD_H1.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>628462</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_BTCUSD_H4.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626990</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_BTCUSD_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????&quot;?@?.checkpoint_BTCUSD_M30.pt/data.pklFB&lt;?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>627024</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_DJ30ft_H1.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>627114</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_DJ30ft_H4.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626802</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_DJ30ft_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????&quot;?@?.checkpoint_DJ30ft_M30.pt/data.pklFB&lt;?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626780</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_GBPUSD+_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_GBPUSD+_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????&quot;?@?.checkpoint_GBPUSD+_H1.pt/data.pklFB&lt;?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>628645</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_GBPUSD+_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_GBPUSD+_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????&quot;?@?.checkpoint_GBPUSD+_H4.pt/data.pklFB&lt;?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626498</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_H1.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_H1.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_NAS100_H1.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626893</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????!?A?.checkpoint_NAS100_H4.pt/data.pklFB=?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>627086</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_M30.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/checkpoint_NAS100_M30.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????&quot;?@?.checkpoint_NAS100_M30.pt/data.pklFB&lt;?ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>627504</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_BTCUSD_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_BTCUSD_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.final_BTCUSD_H4.pt/data.pklFB??ZZ�?}q?(X????episodeq?KdX????model_sta...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626522</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_DJ30ft_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_DJ30ft_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.final_DJ30ft_H4.pt/data.pklFB??ZZ�?}q?(X????episodeq?KdX????model_sta...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626251</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_GBPUSD+_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_GBPUSD+_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.final_GBPUSD+_H4.pt/data.pklFB??Z�?}q?(X????episodeq?KdX????model_sta...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>625949</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_NAS100_H4.pt</file>
+  <line>1</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/data/runs/berserker_run3/models/final_NAS100_H4.pt" />
+  <problem_class id="LossyEncoding" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Lossy encoding</problem_class>
+  <description>The file was loaded in a wrong encoding: 'UTF-8'</description>
+  <highlighted_element>PK????????????????????????????.final_NAS100_H4.pt/data.pklFB??ZZ�?}q?(X????episodeq?KdX????model_sta...</highlighted_element>
+  <language>Chameleon</language>
+  <offset>0</offset>
+  <length>626529</length>
+</problem>
+</problems>

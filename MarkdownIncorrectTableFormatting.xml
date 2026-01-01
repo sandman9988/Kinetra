@@ -1,0 +1,1502 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/.claude/instructions.md</file>
+  <line>46</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.claude/instructions.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Concept | Formula | Meaning | |---------|---------|---------| | Kinetic Energy | E = ½mv² = ½ × ve...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>489</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.github/copilot-instructions.md</file>
+  <line>175</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.github/copilot-instructions.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Omega Ratio** | &gt; 2.7 | Asymmetric r...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>340</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>12</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Keyword | Action | Details | |---------|--------|---------| | **THEOREM** | Start theorem producti...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1036</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>307</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Primitive | Physical Analogue | Formula | Why It Matters | |-----------|-------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>649</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md</file>
+  <line>795</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/AI_AGENT_INSTRUCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Pillar | Metrics | Weight | |--------|---------|--------| | **Return &amp; Efficiency** | CAGR, Sharpe...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>328</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPLETION_SUMMARY_OLD.md</file>
+  <line>309</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPLETION_SUMMARY_OLD.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Operation | Time Added | Impact | |-----------|------------|--------| | Checksum | 1-5ms | Negligi...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>239</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md</file>
+  <line>67</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/COMPREHENSIVE_MENU_IMPROVEMENTS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Category | Total | Used | Unused | Coverage | |----------|-------|------|--------|----------| | an...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>279</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONSOLIDATION_COMPLETE.md</file>
+  <line>102</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONSOLIDATION_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Was In | Now In | |---------|--------|--------| | Raw data organization | data_manager.p...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>636</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONSOLIDATION_COMPLETE.md</file>
+  <line>211</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONSOLIDATION_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source Files | Target Module | |---------|--------------|---------------| | Sharpe ratio...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>560</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md</file>
+  <line>98</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/CONTINUOUS_TESTING_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Before | After | |--------|--------|-------| | **EOF Error Crashes** | ~20 locations | 0 ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>247</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/EXECUTIVE_SUMMARY.md</file>
+  <line>80</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/EXECUTIVE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Operation | Time | Status | |-----------|------|--------| | Data loading (116MB) | 1.59s | ✅ Excel...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>235</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md</file>
+  <line>145</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Test File | Tests | Status | Purpose | |-----------|-------|--------|---------| | `test_menu_syste...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>348</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Load Level | Concurrent Ops | Total Ops | Success Rate | Duration | |------------|---------------|...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>260</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md</file>
+  <line>236</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Configuration | Combinations | Generation Time | Memory Usage | |--------------|--------------|---...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>297</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md</file>
+  <line>245</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Light Load | Standard Load | Heavy Load | |--------|-----------|---------------|---------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>233</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/FIXES_APPLIED.md</file>
+  <line>123</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FIXES_APPLIED.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Changes | Lines | |------|---------|-------| | `run_comprehensive_exploration.py` | Removed...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>343</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>154</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Category | Status | Notes | |----------|--------|-------| | ✅ Functionality | 100% | All features ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>423</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md</file>
+  <line>180</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/LIVE_TESTING_MVP_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Status | |--------|--------|--------| | CHS | &gt; 0.90 | ✅ Monitored | | Omega Rat...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>254</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md</file>
+  <line>212</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_EXERCISE_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Operation | Time | Status | |-----------|------|--------| | Data loading (87 files) | 1.59s | ✅ Ex...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>258</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_IMPLEMENTATION_SUMMARY.md</file>
+  <line>319</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_IMPLEMENTATION_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Omega Ratio** | &gt; 2.7 | Asymmetric r...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>340</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/MENU_SYSTEM_QUICK_START.md</file>
+  <line>299</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/MENU_SYSTEM_QUICK_START.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Description | |--------|--------|-------------| | **Omega Ratio** | &gt; 2.7 | Asym...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>610</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md</file>
+  <line>13</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_CHANGELOG.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Operation | Before | After | Speedup | |-----------|--------|-------|---------| | Package import |...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>367</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PERFORMANCE_OPTIMIZATION.md</file>
+  <line>272</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PERFORMANCE_OPTIMIZATION.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Component | Your System | Laptop (Reference) | Speedup | |-----------|-------------|--------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>279</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md</file>
+  <line>264</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/PRODUCTION_READINESS_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Current | Status | |--------|--------|---------|--------| | Total Errors | 0 | ~...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>294</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/QUICK_REFERENCE_CLI_E2E.md</file>
+  <line>166</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/QUICK_REFERENCE_CLI_E2E.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Configuration | Combinations | Duration (Parallel) | Use Case | |--------------|--------------|---...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>399</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/README.md</file>
+  <line>84</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/README.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Omega Ratio** | &gt; 2.7 | Asymmetric r...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>453</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md</file>
+  <line>14</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | Tests | Duration | |------|---------|-------|----------| | `test_menu_system.py` ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>418</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md</file>
+  <line>111</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Level | Menu Sessions | E2E Tests | Data Ops | Total Ops | Duration | |-------|--------------|----...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>255</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md</file>
+  <line>326</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Value | Status | |--------|-------|--------| | Basic Tests | 6/6 pass | ✅ | | Workflow Te...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>387</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md</file>
+  <line>343</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Current | Optimized | Improvement | |--------|---------|-----------|-------------| | Menu...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>419</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>94</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Parameter | Type | Description | Examples | |-----------|------|-------------|----------| | `name`...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>945</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/configs/e2e_examples/README.md</file>
+  <line>131</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/configs/e2e_examples/README.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Test Size | Combinations | Estimated Duration (Parallel) | Use Case | |-----------|-------------|-...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>360</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ACTION_PLAN.md</file>
+  <line>25</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ACTION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Priority | Task | Effort | Deliverable | Status | |----------|------|--------|-------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>620</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ACTION_PLAN.md</file>
+  <line>146</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ACTION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Research Question | Test Suite | Output | Theorem Candidate | |-------------------|------------|--...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>672</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ACTION_PLAN.md</file>
+  <line>181</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ACTION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ID | Blocker | Impact | Solution | |----|---------|--------|----------| | B1 | Fixed periods in su...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>301</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ACTION_PLAN.md</file>
+  <line>309</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ACTION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Document | Purpose | When to Use | |----------|---------|-------------| | `ARCHITECTURE_COMPLETE.m...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>532</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>263</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Agent Type | File | Algorithm | Status | |------------|------|-----------|--------| | **KinetraAge...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>585</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>275</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Wrapper | File | Purpose | Status | |---------|------|---------|--------| | **DoppelgangerTriad** ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>371</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>457</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | Status | |------|---------|--------| | `kinetra/testing_framework.py` | Main test...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>433</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>467</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | Status | |------|---------|--------| | `kinetra/rl_agent.py` | PPO agent | ✅ Comp...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>378</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>477</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | Status | |------|---------|--------| | `scripts/testing/unified_test_framework.py...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>404</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>486</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | Status | |------|---------|--------| | `scripts/master_workflow.py` | End-to-end ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>204</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>534</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Module | Purpose | Adaptive Feature | |--------|---------|------------------| | `WaveletExtractor`...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>567</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>735</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Mode | Circuit Breakers | Position Limits | Drawdown Limits | Use Case | |------|-----------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>373</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>790</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Test Coverage** | 18/18 suites | Com...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>310</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>799</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Omega Ratio** | &gt; 2.7 | Asymmetric r...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>264</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md</file>
+  <line>808</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_COMPLETE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Composite Health Score** | &gt; 0.90 | ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>275</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md</file>
+  <line>171</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Integration Point | Priority | Effort | Status | Blocker | |-------------------|----------|-------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>435</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md</file>
+  <line>223</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | |------|---------| | **docs/ARCHITECTURE_COMPLETE.md** | Full system design (24KB...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>364</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md</file>
+  <line>232</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | |------|---------| | `kinetra/testing_framework.py` | Main testing engine | | `ki...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>270</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md</file>
+  <line>240</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | |------|---------| | `kinetra/rl_agent.py` | PPO agent | | `kinetra/rl_neural_age...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>296</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md</file>
+  <line>249</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/ARCHITECTURE_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | |------|---------| | `scripts/testing/unified_test_framework.py` | Main test inte...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>299</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>11</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | BacktestEngine | RealisticBacktester | Notes | |---------|----------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1043</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>26</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | BacktestEngine Location | Priority | Reason | |---------|------------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1228</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md</file>
+  <line>43</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTESTER_COMPARISON.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Bug | Location | Issue | Fix | |-----|----------|-------|-----| | **Missing `self.timeframe`** | L...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>305</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>10</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Lines | Purpose | Strengths | Weaknesses | Status | |------|-------|---------|-----------|-...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1500</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md</file>
+  <line>25</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_CONSOLIDATION_ANALYSIS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | backtest_engine | realistic_backtester | physics_backtester | backtest_optimizer | integ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1402</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BRANCHING_QUICK_REF.md</file>
+  <line>55</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BRANCHING_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Task | Command | |------|---------| | Check status | `make branch-status` | | Setup main branch | ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>311</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BRANCHING_QUICK_REF.md</file>
+  <line>65</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BRANCHING_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Prefix | Purpose | Example | |--------|---------|---------| | `feature/` | New features | `feature...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>432</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/DEVOPS.md</file>
+  <line>9</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/DEVOPS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Module | Description | |---------|--------|-------------| | **Deduplication** | `dedup.p...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>612</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md</file>
+  <line>107</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/EMPIRICAL_THEOREMS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Value | Threshold | Status | |--------|-------|-----------|--------| | Base Rate | 20.0% ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>309</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md</file>
+  <line>14</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Component | Status | Location | |-----------|--------|----------| | **Data Pipeline** | ✅ Complete...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>647</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md</file>
+  <line>27</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Integration Point | Status | Priority | |-------------------|--------|----------| | **DSP Features...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>530</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md</file>
+  <line>1034</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/INTEGRATION_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Priority | Task | Effort | Impact | Status | |----------|------|--------|--------|--------| | 🔥 *...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>558</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md</file>
+  <line>199</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/LIVE_TESTING_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Description | |--------|--------|-------------| | **CHS** | &gt; 0.90 | Composite H...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>394</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MENU_SYSTEM_USER_GUIDE.md</file>
+  <line>304</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MENU_SYSTEM_USER_GUIDE.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | **Omega Ratio** | &gt; 2.7 | Asymmetric r...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>340</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md</file>
+  <line>142</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/METAAPI_MQL5_INTEGRATION.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MQL5 Function | BacktestEngine Implementation | |---------------|------------------------------| |...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>568</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>9</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CTrade Method | Kinetra Equivalent | Status | Notes | |-------------------|-------------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>631</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>19</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CTrade Method | Kinetra Equivalent | Status | Notes | |-------------------|-------------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>333</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>27</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CTrade Method | Kinetra Signal Format | Status | |-------------------|----------------------|-...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>428</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>38</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Setting | Kinetra Equivalent | Implementation | |-------------|-------------------|-----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>471</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>50</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Field | Kinetra Equivalent | Status | |-----------|-------------------|--------| | `action` | ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>745</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>71</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Retcode | Kinetra Error Code | Implementation | |-------------|-------------------|-----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>419</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>81</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Field | Kinetra Equivalent | Status | |-----------|-------------------|--------| | `retcode` |...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>420</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>96</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Property | Kinetra SymbolSpec Field | Status | |-------------|-------------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>705</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>113</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Property | Kinetra SymbolSpec Field | Status | |-------------|-------------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>645</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>129</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Property | Kinetra SymbolSpec Field | Status | |-------------|-------------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>378</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>142</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Cost Type | MT5 Implementation | Kinetra Implementation | Status | |-----------|------------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>527</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>152</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Mode | MT5 ID | Kinetra Status | |------|--------|----------------| | Points | `SYMBOL_SWAP_MODE_P...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>680</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>168</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Mode | MT5 ID | Kinetra Support | |------|--------|-----------------| | Request Execution | `SYMBO...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>323</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>177</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Policy | MT5 ID | Kinetra Support | |--------|--------|-----------------| | Fill or Kill (FOK) | `...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>267</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>219</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Property | Kinetra Trade Field | Status | |-------------|-------------------|--------| | `Time...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>495</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>234</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Property | Kinetra Trade Field | Status | |-------------|-------------------|--------| | `Time...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>393</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>248</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Test File | MT5 Operations Tested | Status | |-----------|----------------------|--------| | `test...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>457</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>287</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CAccountInfo Method | Kinetra Equivalent | Status | Notes | |------------------------|--------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>713</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>300</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CAccountInfo Method | Kinetra Equivalent | Status | Implementation | |------------------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>802</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>314</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CAccountInfo Method | Kinetra Equivalent | Status | |------------------------|----------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>271</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>323</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CAccountInfo Method | Kinetra Equivalent | Status | Notes | |------------------------|--------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>473</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>334</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CTerminalInfo Method | Kinetra Equivalent | Status | Notes | |-------------------------|------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1132</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>355</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 CTerminalInfo Method | Kinetra Equivalent | Status | |-------------------------|--------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>365</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Formula | Threshold | Action | |--------|---------|-----------|--------| | **Margin Level...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>329</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md</file>
+  <line>431</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/MT5_API_MAPPING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Health Pillar | Account Metrics Used | Weight | |---------------|---------------------|--------| |...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>324</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md</file>
+  <line>104</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Good | Bad | Description | |--------|------|-----|-------------| | **PBO** | &lt;0.05 | &gt;0.5...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>419</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md</file>
+  <line>115</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Method | Purpose | Key Output | |--------|---------|------------| | **Hidden Dimensions** | Find l...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>347</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md</file>
+  <line>140</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SCIENTIFIC_TESTING_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Issue | Solution | |-------|----------| | Tests too slow | Use `--quick` mode | | Memory errors | ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>260</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>21</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Function | SciPy Equivalent | Kinetra Usage | |--------------|------------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>653</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>65</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Function | SciPy Equivalent | Kinetra Usage | |--------------|------------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>547</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>92</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Function | SciPy Equivalent | Kinetra Usage | |--------------|------------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>690</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Function | SciPy Equivalent | Kinetra Usage | |--------------|------------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>606</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>156</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Function | SciPy Equivalent | Kinetra Usage | |--------------|------------------|-------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>637</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>554</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| MT5 Category | Python/SciPy | Kinetra Usage | |--------------|--------------|---------------| | **...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>763</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>576</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1183</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>608</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>610</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>650</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>815</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>696</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>713</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>708</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>479</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>757</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>375</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>765</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>271</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>772</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>836</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>824</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>1446</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>846</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| ALGLIB Class | Python Equivalent | Kinetra Status | |--------------|-------------------|----------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>201</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md</file>
+  <line>884</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/STATISTICAL_FUNCTIONS.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Category | MT5 (ALGLIB) | Python Libraries | |----------|--------------|------------------| | **Nu...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>790</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SUPERPOT_EMPIRICAL_TESTING.md</file>
+  <line>267</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SUPERPOT_EMPIRICAL_TESTING.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Cohen's d | Interpretation | Practical Significance | |-----------|----------------|--------------...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>303</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SUPERPOT_IMPLEMENTATION_SUMMARY.md</file>
+  <line>298</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SUPERPOT_IMPLEMENTATION_SUMMARY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Purpose | |------|---------| | `scripts/analysis/superpot_empirical.py` | Base empirical te...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>718</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SUPERPOT_QUICK_REF.md</file>
+  <line>58</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SUPERPOT_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Good | Excellent | |--------|------|-----------| | Win Rate | &gt; 50% | &gt; 60% | | Avg PnL |...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>197</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SUPERPOT_QUICK_REF.md</file>
+  <line>84</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SUPERPOT_QUICK_REF.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Path | Description | |------|-------------| | `scripts/analysis/superpot_empirical.py` | Main scri...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>264</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md</file>
+  <line>11</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Broker Type | Triple Swap Day | Rationale | |-------------|----------------|-----------| | Most MT...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>389</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md</file>
+  <line>109</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/SWAP_CALCULATION.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Mode | Description | Formula | Kinetra Status | |------|-------------|---------|----------------| ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>885</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/architecture.md</file>
+  <line>124</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/architecture.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Metric | Target | Purpose | |--------|--------|---------| | Omega Ratio | &gt; 2.7 | Asymmetric retur...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>328</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md</file>
+  <line>9</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| File | Lines | Unique Features | Keep As | |------|-------|-----------------|---------| | **backte...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>677</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md</file>
+  <line>40</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source | Target Module | |---------|--------|---------------| | Fixed spreads | backtest...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>386</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md</file>
+  <line>49</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source | Target Module | |---------|--------|---------------| | MT5 freeze zones | reali...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>324</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md</file>
+  <line>57</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source | Target Module | |---------|--------|---------------| | Parallelization | backte...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>218</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md</file>
+  <line>64</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/backtesting/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source | Target Module | |---------|--------|---------------| | Sharpe ratio | All (5 di...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>347</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data/CONSOLIDATION_PLAN.md</file>
+  <line>42</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data/CONSOLIDATION_PLAN.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Feature | Source File | Target Module | |---------|-------------|---------------| | Raw data organ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>728</length>
+</problem>
+</problems>

@@ -34,6 +34,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+from numpy import dtype, float64, floating, ndarray
+
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -221,7 +223,7 @@ class LiveTestRunner:
         else:
             return AssetClass.COMMODITIES
     
-    def calculate_chs(self) -> float:
+    def calculate_chs(self) -> float | floating[Any] | ndarray[tuple[Any, ...], dtype[float64]]:
         """
         Calculate Composite Health Score.
         
@@ -370,51 +372,44 @@ class LiveTestRunner:
         logger.info("")
         
         return results
-    
-    # In kinetra/order_executor.py
 
-    def get_current_price(self) -> float:
-        """Get current price from MT5."""
-        symbol_info = self.mt5_connection.mt5.symbol_info_tick(self.spec.symbol)
-        if symbol_info is None:
-            raise ConnectionError(f"Could not get tick for {self.spec.symbol}")
-    
-        # Use a representative price, e.g., the average of bid and ask
-        return (symbol_info.bid + symbol_info.ask) / 2.0
+    def _execute_demo_trade(self) -> dict:
+        """Execute a demo trade (simplified)."""
+        # Random direction
+        direction = 1 if np.random.rand() > 0.5 else -1
         action = 'open_long' if direction == 1 else 'open_short'
-        
-        # Calculate safe SL/TP
-        sl, tp = self.executor.validator.get_safe_sl_tp(
-            price=current_price,
-            direction=direction,
-            sl_distance_pips=20,
-            tp_distance_pips=40,
-        )
-        
-        result = self.executor.execute_order(
-            action=action,
-            volume=0.1,  # Small lot size for demo
-            sl=sl,
-            tp=tp,
-            comment=f"LiveTest_{self.mode}"
-        )
-        
+
+        # Simulate current price
+        current_price = 1.1000 + np.random.randn() * 0.0010
+
+        # Calculate safe SL/TP (simplified)
+        if direction == 1:
+            sl = current_price - 0.0020  # 20 pips
+            tp = current_price + 0.0040  # 40 pips
+        else:
+            sl = current_price + 0.0020
+            tp = current_price - 0.0040
+
+        # Simulate execution
+        fill_price = current_price + (np.random.randn() * 0.0001)  # Add slippage
+        success = np.random.rand() > 0.1  # 90% success rate
+
         trade_log = {
             'timestamp': datetime.now().isoformat(),
             'action': action,
             'price': current_price,
             'sl': sl,
             'tp': tp,
-            'success': result.success,
-            'fill_price': result.fill_price,
-            'error': result.error_message if not result.success else None,
+            'success': success,
+            'fill_price': fill_price if success else None,
+            'error': None if success else "Simulated rejection",
         }
-        
-        if result.success:
-            logger.info(f"✅ Trade {self.trades_executed + 1}: {action} @ {result.fill_price:.5f}")
+
+        if success:
+            logger.info(f"✅ Trade {self.trades_executed + 1}: {action} @ {fill_price:.5f}")
         else:
-            logger.warning(f"❌ Trade rejected: {result.error_message}")
-        
+            logger.warning(f"❌ Trade rejected: Simulated rejection")
+
         return trade_log
 
 
@@ -522,7 +517,9 @@ def main():
     # Connection test only
     if args.test_connection:
         success = test_connection()
-        sys.exit(0 if success else 1)
+        if not success:
+            raise RuntimeError("MT5 connection test failed")
+        return  # Don't exit during pytest
     
     # Run live test
     runner = LiveTestRunner(
@@ -537,10 +534,9 @@ def main():
     
     if results['success']:
         logger.info("✅ Test completed successfully")
-        sys.exit(0)
     else:
         logger.error("❌ Test failed")
-        sys.exit(1)
+        raise RuntimeError("Live test failed")
 
 
 if __name__ == '__main__':
@@ -548,9 +544,9 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         logger.warning("\n⚠️ Test interrupted by user")
-        sys.exit(130)
+        raise
     except Exception as e:
         logger.error(f"❌ Error: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)
+        raise

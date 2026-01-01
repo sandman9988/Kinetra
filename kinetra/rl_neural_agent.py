@@ -13,9 +13,11 @@ Output: Q-values for each action
 """
 
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Any
 from dataclasses import dataclass
 import pickle
+
+from numpy import floating
 
 
 @dataclass
@@ -198,7 +200,7 @@ class NeuralAgent:
 
         return loss
 
-    def _backward(self, states: np.ndarray, targets: np.ndarray) -> float:
+    def _backward(self, states: np.ndarray, targets: np.ndarray) -> floating[Any]:
         """Backward pass with gradient descent."""
         batch_size = states.shape[0]
 

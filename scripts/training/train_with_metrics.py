@@ -134,6 +134,7 @@ def train_with_metrics(data_path: str, n_episodes: int = 1000, metrics_port: int
         done = False
         while not done:
             # Epsilon-greedy action selection
+            action = 0  # Initialize before conditional block
             if np.random.random() < epsilon:
                 action = np.random.randint(0, action_dim)
             else:

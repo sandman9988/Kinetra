@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/requirements.txt</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/requirements.txt" />
+  <problem_class id="OutdatedRequirementInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Requirement is outdated</problem_class>
+  <description>'hypothesis' version (!) is outdated (latest: 6.148.8)</description>
+  <highlighted_element>hypothesis&gt;=6.75.0</highlighted_element>
+  <language>Requirements</language>
+  <offset>0</offset>
+  <length>18</length>
+</problem>
+</problems>

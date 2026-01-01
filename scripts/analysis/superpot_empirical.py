@@ -37,6 +37,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
+from numpy import dtype, ndarray
+from numpy._core.multiarray import _ScalarT
 from scipy import stats
 
 warnings.filterwarnings('ignore')
@@ -154,7 +156,8 @@ class UnifiedMeasurementExtractor:
         
         return np.array(features, dtype=np.float32)
     
-    def _extract_minimal(self, df: pd.DataFrame, idx: int) -> List[float]:
+    def _extract_minimal(self, df: pd.DataFrame, idx: int) -> ndarray[tuple[Any, ...], dtype[_ScalarT]] | ndarray[
+        tuple[Any, ...], dtype[_ScalarT]] | ndarray[tuple[Any, ...], dtype[Any]]:
         """Minimal feature extraction if extractors not available."""
         window = df.iloc[max(0, idx - self.lookback):idx + 1]
         

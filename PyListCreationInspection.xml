@@ -1,0 +1,110 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>428</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>steps = []</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_loader.py</file>
+  <line>468</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_loader.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>steps = []</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/env_manager.py</file>
+  <line>322</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/env_manager.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>lines = [&quot;=&quot; * 60, &quot;ENVIRONMENT REPORT&quot;, &quot;=&quot; * 60]</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>50</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/git_sync.py</file>
+  <line>281</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/git_sync.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>lines = [&quot;=&quot; * 60, &quot;GIT SYNC STATUS&quot;, &quot;=&quot; * 60]</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>47</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/devops/security.py</file>
+  <line>288</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/devops/security.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>lines = [&quot;=&quot; * 70, &quot;SECURITY SCAN REPORT&quot;, &quot;=&quot; * 70]</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>52</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/exploration_integration.py</file>
+  <line>507</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/exploration_integration.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>lines = [ &quot;=&quot; * 70, &quot; EXPLORATION DISCOVERIES&quot;, &quot;=&quot; * 70, ...</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>120</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/validate_theorems.py</file>
+  <line>125</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/validate_theorems.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>results = []</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics.py</file>
+  <line>447</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>report = []</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/test_menu_system.py</file>
+  <line>197</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/test_menu_system.py" />
+  <problem_class id="PyListCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Non-optimal list declaration</problem_class>
+  <description>Multi-step list initialization can be replaced with a list literal</description>
+  <highlighted_element>results = []</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>12</length>
+</problem>
+</problems>

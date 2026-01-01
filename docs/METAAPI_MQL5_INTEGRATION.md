@@ -15,7 +15,7 @@ The BacktestEngine has been enhanced to ensure seamless integration with MetaAPI
 
 ```python
 # MetaAPI connection in MT5Bridge
-async def _connect_metaapi_async(self) -> bool:
+async def _connect_metaapi_async(self) -> None:
     from metaapi_cloud_sdk import MetaApi
     
     self.metaapi = MetaApi(token=self.token)

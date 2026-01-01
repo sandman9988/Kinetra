@@ -125,6 +125,7 @@ class OrderValidator:
                 return freeze_check
 
         # 4. Check stop loss distance
+        sl_check = None
         if sl is not None:
             sl_check = self._validate_stop_distance(price, sl, 'SL')
             if not sl_check.is_valid:
@@ -135,6 +136,7 @@ class OrderValidator:
                     return sl_check
 
         # 5. Check take profit distance
+        tp_check = None
         if tp is not None:
             tp_check = self._validate_stop_distance(price, tp, 'TP')
             if not tp_check.is_valid:
@@ -149,8 +151,8 @@ class OrderValidator:
             is_valid=True,
             error_code=ValidationResult.SUCCESS,
             error_message="",
-            adjusted_sl=sl_check.adjusted_sl if sl is not None and hasattr(sl_check, 'adjusted_sl') else None,
-            adjusted_tp=tp_check.adjusted_tp if tp is not None and hasattr(tp_check, 'adjusted_tp') else None,
+            adjusted_sl=sl_check.adjusted_sl if sl_check is not None and hasattr(sl_check, 'adjusted_sl') else None,
+            adjusted_tp=tp_check.adjusted_tp if tp_check is not None and hasattr(tp_check, 'adjusted_tp') else None,
         )
 
     def _validate_trade_mode(self, action: str) -> OrderValidation:

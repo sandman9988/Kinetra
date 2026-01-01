@@ -15,11 +15,13 @@ import pandas as pd
 try:
     from stable_baselines3 import SAC
     import gymnasium
+    SB3_AVAILABLE = True
     print("[OK] stable-baselines3 and gymnasium available")
 except ImportError as e:
-    print(f"[ERROR] Missing dependency: {e}")
-    print("Install with: pip install stable-baselines3 gymnasium")
-    sys.exit(1)
+    SB3_AVAILABLE = False
+    SAC = None
+    gymnasium = None
+    # Don't exit during import - let tests check SB3_AVAILABLE
 
 from rl_exploration_framework import (
     create_sb3_agent,
@@ -39,8 +41,7 @@ def load_first_dataset():
     """Load first available dataset."""
     csv_files = list(DATA_DIR.glob("*.csv"))
     if not csv_files:
-        print(f"[ERROR] No CSV files in {DATA_DIR}")
-        sys.exit(1)
+        raise FileNotFoundError(f"No CSV files in {DATA_DIR}")
 
     # Pick a medium-sized file
     csv_file = sorted(csv_files, key=lambda x: x.stat().st_size)[len(csv_files)//2]
@@ -210,6 +211,7 @@ def main():
     for ep in range(5):
         obs, _ = env.reset()
         episode_reward = 0
+        info = {}  # Initialize before the loop
 
         for _ in range(env.max_steps):
             action = agent.get_continuous_action(obs, deterministic=True)

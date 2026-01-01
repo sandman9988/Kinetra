@@ -12,8 +12,12 @@ import time
 import warnings
 from pathlib import Path
 from datetime import datetime
+from typing import Any
+
 import numpy as np
 import pandas as pd
+from numpy import bool, dtype, ndarray, signedinteger, unsignedinteger
+from numpy._typing import _16Bit, _32Bit, _64Bit, _8Bit
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 warnings.filterwarnings('ignore')
@@ -135,7 +139,28 @@ class LinearQAgent:
     def get_q_values(self, state: np.ndarray) -> np.ndarray:
         return state @ self.W + self.b
     
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> int | bool | bool | unsignedinteger[_8Bit] | \
+                                                               unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | \
+                                                               unsignedinteger[_32Bit | _64Bit] | unsignedinteger[
+                                                                   _64Bit] | signedinteger[_8Bit] | signedinteger[
+                                                                   _16Bit] | signedinteger[_32Bit] | signedinteger[
+                                                                   _32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[
+                                                                   tuple[Any, ...], dtype[
+                                                                       signedinteger[_32Bit | _64Bit]]] | ndarray[
+                                                                   tuple[Any, ...], dtype[bool]] | ndarray[
+                                                                   tuple[Any, ...], dtype[signedinteger[_8Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[
+                                                                   unsignedinteger[_32Bit | _64Bit]]]:
         if training and np.random.random() < self.epsilon:
             return np.random.randint(self.n_actions)
         return np.argmax(self.get_q_values(state))
@@ -183,7 +208,28 @@ class TabularQAgent:
             self.Q[key] = np.zeros(self.n_actions)
         return self.Q[key]
     
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> int | bool | bool | unsignedinteger[_8Bit] | \
+                                                               unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | \
+                                                               unsignedinteger[_32Bit | _64Bit] | unsignedinteger[
+                                                                   _64Bit] | signedinteger[_8Bit] | signedinteger[
+                                                                   _16Bit] | signedinteger[_32Bit] | signedinteger[
+                                                                   _32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[
+                                                                   tuple[Any, ...], dtype[
+                                                                       signedinteger[_32Bit | _64Bit]]] | ndarray[
+                                                                   tuple[Any, ...], dtype[bool]] | ndarray[
+                                                                   tuple[Any, ...], dtype[signedinteger[_8Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[
+                                                                   unsignedinteger[_32Bit | _64Bit]]]:
         if training and np.random.random() < self.epsilon:
             return np.random.randint(self.n_actions)
         return np.argmax(self.get_q_values(state))
@@ -287,14 +333,29 @@ class TradingEnv:
 # TRAINING
 # =============================================================================
 
-def train_agent(agent, env: TradingEnv, episodes: int = 20, max_steps: int = 1000):
-    """Train agent and return metrics."""
-    
+def train_agent(agent, env: TradingEnv, episodes: int = 20, max_steps: int = 1000,
+                start_bars: list = None):
+    """
+    Train agent and return metrics.
+
+    Args:
+        agent: Agent to train
+        env: Trading environment
+        episodes: Number of training episodes
+        max_steps: Max steps per episode
+        start_bars: Fixed start positions for each episode (for fair comparison).
+                   If None, uses random starts (NOT comparable across agents!)
+    """
+
     episode_rewards = []
     episode_trades = []
-    
+
     for ep in range(episodes):
-        state = env.reset(start_bar=np.random.randint(20, len(env.data) - max_steps - 10))
+        if start_bars is not None:
+            start_bar = start_bars[ep]
+        else:
+            start_bar = np.random.randint(20, len(env.data) - max_steps - 10)
+        state = env.reset(start_bar=start_bar)
         total_reward = 0
         
         for step in range(max_steps):
@@ -320,14 +381,26 @@ def train_agent(agent, env: TradingEnv, episodes: int = 20, max_steps: int = 100
     }
 
 
-def evaluate_agent(agent, env: TradingEnv, episodes: int = 5) -> dict:
-    """Evaluate trained agent."""
-    
+def evaluate_agent(agent, env: TradingEnv, episodes: int = 5, start_bars: list = None) -> dict:
+    """
+    Evaluate trained agent.
+
+    Args:
+        agent: Agent to evaluate
+        env: Trading environment
+        episodes: Number of evaluation episodes
+        start_bars: Fixed start positions for each episode (for fair comparison).
+                   If None, uses random starts (NOT comparable across agents!)
+    """
+
     returns = []
     all_trades = []
-    
+
     for ep in range(episodes):
-        start = np.random.randint(20, len(env.data) - 1000)
+        if start_bars is not None:
+            start = start_bars[ep]
+        else:
+            start = np.random.randint(20, len(env.data) - 1000)
         state = env.reset(start_bar=start)
         
         for _ in range(1000):

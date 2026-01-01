@@ -1,0 +1,26 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py</file>
+  <line>267</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_framework_integration.py" />
+  <problem_class id="PyTupleAssignmentBalanceInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Tuple assignment balance is incorrect</problem_class>
+  <description>Need more values to unpack</description>
+  <highlighted_element>env.step(1)</highlighted_element>
+  <language>Python</language>
+  <offset>52</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/tests/btc_h1_physics_working.py</file>
+  <line>153</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/tests/btc_h1_physics_working.py" />
+  <problem_class id="PyTupleAssignmentBalanceInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Tuple assignment balance is incorrect</problem_class>
+  <description>Too many values to unpack</description>
+  <highlighted_element>curve_fit(exp_func, t, series, p0=(1, -0.01))</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>45</length>
+</problem>
+</problems>

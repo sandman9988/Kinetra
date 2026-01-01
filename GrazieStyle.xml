@@ -1,0 +1,86 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md</file>
+  <line>365</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/FINAL_IMPLEMENTATION_REPORT.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>36</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>6</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>19</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md</file>
+  <line>218</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/IMPLEMENTATION_COMPLETE_SUMMARY.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>36</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md</file>
+  <line>424</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/TESTING_INFRASTRUCTURE_GUIDE.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>29</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/docs/BACKTEST_ENGINE_IMPROVEMENTS.md</file>
+  <line>334</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/docs/BACKTEST_ENGINE_IMPROVEMENTS.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>In American English, abbreviations like &quot;etc.&quot; require a period.</description>
+  <highlighted_element>etc</highlighted_element>
+  <language>Markdown</language>
+  <offset>177</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/symbol_info.py</file>
+  <line>31</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/symbol_info.py" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>In American English, abbreviations like &quot;etc.&quot; require a period.</description>
+  <highlighted_element>etc</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explorer_standalone.py</file>
+  <line>7</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explorer_standalone.py" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Inconsistent sentence capitalization</description>
+  <highlighted_element>py</highlighted_element>
+  <language>Python</language>
+  <offset>0</offset>
+  <length>2</length>
+</problem>
+</problems>

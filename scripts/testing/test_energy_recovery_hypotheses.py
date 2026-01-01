@@ -17,11 +17,71 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from itertools import product
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kinetra.mt5_connector import load_csv_data
 from kinetra.physics_engine import PhysicsEngine
+
+
+@pytest.fixture
+def df():
+    """Load test market data with physics features."""
+    project_root = Path(__file__).parent.parent
+    csv_files = list(project_root.glob("*BTCUSD*.csv"))
+
+    if not csv_files:
+        # Return synthetic data if no real data available
+        dates = pd.date_range('2024-01-01', periods=1000, freq='1h')
+        data = pd.DataFrame({
+            'open': [50000 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'high': [50100 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'low': [49900 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'close': [50000 + i*10 + np.random.randn()*100 for i in range(1000)],
+            'volume': [1000 + i + np.random.randn()*50 for i in range(1000)]
+        }, index=dates)
+    else:
+        data = load_csv_data(str(csv_files[0]))
+
+    # Compute physics
+    engine = PhysicsEngine(lookback=20)
+    physics = engine.compute_physics_state(data['close'], data['volume'], include_percentiles=True)
+
+    data['energy'] = compute_energy(data['close'], lookback=20)
+    data['energy_pct'] = physics['energy_pct']
+    data['damping_pct'] = physics['damping_pct']
+    data['atr'] = compute_atr(data, period=14)
+    data['momentum_5'] = data['close'].pct_change(5)
+    data['counter_direction'] = -np.sign(data['momentum_5'])
+
+    # Flow consistency
+    data['return_sign'] = np.sign(data['close'].pct_change())
+    data['flow_consistency'] = data['return_sign'].rolling(5).apply(
+        lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False
+    ).fillna(0.5)
+
+    # Volume percentile
+    vol_window = min(500, len(data))
+    data['volume_pct'] = data['volume'].rolling(vol_window).apply(
+        lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+    ).fillna(0.5)
+
+    return data.dropna()
+
+
+@pytest.fixture
+def signals(df):
+    """Generate berserker+ signals for testing."""
+    berserker = (df['energy_pct'] > 0.75) & (df['damping_pct'] < 0.25)
+    berserker_plus = berserker & (df['flow_consistency'] > 0.7) & (df['volume_pct'] > 0.6)
+    return df[berserker_plus].index
+
+
+@pytest.fixture
+def direction_col():
+    """Direction column name for tests."""
+    return 'counter_direction'
 
 
 def compute_energy(close: pd.Series, lookback: int = 20) -> pd.Series:
@@ -109,7 +169,7 @@ def simulate_trade_with_ars(
     return rewards
 
 
-def test_hypothesis_1_energy_efficiency(df: pd.DataFrame, signals: pd.Index, direction_col: str):
+def test_hypothesis_1_energy_efficiency(df, signals, direction_col):
     """
     Test Hypothesis 1: Energy extraction efficiency η = 68% achievable
 
@@ -162,7 +222,7 @@ def test_hypothesis_1_energy_efficiency(df: pd.DataFrame, signals: pd.Index, dir
     print(f"  Status: {'SUPPORTED' if 0.5 < overall_eta < 0.9 else 'NEEDS CALIBRATION'}")
 
 
-def test_hypothesis_2_ars_weights(df: pd.DataFrame, signals: pd.Index, direction_col: str):
+def test_hypothesis_2_ars_weights(df, signals, direction_col):
     """
     Test Hypothesis 2: Optimal ARS weights (α, β, γ)
 
@@ -236,7 +296,7 @@ def test_hypothesis_2_ars_weights(df: pd.DataFrame, signals: pd.Index, direction
         print(f"    Omega ratio:      {best['omega']:.2f}" if best['omega'] != float('inf') else "    Omega ratio:      inf")
 
 
-def test_hypothesis_3_atr_normalization(df: pd.DataFrame, signals: pd.Index, direction_col: str):
+def test_hypothesis_3_atr_normalization(df, signals, direction_col):
     """
     Test Hypothesis 3: ATR normalization improves regime-invariance
     """
@@ -315,7 +375,7 @@ def test_hypothesis_3_atr_normalization(df: pd.DataFrame, signals: pd.Index, dir
     print(f"  Variance reduction: {(1 - cv_norm/cv_raw)*100:.1f}%" if cv_raw > 0 else "")
 
 
-def test_hypothesis_4_time_penalty(df: pd.DataFrame, signals: pd.Index, direction_col: str):
+def test_hypothesis_4_time_penalty(df, signals, direction_col):
     """
     Test Hypothesis 4: Time penalty reduces overholding losses
     """
@@ -339,6 +399,7 @@ def test_hypothesis_4_time_penalty(df: pd.DataFrame, signals: pd.Index, directio
             entry_price = df.iloc[idx]['close']
             best_bar = 1
             best_score = float('-inf')
+            best_pnl = 0.0  # Initialize before the inner loop
 
             for exit_bar in range(1, 11):
                 if idx + exit_bar >= len(df):

@@ -1,0 +1,194 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_utils.py</file>
+  <line>481</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_utils.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'format'</description>
+  <highlighted_element>format</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>90</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>146</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>218</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>276</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>336</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>396</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>409</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>472</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/grafana/dashboards.py</file>
+  <line>516</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/grafana/dashboards.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'id'</description>
+  <highlighted_element>id</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/dashboard.py</file>
+  <line>29</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/dashboard.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'format'</description>
+  <highlighted_element>format</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>394</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'exit'</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>421</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'exit'</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>436</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'exit'</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>461</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'exit'</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/verify_calculations.py</file>
+  <line>478</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/verify_calculations.py" />
+  <problem_class id="PyShadowingBuiltinsInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Shadowing built-in names</problem_class>
+  <description>Shadows built-in name 'exit'</description>
+  <highlighted_element>exit</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>4</length>
+</problem>
+</problems>

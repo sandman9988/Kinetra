@@ -400,7 +400,7 @@ class TradingCostCalculator:
         self.calendar = swap_calendar or SwapCalendar(spec.swap.triple_swap_day)
         self.use_decimal = use_decimal_precision
     
-    def _to_decimal(self, value: float) -> Decimal:
+    def _to_decimal(self, value: float) -> Decimal | float:
         """Convert to Decimal for precision."""
         if self.use_decimal:
             return Decimal(str(value))

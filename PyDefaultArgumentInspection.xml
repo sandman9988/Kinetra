@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/download/download_market_data.py</file>
+  <line>324</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/download/download_market_data.py" />
+  <problem_class id="PyDefaultArgumentInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">The default argument is mutable</problem_class>
+  <description>Default argument value is mutable</description>
+  <highlighted_element>TIMEFRAMES</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>10</length>
+</problem>
+</problems>

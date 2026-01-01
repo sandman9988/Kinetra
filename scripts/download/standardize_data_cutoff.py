@@ -258,11 +258,12 @@ def truncate_to_cutoff(
                     start_str = start_dt.strftime("%Y%m%d%H%M")
                     new_filename = f"{instrument}_{timeframe}_{start_str}_{new_end_str}.csv"
 
-                    # Save in same tab-separated format
-                    # Restore original column format
-                    df_truncated = df_truncated.drop(columns=['datetime'], errors='ignore')
-                    df_truncated.columns = ['<' + c.upper() + '>' for c in df_truncated.columns]
-                    df_truncated.to_csv(output_path / new_filename, sep='\t', index=False)
+                    if not dry_run:
+                        # Save in same tab-separated format
+                        # Restore original column format
+                        df_truncated = df_truncated.drop(columns=['datetime'], errors='ignore')
+                        df_truncated.columns = ['<' + c.upper() + '>' for c in df_truncated.columns]
+                        df_truncated.to_csv(output_path / new_filename, sep='\t', index=False)
 
                 rows_before = "?" if dry_run else len(pd.read_csv(csv_file))
                 rows_after = "?" if dry_run else len(df_truncated)

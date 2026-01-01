@@ -1,0 +1,756 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>38</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'sample_entropy_fast' is not declared in __all__</description>
+  <highlighted_element>sample_entropy_fast</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>39</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'recurrence_matrix_fast' is not declared in __all__</description>
+  <highlighted_element>recurrence_matrix_fast</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>40</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'determinism_fast' is not declared in __all__</description>
+  <highlighted_element>determinism_fast</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/assumption_free_measures.py</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/assumption_free_measures.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'extract_recurrence_features_fast' is not declared in __all__</description>
+  <highlighted_element>extract_recurrence_features_fast</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/berserker_strategy.py</file>
+  <line>752</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/berserker_strategy.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _calc_mfe_captured of a class</description>
+  <highlighted_element>energy_exit._calc_mfe_captured</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>26</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _typing of a module</description>
+  <highlighted_element>numpy._typing</highlighted_element>
+  <language>Python</language>
+  <offset>5</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>27</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'_ScalarT' is not declared in __all__</description>
+  <highlighted_element />
+  <language />
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/dsp_features.py</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/dsp_features.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'sample_entropy_fast' is not declared in __all__</description>
+  <highlighted_element>sample_entropy_fast</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>583</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _lock of a class</description>
+  <highlighted_element>self._cache._lock</highlighted_element>
+  <language>Python</language>
+  <offset>13</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>584</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _cache of a class</description>
+  <highlighted_element>self._cache._cache</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/performance.py</file>
+  <line>586</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _cache of a class</description>
+  <highlighted_element>self._cache._cache</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>16</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'Backtest' is not declared in __all__</description>
+  <highlighted_element>Backtest</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>16</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'Strategy' is not declared in __all__</description>
+  <highlighted_element>Strategy</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>858</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _strategy of a class</description>
+  <highlighted_element>stats._strategy</highlighted_element>
+  <language>Python</language>
+  <offset>55</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_backtester.py</file>
+  <line>859</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_backtester.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _strategy of a class</description>
+  <highlighted_element>stats._strategy</highlighted_element>
+  <language>Python</language>
+  <offset>45</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>357</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'rolling_entropy_vectorized' is not declared in __all__</description>
+  <highlighted_element>rolling_entropy_vectorized</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/physics_engine.py</file>
+  <line>474</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/physics_engine.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'rolling_percentile_vectorized' is not declared in __all__</description>
+  <highlighted_element>rolling_percentile_vectorized</highlighted_element>
+  <language>Python</language>
+  <offset>37</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>10</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'Backtest' is not declared in __all__</description>
+  <highlighted_element>Backtest</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/strategies_v7.py</file>
+  <line>10</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/strategies_v7.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'Strategy' is not declared in __all__</description>
+  <highlighted_element>Strategy</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/triad_system.py</file>
+  <line>32</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/triad_system.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _typing of a module</description>
+  <highlighted_element>numpy._typing</highlighted_element>
+  <language>Python</language>
+  <offset>5</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>527</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _emergency_save of a class</description>
+  <highlighted_element>self.persistence._emergency_save</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py</file>
+  <line>33</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_complete.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _typing of a module</description>
+  <highlighted_element>numpy._typing</highlighted_element>
+  <language>Python</language>
+  <offset>5</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py</file>
+  <line>41</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/analysis/superpot_empirical.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'_ScalarT' is not declared in __all__</description>
+  <highlighted_element>_ScalarT</highlighted_element>
+  <language>Python</language>
+  <offset>35</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>80</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'sample_entropy_fast' is not declared in __all__</description>
+  <highlighted_element>sample_entropy_fast</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>80</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'check_numba_available' is not declared in __all__</description>
+  <highlighted_element>check_numba_available</highlighted_element>
+  <language>Python</language>
+  <offset>61</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>141</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'recurrence_matrix_fast' is not declared in __all__</description>
+  <highlighted_element>recurrence_matrix_fast</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>207</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'rolling_percentile_vectorized' is not declared in __all__</description>
+  <highlighted_element>rolling_percentile_vectorized</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>348</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'check_numba_available' is not declared in __all__</description>
+  <highlighted_element>check_numba_available</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/benchmark_performance.py</file>
+  <line>348</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/benchmark_performance.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'print_performance_info' is not declared in __all__</description>
+  <highlighted_element>print_performance_info</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/fix_silent_failures.py</file>
+  <line>381</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/fix_silent_failures.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'InstrumentData' is not declared in __all__</description>
+  <highlighted_element>InstrumentData</highlighted_element>
+  <language>Python</language>
+  <offset>56</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>97</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _trades of a class</description>
+  <highlighted_element>stats._trades</highlighted_element>
+  <language>Python</language>
+  <offset>40</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>97</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _trades of a class</description>
+  <highlighted_element>stats._trades</highlighted_element>
+  <language>Python</language>
+  <offset>69</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>100</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _trades of a class</description>
+  <highlighted_element>stats._trades</highlighted_element>
+  <language>Python</language>
+  <offset>15</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>309</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _equity_curve of a class</description>
+  <highlighted_element>stats._equity_curve</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>297</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>298</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>299</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>300</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>301</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>302</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>303</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>304</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>305</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>306</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>307</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>308</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>415</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>416</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>417</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>421</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>422</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>433</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>434</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py</file>
+  <line>435</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_exploration_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _log of a class</description>
+  <highlighted_element>logger._log</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_full_backtest.py</file>
+  <line>228</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_full_backtest.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _equity_curve of a class</description>
+  <highlighted_element>stats._equity_curve</highlighted_element>
+  <language>Python</language>
+  <offset>25</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py</file>
+  <line>475</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_backtest_trend.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _open_position of a class</description>
+  <highlighted_element>engine._open_position</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>36</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'PortfolioHealthMonitor' is not declared in __all__</description>
+  <highlighted_element>PortfolioHealthMonitor</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>37</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'HealthState' is not declared in __all__</description>
+  <highlighted_element>HealthState</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>397</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'PortfolioHealthMonitor' is not declared in __all__</description>
+  <highlighted_element>PortfolioHealthMonitor</highlighted_element>
+  <language>Python</language>
+  <offset>12</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>405</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>'__all__' is not declared in __all__</description>
+  <highlighted_element>__all__</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py</file>
+  <line>21</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/pathfinder_explore.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _typing of a module</description>
+  <highlighted_element>numpy._typing</highlighted_element>
+  <language>Python</language>
+  <offset>5</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/quick_rl_test.py</file>
+  <line>20</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/quick_rl_test.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _typing of a module</description>
+  <highlighted_element>numpy._typing</highlighted_element>
+  <language>Python</language>
+  <offset>5</offset>
+  <length>13</length>
+</problem>
+</problems>

@@ -511,6 +511,7 @@ def train_timeframe(
 
         while not done:
             # Action selection
+            action = 0  # Initialize before conditional block
             if np.random.random() < epsilon:
                 action = np.random.randint(0, action_dim)
             else:

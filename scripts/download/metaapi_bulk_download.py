@@ -9,6 +9,8 @@ import sys
 import os
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import Any
+
 import pandas as pd
 import asyncio
 import json
@@ -89,7 +91,7 @@ ASSET_CLASS_PATTERNS = {
 TIMEFRAMES = ['1h', '4h']  # H1 and H4
 
 
-def classify_symbol(symbol: str) -> str:
+def classify_symbol(symbol: str) -> str | None:
     """Classify a symbol into an asset class based on patterns."""
     import re
     symbol_upper = symbol.upper().rstrip('+')  # Remove ECN suffix for matching
@@ -169,7 +171,7 @@ SYMBOL_ALIASES = {
 }
 
 
-def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> str:
+def find_symbol_match(target: str, available: list, prefer_ecn: bool = True) -> str | None | Any:
     """
     Find matching symbol from available list with comprehensive alias support.
 
@@ -316,6 +318,7 @@ async def download_one(
             chunk_num = 0
 
             while chunk_start < chunk_end:
+                candles = None  # Initialize before retry loop
                 for retry in range(max_retries):
                     try:
                         candles = await account.get_historical_candles(

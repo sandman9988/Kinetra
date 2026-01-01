@@ -1,0 +1,398 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>108</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>FuncFormatter(currency_formatter)</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>205</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>FuncFormatter(currency_formatter)</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>275</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>FuncFormatter(currency_formatter)</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/plotting.py</file>
+  <line>343</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/plotting.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>FuncFormatter(currency_formatter)</highlighted_element>
+  <language>Python</language>
+  <offset>34</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework.py</file>
+  <line>697</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>SpreadGate(symbol=self.symbol)</highlighted_element>
+  <language>Python</language>
+  <offset>31</offset>
+  <length>30</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>77</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.feature_net(state)</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>229</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.value_net(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>230</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.value_net(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>270</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.value_net(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>293</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.value_net(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>20</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>409</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q1_target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>410</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q2_target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>420</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q1(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>421</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q2(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q1(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>438</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q2(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>48</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>463</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q1(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>464</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.q2(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>540</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.actor(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>577</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.actor_target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>32</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>581</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic1_target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>34</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>582</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic2_target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>34</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>594</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic1(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>595</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic2(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>18</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>615</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.actor(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>28</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>617</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic1(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>646</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic1(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/rl_exploration_framework_agents.py</file>
+  <line>647</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/rl_exploration_framework_agents.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'MLPNetwork' object is not callable</description>
+  <highlighted_element>self.critic2(state_tensor)</highlighted_element>
+  <language>Python</language>
+  <offset>17</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/multi_tf_test.py</file>
+  <line>77</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/multi_tf_test.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'tqdm' is not callable</description>
+  <highlighted_element>tqdm(pool.imap(process_group, args_list), total=len(args_list), desc=&quot;Processing groups&quot;)</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>89</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py</file>
+  <line>47</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_metaapi_auth.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>MetaApi(api_token)</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>572</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'SimplePolicy' object is not callable</description>
+  <highlighted_element>self.policy(state_t)</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>592</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'SimplePolicy' object is not callable</description>
+  <highlighted_element>self.policy(states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>23</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/train_rl.py</file>
+  <line>596</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/train_rl.py" />
+  <problem_class id="PyCallingNonCallableInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Attempt to call a non-callable object</problem_class>
+  <description>'None' object is not callable</description>
+  <highlighted_element>self.target(next_states_t)</highlighted_element>
+  <language>Python</language>
+  <offset>32</offset>
+  <length>26</length>
+</problem>
+</problems>

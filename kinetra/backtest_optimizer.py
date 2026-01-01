@@ -29,6 +29,7 @@ from enum import Enum, auto
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from numpy import floating
 from scipy import stats
 from scipy.optimize import minimize
 
@@ -1010,7 +1011,7 @@ class RewardShaper:
         self,
         rewards: List[float],
         returns: np.ndarray,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float | int | floating[Any]]:
         """
         Calculate metrics for reward shaping evaluation.
         

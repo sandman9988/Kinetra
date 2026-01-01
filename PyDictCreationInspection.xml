@@ -1,0 +1,74 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/data_alignment.py</file>
+  <line>273</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/data_alignment.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>result = {}</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/regime_filtered_env.py</file>
+  <line>309</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/regime_filtered_env.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>specialists = {}</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra_menu.py</file>
+  <line>1396</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra_menu.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>config = {}</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py</file>
+  <line>225</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/research/measurement_toolkit.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>stats = {}</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py</file>
+  <line>170</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/run_comprehensive_backtest.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>metrics = {}</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py</file>
+  <line>444</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/training/explore_compare_agents.py" />
+  <problem_class id="PyDictCreationInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Dictionary creation can be rewritten by dictionary literal</problem_class>
+  <description>This dictionary creation could be rewritten as a dictionary literal</description>
+  <highlighted_element>agents = {}</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>11</length>
+</problem>
+</problems>

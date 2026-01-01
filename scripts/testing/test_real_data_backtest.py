@@ -275,7 +275,7 @@ class AccurateBacktester:
         price: float,
         timestamp: datetime,
         reason: str = "signal",
-    ) -> Trade:
+    ) -> Trade | None:
         """Close current position."""
         if self.position is None:
             return None
@@ -333,7 +333,7 @@ class AccurateBacktester:
         
         self.equity_curve.append((timestamp, self.equity))
     
-    def check_sl_tp(self, high: float, low: float) -> str:
+    def check_sl_tp(self, high: float, low: float) -> str | None:
         """Check if SL or TP was hit."""
         if self.position is None:
             return None
@@ -821,12 +821,13 @@ def main():
             n_iterations=15,
         )
         bayes_time = time.time() - start_time
-        
+
+        bayes_results = None  # Initialize before conditional block
         if bayes_params:
             print(f"  Completed in {bayes_time:.2f}s")
             print(f"  Best params: fast={bayes_params['fast_period']}, slow={bayes_params['slow_period']}, atr_mult={bayes_params['atr_multiplier']:.2f}")
             print(f"  Best score: {bayes_score:.2f}")
-            
+
             # Run with optimized params
             bayes_results = run_backtest(
                 data=test_data,
@@ -838,7 +839,7 @@ def main():
             )
             print(f"  Optimized Return: {bayes_results['total_return_pct']:.2f}%")
             print(f"  Optimized Win Rate: {bayes_results['win_rate']:.1f}%")
-        
+
         # =================================================================
         # 3. Genetic Optimization
         # =================================================================
@@ -851,12 +852,13 @@ def main():
             generations=8,
         )
         genetic_time = time.time() - start_time
-        
+
+        genetic_results = None  # Initialize before conditional block
         if genetic_params:
             print(f"  Completed in {genetic_time:.2f}s")
             print(f"  Best params: fast={genetic_params['fast_period']}, slow={genetic_params['slow_period']}, atr_mult={genetic_params['atr_multiplier']:.2f}")
             print(f"  Best score: {genetic_score:.2f}")
-            
+
             # Run with optimized params
             genetic_results = run_backtest(
                 data=test_data,
@@ -868,15 +870,15 @@ def main():
             )
             print(f"  Optimized Return: {genetic_results['total_return_pct']:.2f}%")
             print(f"  Optimized Win Rate: {genetic_results['win_rate']:.1f}%")
-        
+
         # Store summary
         results_summary.append({
             'symbol': config['name'],
             'baseline_return': baseline_results['total_return_pct'],
             'baseline_trades': baseline_results['total_trades'],
             'total_costs': baseline_results['total_costs'],
-            'bayes_return': bayes_results['total_return_pct'] if bayes_params else 0,
-            'genetic_return': genetic_results['total_return_pct'] if genetic_params else 0,
+            'bayes_return': bayes_results['total_return_pct'] if bayes_results else 0,
+            'genetic_return': genetic_results['total_return_pct'] if genetic_results else 0,
         })
     
     # =================================================================

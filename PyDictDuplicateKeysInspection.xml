@@ -1,0 +1,50 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/__init__.py</file>
+  <line>129</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/__init__.py" />
+  <problem_class id="PyDictDuplicateKeysInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Dictionary contains duplicate keys</problem_class>
+  <description>Dictionary contains duplicate keys 'Position'</description>
+  <highlighted_element>&quot;Position&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/__init__.py</file>
+  <line>144</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/__init__.py" />
+  <problem_class id="PyDictDuplicateKeysInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Dictionary contains duplicate keys</problem_class>
+  <description>Dictionary contains duplicate keys 'RegimeState'</description>
+  <highlighted_element>&quot;RegimeState&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/__init__.py</file>
+  <line>222</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/__init__.py" />
+  <problem_class id="PyDictDuplicateKeysInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Dictionary contains duplicate keys</problem_class>
+  <description>Dictionary contains duplicate keys 'RegimeState'</description>
+  <highlighted_element>&quot;RegimeState&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/__init__.py</file>
+  <line>249</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/__init__.py" />
+  <problem_class id="PyDictDuplicateKeysInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Dictionary contains duplicate keys</problem_class>
+  <description>Dictionary contains duplicate keys 'Position'</description>
+  <highlighted_element>&quot;Position&quot;</highlighted_element>
+  <language>Python</language>
+  <offset>4</offset>
+  <length>10</length>
+</problem>
+</problems>

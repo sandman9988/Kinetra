@@ -21,9 +21,11 @@ Usage:
 """
 
 import sys
+import subprocess
+import signal
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from tqdm import tqdm
 
 # Add project root to path
@@ -36,7 +38,60 @@ from kinetra.workflow_manager import WorkflowManager
 # MENU UTILITIES
 # =============================================================================
 
-def get_secure_input(prompt: str, confirm: bool = False) -> str:
+def run_interruptible_subprocess(cmd: List[str], description: str = "Process") -> int:
+    """
+    Run a subprocess that can be interrupted with Ctrl+C.
+
+    Args:
+        cmd: Command and arguments to execute
+        description: Description of what's running (for user feedback)
+
+    Returns:
+        Return code of the subprocess (or -1 if interrupted)
+
+    The subprocess can be killed by pressing Ctrl+C. This is critical for
+    financial trading systems where hung tests could delay critical fixes.
+    """
+    process = None
+
+    def signal_handler(sig, frame):
+        """Handle Ctrl+C by terminating subprocess."""
+        nonlocal process
+        if process:
+            print(f"\n\n⚠️  Interrupted! Terminating {description}...")
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                print(f"⚠️  Process didn't terminate cleanly, forcing kill...")
+                process.kill()
+                process.wait()
+            print(f"✅ {description} stopped\n")
+
+    # Set up signal handler
+    original_handler = signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        # Start process
+        process = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+
+        # Wait for completion
+        returncode = process.wait()
+
+        return returncode
+
+    except KeyboardInterrupt:
+        # This shouldn't happen since we handle SIGINT, but just in case
+        if process:
+            process.terminate()
+            process.wait()
+        return -1
+
+    finally:
+        # Restore original signal handler
+        signal.signal(signal.SIGINT, original_handler)
+
+def get_secure_input(prompt: str, confirm: bool = False) -> str | None:
     """
     Get secure input (masked, like password).
     
@@ -183,9 +238,50 @@ from typing import Dict, List, Optional, Tuple, Callable, Any
 # STATUS CHECKING UTILITIES
 # =============================================================================
 
+class MenuContext:
+    """Track menu context and navigation state."""
+
+    def __init__(self):
+        self.breadcrumb: List[str] = []
+        self.last_action: Optional[str] = None
+        self.error_history: List[str] = []
+
+    def push(self, menu_name: str):
+        """Enter a submenu."""
+        self.breadcrumb.append(menu_name)
+
+    def pop(self):
+        """Exit current submenu."""
+        if self.breadcrumb:
+            return self.breadcrumb.pop()
+        return None
+
+    def get_breadcrumb(self) -> str:
+        """Get current breadcrumb path."""
+        return " > ".join(self.breadcrumb) if self.breadcrumb else "Main Menu"
+
+    def log_error(self, error: str):
+        """Log an error for context awareness."""
+        self.error_history.append(error)
+        # Keep only last 10 errors
+        if len(self.error_history) > 10:
+            self.error_history.pop(0)
+
+    def get_context_hints(self) -> str:
+        """Get context-aware hints based on current state."""
+        hints = []
+        if self.breadcrumb:
+            hints.append(f"📍 Location: {self.get_breadcrumb()}")
+        if self.last_action:
+            hints.append(f"🔄 Last action: {self.last_action}")
+        if self.error_history:
+            hints.append(f"⚠️  Recent errors: {len(self.error_history)}")
+        return " | ".join(hints) if hints else ""
+
+
 class SystemStatus:
     """Check and display system status."""
-    
+
     @staticmethod
     def check_data_ready() -> tuple[bool, str]:
         """
@@ -224,25 +320,45 @@ class SystemStatus:
             return False, "⚠️  MT5 not installed"
     
     @staticmethod
-    def check_credentials() -> tuple[bool, str]:
+    def check_metaapi_available() -> tuple[bool, str]:
         """
-        Check if credentials are configured.
-        
+        Check if MetaAPI SDK is installed and credentials configured.
+
         Returns:
             (status, message) tuple
         """
+        # First check if SDK is installed
+        try:
+            import metaapi_cloud_sdk
+            sdk_available = True
+        except ImportError:
+            sdk_available = False
+
+        # Check if credentials exist
         env_file = Path(".env")
-        if not env_file.exists():
-            return False, "⚠️  No credentials (.env not found)"
-        
-        # Check for MetaAPI token
-        with open(env_file, 'r') as f:
-            content = f.read()
-        
-        if 'METAAPI_TOKEN' in content or 'METAAPI_ACCOUNT_ID' in content:
-            return True, "✅ Credentials configured"
-        
-        return False, "⚠️  Credentials incomplete"
+        has_creds = False
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                content = f.read()
+            has_creds = 'METAAPI_TOKEN' in content or 'METAAPI_ACCOUNT_ID' in content
+
+        # Return status based on both SDK and credentials
+        if not sdk_available:
+            return False, "❌ MetaAPI SDK not installed"
+        elif not has_creds:
+            return False, "⚠️  MetaAPI credentials not configured"
+        else:
+            return True, "✅ MetaAPI ready"
+
+    @staticmethod
+    def check_credentials() -> tuple[bool, str]:
+        """
+        Check if credentials are configured (alias for check_metaapi_available).
+
+        Returns:
+            (status, message) tuple
+        """
+        return SystemStatus.check_metaapi_available()
     
     @staticmethod
     def get_status_summary() -> str:
@@ -263,34 +379,47 @@ def get_input(
     prompt: str,
     valid_choices: Optional[List[str]] = None,
     input_type: Callable[[str], Any] = str,
-    allow_back: bool = True
+    allow_back: bool = True,
+    default: Optional[str] = None
 ) -> Any:
     """
     Get user input with optional validation and type conversion.
-    
+
     Supports navigation shortcuts:
     - '0' or 'back' or 'b' = Go back
     - 'exit' or 'quit' or 'q' = Exit program
-    
+
     Args:
         prompt: Input prompt to display
         valid_choices: List of valid choices (None = any input accepted)
         input_type: The type to convert the input to (e.g., int, float)
         allow_back: If True, accept back/exit shortcuts
-        
+        default: Default value if EOF or empty input
+
     Returns:
         User input (validated and type-converted)
     """
-    while True:
+    max_retries = 3
+    retry_count = 0
+
+    while retry_count < max_retries:
         try:
             # Show navigation hints
             hint = ""
             if allow_back and valid_choices:
                 hint = " (0=back, q=exit)"
-                
+            if default:
+                hint += f" [default: {default}]"
+
             choice = input(f"\n{prompt}{hint}: ").strip()
+
+            # Handle empty input with default
+            if not choice and default:
+                choice = default
+                print(f"  Using default: {default}")
+
             choice_lower = choice.lower()
-            
+
             # Handle navigation shortcuts
             if allow_back:
                 if choice_lower in ['exit', 'quit', 'q']:
@@ -298,10 +427,14 @@ def get_input(
                     sys.exit(0)
                 elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
                     choice = '0'  # Normalize to '0'
-                    
+
             if valid_choices and choice not in valid_choices:
+                retry_count += 1
                 print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
-                print("   Shortcuts: 0=back, q=quit")
+                print(f"   Shortcuts: 0=back, q=quit (attempt {retry_count}/{max_retries})")
+                if retry_count >= max_retries:
+                    print("⚠️  Max retries reached. Returning to previous menu...")
+                    return '0' if '0' in (valid_choices or []) else None
                 continue
 
             if not choice and input_type is not str:
@@ -310,11 +443,23 @@ def get_input(
             try:
                 return input_type(choice)
             except (ValueError, TypeError):
+                retry_count += 1
                 print(f"❌ Invalid input. Please enter a valid {input_type.__name__}.")
-        except (EOFError, StopIteration):
-            print("\n\n⚠️  Input stream ended (EOF)")
+                if retry_count >= max_retries:
+                    print("⚠️  Max retries reached. Returning to previous menu...")
+                    return None
+        except (EOFError, KeyboardInterrupt):
+            print("\n\n⚠️  Input stream ended or interrupted")
             print("Exiting gracefully...")
             sys.exit(0)
+        except Exception as e:
+            print(f"\n❌ Unexpected error: {e}")
+            retry_count += 1
+            if retry_count >= max_retries:
+                print("⚠️  Max retries reached. Returning to previous menu...")
+                return '0' if valid_choices and '0' in valid_choices else None
+
+    return '0' if valid_choices and '0' in valid_choices else None
 
 
 def wait_for_enter(message: str = "\n📊 Press Enter to return to menu..."):
@@ -410,32 +555,78 @@ class MenuConfig:
 # AUTHENTICATION MENU
 # =============================================================================
 
-def show_authentication_menu(wf_manager: WorkflowManager) -> bool:
+def show_authentication_menu(wf_manager: WorkflowManager, context: Optional[MenuContext] = None) -> bool:
     """
     Show authentication menu.
-    
+
+    Args:
+        wf_manager: Workflow manager instance
+        context: Menu context for navigation tracking
+
     Returns:
         True if successfully authenticated, False otherwise
     """
+    if context:
+        context.push("Authentication")
+
     print_header("LOGIN & AUTHENTICATION")
-    
+
+    # Check if MetaAPI SDK is installed
+    sdk_available, sdk_status = SystemStatus.check_metaapi_available()
+
+    if not sdk_available and "SDK not installed" in sdk_status:
+        print("""
+❌ MetaAPI SDK is not installed
+
+MetaAPI is the primary method for connecting to MT5 brokers.
+MT5 Bridge is the secondary/fallback connection method.
+
+To install MetaAPI (required):
+  pip install metaapi-cloud-sdk inquirer
+
+After installation, you can:
+  1. Configure your MetaAPI token
+  2. Select trading accounts
+  3. Download live market data
+
+Press Enter to return to main menu...
+        """)
+        input()
+        if context:
+            context.pop()
+        return False
+
     print("""
 Available options:
   1. Select MetaAPI Account
   2. Test Connection
   0. Back to Main Menu
     """)
-    
+
     choice = get_input("Select option", ['0', '1', '2'])
-    
-    if choice == '0':
-        return False
-    elif choice == '1':
-        return select_metaapi_account(wf_manager)
-    elif choice == '2':
-        return test_connection(wf_manager)
-    
-    return False
+
+    result = False
+    try:
+        if choice == '0':
+            result = False
+        elif choice == '1':
+            if context:
+                context.last_action = "Select MetaAPI Account"
+            result = select_metaapi_account(wf_manager)
+        elif choice == '2':
+            if context:
+                context.last_action = "Test Connection"
+            result = test_connection(wf_manager)
+    except Exception as e:
+        print(f"\n❌ Error in authentication menu: {e}")
+        if context:
+            context.log_error(f"Authentication: {str(e)}")
+        result = False
+    finally:
+        if context:
+            context.pop()
+
+    return result
 
 
 def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
@@ -649,19 +840,24 @@ Scientific discovery methods:
         return
     
     print("\n🔬 Running scientific discovery...")
-    
+    print("💡 Press Ctrl+C at any time to stop\n")
+
     try:
-        import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/testing/run_scientific_testing.py",
-            "--phase", "discovery"
-        ], check=False)
-        
-        if result.returncode == 0:
+        returncode = run_interruptible_subprocess(
+            cmd=[
+                sys.executable,
+                "scripts/testing/run_scientific_testing.py",
+                "--phase", "discovery"
+            ],
+            description="Scientific discovery"
+        )
+
+        if returncode == 0:
             print("\n✅ Scientific discovery complete!")
+        elif returncode == -1:
+            print("\n⚠️  Scientific discovery interrupted by user")
         else:
-            print(f"\n⚠️ Discovery completed with warnings (exit code {result.returncode})")
+            print(f"\n⚠️ Discovery completed with warnings (exit code {returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
     
@@ -870,28 +1066,33 @@ def run_custom_backtest(wf_manager: WorkflowManager):
 def run_monte_carlo_validation(wf_manager: WorkflowManager):
     """Run Monte Carlo validation."""
     print_submenu_header("Monte Carlo Validation")
-    
+
     runs = get_input("Number of runs (default 100)", None)
     num_runs = int(runs) if runs else 100
-    
+
     print(f"\n🎲 Running {num_runs} Monte Carlo simulations...")
-    
+    print("💡 Press Ctrl+C at any time to stop the simulation\n")
+
     try:
-        import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/testing/run_comprehensive_backtest.py",
-            "--monte-carlo", str(num_runs)
-        ], check=False)
-        
-        if result.returncode == 0:
+        returncode = run_interruptible_subprocess(
+            cmd=[
+                sys.executable,
+                "scripts/testing/run_comprehensive_backtest.py",
+                "--monte-carlo", str(num_runs)
+            ],
+            description="Monte Carlo validation"
+        )
+
+        if returncode == 0:
             print("\n✅ Monte Carlo validation complete!")
             display_backtest_results()
+        elif returncode == -1:
+            print("\n⚠️  Monte Carlo validation interrupted by user")
         else:
-            print(f"\n❌ Monte Carlo validation failed (exit code {result.returncode})")
+            print(f"\n❌ Monte Carlo validation failed (exit code {returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
@@ -1032,24 +1233,29 @@ Virtual trading mode uses synthetic data stream for testing.
         return
     
     print("\n🚀 Starting virtual trading test...")
-    
+    print("💡 Press Ctrl+C at any time to stop\n")
+
     try:
-        import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/testing/run_live_test.py",
-            "--mode", "virtual",
-            "--symbol", symbol,
-            "--agent", agent_type,
+        returncode = run_interruptible_subprocess(
+            cmd=[
+                sys.executable,
+                "scripts/testing/run_live_test.py",
+                "--mode", "virtual",
+                "--symbol", symbol,
+                "--agent", agent_type,
             "--duration", str(duration),
             "--max-trades", str(max_trades),
             "--chs-threshold", str(chs_threshold)
-        ], check=False)
-        
-        if result.returncode == 0:
+            ],
+            description="Virtual trading test"
+        )
+
+        if returncode == 0:
             print("\n✅ Virtual trading test complete!")
+        elif returncode == -1:
+            print("\n⚠️  Virtual trading test interrupted by user")
         else:
-            print(f"\n❌ Test failed (exit code {result.returncode})")
+            print(f"\n❌ Test failed (exit code {returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
     
@@ -1535,7 +1741,7 @@ def show_performance_metrics():
 # HELPER FUNCTIONS
 # =============================================================================
 
-def select_asset_classes() -> List[str]:
+def select_asset_classes() -> tuple[str, ...] | list[str] | list[Any]:
     """Let user select asset classes."""
     print("  a. All asset classes")
     print("  b. Crypto (BTC, ETH, etc.)")
@@ -1580,7 +1786,7 @@ def select_instruments(asset_classes: List[str]) -> List[str]:
         return ['all']
 
 
-def select_timeframes() -> List[str]:
+def select_timeframes() -> list[str] | tuple[str, ...]:
     """Let user select timeframes."""
     print("  a. All timeframes (M15, M30, H1, H4, D1)")
     print("  b. Intraday (M15, M30, H1)")
@@ -1601,7 +1807,7 @@ def select_timeframes() -> List[str]:
         return [tf.strip() for tf in timeframes_str.split(',')]
 
 
-def select_agent_types() -> List[str]:
+def select_agent_types() -> list[str] | tuple[str, ...]:
     """Let user select agent types."""
     print("  a. All agents")
     print("  b. PPO (Proximal Policy Optimization)")
@@ -1688,8 +1894,6 @@ def run_exploration_script(wf_manager: WorkflowManager, config: Dict) -> bool:
         True if successful, False otherwise
     """
     try:
-        import subprocess
-        
         # Use comprehensive exploration script
         script = "run_comprehensive_exploration.py"
         
@@ -1839,15 +2043,26 @@ def display_backtest_results():
 # MAIN MENU
 # =============================================================================
 
-def show_main_menu(wf_manager: WorkflowManager):
-    """Show main menu."""
+def show_main_menu(wf_manager: WorkflowManager, context: Optional[MenuContext] = None):
+    """Show main menu with context awareness."""
     print_header("KINETRA MAIN MENU")
-    
+
+    # Show context hints if available
+    if context:
+        hints = context.get_context_hints()
+        if hints:
+            print(f"\n{hints}\n")
+
     # Show system status
-    status_summary = SystemStatus.get_status_summary()
-    print(f"\nSystem Status:")
-    print(status_summary)
-    
+    try:
+        status_summary = SystemStatus.get_status_summary()
+        print(f"\nSystem Status:")
+        print(status_summary)
+    except Exception as e:
+        print(f"\n⚠️  Could not load system status: {e}")
+        if context:
+            context.log_error(f"Status check: {str(e)}")
+
     print("""
 Welcome to Kinetra - Physics-First Adaptive Trading System
 
@@ -1865,56 +2080,136 @@ Philosophy:
   • Physics-based (energy, entropy, damping)
   • Statistical rigor (p < 0.01)
   • Automated workflows
-  
+
 Navigation: Type 0 to go back | Type q to quit
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'])
-    
-    if choice == '0':
-        return False
-    elif choice == '1':
-        show_authentication_menu(wf_manager)
-    elif choice == '2':
-        show_exploration_menu(wf_manager)
-    elif choice == '3':
-        show_backtesting_menu(wf_manager)
-    elif choice == '4':
-        show_live_testing_menu(wf_manager)
-    elif choice == '5':
-        show_data_management_menu(wf_manager)
-    elif choice == '6':
-        show_system_status_menu(wf_manager)
-    
+
+    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'], default='0')
+
+    try:
+        if choice == '0' or choice is None:
+            return False
+        elif choice == '1':
+            show_authentication_menu(wf_manager, context)
+        elif choice == '2':
+            show_exploration_menu(wf_manager)
+        elif choice == '3':
+            show_backtesting_menu(wf_manager)
+        elif choice == '4':
+            show_live_testing_menu(wf_manager)
+        elif choice == '5':
+            show_data_management_menu(wf_manager)
+        elif choice == '6':
+            show_system_status_menu(wf_manager)
+    except Exception as e:
+        print(f"\n❌ Error in menu operation: {e}")
+        if context:
+            context.log_error(f"Menu operation: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        wait_for_enter("\n⚠️  Press Enter to continue...")
+
     return True
 
 
 def main():
-    """Main entry point."""
-    # Initialize workflow manager
-    wf_manager = WorkflowManager(
-        log_dir="logs",
-        backup_dir="data/backups/workflow",
-        enable_backups=True,
-        enable_checksums=True
-    )
-    
-    # Main menu loop
+    """Main entry point with comprehensive error handling."""
+    print("🚀 Initializing Kinetra Menu System...")
+
+    # Initialize context tracker
+    context = MenuContext()
+    context.push("Main Menu")
+
+    # Initialize workflow manager with error handling
+    try:
+        wf_manager = WorkflowManager(
+            log_dir="logs",
+            backup_dir="data/backups/workflow",
+            enable_backups=True,
+            enable_checksums=True
+        )
+        print("✅ Workflow manager initialized")
+    except Exception as e:
+        print(f"⚠️  Warning: Could not initialize workflow manager: {e}")
+        print("   Continuing with limited functionality...")
+        context.log_error(f"Workflow init: {str(e)}")
+        wf_manager = None
+
+    error_count = 0
+    max_errors = 5
+
+    # Main menu loop with context awareness
     while True:
         try:
-            if not show_main_menu(wf_manager):
+            if not show_main_menu(wf_manager, context):
                 print("\n👋 Thank you for using Kinetra!")
                 break
+
+            # Reset error count on successful menu operation
+            error_count = 0
+
         except KeyboardInterrupt:
-            print("\n\n⚠️ Menu interrupted by user")
-            if confirm_action("Exit Kinetra?", default=True):
+            print("\n\n⚠️  Menu interrupted by user (Ctrl+C)")
+            try:
+                if confirm_action("Exit Kinetra?", default=True):
+                    print("👋 Goodbye!")
+                    break
+                else:
+                    print("↩️  Returning to main menu...")
+                    continue
+            except (EOFError, KeyboardInterrupt):
+                print("\n👋 Goodbye!")
                 break
+
+        except EOFError:
+            print("\n\n⚠️  Input stream ended (EOF)")
+            print("👋 Exiting gracefully...")
+            break
+
         except Exception as e:
-            print(f"\n\n❌ Error: {e}")
+            error_count += 1
+            error_msg = str(e)
+            context.log_error(error_msg)
+            print(f"\n\n❌ Error {error_count}/{max_errors}: {error_msg}")
+
+            # Show traceback for debugging
             import traceback
+            print("\n📋 Error details:")
             traceback.print_exc()
-            if not confirm_action("Continue?", default=True):
+
+            # Show context information
+            print(f"\n📍 Context: {context.get_breadcrumb()}")
+            if context.last_action:
+                print(f"🔄 Last action: {context.last_action}")
+
+            if error_count >= max_errors:
+                print(f"\n⚠️  Maximum error count ({max_errors}) reached!")
+                print("Exiting to prevent infinite error loop...")
+                print(f"\n📋 Error summary:")
+                for i, err in enumerate(context.error_history[-5:], 1):
+                    print(f"  {i}. {err}")
                 break
+
+            try:
+                if not confirm_action("Continue to main menu?", default=True):
+                    print("👋 Exiting...")
+                    break
+                else:
+                    print("↩️  Returning to main menu...")
+                    # Reset breadcrumb on error recovery
+                    context.breadcrumb = ["Main Menu"]
+            except (EOFError, KeyboardInterrupt):
+                print("\n👋 Exiting gracefully...")
+                break
+
+    # Cleanup and exit
+    print("\n" + "=" * 80)
+    print("  KINETRA SESSION ENDED")
+    print("=" * 80)
+    print("📁 Logs saved to: logs/")
+    print("💾 Data preserved in: data/")
+    print("\n🔬 Keep exploring, keep learning!")
+    print("=" * 80)
 
 
 if __name__ == '__main__':

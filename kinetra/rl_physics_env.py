@@ -535,7 +535,7 @@ def evaluate_agent(
     agent: SimpleRLAgent,
     df: pd.DataFrame,
     start_idx: Optional[int] = None
-) -> Dict:
+) -> tuple[dict, list[dict]]:
     """Evaluate trained agent on data."""
     env = PhysicsTradingEnv(df)
     state = env.reset(start_idx)

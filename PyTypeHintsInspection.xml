@@ -1,0 +1,50 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/kinetra/realistic_backtester.py</file>
+  <line>931</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/kinetra/realistic_backtester.py" />
+  <problem_class id="PyTypeHintsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid type hints definitions and usages</problem_class>
+  <description>Type hint is invalid or refers to the expression which is not a correct type</description>
+  <highlighted_element>callable</highlighted_element>
+  <language>Python</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>104</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyTypeHintsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid type hints definitions and usages</problem_class>
+  <description>Type hint is invalid or refers to the expression which is not a correct type</description>
+  <highlighted_element>DoppelgangerTriad</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>285</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyTypeHintsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid type hints definitions and usages</problem_class>
+  <description>Type hint is invalid or refers to the expression which is not a correct type</description>
+  <highlighted_element>DoppelgangerTriad</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py</file>
+  <line>336</line>
+  <module>Kinetra</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/testing/test_end_to_end.py" />
+  <problem_class id="PyTypeHintsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid type hints definitions and usages</problem_class>
+  <description>Type hint is invalid or refers to the expression which is not a correct type</description>
+  <highlighted_element>DoppelgangerTriad</highlighted_element>
+  <language>Python</language>
+  <offset>36</offset>
+  <length>17</length>
+</problem>
+</problems>

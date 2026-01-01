@@ -43,6 +43,12 @@ from kinetra.test_executor import StatisticalRigor
 from kinetra.testing_framework import TestingFramework, TestConfiguration, InstrumentSpec
 from kinetra.integrated_backtester import IntegratedBacktester
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 # DevOps integration for local/remote sync
 try:
     from kinetra.devops import GitSync, check_sync_status
@@ -50,12 +56,6 @@ try:
 except ImportError:
     DEVOPS_AVAILABLE = False
     logger.warning("DevOps module not available - git sync disabled")
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 
 class ScientificTestingOrchestrator:
@@ -246,7 +246,7 @@ class ScientificTestingOrchestrator:
         
         # Auto-discover instruments if not provided
         if instruments is None:
-            from scripts.unified_test_framework import discover_instruments
+            from scripts.testing.unified_test_framework import discover_instruments
             instruments = discover_instruments(max_per_class=2)
         
         logger.info(f"Validating {len(instruments)} instruments...")
@@ -572,10 +572,9 @@ Examples:
     if args.check_sync:
         if DEVOPS_AVAILABLE:
             print(check_sync_status())
-            sys.exit(0)
+            return  # Don't exit during pytest
         else:
-            print("DevOps module not available - cannot check sync status")
-            sys.exit(1)
+            raise ImportError("DevOps module not available - cannot check sync status")
     
     # Create orchestrator
     orchestrator = ScientificTestingOrchestrator(

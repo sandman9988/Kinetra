@@ -24,11 +24,13 @@ from collections import defaultdict
 import json
 import time
 import warnings
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+from numpy import bool, dtype, ndarray, signedinteger, unsignedinteger, floating
+from numpy._typing import _16Bit, _32Bit, _64Bit, _8Bit
 
 warnings.filterwarnings('ignore')
 
@@ -145,7 +147,7 @@ class RoleAwareAgent:
         p = e / (e.sum() + 1e-10)
         return np.ones(len(x)) / len(x) if np.any(np.isnan(p)) else p
     
-    def compute_reward(self, pnl: float, balance: float, position: int) -> float:
+    def compute_reward(self, pnl: float, balance: float, position: int) -> floating[Any]:
         """Compute role-specific reward."""
         # Drawdown
         self.peak_balance = max(self.peak_balance, balance)
@@ -170,7 +172,31 @@ class RoleAwareAgent:
         
         return reward
     
-    def select_action(self, features: np.ndarray, explore: bool = True) -> int:
+    def select_action(self, features: np.ndarray, explore: bool = True) -> int | bool | bool | unsignedinteger[_8Bit] | \
+                                                                           unsignedinteger[_16Bit] | unsignedinteger[
+                                                                               _32Bit] | unsignedinteger[
+                                                                               _32Bit | _64Bit] | unsignedinteger[
+                                                                               _64Bit] | signedinteger[_8Bit] | \
+                                                                           signedinteger[_16Bit] | signedinteger[
+                                                                               _32Bit] | signedinteger[
+                                                                               _32Bit | _64Bit] | signedinteger[
+                                                                               _64Bit] | ndarray[tuple[Any, ...], dtype[
+        signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[bool]] | ndarray[tuple[Any, ...], dtype[
+        signedinteger[_8Bit]]] | ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   signedinteger[_32Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   signedinteger[_64Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   unsignedinteger[_8Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   unsignedinteger[_16Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   unsignedinteger[_32Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   unsignedinteger[_64Bit]]] | ndarray[
+                                                                               tuple[Any, ...], dtype[
+                                                                                   unsignedinteger[_32Bit | _64Bit]]]:
         features = np.nan_to_num(features, nan=0, posinf=0, neginf=0)
         if len(features) != self.n_features:
             padded = np.zeros(self.n_features)

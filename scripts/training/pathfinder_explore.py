@@ -13,8 +13,12 @@ import time
 import warnings
 from pathlib import Path
 from datetime import datetime
+from typing import Any
+
 import numpy as np
 import pandas as pd
+from numpy import dtype, ndarray, signedinteger, bool, unsignedinteger
+from numpy._typing import _32Bit, _64Bit, _16Bit, _8Bit
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 warnings.filterwarnings('ignore')
@@ -184,7 +188,28 @@ class LinearQAgent:
     def get_q_values(self, state: np.ndarray) -> np.ndarray:
         return state @ self.W + self.b
     
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> int | bool | bool | unsignedinteger[_8Bit] | \
+                                                               unsignedinteger[_16Bit] | unsignedinteger[_32Bit] | \
+                                                               unsignedinteger[_32Bit | _64Bit] | unsignedinteger[
+                                                                   _64Bit] | signedinteger[_8Bit] | signedinteger[
+                                                                   _16Bit] | signedinteger[_32Bit] | signedinteger[
+                                                                   _32Bit | _64Bit] | signedinteger[_64Bit] | ndarray[
+                                                                   tuple[Any, ...], dtype[
+                                                                       signedinteger[_32Bit | _64Bit]]] | ndarray[
+                                                                   tuple[Any, ...], dtype[bool]] | ndarray[
+                                                                   tuple[Any, ...], dtype[signedinteger[_8Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_16Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_32Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[signedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[unsignedinteger[_8Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_16Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_32Bit]]] | \
+                                                               ndarray[
+                                                                   tuple[Any, ...], dtype[unsignedinteger[_64Bit]]] | \
+                                                               ndarray[tuple[Any, ...], dtype[
+                                                                   unsignedinteger[_32Bit | _64Bit]]]:
         if training and np.random.random() < self.epsilon:
             return np.random.randint(self.n_actions)
         
@@ -259,7 +284,9 @@ class PPOAgent:
     def get_value(self, state: np.ndarray) -> float:
         return float(state @ self.value_W + self.value_b)
     
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> int | ndarray[
+        tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[Any]] | signedinteger[
+                                                                   _32Bit | _64Bit] | Any:
         probs = self.get_action_probs(state)
         if training:
             action = np.random.choice(self.n_actions, p=probs)
@@ -358,7 +385,9 @@ class SACAgent:
             return np.ones(len(x)) / len(x)  # Uniform fallback
         return result
     
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> int | ndarray[
+        tuple[Any, ...], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[tuple[Any, ...], dtype[Any]] | signedinteger[
+                                                                   _32Bit | _64Bit] | Any:
         logits = state @ self.policy_W + self.policy_b
         probs = self._softmax(logits)
         

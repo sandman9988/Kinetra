@@ -24,9 +24,11 @@ from collections import defaultdict
 import json
 import time
 import warnings
+from typing import Any
 
 import numpy as np
 import pandas as pd
+from numpy import floating
 
 warnings.filterwarnings('ignore')
 
@@ -282,7 +284,7 @@ class TriadTrainer:
         self.agent_performance = defaultdict(list)
     
     def train_on_file(self, file_info: dict, episodes: int = 10, 
-                      max_steps: int = 500, verbose: bool = False) -> dict:
+                      max_steps: int = 500, verbose: bool = False) -> dict[str, floating[Any] | list[Any] | Any] | None:
         """Train on a single data file."""
         try:
             df = load_data(file_info['path'])
