@@ -532,6 +532,40 @@ python scripts/backup_data.py
 git pull
 ```
 
+### Branch Management
+
+Kinetra follows a documented branching strategy. See [docs/BRANCHING_STRATEGY.md](docs/BRANCHING_STRATEGY.md) for complete details.
+
+**Quick Reference:**
+
+```bash
+# Set up local main branch (first time only)
+make branch-setup
+# OR
+python scripts/branch_manager.py --setup
+
+# Check branch status
+make branch-status
+# OR
+python scripts/branch_manager.py --status
+
+# Create feature branch
+git checkout -b feature/description
+# OR fix/description, refactor/description, etc.
+
+# Sync current branch with remote
+make branch-sync
+# OR
+python scripts/branch_manager.py --sync
+```
+
+**Key Principles:**
+- `main` branch is production-ready (protected)
+- Feature branches are short-lived (merge within 1-2 weeks)
+- Always create PRs for changes to `main`
+- Use descriptive branch names: `feature/`, `fix/`, `refactor/`, `docs/`, etc.
+- Clean up merged branches regularly
+
 ### .gitignore Critical Patterns
 
 These directories MUST be in .gitignore:
