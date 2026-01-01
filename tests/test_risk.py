@@ -103,9 +103,11 @@ class TestRiskManagement:
         assert position == 0  # Circuit breaker
     
     def test_risk_gates(self):
-        """Test risk gate checking."""
-        # Use modern RNG API for better test isolation in parallel execution
-        rng = np.random.default_rng(123)
+        rng = np.random.Generator(np.random.PCG64(123))  # Fixed seed + explicit algorithm for reproducibility
+        returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
+        except AttributeError:
+            rng = np.random.RandomState(123)  # Fallback for older NumPy
+        rng = np.random.default_rng(123)  # Fixed seed for reproducibility
         returns = pd.Series(rng.standard_normal(100) * 0.01 + 0.001)
         manager = RiskManager()
         
