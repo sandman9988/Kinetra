@@ -45,6 +45,14 @@ from kinetra.test_executor import TestExecutor, ExecutionConfig, StatisticalRigo
 from kinetra.testing_framework import TestingFramework, TestConfiguration, InstrumentSpec
 from kinetra.integrated_backtester import IntegratedBacktester
 
+# DevOps integration for local/remote sync
+try:
+    from kinetra.devops import GitSync, check_sync_status
+    DEVOPS_AVAILABLE = True
+except ImportError:
+    DEVOPS_AVAILABLE = False
+    logger.warning("DevOps module not available - git sync disabled")
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -62,14 +70,26 @@ class ScientificTestingOrchestrator:
     - Phase 3: Statistical validation
     - Phase 4: Backtesting
     - Phase 5: Code review
+    
+    Integrates with DevOps for local/remote sync.
     """
     
-    def __init__(self, output_dir: str = "scientific_testing_results"):
+    def __init__(self, output_dir: str = "scientific_testing_results", enable_git_sync: bool = True):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         self.discovery_runner = DiscoveryMethodRunner()
         self.stats_validator = StatisticalRigor()
+        
+        # Git sync integration
+        self.enable_git_sync = enable_git_sync and DEVOPS_AVAILABLE
+        if self.enable_git_sync:
+            self.git_sync = GitSync()
+            logger.info("Git sync enabled - ensuring local/remote synchronization")
+        else:
+            self.git_sync = None
+            if enable_git_sync and not DEVOPS_AVAILABLE:
+                logger.warning("Git sync requested but DevOps module not available")
         
         # Create subdirectories
         self.data_dir = self.output_dir / "data_validation"
@@ -82,6 +102,45 @@ class ScientificTestingOrchestrator:
         
         logger.info(f"ScientificTestingOrchestrator initialized")
         logger.info(f"Output directory: {self.output_dir}")
+    
+    def check_and_sync(self) -> bool:
+        """
+        Check git sync status and optionally sync with remote.
+        
+        Returns:
+            True if sync successful or not needed, False if sync failed
+        """
+        if not self.enable_git_sync:
+            return True
+        
+        logger.info("Checking git sync status...")
+        
+        try:
+            status = self.git_sync.check_status()
+            
+            logger.info(f"Branch: {status.branch}")
+            logger.info(f"Sync status: {status.sync_status.value}")
+            
+            if status.uncommitted_changes > 0:
+                logger.warning(f"Uncommitted changes: {status.uncommitted_changes} files")
+            
+            if status.ahead_count > 0:
+                logger.info(f"Local commits ahead: {status.ahead_count}")
+            
+            if status.behind_count > 0:
+                logger.warning(f"Remote commits behind: {status.behind_count}")
+                logger.info("Pulling latest changes from remote...")
+                success, msg = self.git_sync.pull(rebase=True)
+                if not success:
+                    logger.error(f"Failed to pull changes: {msg}")
+                    return False
+                logger.info(f"Pull successful: {msg}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Git sync check failed: {e}")
+            return False
     
     def run_full_programme(
         self,
@@ -98,6 +157,16 @@ class ScientificTestingOrchestrator:
         logger.info("\n" + "="*80)
         logger.info("STARTING COMPLETE SCIENTIFIC TESTING PROGRAMME")
         logger.info("="*80 + "\n")
+        
+        # Check git sync status before starting
+        if self.enable_git_sync:
+            logger.info("\n" + "="*80)
+            logger.info("PRE-RUN GIT SYNC CHECK")
+            logger.info("="*80 + "\n")
+            
+            sync_ok = self.check_and_sync()
+            if not sync_ok:
+                logger.warning("Git sync check failed - continuing anyway")
         
         start_time = datetime.now()
         
@@ -151,6 +220,19 @@ class ScientificTestingOrchestrator:
         logger.info(f"Total duration: {duration:.1f} seconds ({duration/60:.1f} minutes)")
         logger.info(f"Results saved to: {self.output_dir}")
         logger.info("="*80 + "\n")
+        
+        # Final sync check
+        if self.enable_git_sync:
+            logger.info("\n" + "="*80)
+            logger.info("POST-RUN GIT SYNC CHECK")
+            logger.info("="*80 + "\n")
+            
+            status = self.git_sync.check_status()
+            if status.uncommitted_changes > 0:
+                logger.info("Uncommitted changes detected after test run")
+                logger.info("Run 'git status' to review changes")
+            
+            logger.info(check_sync_status())
     
     def phase1_data_validation(
         self,
@@ -463,6 +545,12 @@ Examples:
     
     # Specific phase
     python scripts/run_scientific_testing.py --phase discovery
+    
+    # Check git sync status
+    python scripts/run_scientific_testing.py --check-sync
+    
+    # Run without git sync (local-only mode)
+    python scripts/run_scientific_testing.py --full --no-git-sync
         """
     )
     
@@ -475,11 +563,27 @@ Examples:
                        help='Run specific phase only')
     parser.add_argument('--output-dir', type=str, default='scientific_testing_results',
                        help='Output directory')
+    parser.add_argument('--no-git-sync', action='store_true',
+                       help='Disable git sync checks (for offline/local-only usage)')
+    parser.add_argument('--check-sync', action='store_true',
+                       help='Only check git sync status and exit')
     
     args = parser.parse_args()
     
+    # Check sync only mode
+    if args.check_sync:
+        if DEVOPS_AVAILABLE:
+            print(check_sync_status())
+            sys.exit(0)
+        else:
+            print("DevOps module not available - cannot check sync status")
+            sys.exit(1)
+    
     # Create orchestrator
-    orchestrator = ScientificTestingOrchestrator(output_dir=args.output_dir)
+    orchestrator = ScientificTestingOrchestrator(
+        output_dir=args.output_dir,
+        enable_git_sync=not args.no_git_sync
+    )
     
     if args.full or args.quick:
         # Run complete programme

@@ -4,6 +4,8 @@
 
 The Kinetra Scientific Testing Framework is a comprehensive, statistically rigorous testing system designed to discover, validate, and backtest trading strategies through first-principles analysis and empirical validation.
 
+**NEW: DevOps Integration** - Automatically syncs local and remote code to ensure testing consistency across environments.
+
 ## Philosophy
 
 **"We don't know what we don't know"**
@@ -294,6 +296,51 @@ python scripts/run_scientific_testing.py --full --output-dir my_results
 ```
 
 ## Usage Examples
+
+### Example 0: Git Sync Management
+
+The framework integrates with Kinetra's DevOps module to ensure local and remote code stay synchronized:
+
+```bash
+# Check git sync status before running tests
+python scripts/run_scientific_testing.py --check-sync
+
+# Run with automatic sync (default)
+python scripts/run_scientific_testing.py --quick
+
+# Run in local-only mode (no git sync)
+python scripts/run_scientific_testing.py --quick --no-git-sync
+```
+
+**Python API:**
+```python
+from scripts.run_scientific_testing import ScientificTestingOrchestrator
+
+# Enable git sync (default)
+orchestrator = ScientificTestingOrchestrator(
+    output_dir="test_results",
+    enable_git_sync=True
+)
+
+# Before running, check sync status
+sync_ok = orchestrator.check_and_sync()
+if sync_ok:
+    orchestrator.run_full_programme(quick_mode=True)
+
+# Or disable git sync for local-only development
+orchestrator_local = ScientificTestingOrchestrator(
+    output_dir="test_results",
+    enable_git_sync=False
+)
+orchestrator_local.run_full_programme(quick_mode=True)
+```
+
+**Git Sync Features:**
+- ✅ Automatic check before test execution
+- ✅ Pulls latest changes if behind remote
+- ✅ Reports uncommitted changes after tests
+- ✅ Supports offline/local-only mode
+- ✅ Integrates with existing DevOps infrastructure
 
 ### Example 1: Quick Validation Run
 

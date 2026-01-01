@@ -10,6 +10,9 @@ python scripts/run_scientific_testing.py --full
 
 # Quick validation run (10-20 minutes)
 python scripts/run_scientific_testing.py --quick
+
+# Local-only mode (no git sync)
+python scripts/run_scientific_testing.py --full --no-git-sync
 ```
 
 ### 2. Run Specific Phase
@@ -24,6 +27,29 @@ python scripts/run_scientific_testing.py --phase discovery
 # Backtesting only
 python scripts/run_scientific_testing.py --phase backtest
 ```
+
+### 3. Git Sync Management
+
+```bash
+# Check git sync status
+python scripts/run_scientific_testing.py --check-sync
+
+# Run without git sync (for local development)
+python scripts/run_scientific_testing.py --quick --no-git-sync
+```
+
+## Git Sync Integration
+
+The framework automatically integrates with the DevOps module to:
+- ✅ Check sync status before running tests
+- ✅ Pull latest changes from remote if behind
+- ✅ Display sync status after test completion
+- ✅ Support local-only mode with `--no-git-sync`
+
+**Benefits:**
+- Ensures local and remote code stay synchronized
+- Prevents running outdated code
+- Supports both online (synced) and offline (local) workflows
 
 ## Common Commands
 
