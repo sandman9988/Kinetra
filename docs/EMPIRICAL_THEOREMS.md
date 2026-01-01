@@ -67,7 +67,7 @@ For a hypothesis to be promoted to an empirical theorem, it **MUST** satisfy:
 
 ### Hypothesis
 
-Underdamped regime states have significantly higher probability of high-energy release in the next time period compared to random baseline.
+Underdamped regime states have significantly higher probability of high-energy release in the next time period compared to the baseline (general population) probability.
 
 ### Mathematical Formulation
 
@@ -76,9 +76,9 @@ Let:
 - `E_{t+1}` = energy at time `t+1`
 - `P(high_E | R_t = underdamped)` = probability of high energy given underdamped regime
 
-**Claim**: `P(high_E | R_t = underdamped) > P(high_E | random) + δ`
+**Claim**: `P(high_E | R_t = underdamped) > P(high_E | baseline) + δ`
 
-Where `δ` is a statistically significant margin (>10% lift), and "high energy" is defined as E_{t+1} > 80th percentile.
+Where `δ` is a statistically significant margin (>10% lift), "high energy" is defined as E_{t+1} > 80th percentile, and "baseline" represents the general population probability (unconditional on regime).
 
 ### Testing Methodology
 
@@ -92,8 +92,10 @@ def test_underdamped_release(df):
     base_rate = target.mean()
     lift = hit_rate / base_rate
     
-    # Statistical test: Chi-squared or Fisher's exact
-    p_value = chi2_test(condition, target)
+    # Statistical test: Chi-squared independence test
+    from scipy.stats import chi2_contingency
+    contingency = pd.crosstab(condition, target)
+    chi2, p_value, dof, expected = chi2_contingency(contingency)
     
     return TheoremResult(lift=lift, p_value=p_value)
 ```
@@ -164,12 +166,14 @@ def compare_fixed_vs_adaptive(df):
     results_fixed = backtest_strategy(df, 'ma_fixed')
     results_adaptive = backtest_strategy(df, 'ma_adaptive')
     
-    # Statistical comparison (paired t-test)
-    p_value = ttest_rel(results_adaptive['returns'], 
-                        results_fixed['returns'])
+    # Statistical comparison (paired t-test on Sharpe ratios)
+    # Run multiple bootstrap samples to get Sharpe distribution
+    from scipy.stats import ttest_rel
+    sharpe_samples_fixed = bootstrap_sharpe(results_fixed, n_samples=1000)
+    sharpe_samples_adaptive = bootstrap_sharpe(results_adaptive, n_samples=1000)
+    t_stat, p_value = ttest_rel(sharpe_samples_adaptive, sharpe_samples_fixed)
     
-    effect_size = cohen_d(results_adaptive['sharpe'], 
-                          results_fixed['sharpe'])
+    effect_size = cohen_d(sharpe_samples_adaptive, sharpe_samples_fixed)
     
     return {
         'sharpe_adaptive': results_adaptive['sharpe'],
@@ -518,11 +522,11 @@ From `docs/ACTION_PLAN.md`, Phase 3 is complete when:
 - `scripts/training/explore_specialization.py` - Specialization testing
 
 ### Academic References
-1. Sutton & Barto (2018): *Reinforcement Learning: An Introduction*
-2. Cohen (1988): *Statistical Power Analysis for the Behavioral Sciences*
-3. Ioannidis (2005): *Why Most Published Research Findings Are False*
-4. Wasserstein & Lazar (2016): *The ASA Statement on p-Values*
-5. Sullivan, Timmermann & White (1999): *Data-Snooping, Technical Trading Rules*
+1. Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
+2. Cohen, J. (1988). *Statistical Power Analysis for the Behavioral Sciences* (2nd ed.). Routledge.
+3. Ioannidis, J. P. A. (2005). Why Most Published Research Findings Are False. *PLOS Medicine*, 2(8), e124.
+4. Wasserstein, R. L., & Lazar, N. A. (2016). The ASA Statement on p-Values: Context, Process, and Purpose. *The American Statistician*, 70(2), 129–133.
+5. Sullivan, R., Timmermann, A., & White, H. (1999). Data-Snooping, Technical Trading Rule Performance, and the Bootstrap. *The Journal of Finance*, 54(5), 1647–1691.
 
 ### Statistical Testing
 - **Multiple Testing**: Bonferroni, Holm-Bonferroni, Benjamini-Hochberg FDR
