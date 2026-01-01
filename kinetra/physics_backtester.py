@@ -742,6 +742,26 @@ class PhysicsBacktestRunner:
 
         return self._process_results(stats, strategy)
 
+    @staticmethod
+    def _create_error_result(strategy_name: str, error: Exception) -> Dict[str, Any]:
+        """
+        Create a standardized error result dictionary.
+        
+        Args:
+            strategy_name: Name of the strategy that failed
+            error: The exception that was raised
+            
+        Returns:
+            Dict with error info and zero metrics
+        """
+        return {
+            "strategy": strategy_name,
+            "error": str(error),
+            "Return [%]": 0.0,
+            "Max. Drawdown [%]": 0.0,
+            "# Trades": 0,
+        }
+
     def compare_strategies(
         self,
         data: pd.DataFrame,
@@ -773,13 +793,7 @@ class PhysicsBacktestRunner:
                 error_msg = f"Error running {strategy_name}: {e}\n{traceback.format_exc()}"
                 print(error_msg)
                 # Return a dict with error info instead of None to help debugging
-                return {
-                    "strategy": strategy_name,
-                    "error": str(e),
-                    "Return [%]": 0.0,
-                    "Max. Drawdown [%]": 0.0,
-                    "# Trades": 0,
-                }
+                return self._create_error_result(strategy_name, e)
 
         results = []
         n_workers = min(mp.cpu_count(), len(strategies), MAX_WORKERS)
