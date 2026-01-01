@@ -394,15 +394,60 @@ def save_results(
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python run_comprehensive_backtest.py <csv_file1> [csv_file2] ...")
-        print("\nExample:")
-        print("  python scripts/run_comprehensive_backtest.py data/*.csv")
-        print("  python scripts/run_comprehensive_backtest.py data/master/crypto/BTCUSD_H1_*.csv")
-        sys.exit(1)
-
-    csv_files = sys.argv[1:]
-    output_dir = 'backtest_results'
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description='Comprehensive Physics Backtest Runner'
+    )
+    parser.add_argument(
+        'csv_files',
+        nargs='*',
+        help='CSV files to process'
+    )
+    parser.add_argument(
+        '--monte-carlo',
+        type=int,
+        default=None,
+        help='Number of Monte Carlo runs (uses prepared data)'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default='backtest_results',
+        help='Output directory for results'
+    )
+    
+    args = parser.parse_args()
+    
+    # Handle monte-carlo mode
+    if args.monte_carlo:
+        print(f"Monte Carlo mode: {args.monte_carlo} runs")
+        # Find prepared test data
+        test_data_dir = Path('data/prepared/test')
+        if not test_data_dir.exists():
+            print(f"ERROR: Test data directory not found: {test_data_dir}")
+            sys.exit(1)
+        
+        csv_files = sorted(test_data_dir.glob('*.csv'))
+        if not csv_files:
+            print(f"ERROR: No CSV files found in {test_data_dir}")
+            sys.exit(1)
+        
+        # Limit to requested number of runs
+        csv_files = [str(f) for f in csv_files[:args.monte_carlo]]
+        print(f"Running backtest on {len(csv_files)} files from {test_data_dir}")
+    else:
+        csv_files = args.csv_files
+        
+        if not csv_files:
+            print("Usage: python run_comprehensive_backtest.py <csv_file1> [csv_file2] ...")
+            print("   or: python run_comprehensive_backtest.py --monte-carlo N")
+            print("\nExample:")
+            print("  python scripts/run_comprehensive_backtest.py data/*.csv")
+            print("  python scripts/run_comprehensive_backtest.py --monte-carlo 100")
+            sys.exit(1)
+    
+    output_dir = args.output_dir
 
     print("=" * 80)
     print(" KINETRA COMPREHENSIVE PHYSICS BACKTESTER")
