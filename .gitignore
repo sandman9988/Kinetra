@@ -95,11 +95,23 @@ data/master_standardized/
 
 # Large data directories
 data/master/*.csv
-rl_exploration_framework/data/*.csv
-
-# Data directories (large files, don't commit)
 data/master/
 data/prepared/
 data/test/
 data/backups/
 data/master/crypto_standardized/
+
+# Test run data snapshots (large, should not be committed)
+data/test_runs/*/data/
+data/test_runs/*/cache/
+# But keep metadata and results
+!data/test_runs/*/metadata.json
+!data/test_runs/*/results/
+!data/test_runs/runs_index.json
+
+# Cache directory
+data/cache/
+
+# Temporary files
+.*.tmp.*
+*.tmp

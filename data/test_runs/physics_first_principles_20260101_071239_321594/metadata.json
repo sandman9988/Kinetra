@@ -1,0 +1,30 @@
+{
+  "run_id": "physics_first_principles_20260101_071239_321594",
+  "timestamp": "2026-01-01T07:12:39.328599",
+  "test_suite": "physics_first_principles",
+  "instruments": [
+    "AUDUSD+_M30",
+    "UKOUSD_H4",
+    "XAUAUD+_H1",
+    "AUDUSD+_H4",
+    "UKOUSD_M30",
+    "GBPJPY+_H4",
+    "AUDJPY+_M30",
+    "AUDJPY+_H1",
+    "UKOUSD_H1",
+    "BTCJPY_M30",
+    "XAUAUD+_M30",
+    "XAGUSD_M15",
+    "ETHEUR_H4",
+    "BTCUSD_M30",
+    "AUDJPY+_M15"
+  ],
+  "config": {
+    "num_tests": 1,
+    "timestamp": "2026-01-01T07:12:39.321589"
+  },
+  "data_snapshot_path": "data/test_runs/physics_first_principles_20260101_071239_321594/data",
+  "results_path": "data/test_runs/physics_first_principles_20260101_071239_321594/results",
+  "cache_path": "data/test_runs/physics_first_principles_20260101_071239_321594/cache",
+  "status": "running"
+}

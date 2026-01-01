@@ -37,6 +37,7 @@ Usage:
 
 import argparse
 import json
+import logging
 import sys
 import warnings
 from datetime import datetime
@@ -49,6 +50,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 warnings.filterwarnings('ignore')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -76,7 +81,7 @@ def discover_instruments(
     asset_classes: Optional[List[str]] = None,
     timeframes: Optional[List[str]] = None,
     max_per_class: int = 3,
-    use_data_manager: bool = True
+    use_data_manager: bool = False  # Changed default to False - use direct discovery
 ) -> List[InstrumentSpec]:
     """
     Discover available instruments for testing.
@@ -85,7 +90,7 @@ def discover_instruments(
     across different tests.
     
     Args:
-        data_dirs: Data directories to search (legacy)
+        data_dirs: Data directories to search
         asset_classes: Filter by asset classes
         timeframes: Filter by timeframes
         max_per_class: Max instruments per class
@@ -95,20 +100,27 @@ def discover_instruments(
         List of InstrumentSpec objects
     """
     if use_data_manager:
-        # Use UnifiedDataManager for better discovery
-        manager = quick_setup()
-        instruments = manager.prepare_for_testing(
-            asset_classes=asset_classes,
-            timeframes=timeframes,
-            max_per_class=max_per_class
-        )
-        return instruments
+        try:
+            # Use UnifiedDataManager for better discovery
+            manager = quick_setup()
+            instruments = manager.prepare_for_testing(
+                asset_classes=asset_classes,
+                timeframes=timeframes,
+                max_per_class=max_per_class
+            )
+            if instruments:
+                return instruments
+            logger.warning("UnifiedDataManager returned no instruments, falling back to direct discovery")
+        except Exception as e:
+            logger.warning(f"UnifiedDataManager failed: {e}, falling back to direct discovery")
     
-    # Legacy discovery method
+    # Direct discovery from filesystem
     if data_dirs is None:
         data_dirs = [
             "data/master",
-            "data/runs/berserker_run3/data",
+            "data/prepared/train",
+            "data/prepared/test",
+            "data/runs",
             "data",
         ]
     
@@ -116,21 +128,29 @@ def discover_instruments(
     seen = set()
     by_class = {}
     
+    logger.info(f"Scanning data directories: {data_dirs}")
+    
     for data_dir in data_dirs:
         path = Path(data_dir)
         if not path.exists():
+            logger.debug(f"Directory not found: {data_dir}")
             continue
         
-        for csv_file in path.rglob("*.csv"):
+        csv_files = list(path.rglob("*.csv"))
+        logger.info(f"Found {len(csv_files)} CSV files in {data_dir}")
+        
+        for csv_file in csv_files:
             # Skip non-data files
-            if 'symbol' in csv_file.name.lower() or 'info' in csv_file.name.lower():
+            filename_lower = csv_file.name.lower()
+            if any(skip in filename_lower for skip in ['symbol', 'info', 'manifest', 'log', 'report']):
                 continue
             
-            # Parse filename
+            # Parse filename (format: SYMBOL_TIMEFRAME_DATES.csv)
             name = csv_file.stem
             parts = name.split('_')
             
             if len(parts) < 2:
+                logger.debug(f"Skipping file with unexpected format: {csv_file.name}")
                 continue
             
             symbol = parts[0]
@@ -148,6 +168,7 @@ def discover_instruments(
                 continue
             
             if asset_class == 'unknown':
+                logger.debug(f"Skipping unknown asset class: {symbol}")
                 continue
             
             # Create spec
@@ -170,6 +191,10 @@ def discover_instruments(
                 by_class[asset_class].append(spec)
                 instruments.append(spec)
                 seen.add(key)
+    
+    logger.info(f"Discovered {len(instruments)} instruments across {len(by_class)} asset classes")
+    for cls, specs in by_class.items():
+        logger.info(f"  {cls}: {len(specs)} instruments")
     
     return instruments
 
