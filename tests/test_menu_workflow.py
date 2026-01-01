@@ -439,7 +439,7 @@ def test_input_validation(logger: WorkflowTestLogger):
         logger.log_action("Testing: Invalid input → retry → valid input")
         with mock_input_sequence('99', 'invalid', '0'):
             with capture_output():
-                result = kinetra_menu.show_main_menu(wf_manager)
+                kinetra_menu.show_main_menu(wf_manager)
         
         logger.log_action("Input validation handles invalid choices correctly")
         
