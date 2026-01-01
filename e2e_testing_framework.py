@@ -432,9 +432,13 @@ class E2ETestRunner:
                     use_gpu=True
                 )
                 
-                # Run test (placeholder - would integrate with actual testing framework)
-                # result = TestingFramework().run_test(test_config)
-                pass
+                # Run test using testing framework when integration is implemented.
+                # Currently we log and fall back to a placeholder result below.
+                logger.info(
+                    "Testing framework available but integration is not yet implemented; "
+                    "using placeholder E2E test result for %s",
+                    test_id,
+                )
             
             # Placeholder result
             result = {
