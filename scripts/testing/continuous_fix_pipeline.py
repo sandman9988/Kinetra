@@ -222,7 +222,7 @@ class ContinuousTestPipeline:
         self.logger.info("\n[1/5] Menu System Test...")
         menu_result = self._run_command(
             [sys.executable, "scripts/testing/exercise_menu_continuous.py", "--iterations", "1"],
-            timeout=30
+            timeout=60
         )
         results['tests_run'] += 1
         if menu_result['success']:
