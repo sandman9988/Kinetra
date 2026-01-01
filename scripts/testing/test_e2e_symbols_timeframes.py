@@ -1073,11 +1073,23 @@ Examples:
             checkpoint_file = Path(args.checkpoint)
         else:
             # Find latest checkpoint
-            checkpoints = list(config.checkpoint_dir.glob("checkpoint_*.json"))
-            if checkpoints:
-                checkpoint_file = max(checkpoints, key=lambda p: p.stat().st_mtime)
+            # Find latest checkpoint
+            checkpoint_files = config.checkpoint_dir.glob("checkpoint_*.json")
+            latest_checkpoint = None
+            latest_mtime = -1
+            for cp_file in checkpoint_files:
+                try:
+                    mtime = cp_file.stat().st_mtime
+                    if mtime > latest_mtime:
+                        latest_mtime = mtime
+                        latest_checkpoint = cp_file
+                except FileNotFoundError:
+                    # File was deleted between glob and stat, ignore it
+                    continue
         
-        if checkpoint_file and checkpoint_file.exists():
+            if latest_checkpoint:
+                checkpoint_file = latest_checkpoint
+    
             orchestrator.load_checkpoint(checkpoint_file)
         else:
             print("No checkpoint found. Starting fresh.")
