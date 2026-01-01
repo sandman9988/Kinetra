@@ -961,8 +961,15 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict):
         result = subprocess.run(
             [sys.executable, "scripts/download/check_data_integrity.py"],
             capture_output=True,
-            text=True
+            text=True,
         )
+        if result.returncode != 0:
+            print("  ⚠️ Warning: Data integrity check reported issues.")
+            if result.stderr:
+                print(result.stderr.strip())
+        elif result.stdout:
+            # Surface any informative messages from the integrity script
+            print(result.stdout.strip())
     except Exception as e:
         print(f"  ⚠️ Warning: Could not check integrity: {e}")
     
