@@ -351,7 +351,7 @@ git push origin feature/new-physics-model
 # - If pass → auto-merge to develop
 ```
 
-For complete branching workflow, see [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md).
+For complete branching workflow, see the [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md) or [Quick Reference](docs/BRANCHING_QUICK_REF.md).
 
 ## 📚 Documentation
 
