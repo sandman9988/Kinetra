@@ -48,14 +48,14 @@ class TestRunner:
             )
             
             success = result.returncode == 0
-            output = result.stdout if success else result.stderr
-            
+            output = (result.stdout or "") + (("\n" + result.stderr) if result.stderr else "")
+
             if success:
                 print(f"✅ {name} - PASSED")
             else:
                 print(f"❌ {name} - FAILED")
-                print(f"Error: {result.stderr[:500]}")  # Print first 500 chars
-            
+                print(f"Error output: {output[:500]}")  # Print first 500 chars
+
             return success, output
             
         except subprocess.TimeoutExpired:
