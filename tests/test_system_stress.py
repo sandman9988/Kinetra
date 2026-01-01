@@ -513,7 +513,7 @@ def test_concurrent_data_operations(config: StressTestConfig, monitor: SystemHea
         
         for future in as_completed(futures):
             try:
-                result = future.result(timeout=config.menu_operation_timeout)
+                result = future.result(timeout=config.e2e_operation_timeout)
                 results['operation_results'].append(result)
                 
                 if result['errors']:
