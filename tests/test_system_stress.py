@@ -71,7 +71,7 @@ class SystemHealthMonitor:
     
     def __init__(self):
         self.start_time = time.time()
-        self._lock = threading.Lock()
+        self._lock = multiprocessing.Lock()
         self.metrics = {
             'cpu_samples': [],
             'memory_samples': [],
