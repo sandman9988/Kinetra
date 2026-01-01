@@ -137,21 +137,21 @@ class MenuConfig:
     
     @classmethod
     @lru_cache(maxsize=1)
-    def get_all_asset_classes(cls) -> List[str]:
+    def get_all_asset_classes(cls) -> Tuple[str, ...]:
         """Get list of all asset classes."""
-        return list(cls.ASSET_CLASSES.keys())
+        return tuple(cls.ASSET_CLASSES.keys())
     
     @classmethod
     @lru_cache(maxsize=1)
-    def get_all_timeframes(cls) -> List[str]:
+    def get_all_timeframes(cls) -> Tuple[str, ...]:
         """Get list of all timeframes."""
-        return list(cls.TIMEFRAMES.keys())
+        return tuple(cls.TIMEFRAMES.keys())
     
     @classmethod
     @lru_cache(maxsize=1)
-    def get_all_agent_types(cls) -> List[str]:
+    def get_all_agent_types(cls) -> Tuple[str, ...]:
         """Get list of all agent types."""
-        return list(cls.AGENT_TYPES.keys())
+        return tuple(cls.AGENT_TYPES.keys())
 
 
 # =============================================================================
