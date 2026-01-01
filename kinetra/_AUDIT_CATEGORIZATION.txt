@@ -1,0 +1,122 @@
+KINETRA MODULE AUDIT - FILE CATEGORIZATION
+==========================================
+
+DATA MANAGEMENT (5 files - CONSOLIDATE TO 1):
+  - data_management.py (737 lines)
+  - data_manager.py (764 lines)  
+  - unified_data_manager.py (590 lines)
+  - data_loader.py (520 lines)
+  - data_utils.py (450 lines)
+  Related:
+  - data_alignment.py
+  - data_package.py
+  - data_quality.py
+
+BACKTESTING (6 files - CONSOLIDATE TO 1):
+  - backtest_engine.py (PRIMARY - 1098 lines)
+  - realistic_backtester.py (MT5 - 1038 lines)
+  - physics_backtester.py (977 lines)
+  - backtest_optimizer.py (1029 lines)
+  - integrated_backtester.py (634 lines)
+  - portfolio_backtest.py (792 lines)
+
+PHYSICS (3 files):
+  - physics_engine.py (base)
+  - physics_v7.py (current)
+  - measurements.py
+
+AGENTS/STRATEGIES (8 files):
+  - rl_agent.py
+  - rl_neural_agent.py
+  - rl_gpu_trainer.py
+  - berserker_strategy.py
+  - strategies_v7.py
+  - doppelganger_triad.py
+  - triad_system.py
+  - multi_agent_design.py
+
+ENVIRONMENTS (6 files):
+  - trading_env.py
+  - rl_physics_env.py
+  - realistic_trading_env.py
+  - single_symbol_env.py
+  - regime_filtered_env.py
+
+RISK/POSITION MANAGEMENT (5 files):
+  - risk_management.py
+  - position_manager.py
+  - portfolio_health.py
+  - order_validator.py
+  - spread_gate.py
+
+MT5 INTEGRATION (6 files):
+  - mt5_bridge.py
+  - mt5_connector.py
+  - mt5_live.py
+  - mt5_spec_extractor.py
+  - mql5_compliance.py
+  - mql5_trade_classes.py
+
+EXECUTION (3 files):
+  - order_executor.py
+  - trade_logger.py
+  - trading_costs.py
+
+MARKET DATA/INFO (7 files):
+  - market_microstructure.py
+  - market_calendar.py
+  - market_events.py
+  - symbol_info.py
+  - symbol_spec.py
+  - symbol_specs.py
+  - broker_compliance.py
+
+FEATURES (5 files):
+  - dsp_features.py
+  - liquidity_features.py
+  - assumption_free_measures.py
+  - volatility.py
+  - trigger_predictor.py
+
+DISCOVERY/REGIME (4 files):
+  - discovery_methods.py
+  - regime_discovery.py
+  - trend_discovery.py
+  - exploration_integration.py
+
+MONITORING (6 files):
+  - health_monitor.py
+  - health_score.py
+  - metrics_server.py
+  - grafana_exporter.py
+  - silent_failure_logger.py
+  - reporting.py
+
+TESTING (3 files):
+  - testing_framework.py
+  - test_executor.py
+  - stress_test.py
+
+PERFORMANCE (5 files):
+  - performance.py
+  - parallel.py
+  - hardware_optimizer.py
+  - high_performance_engine.py
+  - network_resilience.py
+
+PERSISTENCE (4 files):
+  - persistence.py
+  - persistence_manager.py
+  - results_manager.py
+  - experience_replay.py
+
+UTILITIES (8 files):
+  - config.py
+  - financial_audit.py
+  - plotting.py
+  - walk_forward.py
+  - workflow_manager.py
+  - composite_stacking.py
+  - reward_shaping.py
+
+TOTAL: 99 Python files in kinetra/
