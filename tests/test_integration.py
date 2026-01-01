@@ -55,6 +55,8 @@ class TestIntegration:
         
         # Agent - use simplified state_dim=10 for this test (not full physics state)
         # This tests basic agent initialization and action selection, not full pipeline integration
+        # Note: state_dim=10 is arbitrary but small enough to test without heavy computation
+        # The full physics state has 43 dimensions, but this test only validates API contract
         test_state_dim = 10
         agent = KinetraAgent(state_dim=test_state_dim)
         action = agent.select_action(np.zeros(test_state_dim))
