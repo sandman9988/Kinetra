@@ -544,7 +544,7 @@ class E2ETestOrchestrator:
                 
                 # Run for each role
                 role_results = {}
-                for role in ['trader', 'risk_manager', 'portfolio_manager']:
+                for role in ROLE_CONFIGS.keys():
                     self.workflow_manager.logger.info(f"  Role: {role}")
                     
                     trainer = DimensionTrainer(
