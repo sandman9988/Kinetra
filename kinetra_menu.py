@@ -135,24 +135,45 @@ from typing import Dict, List, Optional, Tuple, Callable, Any
 def get_input(
     prompt: str,
     valid_choices: Optional[List[str]] = None,
-    input_type: Callable[[str], Any] = str
+    input_type: Callable[[str], Any] = str,
+    allow_back: bool = True
 ) -> Any:
     """
     Get user input with optional validation and type conversion.
+    
+    Supports navigation shortcuts:
+    - '0' or 'back' or 'b' = Go back
+    - 'exit' or 'quit' or 'q' = Exit program
     
     Args:
         prompt: Input prompt to display
         valid_choices: List of valid choices (None = any input accepted)
         input_type: The type to convert the input to (e.g., int, float)
+        allow_back: If True, accept back/exit shortcuts
         
     Returns:
         User input (validated and type-converted)
     """
     while True:
-        choice = input(f"\n{prompt}: ").strip()
+        # Show navigation hints
+        hint = ""
+        if allow_back and valid_choices:
+            hint = " (0=back, q=exit)"
+            
+        choice = input(f"\n{prompt}{hint}: ").strip()
+        choice_lower = choice.lower()
         
+        # Handle navigation shortcuts
+        if allow_back:
+            if choice_lower in ['exit', 'quit', 'q']:
+                print("\n👋 Exiting Kinetra...")
+                sys.exit(0)
+            elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
+                choice = '0'  # Normalize to '0'
+                
         if valid_choices and choice not in valid_choices:
             print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
+            print("   Shortcuts: 0=back, q=quit")
             continue
 
         if not choice and input_type is not str:
