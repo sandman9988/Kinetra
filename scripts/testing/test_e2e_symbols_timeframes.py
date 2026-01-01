@@ -469,32 +469,39 @@ class E2ETestOrchestrator:
             try:
                 # Read data
                 df = pd.read_csv(filepath, sep='\t')
-                
-                # Basic validation
-                required_cols = ['<DATE>', '<TIME>', '<OPEN>', '<HIGH>', '<LOW>', '<CLOSE>', '<TICKVOL>']
-                missing_cols = [c for c in required_cols if c not in df.columns]
-                
-                if missing_cols:
-                    raise ValueError(f"Missing columns: {missing_cols}")
-                
-                # Data quality checks
-                n_rows = len(df)
-                n_nulls = df.isnull().sum().sum()
-                
-                # Check for gaps
-                df['timestamp'] = pd.to_datetime(df['<DATE>'] + ' ' + df['<TIME>'])
-                df = df.sort_values('timestamp')
-                time_diffs = df['timestamp'].diff()
-                
-                validation_results[key] = {
-                    'valid': True,
-                    'rows': n_rows,
-                    'nulls': int(n_nulls),
-                    'start': str(df['timestamp'].min()),
-                    'end': str(df['timestamp'].max()),
-                    'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(time_diffs) > 1 else 0,
-                }
-                
+                    df = pd.read_csv(filepath, sep='\t')
+
+                    if df.empty:
+                        validation_results[key] = {
+                            'valid': True, 'rows': 0, 'nulls': 0, 'start': None, 'end': None, 'mean_gap_hours': 0,
+                        }
+                        self.workflow_manager.logger.info(f"✅ {key}: 0 rows (empty file)")
+                        continue
+            
+                    # Basic validation
+                    required_cols = ['<DATE>', '<TIME>', '<OPEN>', '<HIGH>', '<LOW>', '<CLOSE>', '<TICKVOL>']
+                    missing_cols = [c for c in required_cols if c not in df.columns]
+            
+                    if missing_cols:
+                        raise ValueError(f"Missing columns: {missing_cols}")
+            
+                    # Data quality checks
+                    n_rows = len(df)
+                    n_nulls = df.isnull().sum().sum()
+            
+                    # Check for gaps
+                    df['timestamp'] = pd.to_datetime(df['<DATE>'] + ' ' + df['<TIME>'])
+                    df = df.sort_values('timestamp')
+                    time_diffs = df['timestamp'].diff()
+            
+                    validation_results[key] = {
+                        'valid': True,
+                        'rows': n_rows,
+                        'nulls': int(n_nulls),
+                        'start': str(df['timestamp'].min()),
+                        'end': str(df['timestamp'].max()),
+                        'mean_gap_hours': float(time_diffs.dt.total_seconds().mean() / 3600) if len(df) > 1 else 0,
+                    }
                 self.workflow_manager.logger.info(
                     f"✅ {key}: {n_rows} rows, {validation_results[key]['mean_gap_hours']:.1f}h avg gap"
                 )
