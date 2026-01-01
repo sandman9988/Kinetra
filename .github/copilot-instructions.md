@@ -63,6 +63,7 @@ python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 - Add docstrings for all public functions and classes
 - Include mathematical formulas in LaTeX format where relevant
 - Reference theorem proofs in `docs/theorem_proofs.md`
+- Document empirical findings in `docs/EMPIRICAL_THEOREMS.md` (p < 0.01)
 - Keep README and documentation in sync with code
 
 ## Testing Requirements
@@ -271,6 +272,7 @@ tests/
 
 - **Design Bible**: Complete architecture in `docs/` directory
 - **Theorem Proofs**: Mathematical validation in `docs/theorem_proofs.md`
+- **Empirical Theorems**: Data-driven discoveries in `docs/EMPIRICAL_THEOREMS.md`
 - **Testing Guide**: `docs/TESTING_FRAMEWORK.md`
 - **API Reference**: Inline docstrings and function documentation
 - **Main Instructions**: `AI_AGENT_INSTRUCTIONS.md` for detailed system philosophy

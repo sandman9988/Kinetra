@@ -201,7 +201,8 @@ Kinetra/
 │   └── test_integration.py
 ├── docs/                    # Design Bible
 │   ├── architecture.md
-│   ├── theorem_proofs.md
+│   ├── theorem_proofs.md    # Mathematical proofs
+│   ├── EMPIRICAL_THEOREMS.md  # Data-driven discoveries
 │   ├── deployment.md
 │   └── TESTING_FRAMEWORK.md  # Testing framework docs
 ├── scripts/                 # Automation & setup
@@ -262,6 +263,7 @@ Every component is validated through multiple layers:
 
 ### Layer 4: Theorem Validation
 - Mathematical proofs in `docs/theorem_proofs.md`
+- Empirical discoveries in `docs/EMPIRICAL_THEOREMS.md` (p < 0.01)
 - Continuous validation via GitHub Actions
 - FDR control (False Discovery Rate < 0.05)
 
