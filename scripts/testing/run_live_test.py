@@ -371,12 +371,16 @@ class LiveTestRunner:
         
         return results
     
-    def _execute_demo_trade(self) -> Dict[str, Any]:
-        """Execute a demo trade (simplified)."""
-        current_price = self.executor.get_current_price()
-        
-        # Simple random trade
-        direction = 1 if np.random.rand() > 0.5 else -1
+    # In kinetra/order_executor.py
+
+    def get_current_price(self) -> float:
+        """Get current price from MT5."""
+        symbol_info = self.mt5_connection.mt5.symbol_info_tick(self.spec.symbol)
+        if symbol_info is None:
+            raise ConnectionError(f"Could not get tick for {self.spec.symbol}")
+    
+        # Use a representative price, e.g., the average of bid and ask
+        return (symbol_info.bid + symbol_info.ask) / 2.0
         action = 'open_long' if direction == 1 else 'open_short'
         
         # Calculate safe SL/TP
