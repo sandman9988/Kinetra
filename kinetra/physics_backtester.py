@@ -947,4 +947,6 @@ def calculate_physics_metrics(data: pd.DataFrame, results: Dict) -> Dict[str, fl
         "regime_underdamped_pct": float(regime_dist.get('underdamped', 0)),
         "regime_critical_pct": float(regime_dist.get('critical', 0)),
         "regime_overdamped_pct": float(regime_dist.get('overdamped', 0)),
+        "regime_laminar_pct": float(regime_dist.get('laminar', 0)),
+        "regime_breakout_pct": float(regime_dist.get('breakout', 0)),
     }

@@ -53,8 +53,8 @@ class TestIntegration:
         returns = prices.pct_change().dropna()
         ror = risk_mgr.calculate_risk_of_ruin(100000, 50000, returns)
         
-        # Agent (placeholder)
-        agent = KinetraAgent()
+        # Agent (placeholder) - use state_dim=10 to match test state
+        agent = KinetraAgent(state_dim=10)
         action = agent.select_action(np.zeros(10))
         
         # Should complete pipeline
