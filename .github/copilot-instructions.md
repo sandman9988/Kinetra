@@ -195,20 +195,22 @@ assert p_value < 0.01, f"Not statistically significant (p={p_value})"
 ## Dependencies
 
 ### Core Libraries
-- `numpy>=1.24.0` - Numerical computing
-- `pandas>=2.0.0` - Data manipulation
-- `scipy>=1.10.0` - Scientific computing
-- `pydantic>=2.0.0` - Data validation
-- `scikit-learn>=1.3.0` - Machine learning utilities
-- `hmmlearn>=0.3.0` - Hidden Markov Models
+- `numpy` - Numerical computing
+- `pandas` - Data manipulation
+- `scipy` - Scientific computing
+- `pydantic` - Data validation
+- `scikit-learn` - Machine learning utilities
+- `hmmlearn` - Hidden Markov Models
 
 ### Development Tools
-- `pytest>=7.3.0` - Testing framework
-- `pytest-cov>=4.1.0` - Coverage reporting
-- `hypothesis>=6.75.0` - Property-based testing
-- `black>=23.3.0` - Code formatting
-- `ruff>=0.0.270` - Linting
-- `mypy>=1.3.0` - Type checking
+- `pytest` - Testing framework
+- `pytest-cov` - Coverage reporting
+- `hypothesis` - Property-based testing
+- `black` - Code formatting
+- `ruff` - Linting
+- `mypy` - Type checking
+
+**Note**: Refer to `pyproject.toml` for exact version requirements and additional dependencies.
 
 ## File Organization
 
