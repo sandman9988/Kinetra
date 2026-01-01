@@ -229,13 +229,19 @@ class ExplorationDataLoader:
             return None
 
     def load_all(self, verbose: bool = True) -> int:
-        """Load all instruments from data directory."""
+        """Load all instruments from data directory (including subdirectories)."""
+        # Search for CSV files in root and all subdirectories
         csv_files = list(self.data_dir.glob("*.csv"))
+        csv_files.extend(self.data_dir.glob("**/*.csv"))
+        
+        # Remove duplicates (in case root files were already included)
+        csv_files = list(set(csv_files))
 
         if verbose:
             print(f"\n[LOADING] {len(csv_files)} files from {self.data_dir}")
 
         loaded = 0
+        failed = 0
         for csv_file in csv_files:
             result = self.load_instrument(csv_file)
             if result:
@@ -243,9 +249,13 @@ class ExplorationDataLoader:
                 if verbose:
                     n_meas = len(result.measurement_names)
                     print(f"  [OK] {result.instrument_key} ({result.asset_class}): {n_meas} measurements")
+            else:
+                failed += 1
 
         if verbose:
             print(f"\n[LOADED] {loaded} instruments with comprehensive measurements")
+            if failed > 0:
+                print(f"[WARN] {failed} files failed to load")
 
         return loaded
 

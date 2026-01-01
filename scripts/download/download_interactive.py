@@ -19,7 +19,7 @@ import asyncio
 import json
 import getpass
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set
 import pandas as pd
 
@@ -475,7 +475,7 @@ class InteractiveDownloader:
     async def download_candles(self, symbol: str, timeframe: str, days: int = 365) -> Optional[pd.DataFrame]:
         """Download candle data for symbol/timeframe."""
         try:
-            start_time = datetime.utcnow() - timedelta(days=days)
+            start_time = datetime.now(timezone.utc) - timedelta(days=days)
 
             # Use account object for historical candles (not RPC connection)
             candles = await self.account.get_historical_candles(

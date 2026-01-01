@@ -34,6 +34,88 @@ from kinetra.workflow_manager import WorkflowManager
 # MENU UTILITIES
 # =============================================================================
 
+def get_secure_input(prompt: str, confirm: bool = False) -> str:
+    """
+    Get secure input (masked, like password).
+    
+    Args:
+        prompt: Prompt to display
+        confirm: If True, ask for confirmation input
+        
+    Returns:
+        The entered value (stripped of whitespace and duplicates)
+    """
+    import getpass
+    
+    while True:
+        value = getpass.getpass(f"\n{prompt}: ").strip()
+        
+        # Strip duplicate pastes (common error)
+        if len(value) > 50:  # Likely a UUID or token
+            # Check if it's duplicated (e.g., pasted twice)
+            mid = len(value) // 2
+            if value[:mid] == value[mid:]:
+                print("  ⚠️  Detected duplicate paste - using single copy")
+                value = value[:mid]
+        
+        if not value:
+            print("  ❌ Input cannot be empty")
+            continue
+        
+        # Show feedback that something was entered
+        print(f"  ✓ Received {len(value)} characters")
+        
+        if confirm:
+            confirm_value = getpass.getpass(f"  Confirm {prompt}: ").strip()
+            if value != confirm_value:
+                print("  ❌ Values don't match, try again")
+                continue
+        
+        return value
+
+
+def save_to_env(key: str, value: str) -> bool:
+    """
+    Save a key-value pair to .env file.
+    
+    Args:
+        key: Environment variable name
+        value: Value to save
+        
+    Returns:
+        True if successful
+    """
+    env_file = Path(".env")
+    
+    try:
+        # Read existing .env or create new
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                lines = f.readlines()
+        else:
+            lines = []
+        
+        # Update or add the key
+        updated = False
+        for i, line in enumerate(lines):
+            if line.strip().startswith(f"{key}="):
+                lines[i] = f"{key}={value}\n"
+                updated = True
+                break
+        
+        if not updated:
+            lines.append(f"{key}={value}\n")
+        
+        # Write back
+        with open(env_file, 'w') as f:
+            f.writelines(lines)
+        
+        return True
+    except Exception as e:
+        print(f"  ❌ Error saving to .env: {e}")
+        return False
+
+
 def print_header(text: str, width: int = 80):
     """Print formatted section header."""
     print("\n" + "=" * width)
@@ -53,24 +135,45 @@ from typing import Dict, List, Optional, Tuple, Callable, Any
 def get_input(
     prompt: str,
     valid_choices: Optional[List[str]] = None,
-    input_type: Callable[[str], Any] = str
+    input_type: Callable[[str], Any] = str,
+    allow_back: bool = True
 ) -> Any:
     """
     Get user input with optional validation and type conversion.
+    
+    Supports navigation shortcuts:
+    - '0' or 'back' or 'b' = Go back
+    - 'exit' or 'quit' or 'q' = Exit program
     
     Args:
         prompt: Input prompt to display
         valid_choices: List of valid choices (None = any input accepted)
         input_type: The type to convert the input to (e.g., int, float)
+        allow_back: If True, accept back/exit shortcuts
         
     Returns:
         User input (validated and type-converted)
     """
     while True:
-        choice = input(f"\n{prompt}: ").strip()
+        # Show navigation hints
+        hint = ""
+        if allow_back and valid_choices:
+            hint = " (0=back, q=exit)"
+            
+        choice = input(f"\n{prompt}{hint}: ").strip()
+        choice_lower = choice.lower()
         
+        # Handle navigation shortcuts
+        if allow_back:
+            if choice_lower in ['exit', 'quit', 'q']:
+                print("\n👋 Exiting Kinetra...")
+                sys.exit(0)
+            elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
+                choice = '0'  # Normalize to '0'
+                
         if valid_choices and choice not in valid_choices:
             print(f"❌ Invalid choice. Please select from: {', '.join(valid_choices)}")
+            print("   Shortcuts: 0=back, q=quit")
             continue
 
         if not choice and input_type is not str:
@@ -294,13 +397,27 @@ def run_quick_exploration(wf_manager: WorkflowManager):
     
     # Step 1: Auto-manage data
     print("\n1️⃣ Data Management...")
-    ensure_data_available(wf_manager, config)
+    data_ready = ensure_data_available(wf_manager, config)
+    
+    if not data_ready:
+        print("\n❌ Data preparation failed. Cannot continue.")
+        input("\nPress Enter to return to menu...")
+        return
     
     # Step 2: Run exploration
     print("\n2️⃣ Running Exploration...")
-    run_exploration_script(wf_manager, config)
+    success = run_exploration_script(wf_manager, config)
     
-    print("\n✅ Quick exploration complete!")
+    if success:
+        print("\n✅ Quick exploration complete!")
+        
+        # Display results summary
+        display_exploration_results()
+    else:
+        print("\n❌ Exploration failed. Check the error messages above.")
+    
+    # Wait for user acknowledgment before returning to menu
+    input("\n📊 Press Enter to return to main menu...")
 
 
 def run_custom_exploration(wf_manager: WorkflowManager):
@@ -343,13 +460,24 @@ def run_custom_exploration(wf_manager: WorkflowManager):
     
     # Auto-manage data
     print("\n1️⃣ Data Management...")
-    ensure_data_available(wf_manager, config)
+    data_ready = ensure_data_available(wf_manager, config)
+    
+    if not data_ready:
+        print("\n❌ Data preparation failed. Cannot continue.")
+        input("\nPress Enter to return to menu...")
+        return
     
     # Run exploration
     print("\n2️⃣ Running Exploration...")
-    run_exploration_script(wf_manager, config)
+    success = run_exploration_script(wf_manager, config)
     
-    print("\n✅ Custom exploration complete!")
+    if success:
+        print("\n✅ Custom exploration complete!")
+        display_exploration_results()
+    else:
+        print("\n❌ Exploration failed. Check the error messages above.")
+    
+    input("\n📊 Press Enter to return to main menu...")
 
 
 def run_scientific_discovery(wf_manager: WorkflowManager):
@@ -371,14 +499,20 @@ Scientific discovery methods:
     
     try:
         import subprocess
-        subprocess.run([
+        result = subprocess.run([
             sys.executable,
             "scripts/testing/run_scientific_testing.py",
             "--phase", "discovery"
-        ])
-        print("\n✅ Scientific discovery complete!")
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Scientific discovery complete!")
+        else:
+            print(f"\n⚠️ Discovery completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def run_agent_comparison(wf_manager: WorkflowManager):
@@ -401,13 +535,32 @@ Compare agent types:
     
     try:
         import subprocess
-        subprocess.run([
+        result = subprocess.run([
             sys.executable,
             "scripts/training/explore_compare_agents.py"
-        ])
-        print("\n✅ Agent comparison complete!")
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Agent comparison complete!")
+            
+            # Display next steps
+            print("\n" + "=" * 80)
+            print("  NEXT STEPS")
+            print("=" * 80)
+            print("""
+  1. Review which agent(s) performed best
+  2. If one dominates → use it universally
+  3. If different agents excel → explore specialization
+  4. Test measurement impact per winning agent
+
+  Run: python scripts/explore_measurements.py
+            """)
+        else:
+            print(f"\n⚠️ Comparison completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def run_measurement_analysis(wf_manager: WorkflowManager):
@@ -427,6 +580,8 @@ Analyze physics measurements:
     
     print("\n📊 Running measurement analysis...")
     print("✅ Measurement analysis complete!")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 # =============================================================================
@@ -488,8 +643,15 @@ def run_quick_backtest(wf_manager: WorkflowManager):
         return
     
     print("\n🚀 Starting quick backtest...")
-    run_backtest_script(wf_manager, config)
-    print("\n✅ Quick backtest complete!")
+    success = run_backtest_script(wf_manager, config)
+    
+    if success:
+        print("\n✅ Quick backtest complete!")
+        display_backtest_results()
+    else:
+        print("\n❌ Backtest failed. Check the error messages above.")
+    
+    input("\n📊 Press Enter to return to main menu...")
 
 
 def run_custom_backtest(wf_manager: WorkflowManager):
@@ -541,8 +703,15 @@ def run_custom_backtest(wf_manager: WorkflowManager):
         return
     
     print("\n🚀 Starting custom backtest...")
-    run_backtest_script(wf_manager, config)
-    print("\n✅ Custom backtest complete!")
+    success = run_backtest_script(wf_manager, config)
+    
+    if success:
+        print("\n✅ Custom backtest complete!")
+        display_backtest_results()
+    else:
+        print("\n❌ Backtest failed. Check the error messages above.")
+    
+    input("\n📊 Press Enter to return to main menu...")
 
 
 def run_monte_carlo_validation(wf_manager: WorkflowManager):
@@ -556,14 +725,21 @@ def run_monte_carlo_validation(wf_manager: WorkflowManager):
     
     try:
         import subprocess
-        subprocess.run([
+        result = subprocess.run([
             sys.executable,
             "scripts/testing/run_comprehensive_backtest.py",
             "--monte-carlo", str(num_runs)
-        ])
-        print("\n✅ Monte Carlo validation complete!")
+        ], check=False)
+        
+        if result.returncode == 0:
+            print("\n✅ Monte Carlo validation complete!")
+            display_backtest_results()
+        else:
+            print(f"\n❌ Monte Carlo validation failed (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def run_walk_forward_testing(wf_manager: WorkflowManager):
@@ -582,7 +758,9 @@ def run_walk_forward_testing(wf_manager: WorkflowManager):
         return
     
     print("\n🚀 Running walk-forward testing...")
-    print("✅ Walk-forward testing complete!")
+    print("⚠️  Walk-forward testing not yet implemented")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def run_comparative_analysis(wf_manager: WorkflowManager):
@@ -598,7 +776,9 @@ def run_comparative_analysis(wf_manager: WorkflowManager):
         return
     
     print("\n🚀 Running comparative analysis...")
-    print("✅ Comparative analysis complete!")
+    print("⚠️  Comparative analysis not yet implemented")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 # =============================================================================
@@ -668,10 +848,19 @@ def manual_download(wf_manager: WorkflowManager):
     
     try:
         import subprocess
-        subprocess.run([sys.executable, "scripts/download/download_interactive.py"])
-        print("\n✅ Download complete!")
+        result = subprocess.run(
+            [sys.executable, "scripts/download/download_interactive.py"],
+            check=False
+        )
+        
+        if result.returncode == 0:
+            print("\n✅ Download complete!")
+        else:
+            print(f"\n⚠️  Download completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def check_fill_missing_data(wf_manager: WorkflowManager):
@@ -682,10 +871,19 @@ def check_fill_missing_data(wf_manager: WorkflowManager):
     
     try:
         import subprocess
-        subprocess.run([sys.executable, "scripts/download/check_and_fill_data.py"])
-        print("\n✅ Check complete!")
+        result = subprocess.run(
+            [sys.executable, "scripts/download/check_and_fill_data.py"],
+            check=False
+        )
+        
+        if result.returncode == 0:
+            print("\n✅ Check complete!")
+        else:
+            print(f"\n⚠️  Check completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def check_data_integrity(wf_manager: WorkflowManager):
@@ -696,10 +894,19 @@ def check_data_integrity(wf_manager: WorkflowManager):
     
     try:
         import subprocess
-        subprocess.run([sys.executable, "scripts/download/check_data_integrity.py"])
-        print("\n✅ Integrity check complete!")
+        result = subprocess.run(
+            [sys.executable, "scripts/download/check_data_integrity.py"],
+            check=False
+        )
+        
+        if result.returncode == 0:
+            print("\n✅ Integrity check complete!")
+        else:
+            print(f"\n⚠️  Integrity check completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def prepare_data(wf_manager: WorkflowManager):
@@ -710,10 +917,19 @@ def prepare_data(wf_manager: WorkflowManager):
     
     try:
         import subprocess
-        subprocess.run([sys.executable, "scripts/download/prepare_data.py"])
-        print("\n✅ Data preparation complete!")
+        result = subprocess.run(
+            [sys.executable, "scripts/download/prepare_data.py"],
+            check=False
+        )
+        
+        if result.returncode == 0:
+            print("\n✅ Data preparation complete!")
+        else:
+            print(f"\n⚠️  Preparation completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
+    
+    input("\n📊 Press Enter to return to menu...")
 
 
 def backup_restore_data(wf_manager: WorkflowManager):
@@ -938,8 +1154,13 @@ def select_agent_types() -> List[str]:
         return [agent.strip() for agent in agents_str.split(',')]
 
 
-def ensure_data_available(wf_manager: WorkflowManager, config: Dict):
-    """Ensure all required data is available."""
+def ensure_data_available(wf_manager: WorkflowManager, config: Dict) -> bool:
+    """
+    Ensure all required data is available.
+    
+    Returns:
+        True if data is ready, False if preparation failed
+    """
     print("  🔍 Checking for required data...")
     
     # Check if data exists
@@ -952,7 +1173,7 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict):
             subprocess.run([sys.executable, "scripts/download/download_interactive.py"])
         except Exception as e:
             print(f"  ❌ Error downloading data: {e}")
-            return
+            return False
     
     # Check data integrity
     print("  🔍 Checking data integrity...")
@@ -982,13 +1203,19 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict):
             subprocess.run([sys.executable, "scripts/download/prepare_data.py"])
         except Exception as e:
             print(f"  ❌ Error preparing data: {e}")
-            return
+            return False
     
     print("  ✅ Data is ready!")
+    return True
 
 
-def run_exploration_script(wf_manager: WorkflowManager, config: Dict):
-    """Run exploration script with given configuration."""
+def run_exploration_script(wf_manager: WorkflowManager, config: Dict) -> bool:
+    """
+    Run exploration script with given configuration.
+    
+    Returns:
+        True if successful, False otherwise
+    """
     try:
         import subprocess
         
@@ -996,16 +1223,30 @@ def run_exploration_script(wf_manager: WorkflowManager, config: Dict):
         script = "run_comprehensive_exploration.py"
         
         print(f"  🚀 Launching {script}...")
-        subprocess.run([sys.executable, script], check=True)
+        result = subprocess.run([sys.executable, script], check=False)
         
-        print("  ✅ Exploration complete!")
+        if result.returncode == 0:
+            print("  ✅ Exploration complete!")
+            return True
+        else:
+            print(f"  ❌ Exploration failed with exit code {result.returncode}")
+            return False
         
+    except subprocess.CalledProcessError as e:
+        print(f"  ❌ Error running exploration: Process failed with code {e.returncode}")
+        return False
     except Exception as e:
         print(f"  ❌ Error running exploration: {e}")
+        return False
 
 
-def run_backtest_script(wf_manager: WorkflowManager, config: Dict):
-    """Run backtest script with given configuration."""
+def run_backtest_script(wf_manager: WorkflowManager, config: Dict) -> bool:
+    """
+    Run backtest script with given configuration.
+    
+    Returns:
+        True if successful, False otherwise
+    """
     try:
         import subprocess
         
@@ -1013,12 +1254,114 @@ def run_backtest_script(wf_manager: WorkflowManager, config: Dict):
         script = "scripts/testing/run_comprehensive_backtest.py"
         
         print(f"  🚀 Launching {script}...")
-        subprocess.run([sys.executable, script])
+        result = subprocess.run([sys.executable, script], check=False)
         
-        print("  ✅ Backtest complete!")
+        if result.returncode == 0:
+            print("  ✅ Backtest complete!")
+            return True
+        else:
+            print(f"  ❌ Backtest failed with exit code {result.returncode}")
+            return False
         
     except Exception as e:
         print(f"  ❌ Error running backtest: {e}")
+        return False
+
+
+def display_exploration_results():
+    """Display exploration results summary and next steps."""
+    print("\n" + "=" * 80)
+    print("  EXPLORATION RESULTS")
+    print("=" * 80)
+    
+    # Check for recent results
+    results_dir = Path("results")
+    if results_dir.exists():
+        result_files = sorted(results_dir.glob("comprehensive_exploration_*.json"), 
+                             key=lambda p: p.stat().st_mtime, reverse=True)
+        
+        if result_files:
+            latest = result_files[0]
+            print(f"\n📊 Latest Results: {latest.name}")
+            
+            try:
+                import json
+                with open(latest, 'r') as f:
+                    results = json.load(f)
+                
+                # Display key metrics
+                cumulative = results.get('cumulative', {})
+                print(f"\n🎯 Summary:")
+                print(f"  Episodes: {cumulative.get('episodes', 'N/A')}")
+                print(f"  Total Reward: {cumulative.get('total_reward', 0):+.1f}")
+                print(f"  Avg Reward: {cumulative.get('total_reward', 0) / max(cumulative.get('episodes', 1), 1):+.2f}")
+                print(f"  Total PnL: {cumulative.get('total_pnl', 0):+.2f}%")
+                
+                # Display by asset class
+                per_class = results.get('per_class', {})
+                if per_class:
+                    print(f"\n📈 Performance by Asset Class:")
+                    for cls, stats in per_class.items():
+                        eps = stats.get('episodes', 0)
+                        if eps > 0:
+                            avg_r = stats.get('total_reward', 0) / eps
+                            avg_pnl = stats.get('total_pnl', 0) / eps
+                            print(f"  {cls:<20}: Avg Reward={avg_r:+.2f}, Avg PnL={avg_pnl:+.3f}%")
+                
+            except Exception as e:
+                print(f"  ⚠️ Could not parse results: {e}")
+        else:
+            print("\n📋 No results found yet.")
+    else:
+        print("\n📋 No results directory found.")
+    
+    print("\n" + "=" * 80)
+    print("  NEXT STEPS")
+    print("=" * 80)
+    print("""
+  1. Review which agent(s) performed best
+  2. If one dominates → use it universally
+  3. If different agents excel → explore specialization
+  4. Test measurement impact per winning agent
+
+  📂 Results saved to: results/comprehensive_exploration_*.json
+  🔬 Run: python scripts/explore_measurements.py
+    """)
+
+
+def display_backtest_results():
+    """Display backtest results summary and next steps."""
+    print("\n" + "=" * 80)
+    print("  BACKTEST RESULTS")
+    print("=" * 80)
+    
+    # Check for recent results
+    results_dir = Path("data/results")
+    if results_dir.exists():
+        result_files = sorted(results_dir.glob("backtest_*.json"), 
+                             key=lambda p: p.stat().st_mtime, reverse=True)
+        
+        if result_files:
+            latest = result_files[0]
+            print(f"\n📊 Latest Results: {latest.name}")
+            print(f"  Full results available in: {latest}")
+        else:
+            print("\n📋 No results found yet.")
+    else:
+        print("\n📋 No results directory found.")
+    
+    print("\n" + "=" * 80)
+    print("  NEXT STEPS")
+    print("=" * 80)
+    print("""
+  1. Review performance metrics (Omega, Z-Factor, etc.)
+  2. Check risk metrics (Max DD, RoR)
+  3. Validate statistical significance (p < 0.01)
+  4. If validated → proceed to demo testing
+  5. If not validated → refine strategy
+
+  📂 Results saved to: data/results/backtest_*.json
+    """)
 
 
 # =============================================================================

@@ -22,7 +22,7 @@ import sys
 import asyncio
 import json
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 import pandas as pd
 import numpy as np
@@ -140,7 +140,7 @@ class MetaAPIDownloader:
     ) -> Optional[pd.DataFrame]:
         """Download historical candles."""
         try:
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             start_time = end_time - timedelta(days=days)
 
             candles = await self.connection.get_historical_candles(

@@ -18,7 +18,7 @@ import sys
 import asyncio
 import getpass
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set, Tuple
 import pandas as pd
 from collections import defaultdict
@@ -227,7 +227,7 @@ class DataFiller:
     async def download_candles(self, symbol: str, timeframe: str, days: int = 365) -> pd.DataFrame:
         """Download candles for symbol/timeframe."""
         try:
-            start_time = datetime.utcnow() - timedelta(days=days)
+            start_time = datetime.now(timezone.utc) - timedelta(days=days)
 
             # Use account object for historical candles (not RPC connection)
             candles = await self.account.get_historical_candles(
