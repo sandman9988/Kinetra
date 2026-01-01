@@ -262,7 +262,7 @@ class UnifiedTradingEnv:
         if self.use_physics and self.physics_engine:
             physics = self._compute_physics_state()
         else:
-            physics = np.zeros(64, dtype=np.float32)
+            physics = np.zeros(0, dtype=np.float32)  # Don't add if not used
         
         # Position info
         position_info = np.array([
@@ -271,13 +271,11 @@ class UnifiedTradingEnv:
             self.unrealized_pnl
         ], dtype=np.float32)
         
-        # Concatenate all features
-        obs = np.concatenate([ohlcv, physics, position_info])
-        
-        # Ensure correct shape
-        if len(obs) != self.observation_dim:
-            logger.warning(f"Observation size mismatch: {len(obs)} != {self.observation_dim}")
-            obs = np.pad(obs, (0, max(0, self.observation_dim - len(obs))))[:self.observation_dim]
+        # Concatenate features
+        if self.use_physics:
+            obs = np.concatenate([ohlcv, physics, position_info])
+        else:
+            obs = np.concatenate([ohlcv, position_info])
         
         return obs.astype(np.float32)
     
