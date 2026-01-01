@@ -1213,3 +1213,311 @@ def classify_asset(symbol: str) -> str:
     elif len(s) == 6 and s.isalpha():
         return 'forex'
     return 'unknown'
+
+
+# =============================================================================
+# RL AGENT INTEGRATION (Phase 2: P1)
+# =============================================================================
+
+def run_rl_test(config: TestConfiguration) -> TestResult:
+    """
+    Run RL agent test suite (Phase 2: P1 Integration).
+    
+    Integrates agent_factory and unified_trading_env from Phase 1.
+    
+    Args:
+        config: Test configuration with RL agent parameters
+        
+    Returns:
+        TestResult with RL agent performance metrics
+    """
+    try:
+        from kinetra.agent_factory import AgentFactory
+        from kinetra.unified_trading_env import UnifiedTradingEnv, TradingMode
+    except ImportError as e:
+        logger.error(f"Failed to import RL components: {e}")
+        logger.error("Make sure Phase 1 components (agent_factory, unified_trading_env) are available")
+        raise
+    
+    logger.info(f"Running RL test: {config.name}")
+    logger.info(f"Agent type: {config.agent_type}")
+    logger.info(f"Episodes: {config.episodes}")
+    
+    # Determine trading mode from config
+    mode_str = config.agent_config.get('mode', 'exploration')
+    mode = TradingMode[mode_str.upper()]
+    
+    # Aggregate results across all instruments
+    all_metrics = []
+    
+    for instrument in config.instruments:
+        logger.info(f"Testing {instrument.symbol} ({instrument.timeframe})")
+        
+        # Load data
+        try:
+            data_path = Path(instrument.data_path)
+            if not data_path.exists():
+                logger.warning(f"Data file not found: {data_path}, skipping")
+                continue
+            
+            df = pd.read_csv(data_path)
+            
+            # Normalize column names
+            df.columns = df.columns.str.strip().str.replace('<', '').str.replace('>', '').str.lower()
+            
+            # Ensure required columns exist
+            required_cols = ['close', 'high', 'low', 'open']
+            if not all(col in df.columns for col in required_cols):
+                logger.warning(f"Missing required columns in {data_path}, skipping")
+                continue
+            
+            if 'volume' not in df.columns:
+                df['volume'] = 1000  # Dummy volume
+            
+        except Exception as e:
+            logger.error(f"Failed to load data for {instrument.symbol}: {e}")
+            continue
+        
+        # Create unified environment
+        use_physics = config.agent_config.get('use_physics', True)
+        regime_filter = config.agent_config.get('regime_filter', False)
+        
+        env = UnifiedTradingEnv(
+            data=df,
+            mode=mode,
+            use_physics=use_physics,
+            regime_filter=regime_filter
+        )
+        
+        # Create agent
+        agent_type = config.agent_type
+        if agent_type.startswith('rl_'):
+            agent_type = agent_type[3:]  # Remove 'rl_' prefix
+        
+        agent = AgentFactory.create(
+            agent_type=agent_type,
+            state_dim=env.observation_dim,
+            action_dim=env.action_dim,
+            config=config.agent_config
+        )
+        
+        # Training loop
+        episode_rewards = []
+        
+        for episode in range(config.episodes):
+            state = env.reset()
+            done = False
+            total_reward = 0
+            steps = 0
+            
+            while not done and steps < 1000:  # Max 1000 steps per episode
+                # Agent selects action
+                if hasattr(agent, 'select_action_with_prob'):
+                    # PPO-style agent
+                    action, log_prob, value = agent.select_action_with_prob(state)
+                elif hasattr(agent, 'select_action'):
+                    action = agent.select_action(state)
+                    log_prob = None
+                    value = None
+                else:
+                    # Fallback
+                    action = np.random.randint(env.action_dim)
+                    log_prob = None
+                    value = None
+                
+                # Environment step
+                next_state, reward, done, info = env.step(action)
+                
+                # Store transition (PPO-style)
+                if hasattr(agent, 'store_transition') and log_prob is not None:
+                    agent.store_transition(state, action, log_prob, reward, value, done)
+                
+                state = next_state
+                total_reward += reward
+                steps += 1
+            
+            # Update agent after episode
+            if hasattr(agent, 'update') and hasattr(agent, 'buffer'):
+                if len(agent.buffer.states) > 0:
+                    agent.update()
+            
+            episode_rewards.append(total_reward)
+            
+            # Log progress
+            if (episode + 1) % 10 == 0 or episode == 0:
+                avg_reward = np.mean(episode_rewards[-10:])
+                logger.info(
+                    f"  Episode {episode+1}/{config.episodes}: "
+                    f"Reward={total_reward:.2f}, Avg10={avg_reward:.2f}"
+                )
+        
+        # Get final metrics from environment
+        env_metrics = env.get_metrics()
+        
+        # Calculate aggregate metrics
+        avg_reward = float(np.mean(episode_rewards))
+        std_reward = float(np.std(episode_rewards))
+        
+        all_metrics.append({
+            'symbol': instrument.symbol,
+            'avg_reward': avg_reward,
+            'std_reward': std_reward,
+            'num_trades': env_metrics['num_trades'],
+            'win_rate': env_metrics['win_rate'],
+            'final_balance': env_metrics['final_balance'],
+        })
+        
+        logger.info(f"  Completed {instrument.symbol}: Avg Reward={avg_reward:.2f}, Win Rate={env_metrics['win_rate']:.2%}")
+    
+    # Aggregate across all instruments
+    if not all_metrics:
+        logger.warning("No valid results obtained")
+        # Return dummy result
+        return TestResult(
+            config_name=config.name,
+            timestamp=datetime.now(),
+            instrument=config.instruments[0] if config.instruments else None,
+            agent_type=config.agent_type,
+            total_return=0.0,
+            sharpe_ratio=0.0,
+            omega_ratio=0.0,
+            win_rate=0.0,
+            total_trades=0,
+            avg_trade_return=0.0,
+            max_drawdown=0.0,
+        )
+    
+    # Calculate final aggregated metrics
+    avg_rewards = [m['avg_reward'] for m in all_metrics]
+    win_rates = [m['win_rate'] for m in all_metrics]
+    
+    # Calculate Sharpe-like metric from rewards
+    sharpe = np.mean(avg_rewards) / (np.std(avg_rewards) + 1e-10) if len(avg_rewards) > 1 else 0
+    
+    return TestResult(
+        config_name=config.name,
+        timestamp=datetime.now(),
+        instrument=config.instruments[0] if config.instruments else None,
+        agent_type=config.agent_type,
+        total_return=float(np.mean(avg_rewards)),
+        sharpe_ratio=sharpe,
+        omega_ratio=max(sharpe, 0) + 1.0,  # Approximate Omega
+        win_rate=float(np.mean(win_rates)),
+        total_trades=sum(m['num_trades'] for m in all_metrics),
+        avg_trade_return=float(np.mean(avg_rewards)),
+        max_drawdown=0.0,  # Not calculated for RL rewards
+    )
+
+
+# =============================================================================
+# CHAOS SUITE INTEGRATION (Phase 2: P3)
+# =============================================================================
+
+def run_chaos_test(config: TestConfiguration) -> TestResult:
+    """
+    Run chaos theory test suite (Phase 2: P3 Integration).
+    
+    Integrates discovery_methods.ChaosTheoryDiscovery from Phase 1.
+    
+    Args:
+        config: Test configuration with chaos analysis parameters
+        
+    Returns:
+        TestResult with chaos theory metrics
+    """
+    try:
+        from kinetra.discovery_methods import ChaosTheoryDiscovery
+    except ImportError as e:
+        logger.error(f"Failed to import chaos components: {e}")
+        raise
+    
+    logger.info(f"Running Chaos test: {config.name}")
+    
+    analyzer = ChaosTheoryDiscovery()
+    all_discoveries = []
+    
+    for instrument in config.instruments:
+        logger.info(f"Analyzing {instrument.symbol} ({instrument.timeframe})")
+        
+        # Load data
+        try:
+            data_path = Path(instrument.data_path)
+            if not data_path.exists():
+                logger.warning(f"Data file not found: {data_path}, skipping")
+                continue
+            
+            df = pd.read_csv(data_path)
+            
+            # Normalize column names
+            df.columns = df.columns.str.strip().str.replace('<', '').str.replace('>', '').str.lower()
+            
+            if 'close' not in df.columns:
+                logger.warning(f"Missing 'close' column in {data_path}, skipping")
+                continue
+            
+        except Exception as e:
+            logger.error(f"Failed to load data for {instrument.symbol}: {e}")
+            continue
+        
+        # Run chaos discovery
+        discovery_config = config.agent_config.copy()
+        discovery_result = analyzer.discover(df, discovery_config)
+        
+        all_discoveries.append({
+            'symbol': instrument.symbol,
+            'patterns': discovery_result.discovered_patterns,
+            'importance': discovery_result.feature_importance,
+            'significant': discovery_result.statistical_significance,
+            'p_value': discovery_result.p_value,
+        })
+        
+        # Log discoveries
+        logger.info(f"  {instrument.symbol} chaos analysis:")
+        for pattern in discovery_result.discovered_patterns:
+            logger.info(f"    - {pattern['metric']}: {pattern['value']:.4f}")
+        logger.info(f"    Significant: {discovery_result.statistical_significance} (p={discovery_result.p_value:.4f})")
+    
+    if not all_discoveries:
+        logger.warning("No valid chaos discoveries")
+        return TestResult(
+            config_name=config.name,
+            timestamp=datetime.now(),
+            instrument=config.instruments[0] if config.instruments else None,
+            agent_type='chaos',
+            total_return=0.0,
+            sharpe_ratio=0.0,
+            omega_ratio=0.0,
+            win_rate=0.0,
+            total_trades=0,
+            avg_trade_return=0.0,
+            max_drawdown=0.0,
+        )
+    
+    # Aggregate chaos metrics
+    avg_p_value = np.mean([d['p_value'] for d in all_discoveries])
+    num_significant = sum(1 for d in all_discoveries if d['significant'])
+    
+    # Extract Lyapunov exponents
+    lyapunov_values = []
+    for d in all_discoveries:
+        for pattern in d['patterns']:
+            if pattern['metric'] == 'lyapunov_exponent':
+                lyapunov_values.append(pattern['value'])
+    
+    avg_lyapunov = np.mean(lyapunov_values) if lyapunov_values else 0.0
+    
+    # Create result
+    # Use chaos metrics as proxy for trading metrics
+    return TestResult(
+        config_name=config.name,
+        timestamp=datetime.now(),
+        instrument=config.instruments[0] if config.instruments else None,
+        agent_type='chaos',
+        total_return=avg_lyapunov,  # Proxy: chaos level
+        sharpe_ratio=float(num_significant / len(all_discoveries)) if all_discoveries else 0.0,
+        omega_ratio=1.0 - avg_p_value,  # Proxy: confidence
+        win_rate=float(num_significant / len(all_discoveries)) if all_discoveries else 0.0,
+        total_trades=len(all_discoveries),
+        avg_trade_return=avg_lyapunov,
+        max_drawdown=0.0,
+    )
