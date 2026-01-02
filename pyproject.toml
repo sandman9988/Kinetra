@@ -13,62 +13,64 @@ authors = [
     {name = "Kinetra Team"}
 ]
 dependencies = [
-    # Core scientific computing - LOCKED versions for financial stability
-    "numpy==1.26.4",
-    "pandas==2.2.3",
-    "scipy==1.14.1",
+    # Core scientific computing - Compatible with Python 3.10+
+    "numpy>=2.2.0,<3.0.0",
+    "pandas>=2.2.0,<3.0.0",
+    "scipy>=1.13.0,<2.0.0",
 
     # Data validation
-    "pydantic==2.10.6",
+    "pydantic>=2.10.0,<3.0.0",
 
-    # Machine Learning - LOCKED
-    "scikit-learn==1.5.2",
-    "hmmlearn==0.3.2",
+    # Machine Learning
+    "scikit-learn>=1.5.0,<2.0.0",
+    "hmmlearn>=0.3.0,<0.4.0",
 
-    # RL Framework - LOCKED
-    "gymnasium==1.0.0",
-    "stable-baselines3==2.7.1",
+    # RL Framework
+    "gymnasium>=1.2.0,<2.0.0",
+    "stable-baselines3>=2.7.0,<3.0.0",
 
-    # PyTorch with CUDA/ROCm support - LOCKED
-    "torch==2.9.1",
-    "torchvision==0.24.1",
+    # PyTorch with CUDA/ROCm support
+    "torch>=2.9.0,<3.0.0",
+    "torchvision>=0.24.0,<1.0.0",
 
-    # JIT compilation for performance - LOCKED
-    "numba==0.60.0",
-    "llvmlite==0.43.0",
+    # JIT compilation for performance
+    "numba>=0.60.0,<1.0.0",
+    "llvmlite>=0.43.0,<1.0.0",
 
     # MetaAPI - PRIMARY connection to MT5
-    "metaapi-cloud-sdk==29.1.1",
-    "inquirer==3.4.0",
+    "metaapi-cloud-sdk>=29.0.0,<30.0.0",
+    "inquirer>=3.4.0,<4.0.0",
 
     # System utilities
-    "psutil==7.2.1",
-    "tqdm==4.67.1",
-    "coverage==7.13.1",
+    "psutil>=7.2.0,<8.0.0",
+    "tqdm>=4.67.0,<5.0.0",
+    "coverage>=7.13.0,<8.0.0",
 
     # Async support
-    "aiohttp==3.13.2",
+    "aiohttp>=3.13.0,<4.0.0",
 
-    # Security - LOCKED to fix vulnerabilities
-    "cryptography==46.0.3",
-    "requests==2.32.5",
-    "certifi==2025.11.12",
-    "urllib3==2.6.2",
+    # Security - Fixed versions for vulnerabilities
+    "cryptography>=46.0.0,<47.0.0",
+    "requests>=2.32.0,<3.0.0",
+    "certifi>=2025.11.0",
+    "urllib3>=2.6.0,<3.0.0",
 
     # Plotting and visualization
-    "matplotlib==3.10.0",
-    "seaborn==0.13.2",
+    "matplotlib>=3.10.0,<4.0.0",
+    "seaborn>=0.13.0,<1.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.0.2",
-    "pytest-cov==6.0.0",
-    "pytest-asyncio==1.3.0",
-    "hypothesis==6.122.4",
-    "black==25.12.0",
-    "ruff==0.9.1",
-    "mypy==1.14.1",
+    "pytest>=9.0.0,<10.0.0",
+    "pytest-cov>=6.0.0,<7.0.0",
+    "pytest-asyncio>=1.3.0,<2.0.0",
+    "hypothesis>=6.122.0,<7.0.0",
+    "black>=25.12.0,<26.0.0",
+    "ruff>=0.9.0,<1.0.0",
+    "mypy>=1.14.0,<2.0.0",
+    "ipython>=8.0.0,<9.0.0",
+    "ipdb>=0.13.0,<1.0.0",
 ]
 
 [tool.setuptools.packages.find]

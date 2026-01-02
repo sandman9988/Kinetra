@@ -26,45 +26,46 @@ from typing import List, Dict, Tuple
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
+def run_test(name: str, command: List[str]) -> Tuple[bool, str]:
+    """Run a single test suite."""
+    print(f"\n{'='*80}")
+    print(f"Running: {name}")
+    print(f"{'='*80}\n")
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+
+        success = result.returncode == 0
+        output = (result.stdout or "") + (("\n" + result.stderr) if result.stderr else "")
+
+        if success:
+            print(f"✅ {name} - PASSED")
+        else:
+            print(f"❌ {name} - FAILED")
+            print(f"Error output: {output[:500]}")  # Print first 500 chars
+
+        return success, output
+
+    except subprocess.TimeoutExpired:
+        print(f"⏱️  {name} - TIMEOUT")
+        return False, "Test timed out after 5 minutes"
+    except Exception as e:
+        print(f"❌ {name} - ERROR: {e}")
+        return False, str(e)
+
+
 class TestRunner:
     """Comprehensive test runner for Kinetra."""
     
     def __init__(self):
         self.results = []
         self.start_time = datetime.now()
-    
-    def run_test(self, name: str, command: List[str]) -> Tuple[bool, str]:
-        """Run a single test suite."""
-        print(f"\n{'='*80}")
-        print(f"Running: {name}")
-        print(f"{'='*80}\n")
-        
-        try:
-            result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                timeout=300  # 5 minute timeout
-            )
-            
-            success = result.returncode == 0
-            output = (result.stdout or "") + (("\n" + result.stderr) if result.stderr else "")
 
-            if success:
-                print(f"✅ {name} - PASSED")
-            else:
-                print(f"❌ {name} - FAILED")
-                print(f"Error output: {output[:500]}")  # Print first 500 chars
-
-            return success, output
-            
-        except subprocess.TimeoutExpired:
-            print(f"⏱️  {name} - TIMEOUT")
-            return False, "Test timed out after 5 minutes"
-        except Exception as e:
-            print(f"❌ {name} - ERROR: {e}")
-            return False, str(e)
-    
     def run_basic_tests(self) -> Dict[str, bool]:
         """Run basic test suite."""
         print("\n" + "="*80)
@@ -74,9 +75,10 @@ class TestRunner:
         results = {}
         
         # Menu system tests
-        success, output = self.run_test(
+        test_path = Path(__file__).parent / "test_menu_system.py"
+        success, output = run_test(
             "Menu System Tests",
-            [sys.executable, "tests/test_menu_system.py"]
+            [sys.executable, str(test_path)]
         )
         results['menu_system'] = success
         self.results.append(('Menu System Tests', success))
@@ -92,9 +94,10 @@ class TestRunner:
         results = {}
         
         # Comprehensive workflow tests
-        success, output = self.run_test(
+        test_path = Path(__file__).parent / "test_menu_workflow.py"
+        success, output = run_test(
             "Menu Workflow Tests",
-            [sys.executable, "tests/test_menu_workflow.py"]
+            [sys.executable, str(test_path)]
         )
         results['menu_workflow'] = success
         self.results.append(('Menu Workflow Tests', success))
@@ -118,9 +121,10 @@ class TestRunner:
             args = []
         
         # System stress tests
-        success, output = self.run_test(
+        test_path = Path(__file__).parent / "test_system_stress.py"
+        success, output = run_test(
             f"System Stress Test ({level})",
-            [sys.executable, "tests/test_system_stress.py"] + args
+            [sys.executable, str(test_path)] + args
         )
         results[f'stress_{level}'] = success
         self.results.append((f'System Stress Test ({level})', success))
@@ -136,9 +140,10 @@ class TestRunner:
         results = {}
         
         # Performance profiling with save
-        success, output = self.run_test(
+        test_path = Path(__file__).parent / "test_performance_profiling.py"
+        success, output = run_test(
             "Performance Profiling",
-            [sys.executable, "tests/test_performance_profiling.py", "--full", "--save"]
+            [sys.executable, str(test_path), "--full", "--save"]
         )
         results['performance_profiling'] = success
         self.results.append(('Performance Profiling', success))

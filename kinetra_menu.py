@@ -32,6 +32,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).parent))
 
 from kinetra.workflow_manager import WorkflowManager
+from kinetra.data_discovery import DataDiscovery
 
 
 # =============================================================================
@@ -425,7 +426,7 @@ def get_input(
                 if choice_lower in ['exit', 'quit', 'q']:
                     print("\n👋 Exiting Kinetra...")
                     sys.exit(0)
-                elif choice_lower in ['back', 'b'] and '0' not in (valid_choices or []):
+                elif choice_lower in ['back', 'b'] and 'b' not in (valid_choices or []) and '0' not in (valid_choices or []):
                     choice = '0'  # Normalize to '0'
 
             if valid_choices and choice not in valid_choices:
@@ -533,22 +534,19 @@ class MenuConfig:
     }
     
     @classmethod
-    @lru_cache(maxsize=1)
-    def get_all_asset_classes(cls) -> Tuple[str, ...]:
+    def get_all_asset_classes(cls) -> List[str]:
         """Get list of all asset classes."""
-        return tuple(cls.ASSET_CLASSES.keys())
-    
+        return list(cls.ASSET_CLASSES.keys())
+
     @classmethod
-    @lru_cache(maxsize=1)
-    def get_all_timeframes(cls) -> Tuple[str, ...]:
+    def get_all_timeframes(cls) -> List[str]:
         """Get list of all timeframes."""
-        return tuple(cls.TIMEFRAMES.keys())
-    
+        return list(cls.TIMEFRAMES.keys())
+
     @classmethod
-    @lru_cache(maxsize=1)
-    def get_all_agent_types(cls) -> Tuple[str, ...]:
+    def get_all_agent_types(cls) -> List[str]:
         """Get list of all agent types."""
-        return tuple(cls.AGENT_TYPES.keys())
+        return list(cls.AGENT_TYPES.keys())
 
 
 # =============================================================================
