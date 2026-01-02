@@ -355,9 +355,10 @@ def test_environment_reset_and_step():
 
     df = load_test_data()
 
-    # Create filtered environment
+    # Create filtered environment - use regimes that actually exist in COPPER data
+    # Test data shows: CRITICAL (61.5%) and OVERDAMPED (38.5%)
     regime_filter = RegimeFilter(
-        physics_regimes={PhysicsRegime.LAMINAR, PhysicsRegime.UNDERDAMPED}
+        physics_regimes={PhysicsRegime.CRITICAL, PhysicsRegime.OVERDAMPED}
     )
 
     env = RegimeFilteredTradingEnv(df, regime_filter=regime_filter)
