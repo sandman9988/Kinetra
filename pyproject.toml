@@ -30,7 +30,7 @@ dependencies = [
     "stable-baselines3==2.7.1",
 
     # PyTorch with CUDA/ROCm support - LOCKED
-    "torch==2.5.1",
+    "torch==2.8.0",
     "torchvision==0.20.1",
 
     # JIT compilation for performance - LOCKED
@@ -47,7 +47,7 @@ dependencies = [
     "coverage==7.13.1",
 
     # Async support
-    "aiohttp==3.11.11",
+    "aiohttp==3.12.14",
 
     # Security - LOCKED to fix vulnerabilities
     "cryptography==46.0.3",
