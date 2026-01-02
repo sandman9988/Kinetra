@@ -533,7 +533,7 @@ class TestRunManager:
                 # Create hardlink (same inode, no disk space used)
                 try:
                     dest_file.hardlink_to(src_file)
-                except:
+                except (OSError, NotImplementedError):
                     # Fallback to copy if hardlink not supported
                     shutil.copy2(src_file, dest_file)
         

@@ -526,8 +526,8 @@ class CAccountInfo:
                 # Calculate from notional
                 notional = volume * contract_size * price
                 required = (notional * margin_rate) / self._leverage
-                
-        except:
+
+        except (ValueError, ZeroDivisionError, KeyError, AttributeError):
             # Fallback to basic forex calculation
             notional = volume * 100000 * price
             required = notional / self._leverage
@@ -580,7 +580,7 @@ class CAccountInfo:
         from kinetra.symbol_info import get_symbol_info
         try:
             sym_info = get_symbol_info(symbol)
-        except:
+        except (ValueError, KeyError, AttributeError, ImportError):
             # Fallback to basic calculation if symbol not found
             margin_per_lot = (100000 * price) / self._leverage
             if margin_per_lot <= 0:

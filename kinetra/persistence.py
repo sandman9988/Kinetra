@@ -514,7 +514,7 @@ class AtomicCheckpointer:
                 data = self.load(CheckpointType.METRICS, version)
                 if data:
                     all_metrics.append(data)
-            except:
+            except (ValueError, IndexError, FileNotFoundError):
                 continue
 
         return all_metrics
