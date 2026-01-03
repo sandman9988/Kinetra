@@ -13,14 +13,15 @@ Usage:
     python scripts/download_interactive.py
 """
 
+import asyncio
+import getpass
+import json
 import os
 import sys
-import asyncio
-import json
-import getpass
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Dict, List, Optional, Set
+
 import pandas as pd
 
 # Add project root
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from metaapi_cloud_sdk import MetaApi
+
     METAAPI_AVAILABLE = True
 except ImportError:
     METAAPI_AVAILABLE = False
@@ -38,53 +40,61 @@ except ImportError:
 # Market classifications
 # Order matters: commodities before indices to avoid UKOUSD matching 'UK'
 ASSET_CLASSES = {
-    'forex': {
-        'name': 'Forex (Currency Pairs)',
-        'patterns': ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD'],
-        'examples': ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD']
+    "forex": {
+        "name": "Forex (Currency Pairs)",
+        "patterns": ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"],
+        "examples": ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD"],
     },
-    'crypto': {
-        'name': 'Cryptocurrency',
-        'patterns': ['BTC', 'ETH', 'XRP', 'LTC', 'ADA', 'DOT'],
-        'examples': ['BTCUSD', 'ETHUSD', 'BTCJPY', 'ETHEUR']
+    "crypto": {
+        "name": "Cryptocurrency",
+        "patterns": ["BTC", "ETH", "XRP", "LTC", "ADA", "DOT"],
+        "examples": ["BTCUSD", "ETHUSD", "BTCJPY", "ETHEUR"],
     },
-    'metals': {
-        'name': 'Precious Metals',
-        'patterns': ['XAU', 'XAG', 'GOLD', 'SILVER', 'XPT', 'XPD'],
-        'examples': ['XAUUSD', 'XAGUSD', 'XPTUSD']
+    "metals": {
+        "name": "Precious Metals",
+        "patterns": ["XAU", "XAG", "GOLD", "SILVER", "XPT", "XPD"],
+        "examples": ["XAUUSD", "XAGUSD", "XPTUSD"],
     },
-    'commodities': {
-        'name': 'Commodities',
-        'patterns': ['OIL', 'WTI', 'BRENT', 'GAS', 'COPPER'],
-        'examples': ['UKOUSD', 'COPPER-C']
+    "commodities": {
+        "name": "Commodities",
+        "patterns": ["OIL", "WTI", "BRENT", "GAS", "COPPER"],
+        "examples": ["UKOUSD", "COPPER-C"],
     },
-    'indices': {
-        'name': 'Stock Indices',
-        'patterns': ['SPX', 'NAS', 'DOW', 'DJ', 'DAX', 'FTSE', 'NIKKEI', 'US30', 'US500', 'GER40', 'UK100', 'EU50', 'SA40'],
-        'examples': ['US500', 'NAS100', 'GER40', 'DJ30ft', 'EU50']
-    }
+    "indices": {
+        "name": "Stock Indices",
+        "patterns": [
+            "SPX",
+            "NAS",
+            "DOW",
+            "DJ",
+            "DAX",
+            "FTSE",
+            "NIKKEI",
+            "US30",
+            "US500",
+            "GER40",
+            "UK100",
+            "EU50",
+            "SA40",
+        ],
+        "examples": ["US500", "NAS100", "GER40", "DJ30ft", "EU50"],
+    },
 }
 
-TIMEFRAME_MAP = {
-    'M15': '15m',
-    'M30': '30m',
-    'H1': '1h',
-    'H4': '4h',
-    'D1': '1d'
-}
+TIMEFRAME_MAP = {"M15": "15m", "M30": "30m", "H1": "1h", "H4": "4h", "D1": "1d"}
 
 
 def classify_symbol(symbol: str) -> str:
     """Classify symbol into asset class."""
-    symbol_upper = symbol.upper().replace('+', '').replace('-', '')
+    symbol_upper = symbol.upper().replace("+", "").replace("-", "")
 
     # Check each asset class
     for class_id, info in ASSET_CLASSES.items():
-        for pattern in info['patterns']:
+        for pattern in info["patterns"]:
             if pattern in symbol_upper:
                 return class_id
 
-    return 'unknown'
+    return "unknown"
 
 
 def print_header(text: str):
@@ -100,15 +110,18 @@ def print_step(step_num: int, text: str):
     print("-" * 80)
 
 
-def save_credentials_to_env(token: str, account_id: str = None):
-    """Save non-sensitive credentials to .env file for persistent storage.
+def save_credentials_to_env(token: str = None, account_id: str = None):
+    """Save credentials to .env file for persistent storage.
 
-    Note: The MetaAPI token is NOT persisted to disk to avoid clear-text
-    storage of sensitive information. Only the account ID is stored.
+    Args:
+        token: MetaAPI token (if provided, will be saved)
+        account_id: MetaAPI account ID (if provided, will be saved)
+
+    Note: Credentials are saved in clear text. Ensure .env is in .gitignore.
     """
     # Use script's parent directory, not cwd (in case user runs from subdirectory)
     script_dir = Path(__file__).parent.parent
-    env_file = script_dir / '.env'
+    env_file = script_dir / ".env"
 
     print(f"\n📝 Saving to: {env_file.absolute()}")
 
@@ -116,23 +129,25 @@ def save_credentials_to_env(token: str, account_id: str = None):
     env_lines = {}
     if env_file.exists():
         try:
-            with open(env_file, 'r') as f:
+            with open(env_file, "r") as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
+                    if line and not line.startswith("#") and "=" in line:
+                        key, value = line.split("=", 1)
                         env_lines[key] = value
             print(f"   Loaded {len(env_lines)} existing credentials")
         except Exception as e:
             print(f"⚠️  Could not read existing .env: {e}")
 
-    # Update credentials (do NOT persist the MetaAPI token)
+    # Update credentials
+    if token:
+        env_lines["METAAPI_TOKEN"] = token
     if account_id:
-        env_lines['METAAPI_ACCOUNT_ID'] = account_id
+        env_lines["METAAPI_ACCOUNT_ID"] = account_id
 
     # Write back with error handling
     try:
-        with open(env_file, 'w') as f:
+        with open(env_file, "w") as f:
             f.write("# Kinetra MetaAPI Credentials\n")
             f.write("# Auto-generated - do not commit to git\n\n")
             for key, value in env_lines.items():
@@ -150,14 +165,15 @@ def save_credentials_to_env(token: str, account_id: str = None):
     except Exception as e:
         print(f"❌ Failed to save credentials: {e}")
         import traceback
+
         traceback.print_exc()
 
     # Add to .gitignore if not already there
-    gitignore = script_dir / '.gitignore'
+    gitignore = script_dir / ".gitignore"
     if gitignore.exists():
         content = gitignore.read_text()
-        if '.env' not in content:
-            with open(gitignore, 'a') as f:
+        if ".env" not in content:
+            with open(gitignore, "a") as f:
                 f.write("\n# Environment variables\n.env\n")
 
 
@@ -177,29 +193,31 @@ class InteractiveDownloader:
 
         # Try loading from .env file first (use script's parent directory)
         script_dir = Path(__file__).parent.parent
-        env_file = script_dir / '.env'
+        env_file = script_dir / ".env"
 
         if env_file.exists():
             print(f"🔍 Loading credentials from: {env_file.absolute()}")
-            with open(env_file, 'r') as f:
+            with open(env_file, "r") as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        if key == 'METAAPI_TOKEN' and key not in os.environ:
+                    if line and not line.startswith("#") and "=" in line:
+                        key, value = line.split("=", 1)
+                        if key == "METAAPI_TOKEN" and key not in os.environ:
                             os.environ[key] = value
-                        elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
+                        elif key == "METAAPI_ACCOUNT_ID" and key not in os.environ:
                             os.environ[key] = value
 
         # Check for token in environment
-        self.token = os.environ.get('METAAPI_TOKEN')
+        self.token = os.environ.get("METAAPI_TOKEN")
 
         # Check for placeholder values
-        placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
+        placeholder_patterns = ["your-token-here", "your-account-id-here", "placeholder", "example"]
 
         should_save = False  # Track if we should save credentials
 
-        if self.token and any(placeholder in self.token.lower() for placeholder in placeholder_patterns):
+        if self.token and any(
+            placeholder in self.token.lower() for placeholder in placeholder_patterns
+        ):
             print(f"\n⚠️  Found placeholder token in environment (ignoring it)")
             self.token = None
 
@@ -217,12 +235,12 @@ class InteractiveDownloader:
 
             # Ask if they want to save it
             save = input("\n💾 Save credentials to .env file? [1=Yes, 2=No]: ").strip()
-            should_save = (save == '1')
+            should_save = save == "1"
 
         print(f"\n✅ Using API token: {self.token[:8]}***")
 
         # Check for account ID in environment
-        env_account_id = os.environ.get('METAAPI_ACCOUNT_ID')
+        env_account_id = os.environ.get("METAAPI_ACCOUNT_ID")
 
         if env_account_id:
             # Check if it's a placeholder
@@ -233,7 +251,7 @@ class InteractiveDownloader:
                 print(f"\n✅ Found account ID: {env_account_id[:8]}***")
                 response = input(f"\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
 
-                if response == '1':
+                if response == "1":
                     self.account_id = env_account_id
                     return True
 
@@ -250,8 +268,8 @@ class InteractiveDownloader:
             print("\nDifferent brokers/servers:")
             for i, acc in enumerate(accounts, 1):
                 # Show broker server to distinguish between different brokers
-                server = getattr(acc, 'server', 'unknown')
-                platform = getattr(acc, 'platform', 'MT5')
+                server = getattr(acc, "server", "unknown")
+                platform = getattr(acc, "platform", "MT5")
                 print(f"  {i}. {acc.name}")
                 print(f"      Login: {acc.login} | Server: {server} | Platform: {platform}")
 
@@ -260,30 +278,32 @@ class InteractiveDownloader:
             choice = input("\nYour choice: ").strip()
 
             try:
-                if choice.lower() == 'all':
+                if choice.lower() == "all":
                     # Use first account for connection, but note we could download from multiple
                     self.account_id = accounts[0].id
-                    print(f"\n✅ Will download symbols available across all {len(accounts)} accounts")
+                    print(
+                        f"\n✅ Will download symbols available across all {len(accounts)} accounts"
+                    )
                     print(f"   Using {accounts[0].name} as primary connection")
 
-                    # Save first account if requested (only account ID, not token)
+                    # Save credentials if requested
                     if should_save:
-                        save_credentials_to_env(None, self.account_id)
-                        os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
+                        save_credentials_to_env(self.token, self.account_id)
+                        os.environ["METAAPI_ACCOUNT_ID"] = self.account_id
 
                     return True
                 else:
                     idx = int(choice) - 1
                     if 0 <= idx < len(accounts):
                         self.account_id = accounts[idx].id
-                        server = getattr(accounts[idx], 'server', 'unknown')
+                        server = getattr(accounts[idx], "server", "unknown")
                         print(f"\n✅ Selected: {accounts[idx].name}")
                         print(f"   Server: {server}")
 
-                        # Save credentials if requested (only account ID, not token)
+                        # Save credentials if requested
                         if should_save:
-                            save_credentials_to_env(None, self.account_id)
-                            os.environ['METAAPI_ACCOUNT_ID'] = self.account_id
+                            save_credentials_to_env(self.token, self.account_id)
+                            os.environ["METAAPI_ACCOUNT_ID"] = self.account_id
 
                         return True
                     else:
@@ -308,12 +328,12 @@ class InteractiveDownloader:
             self.account = await self.api.metatrader_account_api.get_account(self.account_id)
 
             # Deploy if needed
-            if self.account.state != 'DEPLOYED':
+            if self.account.state != "DEPLOYED":
                 print("  Deploying account...")
                 await self.account.deploy()
 
             # Wait for connection
-            if self.account.connection_status != 'CONNECTED':
+            if self.account.connection_status != "CONNECTED":
                 print("  Waiting for connection...")
                 await self.account.wait_connected()
 
@@ -337,19 +357,21 @@ class InteractiveDownloader:
         class_ids = list(ASSET_CLASSES.keys())
         for i, class_id in enumerate(class_ids, 1):
             info = ASSET_CLASSES[class_id]
-            examples = ', '.join(info['examples'][:3])
+            examples = ", ".join(info["examples"][:3])
             print(f"  {i}. {info['name']:25s} (e.g., {examples})")
 
         print(f"  {len(class_ids) + 1}. All classes")
 
-        choice = input(f"\nSelect classes [1-{len(class_ids) + 1}, or comma-separated like 1,3,4]: ").strip()
+        choice = input(
+            f"\nSelect classes [1-{len(class_ids) + 1}, or comma-separated like 1,3,4]: "
+        ).strip()
 
         # Parse selection
         if choice == str(len(class_ids) + 1):
             selected = class_ids
         else:
             try:
-                indices = [int(x.strip()) - 1 for x in choice.split(',')]
+                indices = [int(x.strip()) - 1 for x in choice.split(",")]
                 selected = [class_ids[i] for i in indices if 0 <= i < len(class_ids)]
             except (ValueError, IndexError):
                 print("\n❌ Invalid selection, using all classes")
@@ -376,7 +398,9 @@ class InteractiveDownloader:
                     tradeable = all_symbols
                 elif isinstance(first, dict):
                     # Format: [{'symbol': 'EURUSD', 'tradeMode': 'FULL_ACCESS'}, ...]
-                    tradeable = [s['symbol'] for s in all_symbols if s.get('tradeMode') != 'DISABLED']
+                    tradeable = [
+                        s["symbol"] for s in all_symbols if s.get("tradeMode") != "DISABLED"
+                    ]
                 else:
                     print(f"⚠️  Unexpected symbol format: {type(first)}")
                     tradeable = []
@@ -387,6 +411,7 @@ class InteractiveDownloader:
         except Exception as e:
             print(f"❌ Failed to fetch symbols: {e}")
             import traceback
+
             traceback.print_exc()
             return []
 
@@ -417,20 +442,20 @@ class InteractiveDownloader:
 
         choice = input("\nEnter choice [1-3]: ").strip()
 
-        if choice == '1':
+        if choice == "1":
             # All symbols from selected classes
             selected = []
             for class_id in asset_classes:
                 selected.extend(by_class[class_id])
 
-        elif choice == '2':
+        elif choice == "2":
             # Specific symbols
             symbol_input = input("\nEnter symbols (comma-separated): ").strip()
-            selected = [s.strip().upper() for s in symbol_input.split(',')]
+            selected = [s.strip().upper() for s in symbol_input.split(",")]
             # Validate
             selected = [s for s in selected if s in tradeable]
 
-        elif choice == '3':
+        elif choice == "3":
             # Top N from each class
             n = input("\nHow many from each class? [default: 5]: ").strip()
             n = int(n) if n.isdigit() else 5
@@ -457,13 +482,15 @@ class InteractiveDownloader:
             print(f"  {i}. {tf:5s} ({TIMEFRAME_MAP[tf]})")
         print(f"  {len(timeframes) + 1}. All timeframes")
 
-        choice = input(f"\nSelect timeframes [1-{len(timeframes) + 1}, or comma-separated]: ").strip()
+        choice = input(
+            f"\nSelect timeframes [1-{len(timeframes) + 1}, or comma-separated]: "
+        ).strip()
 
         if choice == str(len(timeframes) + 1):
             selected = timeframes
         else:
             try:
-                indices = [int(x.strip()) - 1 for x in choice.split(',')]
+                indices = [int(x.strip()) - 1 for x in choice.split(",")]
                 selected = [timeframes[i] for i in indices if 0 <= i < len(timeframes)]
             except (ValueError, IndexError):
                 print("❌ Invalid selection, using all timeframes")
@@ -472,7 +499,9 @@ class InteractiveDownloader:
         print(f"\n✅ Selected: {', '.join(selected)}")
         return selected
 
-    async def download_candles(self, symbol: str, timeframe: str, days: int = 365) -> Optional[pd.DataFrame]:
+    async def download_candles(
+        self, symbol: str, timeframe: str, days: int = 365
+    ) -> Optional[pd.DataFrame]:
         """Download candle data for symbol/timeframe."""
         try:
             start_time = datetime.now(timezone.utc) - timedelta(days=days)
@@ -482,7 +511,7 @@ class InteractiveDownloader:
                 symbol=symbol,
                 timeframe=TIMEFRAME_MAP[timeframe],
                 start_time=start_time,
-                limit=50000
+                limit=50000,
             )
 
             if not candles or len(candles) < 500:
@@ -490,18 +519,15 @@ class InteractiveDownloader:
 
             # Convert to DataFrame
             df = pd.DataFrame(candles)
-            df['time'] = pd.to_datetime(df['time'])
+            df["time"] = pd.to_datetime(df["time"])
 
             # Standardize columns
-            df = df.rename(columns={
-                'tickVolume': 'volume',
-                'spread': 'spread'
-            })
+            df = df.rename(columns={"tickVolume": "volume", "spread": "spread"})
 
             # Keep essential columns
-            cols = ['time', 'open', 'high', 'low', 'close', 'volume']
-            if 'spread' in df.columns:
-                cols.append('spread')
+            cols = ["time", "open", "high", "low", "close", "volume"]
+            if "spread" in df.columns:
+                cols.append("spread")
 
             df = df[[c for c in cols if c in df.columns]]
 
@@ -516,7 +542,9 @@ class InteractiveDownloader:
         print_step(5, "Download Data")
 
         total = len(symbols) * len(timeframes)
-        print(f"\n📥 Downloading {len(symbols)} symbols × {len(timeframes)} timeframes = {total} datasets")
+        print(
+            f"\n📥 Downloading {len(symbols)} symbols × {len(timeframes)} timeframes = {total} datasets"
+        )
         print(f"📁 Output: {output_dir}")
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -547,8 +575,8 @@ class InteractiveDownloader:
                     continue
 
                 # Save with date range in filename
-                start_date = df['time'].min().strftime('%Y%m%d%H%M')
-                end_date = df['time'].max().strftime('%Y%m%d%H%M')
+                start_date = df["time"].min().strftime("%Y%m%d%H%M")
+                end_date = df["time"].max().strftime("%Y%m%d%H%M")
                 output_file = output_dir / f"{symbol}_{tf}_{start_date}_{end_date}.csv"
 
                 df.to_csv(output_file, index=False)
@@ -609,7 +637,7 @@ async def main():
         print(f"  Total:      {len(symbols) * len(timeframes)} datasets")
 
         confirm = input(f"\nProceed with download? [1=Yes, 2=No]: ").strip()
-        if confirm != '1':
+        if confirm != "1":
             print("\n⚠️  Download cancelled")
             return
 
@@ -621,7 +649,7 @@ async def main():
         await downloader.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
@@ -630,5 +658,6 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"\n\n❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
