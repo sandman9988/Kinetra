@@ -563,28 +563,6 @@ class MenuConfig:
 # =============================================================================
 
 
-
-def setup_metaapi_credentials_menu(wf_manager: WorkflowManager) -> bool:
-    """Run the credential setup script."""
-    print_submenu_header("Setup MetaAPI Credentials")
-
-    print("\n🔐 Launching credential setup wizard...")
-    print("This will guide you through:")
-    print("  • Setting your MetaAPI token")
-    print("  • Selecting and labeling broker accounts")
-    print("  • Saving credentials securely to .env\n")
-
-    try:
-        import subprocess
-        result = subprocess.run(
-            [sys.executable, "scripts/setup_metaapi_credentials.py"], check=False
-        )
-        return result.returncode == 0
-    except Exception as e:
-        print(f"\n❌ Error running setup: {e}")
-        return False
-
-
 def show_authentication_menu(
     wf_manager: WorkflowManager, context: Optional[MenuContext] = None
 ) -> bool:
@@ -628,45 +606,14 @@ Press Enter to return to main menu...
             context.pop()
         return False
 
-    # Check credential status
-    try:
-        from scripts.utils.secure_token_helper import get_metaapi_token, list_configured_accounts
-
-        token = get_metaapi_token()
-        accounts = list_configured_accounts()
-
-        print("\n" + "-" * 80)
-        print("CREDENTIAL STATUS")
-        print("-" * 80)
-
-        if token:
-            print(f"✅ MetaAPI Token: Configured")
-        else:
-            print(f"⚠️  MetaAPI Token: Not configured")
-
-        if accounts:
-            print(f"✅ Accounts Configured: {len(accounts)}")
-            for label, account_id in list(accounts.items())[:3]:
-                print(f"   • {label}: {account_id[:8]}...")
-            if len(accounts) > 3:
-                print(f"   ... and {len(accounts) - 3} more")
-        else:
-            print(f"⚠️  No accounts configured")
-        print("-" * 80)
-    except Exception as e:
-        print(f"\n⚠️  Could not check credentials: {e}")
-
     print("""
 Available options:
-  1. Setup Credentials (Configure Token & Accounts)
-  2. Download Data → Consolidate → Test (Full Workflow)
-  3. Test Connection
+  1. Select MetaAPI Account
+  2. Test Connection
   0. Back to Main Menu
-
-💡 First time? Start with option 1 to setup credentials
     """)
 
-    choice = get_input("Select option", ["0", "1", "2", "3"])
+    choice = get_input("Select option", ["0", "1", "2"])
 
     result = False
     try:
@@ -674,16 +621,9 @@ Available options:
             result = False
         elif choice == "1":
             if context:
-                context.last_action = "Setup Credentials"
-            result = setup_metaapi_credentials_menu(wf_manager)
-            if result:
-                print("\n✅ Credentials configured!")
-                input("\n📊 Press Enter to continue...")
-        elif choice == "2":
-            if context:
-                context.last_action = "Download Data Workflow"
+                context.last_action = "Select MetaAPI Account"
             result = select_metaapi_account(wf_manager)
-        elif choice == "3":
+        elif choice == "2":
             if context:
                 context.last_action = "Test Connection"
             result = test_connection(wf_manager)
@@ -700,58 +640,50 @@ Available options:
 
 
 def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
-    """Download data, consolidate, and optionally run tests - full workflow."""
-    print_submenu_header("Download Data → Consolidate → Test")
+    """Select and authenticate with MetaAPI account."""
+    print_submenu_header("Select MetaAPI Account")
 
-    # Check if credentials are configured
-    try:
-        from scripts.utils.secure_token_helper import get_metaapi_token, list_configured_accounts
-
-        token = get_metaapi_token()
-        accounts = list_configured_accounts()
-
-        if not token or not accounts:
-            print("\n⚠️  Credentials not configured!")
-            print("\nWould you like to setup credentials now?")
-            print("  [1] Yes - Run credential setup")
-            print("  [2] No - Return to menu")
-
-            choice = get_input("\nSelect option", ["1", "2"], default="1")
-
-            if choice == "1":
-                if setup_metaapi_credentials_menu(wf_manager):
-                    print("\n✅ Credentials configured! Continuing with download...\n")
-                else:
-                    print("\n❌ Credential setup failed or cancelled")
-                    return False
-            else:
-                return False
-    except Exception as e:
-        print(f"\n⚠️  Could not verify credentials: {e}")
-
-    print("\n📥 Launching interactive download...")
+    print("\n📋 Launching account selection...")
 
     try:
         import subprocess
 
-        download_result = subprocess.run(
-            [sys.executable, "scripts/download/download_interactive.py"], check=False
+        result = subprocess.run(
+            [sys.executable, "scripts/download/select_metaapi_account.py"], stderr=subprocess.STDOUT
         )
 
-        if download_result.returncode == 0:
-            print("\n✅ Download complete!")
+        if result.returncode == 0:
+            print("\n✅ Account selected successfully")
 
-            # Prompt for data preparation
+            # Prompt to download data
             print("\n" + "=" * 80)
-            print("  NEXT STEP: Prepare Data for Testing")
+            print("  NEXT STEP: Download Market Data")
             print("=" * 80)
-            print("\nWould you like to consolidate and prepare the data?")
-            print("  [1] Yes - Run data consolidation")
-            print("  [2] No - I'll do it later")
+            print("\nWould you like to download data now?")
+            print("  [1] Yes - Launch interactive data download")
+            print("  [2] No - Return to main menu")
 
-            prep_choice = get_input("\nSelect option", ["1", "2"], default="1")
+            choice = get_input("\nSelect option", ["1", "2"], default="1")
 
-            if prep_choice == "1":
+            if choice == "1":
+                print("\n📥 Launching interactive download...")
+                result = subprocess.run(
+                    [sys.executable, "scripts/download/download_interactive.py"], check=False
+                )
+                if result.returncode == 0:
+                    print("\n✅ Download complete!")
+
+                    # Prompt for data preparation
+                    print("\n" + "=" * 80)
+                    print("  NEXT STEP: Prepare Data for Testing")
+                    print("=" * 80)
+                    print("\nWould you like to consolidate and prepare the data?")
+                    print("  [1] Yes - Run data consolidation")
+                    print("  [2] No - I'll do it later")
+
+                    prep_choice = get_input("\nSelect option", ["1", "2"], default="1")
+
+                    if prep_choice == "1":
                         print("\n📊 Running data consolidation...")
                         consolidate_result = subprocess.run(
                             [sys.executable, "scripts/consolidate_data.py", "--symlink"],
