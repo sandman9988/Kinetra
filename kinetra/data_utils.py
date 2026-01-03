@@ -10,12 +10,13 @@ PERFORMANCE OPTIMIZATIONS:
 - Deduplication is vectorized
 """
 
+import functools
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Optional, Tuple, List, Dict
-from datetime import datetime
-import functools
 
 # Cache for file format detection (separator, date format)
 _FORMAT_CACHE: Dict[str, Tuple[str, Optional[str]]] = {}
@@ -35,10 +36,7 @@ def get_format_cache_stats() -> Dict:
 
 
 def load_mt5_csv(
-    filepath: str,
-    date_column: str = None,
-    date_format: str = None,
-    use_cache: bool = True
+    filepath: str, date_column: str = None, date_format: str = None, use_cache: bool = True
 ) -> pd.DataFrame:
     """
     Load OHLCV data from MT5 CSV export.
@@ -56,22 +54,22 @@ def load_mt5_csv(
 
     Returns:
         Validated OHLCV DataFrame
-        
+
     PERFORMANCE: Caches detected format for faster subsequent loads.
     """
     filepath_str = str(filepath)
-    
+
     # Check format cache for faster loading
     cached_sep = None
     if use_cache and filepath_str in _FORMAT_CACHE:
         cached_sep, cached_date_fmt = _FORMAT_CACHE[filepath_str]
         date_format = date_format or cached_date_fmt
-    
+
     # Try cached separator first, then others
     df = None
     separators = [cached_sep] if cached_sep else []
-    separators.extend(['\t', ',', ';'])
-    
+    separators.extend(["\t", ",", ";"])
+
     detected_sep = None
     for sep in separators:
         if sep is None:
@@ -79,11 +77,11 @@ def load_mt5_csv(
         try:
             # Use C engine for faster parsing when possible
             df = pd.read_csv(
-                filepath, 
-                sep=sep, 
-                encoding='utf-8-sig',
-                engine='c' if sep in [',', '\t', ';'] else 'python',
-                low_memory=False
+                filepath,
+                sep=sep,
+                encoding="utf-8-sig",
+                engine="c" if sep in [",", "\t", ";"] else "python",
+                low_memory=False,
             )
             if len(df.columns) >= 4:  # At least OHLC
                 detected_sep = sep
@@ -97,13 +95,13 @@ def load_mt5_csv(
     # Clean any \r characters from string columns
     for col in df.columns:
         if df[col].dtype == object:
-            df[col] = df[col].str.replace('\r', '', regex=False)
+            df[col] = df[col].str.replace("\r", "", regex=False)
 
     # Clean column names - remove angle brackets, \r, and lowercase
     def clean_col(c):
-        c = str(c).strip().lower().replace('\r', '')
+        c = str(c).strip().lower().replace("\r", "")
         # Remove angle brackets: <date> -> date
-        if c.startswith('<') and c.endswith('>'):
+        if c.startswith("<") and c.endswith(">"):
             c = c[1:-1]
         return c
 
@@ -112,18 +110,18 @@ def load_mt5_csv(
     # Standardize column names to Backtesting.py format
     # Use tickvol as Volume (vol is usually 0 in MT5 exports)
     column_map = {
-        'open': 'Open',
-        'high': 'High',
-        'low': 'Low',
-        'close': 'Close',
-        'tick_volume': 'Volume',
-        'tickvol': 'Volume',
-        'real_volume': 'RealVolume',  # Keep separate to avoid duplicates
-        'volume': 'Volume',
-        'vol': 'Vol',  # Keep separate to avoid duplicates with tickvol
-        'date': 'Date',
-        'time': 'Time',
-        'datetime': 'DateTime',
+        "open": "Open",
+        "high": "High",
+        "low": "Low",
+        "close": "Close",
+        "tick_volume": "Volume",
+        "tickvol": "Volume",
+        "real_volume": "RealVolume",  # Keep separate to avoid duplicates
+        "volume": "Volume",
+        "vol": "Vol",  # Keep separate to avoid duplicates with tickvol
+        "date": "Date",
+        "time": "Time",
+        "datetime": "DateTime",
     }
 
     df.columns = [column_map.get(c, c) for c in df.columns]
@@ -132,18 +130,18 @@ def load_mt5_csv(
     df = df.loc[:, ~df.columns.duplicated()]
 
     # Try to find and parse datetime index
-    datetime_cols = ['DateTime', 'Date', 'Time']
+    datetime_cols = ["DateTime", "Date", "Time"]
     date_col = None
     time_col = None
 
     for col in datetime_cols:
         if col in df.columns:
-            if col == 'DateTime':
+            if col == "DateTime":
                 date_col = col
                 break
-            elif col == 'Date':
+            elif col == "Date":
                 date_col = col
-            elif col == 'Time':
+            elif col == "Time":
                 if date_col:
                     # We have both Date and Time columns
                     time_col = col
@@ -153,20 +151,20 @@ def load_mt5_csv(
 
     # Combine Date and Time if both exist
     if date_col and time_col and time_col in df.columns:
-        df['DateTime'] = df[date_col].astype(str) + ' ' + df[time_col].astype(str)
-        date_col = 'DateTime'
+        df["DateTime"] = df[date_col].astype(str) + " " + df[time_col].astype(str)
+        date_col = "DateTime"
 
     # Parse datetime with multiple format attempts
     if date_col and date_col in df.columns:
         date_formats = [
-            '%Y.%m.%d %H:%M:%S',
-            '%Y.%m.%d %H:%M',
-            '%Y-%m-%d %H:%M:%S',
-            '%Y-%m-%d %H:%M',
-            '%d.%m.%Y %H:%M:%S',
-            '%d.%m.%Y %H:%M',
-            '%Y/%m/%d %H:%M:%S',
-            '%Y/%m/%d %H:%M',
+            "%Y.%m.%d %H:%M:%S",
+            "%Y.%m.%d %H:%M",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%d.%m.%Y %H:%M:%S",
+            "%d.%m.%Y %H:%M",
+            "%Y/%m/%d %H:%M:%S",
+            "%Y/%m/%d %H:%M",
             None,  # Let pandas infer
         ]
 
@@ -186,7 +184,7 @@ def load_mt5_csv(
         df = df.reset_index(drop=True)
 
     # Ensure required columns exist
-    required = ['Open', 'High', 'Low', 'Close']
+    required = ["Open", "High", "Low", "Close"]
     missing = [c for c in required if c not in df.columns]
     if missing:
         # Try to find columns by position if names don't match
@@ -195,14 +193,16 @@ def load_mt5_csv(
             # Assume positional columns after date/time
             numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
             if len(numeric_cols) >= 4:
-                df = df.rename(columns={
-                    numeric_cols[0]: 'Open',
-                    numeric_cols[1]: 'High',
-                    numeric_cols[2]: 'Low',
-                    numeric_cols[3]: 'Close',
-                })
+                df = df.rename(
+                    columns={
+                        numeric_cols[0]: "Open",
+                        numeric_cols[1]: "High",
+                        numeric_cols[2]: "Low",
+                        numeric_cols[3]: "Close",
+                    }
+                )
                 if len(numeric_cols) >= 5:
-                    df = df.rename(columns={numeric_cols[4]: 'Volume'})
+                    df = df.rename(columns={numeric_cols[4]: "Volume"})
 
         # Check again
         missing = [c for c in required if c not in df.columns]
@@ -210,15 +210,15 @@ def load_mt5_csv(
             raise ValueError(f"Missing required columns: {missing}. Found: {list(df.columns)}")
 
     # Add Volume if not present
-    if 'Volume' not in df.columns:
-        df['Volume'] = 0
+    if "Volume" not in df.columns:
+        df["Volume"] = 0
 
     # Select only needed columns
-    df = df[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+    df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
 
     # Convert to numeric (in case of string data)
-    for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
     # Drop rows with NaN
     df = df.dropna()
@@ -227,7 +227,7 @@ def load_mt5_csv(
     # This is a defensive measure in case downloads introduce duplicates
     if isinstance(df.index, pd.DatetimeIndex):
         initial_len = len(df)
-        df = df[~df.index.duplicated(keep='first')]
+        df = df[~df.index.duplicated(keep="first")]
         if len(df) < initial_len:
             # Duplicates were found and removed
             removed = initial_len - len(df)
@@ -246,9 +246,7 @@ def load_mt5_csv(
 
 
 def load_mt5_history(
-    filepath: str,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None
+    filepath: str, start_date: Optional[str] = None, end_date: Optional[str] = None
 ) -> pd.DataFrame:
     """
     Load MT5 history file with optional date filtering.
@@ -274,10 +272,7 @@ def load_mt5_history(
     return df
 
 
-def load_multiple_mt5_files(
-    filepaths: List[str],
-    sort_by_date: bool = True
-) -> pd.DataFrame:
+def load_multiple_mt5_files(filepaths: List[str], sort_by_date: bool = True) -> pd.DataFrame:
     """
     Load and concatenate multiple MT5 CSV files.
 
@@ -290,10 +285,8 @@ def load_multiple_mt5_files(
     Returns:
         Combined OHLCV DataFrame
     """
-    dfs = []
-    for filepath in filepaths:
-        df = load_mt5_csv(filepath)
-        dfs.append(df)
+    # Vectorized: list comprehension instead of loop
+    dfs = [load_mt5_csv(filepath) for filepath in filepaths]
 
     combined = pd.concat(dfs)
 
@@ -301,7 +294,7 @@ def load_multiple_mt5_files(
         combined = combined.sort_index()
 
     # Remove duplicates
-    combined = combined[~combined.index.duplicated(keep='first')]
+    combined = combined[~combined.index.duplicated(keep="first")]
 
     return combined
 
@@ -323,7 +316,7 @@ def validate_ohlcv(df: pd.DataFrame) -> Tuple[bool, str]:
     Returns:
         Tuple of (is_valid, error_message)
     """
-    required_columns = ['Open', 'High', 'Low', 'Close']
+    required_columns = ["Open", "High", "Low", "Close"]
 
     # Check columns exist
     missing = [col for col in required_columns if col not in df.columns]
@@ -336,11 +329,11 @@ def validate_ohlcv(df: pd.DataFrame) -> Tuple[bool, str]:
         return False, f"Null values found: {null_counts.to_dict()}"
 
     # Check OHLC relationships
-    invalid_high = (df['High'] < df[['Open', 'Close']].max(axis=1)).sum()
+    invalid_high = (df["High"] < df[["Open", "Close"]].max(axis=1)).sum()
     if invalid_high > 0:
         return False, f"Invalid High values: {invalid_high} bars where High < max(Open, Close)"
 
-    invalid_low = (df['Low'] > df[['Open', 'Close']].min(axis=1)).sum()
+    invalid_low = (df["Low"] > df[["Open", "Close"]].min(axis=1)).sum()
     if invalid_low > 0:
         return False, f"Invalid Low values: {invalid_low} bars where Low > min(Open, Close)"
 
@@ -353,9 +346,7 @@ def validate_ohlcv(df: pd.DataFrame) -> Tuple[bool, str]:
 
 
 def preprocess_mt5_data(
-    df: pd.DataFrame,
-    fill_gaps: bool = True,
-    remove_weekends: bool = True
+    df: pd.DataFrame, fill_gaps: bool = True, remove_weekends: bool = True
 ) -> pd.DataFrame:
     """
     Preprocess MT5 data for backtesting.
@@ -394,28 +385,26 @@ def get_data_summary(df: pd.DataFrame) -> dict:
     Returns:
         Dict with data summary
     """
-    returns = df['Close'].pct_change().dropna()
+    returns = df["Close"].pct_change().dropna()
 
     summary = {
-        'start_date': str(df.index[0]) if hasattr(df.index[0], 'strftime') else str(df.index[0]),
-        'end_date': str(df.index[-1]) if hasattr(df.index[-1], 'strftime') else str(df.index[-1]),
-        'total_bars': len(df),
-        'price_start': float(df['Close'].iloc[0]),
-        'price_end': float(df['Close'].iloc[-1]),
-        'price_high': float(df['High'].max()),
-        'price_low': float(df['Low'].min()),
-        'total_return_pct': float((df['Close'].iloc[-1] / df['Close'].iloc[0] - 1) * 100),
-        'annualized_volatility': float(returns.std() * np.sqrt(252 * 24)),  # Assuming hourly data
-        'mean_volume': float(df['Volume'].mean()) if df['Volume'].sum() > 0 else 0,
+        "start_date": str(df.index[0]) if hasattr(df.index[0], "strftime") else str(df.index[0]),
+        "end_date": str(df.index[-1]) if hasattr(df.index[-1], "strftime") else str(df.index[-1]),
+        "total_bars": len(df),
+        "price_start": float(df["Close"].iloc[0]),
+        "price_end": float(df["Close"].iloc[-1]),
+        "price_high": float(df["High"].max()),
+        "price_low": float(df["Low"].min()),
+        "total_return_pct": float((df["Close"].iloc[-1] / df["Close"].iloc[0] - 1) * 100),
+        "annualized_volatility": float(returns.std() * np.sqrt(252 * 24)),  # Assuming hourly data
+        "mean_volume": float(df["Volume"].mean()) if df["Volume"].sum() > 0 else 0,
     }
 
     return summary
 
 
 def split_data(
-    df: pd.DataFrame,
-    train_ratio: float = 0.7,
-    validation_ratio: float = 0.15
+    df: pd.DataFrame, train_ratio: float = 0.7, validation_ratio: float = 0.15
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Split data into train/validation/test sets chronologically.
@@ -442,10 +431,7 @@ def split_data(
 
 
 def create_walk_forward_windows(
-    df: pd.DataFrame,
-    train_bars: int = 500,
-    test_bars: int = 100,
-    step_bars: int = 50
+    df: pd.DataFrame, train_bars: int = 500, test_bars: int = 100, step_bars: int = 50
 ) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
     """
     Create walk-forward analysis windows.
@@ -467,19 +453,15 @@ def create_walk_forward_windows(
     start = 0
 
     while start + train_bars + test_bars <= len(df):
-        train_df = df.iloc[start:start + train_bars].copy()
-        test_df = df.iloc[start + train_bars:start + train_bars + test_bars].copy()
+        train_df = df.iloc[start : start + train_bars].copy()
+        test_df = df.iloc[start + train_bars : start + train_bars + test_bars].copy()
         windows.append((train_df, test_df))
         start += step_bars
 
     return windows
 
 
-def export_backtest_data(
-    df: pd.DataFrame,
-    filepath: str,
-    format: str = 'csv'
-) -> None:
+def export_backtest_data(df: pd.DataFrame, filepath: str, format: str = "csv") -> None:
     """
     Export processed data for external use.
 
@@ -488,15 +470,15 @@ def export_backtest_data(
         filepath: Output file path
         format: Output format ('csv' or 'parquet')
     """
-    if format == 'csv':
+    if format == "csv":
         df.to_csv(filepath)
-    elif format == 'parquet':
+    elif format == "parquet":
         df.to_parquet(filepath)
     else:
         raise ValueError(f"Unknown format: {format}")
 
 
-def find_mt5_data_files(directory: str, pattern: str = '*.csv') -> List[str]:
+def find_mt5_data_files(directory: str, pattern: str = "*.csv") -> List[str]:
     """
     Find MT5 data files in a directory.
 

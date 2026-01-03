@@ -1,0 +1,299 @@
+
+❌ ERRORS (159):
+  kinetra/results_manager.py:99: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/results_manager.py:124: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/market_calendar.py:337: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/testing_framework.py:7: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/testing_framework.py:179: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/testing_framework.py:188: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bmacd\b. Use physics-based features only.
+  kinetra/testing_framework.py:206: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/testing_framework.py:1156: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/test_executor.py:353: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/test_executor.py:353: ERROR: [DETERMINISM] NumPy random without seeding. Backtests must be deterministic.
+  kinetra/data_quality.py:58: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/data_quality.py:303: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/data_quality.py:304: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/data_quality.py:319: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/data_quality.py:331: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/mt5_spec_extractor.py:176: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_management.py:114: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_management.py:132: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_manager.py:175: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_manager.py:218: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_manager.py:238: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_manager.py:483: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_manager.py:650: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/multi_agent_design.py:359: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/multi_agent_design.py:371: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:324: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:325: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bmacd\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:326: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bbollinger\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:327: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:374: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:376: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:443: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:444: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:447: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:448: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:450: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:479: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:492: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bmacd\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:497: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bMACD\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:500: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bbollinger\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:505: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bBollinger\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:753: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:755: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:756: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:757: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \brsi\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:758: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:777: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bSMA\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:777: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bEMA\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:780: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bSMA\b. Use physics-based features only.
+  kinetra/high_performance_engine.py:780: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bEMA\b. Use physics-based features only.
+  kinetra/measurements.py:8: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/measurements.py:8: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bMACD\b. Use physics-based features only.
+  kinetra/measurements.py:8: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bBollinger\b. Use physics-based features only.
+  kinetra/measurements.py:8: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bADX\b. Use physics-based features only.
+  kinetra/composite_stacking.py:10: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/composite_stacking.py:10: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bMACD\b. Use physics-based features only.
+  kinetra/composite_stacking.py:10: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bBollinger\b. Use physics-based features only.
+  kinetra/composite_stacking.py:10: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bADX\b. Use physics-based features only.
+  kinetra/market_microstructure.py:557: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/market_microstructure.py:614: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/market_microstructure.py:1023: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/market_microstructure.py:1024: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/unified_data_manager.py:353: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/unified_data_manager.py:470: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/realistic_backtester.py:386: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/realistic_backtester.py:1093: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/realistic_backtester.py:1093: ERROR: [DETERMINISM] NumPy random without seeding. Backtests must be deterministic.
+  kinetra/exploration_integration.py:551: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/reward_shaping.py:16: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/reward_shaping.py:33: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/reward_shaping.py:41: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/reward_shaping.py:42: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/trading_env.py:195: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/trading_env.py:281: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/trading_env.py:500: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/trading_env.py:508: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/stress_test.py:49: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/stress_test.py:584: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/stress_test.py:598: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/order_executor.py:471: ERROR: [SECURITY_VIOLATION] Direct order execution (use paper trading). This is a hard prohibition.
+  kinetra/persistence_manager.py:75: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/persistence_manager.py:163: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/performance.py:371: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bSMA\b. Use physics-based features only.
+  kinetra/performance.py:380: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/performance.py:401: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/performance.py:402: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/performance.py:404: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/performance.py:405: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/performance.py:407: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/silent_failure_logger.py:500: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/backtest_engine.py:1102: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_engine.py:1102: ERROR: [DETERMINISM] NumPy random without seeding. Backtests must be deterministic.
+  kinetra/volatility.py:7: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/volatility.py:27: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/volatility.py:216: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bBollinger\b. Use physics-based features only.
+  kinetra/physics_engine.py:214: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_engine.py:215: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/trend_discovery.py:7: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bRSI\b. Use physics-based features only.
+  kinetra/trend_discovery.py:7: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bMACD\b. Use physics-based features only.
+  kinetra/trend_discovery.py:7: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bADX\b. Use physics-based features only.
+  kinetra/trend_discovery.py:16: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \badx\b. Use physics-based features only.
+  kinetra/broker_compliance.py:815: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/broker_compliance.py:816: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/integrated_backtester.py:555: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/integrated_backtester.py:615: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data_utils.py:492: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/symbol_specs.py:266: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/workflow_manager.py:221: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/workflow_manager.py:251: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/workflow_manager.py:265: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/mt5_connector.py:244: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/mt5_connector.py:255: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/mt5_connector.py:787: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/market_events.py:615: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/mql5_trade_classes.py:2195: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/mql5_trade_classes.py:2222: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/mql5_trade_classes.py:2249: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/mql5_trade_classes.py:2276: ERROR: [SECURITY_VIOLATION] Live order placement (only backtest/paper allowed). This is a hard prohibition.
+  kinetra/backtest_optimizer.py:186: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:186: ERROR: [DETERMINISM] NumPy random without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:299: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:304: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:306: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:678: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:691: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:702: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:711: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:909: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/backtest_optimizer.py:919: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/trading_costs.py:488: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/results_analyzer.py:342: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/mt5_bridge.py:1259: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/mt5_bridge.py:1446: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/regime_filtered_env.py:146: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/regime_filtered_env.py:147: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/hpo_optimizer.py:410: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/hpo_optimizer.py:430: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/hpo_optimizer.py:541: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/spread_gate.py:206: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/spread_gate.py:213: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/spread_gate.py:213: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_backtester.py:182: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_backtester.py:184: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_backtester.py:214: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \bATR\b. Use physics-based features only.
+  kinetra/physics_backtester.py:217: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_backtester.py:225: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/physics_backtester.py:893: ERROR: [DETERMINISM] Random call without seeding. Backtests must be deterministic.
+  kinetra/physics_backtester.py:893: ERROR: [DETERMINISM] NumPy random without seeding. Backtests must be deterministic.
+  kinetra/realistic_trading_env.py:211: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/realistic_trading_env.py:288: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/realistic_trading_env.py:289: ERROR: [NO_TA_INDICATORS] Banned TA indicator detected: \batr\b. Use physics-based features only.
+  kinetra/grafana/dashboards.py:2242: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/data/atomic_ops.py:31: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/data/atomic_ops.py:88: ERROR: [DATA_SAFETY] Direct CSV write (use PersistenceManager.atomic_save). Use PersistenceManager for data operations.
+  kinetra/data/cache.py:83: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/devops/monitor.py:489: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/devops/env_manager.py:224: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/devops/env_manager.py:247: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+  kinetra/devops/env_manager.py:265: ERROR: [DATA_SAFETY] Direct file write (use atomic_save). Use PersistenceManager for data operations.
+
+⚠️  WARNINGS (132):
+  kinetra/discovery_methods.py:260: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/discovery_methods.py:309: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/discovery_methods.py:323: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/discovery_methods.py:400: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/discovery_methods.py:482: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/market_calendar.py:245: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/berserker_strategy.py:84: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:130: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:156: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:167: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/berserker_strategy.py:252: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:259: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:267: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:274: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:277: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:309: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:313: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:319: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:348: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:499: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:510: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:551: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:561: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:639: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:662: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/berserker_strategy.py:810: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:452: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:893: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:896: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:901: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:902: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:905: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:976: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:978: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:982: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/testing_framework.py:1000: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/data_quality.py:369: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/liquidity_features.py:77: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/liquidity_features.py:358: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/data_manager.py:327: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/data_manager.py:450: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/dsp_features.py:239: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/dsp_features.py:386: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/multi_agent_design.py:505: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/multi_agent_design.py:507: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/high_performance_engine.py:416: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/high_performance_engine.py:604: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/high_performance_engine.py:797: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/measurements.py:881: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/measurements.py:883: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/measurements.py:885: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/measurements.py:887: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/financial_audit.py:363: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/composite_stacking.py:247: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/composite_stacking.py:250: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/composite_stacking.py:259: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/composite_stacking.py:355: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/composite_stacking.py:357: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/market_microstructure.py:1036: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/realistic_backtester.py:1018: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/physics_v7.py:145: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/physics_v7.py:297: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/physics_v7.py:701: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/physics_v7.py:2126: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/risk_management.py:320: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/regime_discovery.py:261: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/regime_discovery.py:279: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/triad_system.py:245: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/stress_test.py:584: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:155: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:250: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:292: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:304: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:310: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:311: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:405: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_gpu_trainer.py:469: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:212: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:226: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:232: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:245: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:460: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/trigger_predictor.py:466: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/strategies_v7.py:228: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/strategies_v7.py:330: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/agent_factory.py:213: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/live_dashboard.py:472: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/experience_replay.py:410: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/experience_replay.py:414: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/physics_engine.py:556: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/physics_engine.py:623: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/physics_engine.py:625: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/physics_engine.py:627: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/physics_engine.py:629: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/portfolio_health.py:425: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/unified_trading_env.py:325: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/unified_trading_env.py:326: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/unified_trading_env.py:331: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/integrated_backtester.py:355: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/rl_physics_env.py:89: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_physics_env.py:99: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/rl_physics_env.py:111: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/assumption_free_measures.py:107: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/assumption_free_measures.py:333: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/assumption_free_measures.py:419: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/mt5_connector.py:481: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/mt5_connector.py:483: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/mt5_live.py:146: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/mt5_live.py:147: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/mt5_live.py:152: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/mt5_live.py:174: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/results_analyzer.py:245: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/results_analyzer.py:247: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/single_symbol_env.py:187: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/single_symbol_env.py:196: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/single_symbol_env.py:462: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/single_symbol_env.py:464: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/regime_filtered_env.py:160: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/regime_filtered_env.py:170: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/regime_filtered_env.py:172: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:65: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:75: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:85: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:95: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:105: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:115: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:125: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/spread_gate.py:138: WARNING: [NO_MAGIC_NUMBERS] Hardcoded window size (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/physics_backtester.py:184: WARNING: [NO_MAGIC_NUMBERS] Fixed rolling window (should be DSP-derived). Use rolling percentiles or DSP-derived values.
+  kinetra/physics_backtester.py:401: WARNING: [NO_MAGIC_NUMBERS] Static threshold comparison. Use rolling percentiles or DSP-derived values.
+  kinetra/grafana/datasource.py:1187: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+  kinetra/backtesting/core.py:124: WARNING: [VECTORIZATION] Python loop over range(len()) - consider vectorization. Prefer NumPy/Pandas vectorized operations.
+
+Total: 159 errors, 132 warnings
+
+❌ ERRORS found - please fix before committing

@@ -366,31 +366,21 @@ class DataQualityChecker:
         """
         violations = []
 
-        for i in range(len(data)):
-            o = data["open"].iloc[i]
-            h = data["high"].iloc[i]
-            l = data["low"].iloc[i]
-            c = data["close"].iloc[i]
+        # Vectorized: Extract arrays once
+        opens = data["open"].values
+        highs = data["high"].values
+        lows = data["low"].values
+        closes = data["close"].values
 
-            # Check positive prices
-            if o <= 0 or h <= 0 or l <= 0 or c <= 0:
-                violations.append(i)
-                continue
+        # Vectorized validation checks
+        positive_check = (opens <= 0) | (highs <= 0) | (lows <= 0) | (closes <= 0)
+        high_check = (highs < opens) | (highs < closes)
+        low_check = (lows > opens) | (lows > closes)
+        hl_check = highs < lows
 
-            # High must be highest
-            if h < o or h < c:
-                violations.append(i)
-                continue
-
-            # Low must be lowest
-            if l > o or l > c:
-                violations.append(i)
-                continue
-
-            # High >= Low
-            if h < l:
-                violations.append(i)
-                continue
+        # Combine all violations
+        all_violations = positive_check | high_check | low_check | hl_check
+        violations = np.where(all_violations)[0].tolist()
 
         return violations
 

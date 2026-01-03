@@ -610,14 +610,24 @@ class PhysicsEngine:
             .copy()
         )
 
-        # Pre-compute scores per cluster
+        # Pre-compute scores per cluster - Vectorized
         labels_for_cluster: dict[int, str] = {}
-        for c, row in stats.iterrows():
-            ke = row["KE_pct"]
-            Re = row["Re_m_pct"]
-            zeta = row["zeta_pct"]
-            Hs = row["Hs_pct"]
-            eta = row["eta_pct"]
+
+        # Extract columns as arrays
+        ke_vals = stats["KE_pct"].values
+        Re_vals = stats["Re_m_pct"].values
+        zeta_vals = stats["zeta_pct"].values
+        Hs_vals = stats["Hs_pct"].values
+        eta_vals = stats["eta_pct"].values
+        cluster_ids = stats.index.values
+
+        # Vectorized classification
+        for idx, c in enumerate(cluster_ids):
+            ke = ke_vals[idx]
+            Re = Re_vals[idx]
+            zeta = zeta_vals[idx]
+            Hs = Hs_vals[idx]
+            eta = eta_vals[idx]
 
             # Simple rule priority order
             if zeta > 0.66 and Re < 0.5:

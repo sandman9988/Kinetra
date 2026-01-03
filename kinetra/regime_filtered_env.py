@@ -9,35 +9,39 @@ Extends TradingEnv with 3-regime filtering:
 Enables focused training on specific market conditions for regime-specialized agents.
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, Tuple, Optional, List, Set
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional, Set, Tuple
 
-from .trading_env import TradingEnv, Position, Action
+import numpy as np
+import pandas as pd
+
+from .trading_env import Action, Position, TradingEnv
 
 
 class PhysicsRegime(Enum):
     """Physics-based regime classification."""
-    LAMINAR = "laminar"          # Low entropy, stable trends
+
+    LAMINAR = "laminar"  # Low entropy, stable trends
     UNDERDAMPED = "underdamped"  # Mean-reverting oscillations
-    OVERDAMPED = "overdamped"    # Choppy, high friction
-    CRITICAL = "critical"        # Transition state
+    OVERDAMPED = "overdamped"  # Choppy, high friction
+    CRITICAL = "critical"  # Transition state
 
 
 class VolatilityRegime(Enum):
     """Volatility-based regime classification."""
-    LOW_VOL = "low_vol"       # Low volatility (< 33rd percentile)
-    MEDIUM_VOL = "medium_vol" # Medium volatility (33-67th percentile)
-    HIGH_VOL = "high_vol"     # High volatility (> 67th percentile)
+
+    LOW_VOL = "low_vol"  # Low volatility (< 33rd percentile)
+    MEDIUM_VOL = "medium_vol"  # Medium volatility (33-67th percentile)
+    HIGH_VOL = "high_vol"  # High volatility (> 67th percentile)
 
 
 class MomentumRegime(Enum):
     """Momentum-based regime classification."""
-    UPTREND = "uptrend"     # Strong upward momentum
-    RANGING = "ranging"     # Sideways/choppy
-    DOWNTREND = "downtrend" # Strong downward momentum
+
+    UPTREND = "uptrend"  # Strong upward momentum
+    RANGING = "ranging"  # Sideways/choppy
+    DOWNTREND = "downtrend"  # Strong downward momentum
 
 
 @dataclass
@@ -48,6 +52,7 @@ class RegimeFilter:
     Set any regime to None to allow all values (no filtering).
     Set to specific values to filter to only those regimes.
     """
+
     physics_regimes: Optional[Set[PhysicsRegime]] = None
     volatility_regimes: Optional[Set[VolatilityRegime]] = None
     momentum_regimes: Optional[Set[MomentumRegime]] = None
@@ -106,7 +111,7 @@ class RegimeFilteredTradingEnv(TradingEnv):
         data: pd.DataFrame,
         regime_filter: Optional[RegimeFilter] = None,
         min_filtered_bars: int = 100,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize regime-filtered environment.
@@ -137,88 +142,99 @@ class RegimeFilteredTradingEnv(TradingEnv):
             )
 
         print(f"[RegimeFilteredEnv] Filter: {self.regime_filter}")
-        print(f"[RegimeFilteredEnv] Valid bars: {len(self.valid_bars)}/{len(self.features)} "
-              f"({100*len(self.valid_bars)/len(self.features):.1f}%)")
+        print(
+            f"[RegimeFilteredEnv] Valid bars: {len(self.valid_bars)}/{len(self.features)} "
+            f"({100 * len(self.valid_bars) / len(self.features):.1f}%)"
+        )
 
     def _compute_regime_classifications(self):
         """Compute volatility and momentum regime classifications."""
         # Volatility regime (using ATR percentiles)
-        atr = self.features['atr']
-        vol_percentiles = atr.rolling(200, min_periods=20).apply(
-            lambda x: (x.iloc[-1] >= x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-            raw=False
-        ).fillna(0.5)
+        atr = self.features["atr"]
+        vol_percentiles = (
+            atr.rolling(200, min_periods=20)
+            .apply(lambda x: (x.iloc[-1] >= x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
-        self.features['vol_regime'] = pd.cut(
+        self.features["vol_regime"] = pd.cut(
             vol_percentiles,
             bins=[0, 0.33, 0.67, 1.0],
-            labels=['low_vol', 'medium_vol', 'high_vol'],
-            include_lowest=True
+            labels=["low_vol", "medium_vol", "high_vol"],
+            include_lowest=True,
         ).astype(str)
 
         # Momentum regime (using rolling returns)
         momentum_window = 20
-        momentum = self.features['close'].pct_change(momentum_window)
+        momentum = self.features["close"].pct_change(momentum_window)
 
         # Classify momentum
-        momentum_percentiles = momentum.rolling(200, min_periods=20).apply(
-            lambda x: (x.iloc[-1] >= x.iloc[:-1]).mean() if len(x) > 1 else 0.5,
-            raw=False
-        ).fillna(0.5)
+        momentum_percentiles = (
+            momentum.rolling(200, min_periods=20)
+            .apply(lambda x: (x.iloc[-1] >= x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         def classify_momentum(pct):
             if pct > 0.6:
-                return 'uptrend'
+                return "uptrend"
             elif pct < 0.4:
-                return 'downtrend'
+                return "downtrend"
             else:
-                return 'ranging'
+                return "ranging"
 
-        self.features['momentum_regime'] = momentum_percentiles.apply(classify_momentum)
+        self.features["momentum_regime"] = momentum_percentiles.apply(classify_momentum)
 
         # Map physics regime (already computed by parent)
         # Convert from string to PhysicsRegime enum
         regime_map = {
-            'underdamped': PhysicsRegime.UNDERDAMPED,
-            'critical': PhysicsRegime.CRITICAL,
-            'overdamped': PhysicsRegime.OVERDAMPED,
-            'laminar': PhysicsRegime.LAMINAR,
+            "underdamped": PhysicsRegime.UNDERDAMPED,
+            "critical": PhysicsRegime.CRITICAL,
+            "overdamped": PhysicsRegime.OVERDAMPED,
+            "laminar": PhysicsRegime.LAMINAR,
         }
 
-        self.features['physics_regime_enum'] = self.features['regime'].map(
+        self.features["physics_regime_enum"] = self.features["regime"].map(
             lambda x: regime_map.get(x.lower(), PhysicsRegime.CRITICAL)
         )
 
-        self.features['vol_regime_enum'] = self.features['vol_regime'].map({
-            'low_vol': VolatilityRegime.LOW_VOL,
-            'medium_vol': VolatilityRegime.MEDIUM_VOL,
-            'high_vol': VolatilityRegime.HIGH_VOL,
-        })
+        self.features["vol_regime_enum"] = self.features["vol_regime"].map(
+            {
+                "low_vol": VolatilityRegime.LOW_VOL,
+                "medium_vol": VolatilityRegime.MEDIUM_VOL,
+                "high_vol": VolatilityRegime.HIGH_VOL,
+            }
+        )
 
-        self.features['momentum_regime_enum'] = self.features['momentum_regime'].map({
-            'uptrend': MomentumRegime.UPTREND,
-            'ranging': MomentumRegime.RANGING,
-            'downtrend': MomentumRegime.DOWNTREND,
-        })
+        self.features["momentum_regime_enum"] = self.features["momentum_regime"].map(
+            {
+                "uptrend": MomentumRegime.UPTREND,
+                "ranging": MomentumRegime.RANGING,
+                "downtrend": MomentumRegime.DOWNTREND,
+            }
+        )
 
     def _compute_valid_bars(self):
         """Find bars that match the regime filter."""
-        self.valid_bars = []
+        # Vectorized: extract regime columns once
+        physics_regimes = self.features["physics_regime_enum"].values
+        volatility_regimes = self.features["vol_regime_enum"].values
+        momentum_regimes = self.features["momentum_regime_enum"].values
 
-        for idx in range(len(self.features)):
-            physics = self.features.iloc[idx]['physics_regime_enum']
-            volatility = self.features.iloc[idx]['vol_regime_enum']
-            momentum = self.features.iloc[idx]['momentum_regime_enum']
+        # Vectorized: create mask for non-NA values
+        valid_mask = (
+            pd.notna(physics_regimes) & pd.notna(volatility_regimes) & pd.notna(momentum_regimes)
+        )
 
-            # Skip if any regime is None (data initialization)
-            if pd.isna(physics) or pd.isna(volatility) or pd.isna(momentum):
-                continue
+        # Vectorized: apply regime filter
+        match_mask = np.zeros(len(self.features), dtype=bool)
+        for idx in np.where(valid_mask)[0]:
+            if self.regime_filter.matches(
+                physics_regimes[idx], volatility_regimes[idx], momentum_regimes[idx]
+            ):
+                match_mask[idx] = True
 
-            # Check filter
-            if self.regime_filter.matches(physics, volatility, momentum):
-                self.valid_bars.append(idx)
-
-        self.valid_bars = np.array(self.valid_bars)
+        self.valid_bars = np.where(match_mask)[0]
 
     def reset(self) -> np.ndarray:
         """
@@ -231,7 +247,7 @@ class RegimeFilteredTradingEnv(TradingEnv):
 
         # If valid_bars not yet initialized (during __init__), return parent's state
         # This happens when parent's __init__ calls reset() before we've finished setup
-        if not hasattr(self, 'valid_bars'):
+        if not hasattr(self, "valid_bars"):
             return state
 
         # Now override current_bar to start at a random valid bar
@@ -268,39 +284,41 @@ class RegimeFilteredTradingEnv(TradingEnv):
             if len(next_valid) == 0:
                 # No more valid bars, episode done
                 done = True
-                info['early_termination'] = 'no_more_valid_bars'
+                info["early_termination"] = "no_more_valid_bars"
             else:
                 # Jump to next valid bar
                 self.current_bar = next_valid[0]
                 next_state = self._get_state()
-                info['skipped_bars'] = next_valid[0] - (self.current_bar - 1)
+                info["skipped_bars"] = next_valid[0] - (self.current_bar - 1)
 
         return next_state, reward, done, info
 
     def get_regime_distribution(self) -> Dict[str, Dict[str, int]]:
         """Get distribution of regimes in the dataset."""
         distribution = {
-            'physics': {},
-            'volatility': {},
-            'momentum': {},
+            "physics": {},
+            "volatility": {},
+            "momentum": {},
         }
 
         for regime in PhysicsRegime:
-            count = (self.features['physics_regime_enum'] == regime).sum()
-            distribution['physics'][regime.value] = int(count)
+            count = (self.features["physics_regime_enum"] == regime).sum()
+            distribution["physics"][regime.value] = int(count)
 
         for regime in VolatilityRegime:
-            count = (self.features['vol_regime_enum'] == regime).sum()
-            distribution['volatility'][regime.value] = int(count)
+            count = (self.features["vol_regime_enum"] == regime).sum()
+            distribution["volatility"][regime.value] = int(count)
 
         for regime in MomentumRegime:
-            count = (self.features['momentum_regime_enum'] == regime).sum()
-            distribution['momentum'][regime.value] = int(count)
+            count = (self.features["momentum_regime_enum"] == regime).sum()
+            distribution["momentum"][regime.value] = int(count)
 
         return distribution
 
 
-def create_regime_specialists(data: pd.DataFrame, **env_kwargs) -> Dict[str, RegimeFilteredTradingEnv]:
+def create_regime_specialists(
+    data: pd.DataFrame, **env_kwargs
+) -> Dict[str, RegimeFilteredTradingEnv]:
     """
     Create a set of regime-specialized environments for training.
 
@@ -309,53 +327,53 @@ def create_regime_specialists(data: pd.DataFrame, **env_kwargs) -> Dict[str, Reg
     specialists = {}
 
     # 1. Laminar trend followers (low/medium vol + uptrend/downtrend)
-    specialists['laminar_uptrend'] = RegimeFilteredTradingEnv(
+    specialists["laminar_uptrend"] = RegimeFilteredTradingEnv(
         data,
         regime_filter=RegimeFilter(
             physics_regimes={PhysicsRegime.LAMINAR},
             momentum_regimes={MomentumRegime.UPTREND},
         ),
-        **env_kwargs
+        **env_kwargs,
     )
 
-    specialists['laminar_downtrend'] = RegimeFilteredTradingEnv(
+    specialists["laminar_downtrend"] = RegimeFilteredTradingEnv(
         data,
         regime_filter=RegimeFilter(
             physics_regimes={PhysicsRegime.LAMINAR},
             momentum_regimes={MomentumRegime.DOWNTREND},
         ),
-        **env_kwargs
+        **env_kwargs,
     )
 
     # 2. Mean-reversion specialists (underdamped + ranging)
-    specialists['underdamped_ranging'] = RegimeFilteredTradingEnv(
+    specialists["underdamped_ranging"] = RegimeFilteredTradingEnv(
         data,
         regime_filter=RegimeFilter(
             physics_regimes={PhysicsRegime.UNDERDAMPED},
             momentum_regimes={MomentumRegime.RANGING},
         ),
-        **env_kwargs
+        **env_kwargs,
     )
 
     # 3. High volatility breakout specialist
-    specialists['high_vol_breakout'] = RegimeFilteredTradingEnv(
+    specialists["high_vol_breakout"] = RegimeFilteredTradingEnv(
         data,
         regime_filter=RegimeFilter(
             volatility_regimes={VolatilityRegime.HIGH_VOL},
             physics_regimes={PhysicsRegime.LAMINAR, PhysicsRegime.UNDERDAMPED},
         ),
-        **env_kwargs
+        **env_kwargs,
     )
 
     # 4. Low volatility grinder (overdamped + low vol = avoid)
     # This specialist learns to stay out of choppy low-edge conditions
-    specialists['avoid_choppy'] = RegimeFilteredTradingEnv(
+    specialists["avoid_choppy"] = RegimeFilteredTradingEnv(
         data,
         regime_filter=RegimeFilter(
             physics_regimes={PhysicsRegime.OVERDAMPED},
             volatility_regimes={VolatilityRegime.LOW_VOL, VolatilityRegime.MEDIUM_VOL},
         ),
-        **env_kwargs
+        **env_kwargs,
     )
 
     return specialists

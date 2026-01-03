@@ -1,5 +1,11 @@
 # Type Checking Guidelines for Kinetra
 
+> **⚠️ CANONICAL RULES:** All agent rules are consolidated in [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md)
+> 
+> This file provides **type checking specific guidelines**. For complete rules, see the master document.
+
+---
+
 ## BasedPyRight Error Prevention
 
 These guidelines help avoid common type checking errors in the Kinetra codebase.
@@ -222,3 +228,15 @@ basedpyright --outputjson kinetra/ 2>/dev/null | python3 -c "..."
 # Check with ruff for unused imports/variables
 ruff check kinetra/backtest_engine.py --select=F401,F841
 ```
+
+---
+
+## Additional Resources
+
+- **Complete Rules**: [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md) - **START HERE**
+- **GitHub Copilot Quick Reference**: [`.github/copilot-instructions.md`](../.github/copilot-instructions.md)
+- **Claude/Zed Quick Reference**: [`.claude/instructions.md`](instructions.md)
+
+---
+
+**For complete, comprehensive rules → See [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md)**

@@ -1,0 +1,23 @@
+
+================================================================================
+VECTORIZATION VIOLATIONS SUMMARY
+================================================================================
+🔴 High Priority:    56 violations
+🟡 Medium Priority:   0 violations
+🟢 Low Priority:      0 violations
+   Total:            56 violations
+================================================================================
+
+Files with violations: 44
+
+Top 10 files by violation count:
+    3 - scripts/research/fat_candle_forensics.py
+    3 - scripts/testing/run_full_backtest.py
+    2 - kinetra/liquidity_features.py
+    2 - scripts/analysis/quick_results.py
+    2 - scripts/download/prepare_exploration_data.py
+    2 - scripts/research/multi_dataset_harness.py
+    2 - scripts/testing/test_end_to_end.py
+    2 - scripts/testing/test_real_data_backtest.py
+    2 - scripts/training/quick_rl_test.py
+    2 - tests/test_exhaustive_combinations.py

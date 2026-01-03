@@ -12,11 +12,12 @@ Actions: HOLD, ENTER_LONG, ENTER_SHORT, EXIT
 Reward: ARS-style (PnL + α*MFE - β*MAE - γ*Time)
 """
 
-import numpy as np
-import pandas as pd
-from typing import Tuple, Optional, Dict, List
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 
 class Action(IntEnum):
@@ -52,117 +53,154 @@ class PhysicsFeatureComputer:
 
         # === CORE PHYSICS ===
         # Velocity and Energy
-        velocity = df['close'].pct_change()
-        energy = 0.5 * (velocity ** 2)
-        result['energy'] = energy.rolling(self.lookback).mean()
+        velocity = df["close"].pct_change()
+        energy = 0.5 * (velocity**2)
+        result["energy"] = energy.rolling(self.lookback).mean()
 
         # Damping (volatility / mean abs return)
         vol = velocity.rolling(self.lookback).std()
         mean_abs = velocity.abs().rolling(self.lookback).mean()
-        result['damping'] = vol / (mean_abs + 1e-10)
+        result["damping"] = vol / (mean_abs + 1e-10)
 
         # Entropy (simplified - use return dispersion)
-        result['entropy'] = velocity.rolling(self.lookback).apply(
-            lambda x: -np.sum(np.histogram(x, bins=10, density=True)[0] *
-                             np.log(np.histogram(x, bins=10, density=True)[0] + 1e-10)) / 10,
-            raw=True
+        result["entropy"] = velocity.rolling(self.lookback).apply(
+            lambda x: -np.sum(
+                np.histogram(x, bins=10, density=True)[0]
+                * np.log(np.histogram(x, bins=10, density=True)[0] + 1e-10)
+            )
+            / 10,
+            raw=True,
         )
 
         # === DERIVATIVES ===
         # Acceleration (d²P/dt²)
-        result['acceleration'] = velocity.diff()
+        result["acceleration"] = velocity.diff()
 
         # Jerk (d³P/dt³) - best fat candle predictor
-        result['jerk'] = result['acceleration'].diff()
+        result["jerk"] = result["acceleration"].diff()
 
         # Impulse (momentum change)
-        momentum = df['close'].pct_change(self.lookback)
-        result['impulse'] = momentum.diff(5)
+        momentum = df["close"].pct_change(self.lookback)
+        result["impulse"] = momentum.diff(5)
 
         # === ORDER FLOW ===
         # Liquidity
-        bar_range = df['high'] - df['low']
-        result['liquidity'] = df['volume'] / (bar_range.clip(lower=1e-10) * df['close'] / 100)
+        bar_range = df["high"] - df["low"]
+        result["liquidity"] = df["volume"] / (bar_range.clip(lower=1e-10) * df["close"] / 100)
 
         # Buying pressure
-        bp = (df['close'] - df['low']) / bar_range.clip(lower=1e-10)
-        result['buying_pressure'] = bp.rolling(5).mean()
+        bp = (df["close"] - df["low"]) / bar_range.clip(lower=1e-10)
+        result["buying_pressure"] = bp.rolling(5).mean()
 
         # === CONTEXT ===
         # Range position
-        rolling_high = df['high'].rolling(self.lookback).max()
-        rolling_low = df['low'].rolling(self.lookback).min()
-        result['range_position'] = (df['close'] - rolling_low) / (rolling_high - rolling_low + 1e-10)
+        rolling_high = df["high"].rolling(self.lookback).max()
+        rolling_low = df["low"].rolling(self.lookback).min()
+        result["range_position"] = (df["close"] - rolling_low) / (
+            rolling_high - rolling_low + 1e-10
+        )
 
         # Flow consistency (laminar flow)
         return_sign = np.sign(velocity)
-        result['flow_consistency'] = return_sign.rolling(5).apply(
+        result["flow_consistency"] = return_sign.rolling(5).apply(
             lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False
         )
 
         # === MOMENTUM ===
         # ROC (normalized)
-        result['roc'] = df['close'].pct_change(self.lookback)
+        result["roc"] = df["close"].pct_change(self.lookback)
 
-        # Inertia (bars in same direction)
+        # Inertia (bars in same direction) - Vectorized
         direction = np.sign(velocity)
-        counts = []
-        count = 1
-        for i in range(len(direction)):
-            if i == 0:
-                counts.append(1)
-            elif direction.iloc[i] == direction.iloc[i-1] and direction.iloc[i] != 0:
-                count += 1
-                counts.append(count)
-            else:
-                count = 1
-                counts.append(count)
-        result['inertia'] = pd.Series(counts, index=df.index)
+        direction_values = direction.values
+
+        # Find direction changes (create groups)
+        # Compare each element with previous, mark changes
+        changes = np.concatenate([[True], direction_values[1:] != direction_values[:-1]])
+        # Also reset on zeros
+        changes = changes | (direction_values == 0)
+
+        # Create group IDs
+        group_ids = np.cumsum(changes)
+
+        # Count consecutive occurrences within each group
+        # Use a trick: for each position, count how many in same group up to that point
+        counts = np.zeros(len(direction_values), dtype=int)
+        for gid in np.unique(group_ids):
+            mask = group_ids == gid
+            group_size = np.sum(mask)
+            counts[mask] = np.arange(1, group_size + 1)
+
+        result["inertia"] = pd.Series(counts, index=df.index)
 
         # Volume percentile
-        result['volume_pct'] = df['volume'].rolling(window).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+        result["volume_pct"] = (
+            df["volume"]
+            .rolling(window)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
         )
 
         # === REYNOLDS NUMBER (Turbulent vs Laminar) ===
-        bar_range_pct = (df['high'] - df['low']) / df['close']
+        bar_range_pct = (df["high"] - df["low"]) / df["close"]
         volatility_re = velocity.rolling(self.lookback).std().clip(lower=1e-10)
-        volume_norm = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        volume_norm = df["volume"] / df["volume"].rolling(self.lookback).mean().clip(lower=1e-10)
         reynolds = (velocity.abs() * bar_range_pct * volume_norm) / volatility_re
-        result['reynolds'] = reynolds.rolling(self.lookback).mean()
+        result["reynolds"] = reynolds.rolling(self.lookback).mean()
 
         # === VISCOSITY (resistance to flow) ===
-        avg_volume = df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
-        volume_norm_v = df['volume'] / avg_volume
+        avg_volume = df["volume"].rolling(self.lookback).mean().clip(lower=1e-10)
+        volume_norm_v = df["volume"] / avg_volume
         viscosity = bar_range_pct / volume_norm_v.clip(lower=1e-10)
-        result['viscosity'] = viscosity.rolling(self.lookback).mean()
+        result["viscosity"] = viscosity.rolling(self.lookback).mean()
 
         # === ANGULAR MOMENTUM (rotational/cyclical) ===
-        price_mean = df['close'].rolling(self.lookback).mean()
-        price_deviation = df['close'] - price_mean
-        angular_position = price_deviation / df['close'].rolling(self.lookback).std().clip(lower=1e-10)
+        price_mean = df["close"].rolling(self.lookback).mean()
+        price_deviation = df["close"] - price_mean
+        angular_position = price_deviation / df["close"].rolling(self.lookback).std().clip(
+            lower=1e-10
+        )
         angular_velocity = angular_position.diff()
-        result['angular_momentum'] = angular_position * angular_velocity
+        result["angular_momentum"] = angular_position * angular_velocity
 
         # === POTENTIAL ENERGY (stored in compression) ===
-        bar_range = df['high'] - df['low']
+        bar_range = df["high"] - df["low"]
         avg_range = bar_range.rolling(self.lookback).mean()
         range_compression = 1 - (bar_range / avg_range.clip(lower=1e-10))
-        result['potential_energy'] = range_compression.clip(lower=0) * volatility_re
+        result["potential_energy"] = range_compression.clip(lower=0) * volatility_re
 
         # === MOMENTUM DIRECTION (for RL to learn continuation vs reversal) ===
-        result['momentum_direction'] = np.sign(df['close'].pct_change(5))
+        result["momentum_direction"] = np.sign(df["close"].pct_change(5))
 
         # === CONVERT TO PERCENTILES (Adaptive, no fixed thresholds) ===
-        feature_cols = ['energy', 'damping', 'entropy', 'acceleration', 'jerk',
-                       'impulse', 'liquidity', 'buying_pressure', 'range_position',
-                       'flow_consistency', 'roc', 'inertia', 'volume_pct', 'reynolds',
-                       'viscosity', 'angular_momentum', 'potential_energy']
+        feature_cols = [
+            "energy",
+            "damping",
+            "entropy",
+            "acceleration",
+            "jerk",
+            "impulse",
+            "liquidity",
+            "buying_pressure",
+            "range_position",
+            "flow_consistency",
+            "roc",
+            "inertia",
+            "volume_pct",
+            "reynolds",
+            "viscosity",
+            "angular_momentum",
+            "potential_energy",
+        ]
 
         for col in feature_cols:
-            result[f'{col}_pct'] = result[col].rolling(window, min_periods=self.lookback).apply(
-                lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-            ).fillna(0.5)
+            result[f"{col}_pct"] = (
+                result[col]
+                .rolling(window, min_periods=self.lookback)
+                .apply(
+                    lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
+                )
+                .fillna(0.5)
+            )
 
         return result.fillna(0.5)
 
@@ -179,8 +217,8 @@ class PhysicsTradingEnv:
     def __init__(
         self,
         df: pd.DataFrame,
-        alpha: float = 0.5,   # MFE reward weight
-        beta: float = 1.0,    # MAE penalty weight
+        alpha: float = 0.5,  # MFE reward weight
+        beta: float = 1.0,  # MAE penalty weight
         gamma: float = 0.01,  # Time decay per bar
         max_bars_held: int = 10,
     ):
@@ -193,7 +231,7 @@ class PhysicsTradingEnv:
         self.max_bars_held = max_bars_held
 
         # Feature columns for state
-        self.feature_cols = [c for c in self.features_df.columns if c.endswith('_pct')]
+        self.feature_cols = [c for c in self.features_df.columns if c.endswith("_pct")]
 
         # Environment state
         self.current_idx = 0
@@ -245,7 +283,7 @@ class PhysicsTradingEnv:
         else:
             pos_dir = float(self.position.direction)
             bars_held = float(self.current_idx - self.position.entry_bar) / self.max_bars_held
-            current_price = self.df.iloc[self.current_idx]['close']
+            current_price = self.df.iloc[self.current_idx]["close"]
             unrealized_pnl = (current_price - self.position.entry_price) / self.position.entry_price
             unrealized_pnl *= self.position.direction
 
@@ -260,9 +298,9 @@ class PhysicsTradingEnv:
         reward = 0.0
         info = {}
 
-        current_price = self.df.iloc[self.current_idx]['close']
-        current_high = self.df.iloc[self.current_idx]['high']
-        current_low = self.df.iloc[self.current_idx]['low']
+        current_price = self.df.iloc[self.current_idx]["close"]
+        current_high = self.df.iloc[self.current_idx]["high"]
+        current_low = self.df.iloc[self.current_idx]["low"]
 
         # Handle action
         if action == Action.HOLD:
@@ -275,25 +313,21 @@ class PhysicsTradingEnv:
         elif action == Action.ENTER_LONG:
             if self.position is None:
                 self.position = Position(
-                    direction=1,
-                    entry_price=current_price,
-                    entry_bar=self.current_idx
+                    direction=1, entry_price=current_price, entry_bar=self.current_idx
                 )
-                info['action'] = 'enter_long'
+                info["action"] = "enter_long"
 
         elif action == Action.ENTER_SHORT:
             if self.position is None:
                 self.position = Position(
-                    direction=-1,
-                    entry_price=current_price,
-                    entry_bar=self.current_idx
+                    direction=-1, entry_price=current_price, entry_bar=self.current_idx
                 )
-                info['action'] = 'enter_short'
+                info["action"] = "enter_short"
 
         elif action == Action.EXIT:
             if self.position is not None:
                 reward = self._close_position(current_price)
-                info['action'] = 'exit'
+                info["action"] = "exit"
 
         # Move to next bar
         self.current_idx += 1
@@ -303,7 +337,7 @@ class PhysicsTradingEnv:
             self.done = True
             # Force close any open position
             if self.position is not None:
-                final_price = self.df.iloc[self.current_idx]['close']
+                final_price = self.df.iloc[self.current_idx]["close"]
                 reward += self._close_position(final_price)
 
         # Auto-exit if held too long
@@ -311,7 +345,7 @@ class PhysicsTradingEnv:
             bars_held = self.current_idx - self.position.entry_bar
             if bars_held >= self.max_bars_held:
                 reward += self._close_position(current_price)
-                info['action'] = 'auto_exit'
+                info["action"] = "auto_exit"
 
         next_state = self._get_state()
 
@@ -351,28 +385,30 @@ class PhysicsTradingEnv:
         pnl = (exit_price - entry) / entry * 100 * direction
 
         # Get entry bar energy for normalization
-        entry_energy = self.features_df.iloc[self.position.entry_bar]['energy']
+        entry_energy = self.features_df.iloc[self.position.entry_bar]["energy"]
         energy_norm = max(entry_energy, 1e-6)
 
         # ARS reward: asymmetric - punish MAE more than reward MFE
         reward = (
-            pnl / (energy_norm * 1000 + 1) +  # Energy-normalized P&L
-            self.alpha * self.position.mfe -   # Reward capturing MFE
-            self.beta * self.position.mae -    # Punish MAE
-            self.gamma * bars_held             # Time decay
+            pnl / (energy_norm * 1000 + 1)  # Energy-normalized P&L
+            + self.alpha * self.position.mfe  # Reward capturing MFE
+            - self.beta * self.position.mae  # Punish MAE
+            - self.gamma * bars_held  # Time decay
         )
 
         # Record trade
-        self.trades.append({
-            'entry_bar': self.position.entry_bar,
-            'exit_bar': self.current_idx,
-            'direction': direction,
-            'pnl': pnl,
-            'mfe': self.position.mfe,
-            'mae': self.position.mae,
-            'bars_held': bars_held,
-            'reward': reward,
-        })
+        self.trades.append(
+            {
+                "entry_bar": self.position.entry_bar,
+                "exit_bar": self.current_idx,
+                "direction": direction,
+                "pnl": pnl,
+                "mfe": self.position.mfe,
+                "mae": self.position.mae,
+                "bars_held": bars_held,
+                "reward": reward,
+            }
+        )
 
         self.position = None
 
@@ -381,26 +417,27 @@ class PhysicsTradingEnv:
     def get_episode_stats(self) -> Dict:
         """Get statistics for current episode."""
         if not self.trades:
-            return {'n_trades': 0}
+            return {"n_trades": 0}
 
-        pnls = [t['pnl'] for t in self.trades]
-        rewards = [t['reward'] for t in self.trades]
-        mfes = [t['mfe'] for t in self.trades]
-        maes = [t['mae'] for t in self.trades]
+        pnls = [t["pnl"] for t in self.trades]
+        rewards = [t["reward"] for t in self.trades]
+        mfes = [t["mfe"] for t in self.trades]
+        maes = [t["mae"] for t in self.trades]
 
         wins = sum(1 for p in pnls if p > 0)
         total = len(pnls)
 
         return {
-            'n_trades': total,
-            'win_rate': wins / total if total > 0 else 0,
-            'total_pnl': sum(pnls),
-            'avg_pnl': np.mean(pnls),
-            'total_reward': sum(rewards),
-            'avg_reward': np.mean(rewards),
-            'avg_mfe': np.mean(mfes),
-            'avg_mae': np.mean(maes),
-            'profit_factor': sum(p for p in pnls if p > 0) / abs(sum(p for p in pnls if p < 0) or 1),
+            "n_trades": total,
+            "win_rate": wins / total if total > 0 else 0,
+            "total_pnl": sum(pnls),
+            "avg_pnl": np.mean(pnls),
+            "total_reward": sum(rewards),
+            "avg_reward": np.mean(rewards),
+            "avg_mfe": np.mean(mfes),
+            "avg_mae": np.mean(maes),
+            "profit_factor": sum(p for p in pnls if p > 0)
+            / abs(sum(p for p in pnls if p < 0) or 1),
         }
 
 
@@ -443,12 +480,7 @@ class SimpleRLAgent:
         return int(np.argmax(self.get_q_values(state)))
 
     def update(
-        self,
-        state: np.ndarray,
-        action: int,
-        reward: float,
-        next_state: np.ndarray,
-        done: bool
+        self, state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool
     ):
         """Update Q-function with TD learning."""
         # Current Q-value
@@ -477,16 +509,13 @@ class SimpleRLAgent:
         # Normalize
         importance = importance / importance.sum()
 
-        return pd.DataFrame({
-            'feature': feature_names,
-            'importance': importance
-        }).sort_values('importance', ascending=False)
+        return pd.DataFrame({"feature": feature_names, "importance": importance}).sort_values(
+            "importance", ascending=False
+        )
 
 
 def train_rl_agent(
-    df: pd.DataFrame,
-    n_episodes: int = 100,
-    verbose: bool = True
+    df: pd.DataFrame, n_episodes: int = 100, verbose: bool = True
 ) -> Tuple[SimpleRLAgent, PhysicsTradingEnv, List[Dict]]:
     """
     Train RL agent on physics features.
@@ -514,27 +543,27 @@ def train_rl_agent(
             steps += 1
 
         stats = env.get_episode_stats()
-        stats['episode'] = episode
-        stats['total_reward'] = total_reward
-        stats['steps'] = steps
-        stats['epsilon'] = agent.epsilon
+        stats["episode"] = episode
+        stats["total_reward"] = total_reward
+        stats["steps"] = steps
+        stats["epsilon"] = agent.epsilon
         episode_stats.append(stats)
 
         if verbose and (episode + 1) % 10 == 0:
-            print(f"Episode {episode + 1}/{n_episodes}: "
-                  f"Trades={stats['n_trades']}, "
-                  f"WinRate={stats['win_rate']:.1%}, "
-                  f"PnL={stats['total_pnl']:.2f}%, "
-                  f"Reward={total_reward:.2f}, "
-                  f"ε={agent.epsilon:.3f}")
+            print(
+                f"Episode {episode + 1}/{n_episodes}: "
+                f"Trades={stats['n_trades']}, "
+                f"WinRate={stats['win_rate']:.1%}, "
+                f"PnL={stats['total_pnl']:.2f}%, "
+                f"Reward={total_reward:.2f}, "
+                f"ε={agent.epsilon:.3f}"
+            )
 
     return agent, env, episode_stats
 
 
 def evaluate_agent(
-    agent: SimpleRLAgent,
-    df: pd.DataFrame,
-    start_idx: Optional[int] = None
+    agent: SimpleRLAgent, df: pd.DataFrame, start_idx: Optional[int] = None
 ) -> tuple[dict, list[dict]]:
     """Evaluate trained agent on data."""
     env = PhysicsTradingEnv(df)
@@ -547,6 +576,6 @@ def evaluate_agent(
         total_reward += reward
 
     stats = env.get_episode_stats()
-    stats['total_reward'] = total_reward
+    stats["total_reward"] = total_reward
 
     return stats, env.trades

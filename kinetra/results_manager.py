@@ -14,8 +14,9 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from .backtest_engine import BacktestResult, Trade, TradeDirection
 
@@ -49,11 +50,7 @@ class ResultsManager:
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
     def create_run(
-        self,
-        symbol: str,
-        timeframe: str,
-        config: Dict,
-        date: Optional[datetime] = None
+        self, symbol: str, timeframe: str, config: Dict, date: Optional[datetime] = None
     ) -> Path:
         """
         Create a new run directory and return its path.
@@ -93,7 +90,7 @@ class ResultsManager:
                 "run_id": f"run_{run_num:03d}",
                 "created_at": datetime.now().isoformat(),
                 "date": date_str,
-            }
+            },
         }
 
         with open(run_path / "config.json", "w") as f:
@@ -106,7 +103,7 @@ class ResultsManager:
         run_path: Path,
         result: BacktestResult,
         save_trades: bool = True,
-        save_equity: bool = True
+        save_equity: bool = True,
     ):
         """
         Save backtest result to run directory.
@@ -124,11 +121,10 @@ class ResultsManager:
         with open(run_path / "summary.json", "w") as f:
             json.dump(summary, f, indent=2, default=str)
 
-        # Save trades as parquet
+        # Save trades as parquet - Vectorized with list comprehension
         if save_trades and result.trades:
-            trades_data = []
-            for t in result.trades:
-                trades_data.append({
+            trades_data = [
+                {
                     "trade_id": t.trade_id,
                     "symbol": t.symbol,
                     "direction": t.direction.value,
@@ -147,17 +143,18 @@ class ResultsManager:
                     "regime_at_entry": t.regime_at_entry,
                     "mfe": t.mfe,
                     "mae": t.mae,
-                })
+                }
+                for t in result.trades
+            ]
 
             trades_df = pd.DataFrame(trades_data)
             trades_df.to_parquet(run_path / "trades.parquet", index=False)
 
         # Save equity curve
         if save_equity and result.equity_curve is not None:
-            equity_df = pd.DataFrame({
-                "bar": range(len(result.equity_curve)),
-                "equity": result.equity_curve.values
-            })
+            equity_df = pd.DataFrame(
+                {"bar": range(len(result.equity_curve)), "equity": result.equity_curve.values}
+            )
             equity_df.to_parquet(run_path / "equity_curve.parquet", index=False)
 
     def load_result(self, run_path: Path) -> Dict:
@@ -186,7 +183,7 @@ class ResultsManager:
         symbol: Optional[str] = None,
         timeframe: Optional[str] = None,
         date: Optional[str] = None,
-        last_n_days: int = 7
+        last_n_days: int = 7,
     ) -> List[Dict]:
         """
         List available runs with optional filtering.
@@ -277,19 +274,21 @@ class ResultsManager:
                 with open(config_path) as f:
                     config = json.load(f)
 
-                comparisons.append({
-                    "run_id": config.get("_meta", {}).get("run_id", path.name),
-                    "symbol": config.get("_meta", {}).get("symbol", ""),
-                    "timeframe": config.get("_meta", {}).get("timeframe", ""),
-                    "trades": result.get("total_trades", 0),
-                    "win_rate": result.get("win_rate", 0),
-                    "gross_pnl": result.get("total_gross_pnl", 0),
-                    "total_costs": result.get("total_costs", 0),
-                    "net_pnl": result.get("total_net_pnl", 0),
-                    "max_dd": result.get("max_drawdown", 0),
-                    "sharpe": result.get("sharpe_ratio", 0),
-                    "omega": result.get("omega_ratio", 0),
-                })
+                comparisons.append(
+                    {
+                        "run_id": config.get("_meta", {}).get("run_id", path.name),
+                        "symbol": config.get("_meta", {}).get("symbol", ""),
+                        "timeframe": config.get("_meta", {}).get("timeframe", ""),
+                        "trades": result.get("total_trades", 0),
+                        "win_rate": result.get("win_rate", 0),
+                        "gross_pnl": result.get("total_gross_pnl", 0),
+                        "total_costs": result.get("total_costs", 0),
+                        "net_pnl": result.get("total_net_pnl", 0),
+                        "max_dd": result.get("max_drawdown", 0),
+                        "sharpe": result.get("sharpe_ratio", 0),
+                        "omega": result.get("omega_ratio", 0),
+                    }
+                )
             except Exception as e:
                 print(f"Error loading {path}: {e}")
 
@@ -338,11 +337,7 @@ class ResultsManager:
 
         return aggregated
 
-    def cleanup_old_runs(
-        self,
-        days_to_keep: int = 30,
-        dry_run: bool = True
-    ) -> List[str]:
+    def cleanup_old_runs(self, days_to_keep: int = 30, dry_run: bool = True) -> List[str]:
         """
         Remove runs older than specified days.
 
@@ -412,26 +407,30 @@ def format_run_summary(result: Dict) -> str:
 
     costs = result.get("cost_breakdown", {})
     if costs:
-        lines.extend([
-            f"    - Spread:     ${costs.get('spread', 0):>10,.2f}",
-            f"    - Commission: ${costs.get('commission', 0):>10,.2f}",
-            f"    - Slippage:   ${costs.get('slippage', 0):>10,.2f}",
-            f"    - Swap:       ${costs.get('swap', 0):>10,.2f}",
-        ])
+        lines.extend(
+            [
+                f"    - Spread:     ${costs.get('spread', 0):>10,.2f}",
+                f"    - Commission: ${costs.get('commission', 0):>10,.2f}",
+                f"    - Slippage:   ${costs.get('slippage', 0):>10,.2f}",
+                f"    - Swap:       ${costs.get('swap', 0):>10,.2f}",
+            ]
+        )
 
-    lines.extend([
-        f"  Net P&L:      ${result.get('total_net_pnl', 0):>12,.2f}",
-        "",
-        "Risk Metrics:",
-        f"  Max Drawdown: ${result.get('max_drawdown', 0):>10,.2f} "
-        f"({result.get('max_drawdown_pct', 0):.1f}%)",
-        f"  Sharpe Ratio: {result.get('sharpe_ratio', 0):>10.2f}",
-        f"  Omega Ratio:  {result.get('omega_ratio', 0):>10.2f}",
-        f"  Z-Factor:     {result.get('z_factor', 0):>10.2f}",
-        "",
-        "Physics Metrics:",
-        f"  Energy Captured: {result.get('energy_captured_pct', 0):.1%}",
-        "=" * 60,
-    ])
+    lines.extend(
+        [
+            f"  Net P&L:      ${result.get('total_net_pnl', 0):>12,.2f}",
+            "",
+            "Risk Metrics:",
+            f"  Max Drawdown: ${result.get('max_drawdown', 0):>10,.2f} "
+            f"({result.get('max_drawdown_pct', 0):.1f}%)",
+            f"  Sharpe Ratio: {result.get('sharpe_ratio', 0):>10.2f}",
+            f"  Omega Ratio:  {result.get('omega_ratio', 0):>10.2f}",
+            f"  Z-Factor:     {result.get('z_factor', 0):>10.2f}",
+            "",
+            "Physics Metrics:",
+            f"  Energy Captured: {result.get('energy_captured_pct', 0):.1%}",
+            "=" * 60,
+        ]
+    )
 
     return "\n".join(lines)

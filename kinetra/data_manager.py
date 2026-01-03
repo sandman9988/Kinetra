@@ -34,20 +34,22 @@ Philosophy:
 - **Consistency**: Same raw data + same preprocessing = identical training data
 """
 
-import json
 import hashlib
-import pandas as pd
-import numpy as np
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+import json
 import shutil
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 
 @dataclass
 class DataChunk:
     """Represents a downloaded data chunk."""
+
     symbol: str
     timeframe: str
     start_time: datetime
@@ -100,38 +102,34 @@ class DataManager:
         Returns:
             Asset class folder name
         """
-        symbol_clean = symbol.replace('+', '').replace('-', '').upper()
+        symbol_clean = symbol.replace("+", "").replace("-", "").upper()
 
         # Forex pairs (6 chars, all letters)
         if len(symbol_clean) == 6 and symbol_clean.isalpha():
             return "forex"
 
         # Metals
-        if symbol_clean.startswith(('XAU', 'XAG', 'GOLD', 'SILVER')):
+        if symbol_clean.startswith(("XAU", "XAG", "GOLD", "SILVER")):
             return "metals"
 
         # Crypto
-        if 'BTC' in symbol_clean or 'ETH' in symbol_clean or 'USDT' in symbol_clean:
+        if "BTC" in symbol_clean or "ETH" in symbol_clean or "USDT" in symbol_clean:
             return "crypto"
 
         # Indices
-        if any(idx in symbol_clean for idx in ['SPX', 'NDX', 'DJI', 'DAX', 'FTSE', 'NAS100', 'US30']):
+        if any(
+            idx in symbol_clean for idx in ["SPX", "NDX", "DJI", "DAX", "FTSE", "NAS100", "US30"]
+        ):
             return "indices"
 
         # Energy
-        if any(e in symbol_clean for e in ['WTI', 'BRENT', 'OIL', 'GAS']):
+        if any(e in symbol_clean for e in ["WTI", "BRENT", "OIL", "GAS"]):
             return "energy"
 
         # Default to forex
         return "forex"
 
-    def get_raw_data_path(
-        self,
-        broker: str,
-        account: str,
-        symbol: str,
-        timeframe: str
-    ) -> Path:
+    def get_raw_data_path(self, broker: str, account: str, symbol: str, timeframe: str) -> Path:
         """
         Get path for raw data storage.
 
@@ -149,11 +147,7 @@ class DataManager:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def get_training_data_path(
-        self,
-        symbol: str,
-        timeframe: str
-    ) -> Path:
+    def get_training_data_path(self, symbol: str, timeframe: str) -> Path:
         """
         Get path for training data storage.
 
@@ -182,7 +176,7 @@ class DataManager:
         account: str,
         symbol: str,
         timeframe: str,
-        metadata: Dict = None
+        metadata: Dict = None,
     ) -> DataChunk:
         """
         Save a chunk of raw data atomically.
@@ -202,10 +196,10 @@ class DataManager:
         raw_path = self.get_raw_data_path(broker, account, symbol, timeframe)
 
         # Create filename with timestamp range
-        start_time = data['time'].iloc[0]
-        end_time = data['time'].iloc[-1]
-        start_str = start_time.strftime('%Y%m%d%H%M')
-        end_str = end_time.strftime('%Y%m%d%H%M')
+        start_time = data["time"].iloc[0]
+        end_time = data["time"].iloc[-1]
+        start_str = start_time.strftime("%Y%m%d%H%M")
+        end_str = end_time.strftime("%Y%m%d%H%M")
 
         filename = f"{symbol}_{timeframe}_{start_str}_{end_str}.csv"
         file_path = raw_path / filename
@@ -221,21 +215,23 @@ class DataManager:
         # Save metadata
         metadata_file = raw_path / f"{symbol}_{timeframe}_metadata.json"
         meta = metadata or {}
-        meta.update({
-            'symbol': symbol,
-            'timeframe': timeframe,
-            'broker': broker,
-            'account': account,
-            'asset_class': self.get_asset_class_folder(symbol),
-            'bars_count': len(data),
-            'start_time': start_time.isoformat(),
-            'end_time': end_time.isoformat(),
-            'file': filename,
-            'checksum': checksum,
-            'downloaded_at': datetime.now().isoformat(),
-        })
+        meta.update(
+            {
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "broker": broker,
+                "account": account,
+                "asset_class": self.get_asset_class_folder(symbol),
+                "bars_count": len(data),
+                "start_time": start_time.isoformat(),
+                "end_time": end_time.isoformat(),
+                "file": filename,
+                "checksum": checksum,
+                "downloaded_at": datetime.now().isoformat(),
+            }
+        )
 
-        with open(metadata_file, 'w') as f:
+        with open(metadata_file, "w") as f:
             json.dump(meta, f, indent=2)
 
         # Create DataChunk
@@ -247,7 +243,7 @@ class DataManager:
             bars_count=len(data),
             file_path=file_path,
             checksum=checksum,
-            downloaded_at=datetime.now()
+            downloaded_at=datetime.now(),
         )
 
         return chunk
@@ -280,11 +276,7 @@ class DataManager:
         return True
 
     def detect_gaps(
-        self,
-        broker: str,
-        account: str,
-        symbol: str,
-        timeframe: str
+        self, broker: str, account: str, symbol: str, timeframe: str
     ) -> List[Tuple[datetime, datetime]]:
         """
         Detect gaps in downloaded data.
@@ -310,11 +302,11 @@ class DataManager:
         # Parse timestamps from filenames
         chunks = []
         for f in files:
-            parts = f.stem.split('_')
+            parts = f.stem.split("_")
             if len(parts) >= 4:
                 try:
-                    start = datetime.strptime(parts[-2], '%Y%m%d%H%M')
-                    end = datetime.strptime(parts[-1], '%Y%m%d%H%M')
+                    start = datetime.strptime(parts[-2], "%Y%m%d%H%M")
+                    end = datetime.strptime(parts[-1], "%Y%m%d%H%M")
                     chunks.append((start, end))
                 except ValueError:
                     continue
@@ -339,19 +331,10 @@ class DataManager:
 
     def _get_timeframe_minutes(self, timeframe: str) -> int:
         """Convert timeframe string to minutes."""
-        mapping = {
-            'M1': 1, 'M5': 5, 'M15': 15, 'M30': 30,
-            'H1': 60, 'H4': 240, 'D1': 1440
-        }
+        mapping = {"M1": 1, "M5": 5, "M15": 15, "M30": 30, "H1": 60, "H4": 240, "D1": 1440}
         return mapping.get(timeframe, 15)
 
-    def merge_chunks(
-        self,
-        broker: str,
-        account: str,
-        symbol: str,
-        timeframe: str
-    ) -> pd.DataFrame:
+    def merge_chunks(self, broker: str, account: str, symbol: str, timeframe: str) -> pd.DataFrame:
         """
         Merge all chunks for a symbol into continuous DataFrame.
 
@@ -373,17 +356,18 @@ class DataManager:
         if not files:
             return pd.DataFrame()
 
-        # Read and concatenate
-        dfs = []
-        for f in files:
+        # Read and concatenate - Vectorized with list comprehension
+        def read_and_parse(f):
             df = pd.read_csv(f)
-            df['time'] = pd.to_datetime(df['time'])
-            dfs.append(df)
+            df["time"] = pd.to_datetime(df["time"])
+            return df
+
+        dfs = [read_and_parse(f) for f in files]
 
         # Merge and remove duplicates
         merged = pd.concat(dfs, ignore_index=True)
-        merged = merged.drop_duplicates(subset=['time'])
-        merged = merged.sort_values('time').reset_index(drop=True)
+        merged = merged.drop_duplicates(subset=["time"])
+        merged = merged.sort_values("time").reset_index(drop=True)
 
         return merged
 
@@ -394,7 +378,7 @@ class DataManager:
         symbol: str,
         timeframe: str,
         features: List[str] = None,
-        force_refresh: bool = True
+        force_refresh: bool = True,
     ) -> Path:
         """
         Prepare standardized training data from raw data.
@@ -419,7 +403,7 @@ class DataManager:
             Path to standardized file
         """
         training_path = self.get_training_data_path(symbol, timeframe)
-        symbol_clean = symbol.replace('+', '').replace('-', '')
+        symbol_clean = symbol.replace("+", "").replace("-", "")
         output_file = training_path / f"{symbol_clean}_{timeframe}_standardized.parquet"
 
         # Always regenerate for consistency (unless explicitly disabled)
@@ -428,9 +412,9 @@ class DataManager:
             print(f"   Set force_refresh=True to regenerate")
             return output_file
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"PREPARING TRAINING DATA (fresh from raw)")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Symbol: {symbol}")
         print(f"Timeframe: {timeframe}")
 
@@ -443,57 +427,55 @@ class DataManager:
         print(f"✅ Merged {len(data)} bars from raw data")
 
         # Calculate returns
-        data['return'] = data['close'].pct_change()
-        data['log_return'] = np.log(data['close'] / data['close'].shift(1))
+        data["return"] = data["close"].pct_change()
+        data["log_return"] = np.log(data["close"] / data["close"].shift(1))
 
         # Calculate volatility
-        data['volatility'] = data['return'].rolling(20).std()
+        data["volatility"] = data["return"].rolling(20).std()
 
         # Calculate volume change
-        data['volume_change'] = data['volume'].pct_change()
+        data["volume_change"] = data["volume"].pct_change()
 
         # Normalize prices (min-max scaling per chunk to preserve distribution)
-        price_cols = ['open', 'high', 'low', 'close']
+        price_cols = ["open", "high", "low", "close"]
         for col in price_cols:
-            data[f'{col}_norm'] = (data[col] - data[col].min()) / (data[col].max() - data[col].min() + 1e-8)
+            data[f"{col}_norm"] = (data[col] - data[col].min()) / (
+                data[col].max() - data[col].min() + 1e-8
+            )
 
         # Save statistics for denormalization
         stats = {
-            'symbol': symbol,
-            'timeframe': timeframe,
-            'broker': broker,
-            'account': account,
-            'asset_class': self.get_asset_class_folder(symbol),
-            'price_min': {col: float(data[col].min()) for col in price_cols},
-            'price_max': {col: float(data[col].max()) for col in price_cols},
-            'volume_mean': float(data['volume'].mean()),
-            'volume_std': float(data['volume'].std()),
-            'bars_count': len(data),
-            'start_time': data['time'].iloc[0].isoformat(),
-            'end_time': data['time'].iloc[-1].isoformat(),
-            'created_at': datetime.now().isoformat(),
-            'source': 'raw_data_merge',
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "broker": broker,
+            "account": account,
+            "asset_class": self.get_asset_class_folder(symbol),
+            "price_min": {col: float(data[col].min()) for col in price_cols},
+            "price_max": {col: float(data[col].max()) for col in price_cols},
+            "volume_mean": float(data["volume"].mean()),
+            "volume_std": float(data["volume"].std()),
+            "bars_count": len(data),
+            "start_time": data["time"].iloc[0].isoformat(),
+            "end_time": data["time"].iloc[-1].isoformat(),
+            "created_at": datetime.now().isoformat(),
+            "source": "raw_data_merge",
         }
 
         # Save standardized data as Parquet (more efficient than CSV)
-        data.to_parquet(output_file, index=False, compression='snappy')
+        data.to_parquet(output_file, index=False, compression="snappy")
 
         # Save stats
         stats_file = training_path / f"{symbol_clean}_{timeframe}_stats.json"
-        with open(stats_file, 'w') as f:
+        with open(stats_file, "w") as f:
             json.dump(stats, f, indent=2)
 
         print(f"✅ Standardized {len(data)} bars → {output_file}")
         print(f"✅ Stats saved → {stats_file}")
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         return output_file
 
-    def get_data_summary(
-        self,
-        broker: str,
-        account: str
-    ) -> Dict:
+    def get_data_summary(self, broker: str, account: str) -> Dict:
         """
         Get summary of all downloaded data.
 
@@ -510,11 +492,11 @@ class DataManager:
             return {}
 
         summary = {
-            'broker': broker,
-            'account': account,
-            'asset_classes': {},
-            'total_symbols': 0,
-            'total_bars': 0,
+            "broker": broker,
+            "account": account,
+            "asset_classes": {},
+            "total_symbols": 0,
+            "total_bars": 0,
         }
 
         # Scan each asset class
@@ -523,34 +505,29 @@ class DataManager:
                 continue
 
             asset_class = asset_class_dir.name
-            summary['asset_classes'][asset_class] = {
-                'symbols': [],
-                'total_bars': 0,
+            summary["asset_classes"][asset_class] = {
+                "symbols": [],
+                "total_bars": 0,
             }
 
             # Scan for metadata files
-            for meta_file in asset_class_dir.glob('*_metadata.json'):
+            for meta_file in asset_class_dir.glob("*_metadata.json"):
                 with open(meta_file) as f:
                     meta = json.load(f)
 
-                symbol = meta.get('symbol')
-                if symbol not in summary['asset_classes'][asset_class]['symbols']:
-                    summary['asset_classes'][asset_class]['symbols'].append(symbol)
-                    summary['total_symbols'] += 1
+                symbol = meta.get("symbol")
+                if symbol not in summary["asset_classes"][asset_class]["symbols"]:
+                    summary["asset_classes"][asset_class]["symbols"].append(symbol)
+                    summary["total_symbols"] += 1
 
-                bars = meta.get('bars_count', 0)
-                summary['asset_classes'][asset_class]['total_bars'] += bars
-                summary['total_bars'] += bars
+                bars = meta.get("bars_count", 0)
+                summary["asset_classes"][asset_class]["total_bars"] += bars
+                summary["total_bars"] += bars
 
         return summary
 
-
     def create_encrypted_backup(
-        self,
-        broker: str,
-        account: str,
-        backup_dir: Path = None,
-        password: str = None
+        self, broker: str, account: str, backup_dir: Path = None, password: str = None
     ) -> Path:
         """
         Create encrypted backup of raw data.
@@ -568,12 +545,13 @@ class DataManager:
         Returns:
             Path to encrypted backup file
         """
-        import tarfile
+        import base64
         import getpass
+        import tarfile
+
         from cryptography.fernet import Fernet
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-        import base64
 
         if password is None:
             password = getpass.getpass("Enter backup password: ")
@@ -589,13 +567,13 @@ class DataManager:
             raise ValueError(f"No data found for {broker}/{account}")
 
         # Create tar archive
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         tar_filename = f"{broker}_{account}_{timestamp}.tar.gz"
         tar_path = self.cache_dir / tar_filename
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"CREATING ENCRYPTED BACKUP")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Broker: {broker}")
         print(f"Account: {account}")
         print(f"Source: {source_path}")
@@ -607,7 +585,7 @@ class DataManager:
         print(f"✅ Created archive: {tar_path.name} ({file_size_mb:.1f} MB)")
 
         # Derive encryption key from password
-        salt = b'kinetra_backup_salt_v1'  # In production, use random salt and store it
+        salt = b"kinetra_backup_salt_v1"  # In production, use random salt and store it
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -618,7 +596,7 @@ class DataManager:
         fernet = Fernet(key)
 
         # Encrypt archive
-        with open(tar_path, 'rb') as f:
+        with open(tar_path, "rb") as f:
             data = f.read()
 
         encrypted_data = fernet.encrypt(data)
@@ -627,7 +605,7 @@ class DataManager:
         backup_filename = f"{broker}_{account}_{timestamp}.encrypted"
         backup_path = backup_dir / backup_filename
 
-        with open(backup_path, 'wb') as f:
+        with open(backup_path, "wb") as f:
             f.write(encrypted_data)
 
         encrypted_size_mb = backup_path.stat().st_size / (1024 * 1024)
@@ -638,20 +616,20 @@ class DataManager:
 
         # Save metadata
         metadata = {
-            'broker': broker,
-            'account': account,
-            'created_at': datetime.now().isoformat(),
-            'original_size_mb': file_size_mb,
-            'encrypted_size_mb': encrypted_size_mb,
-            'file': backup_filename,
+            "broker": broker,
+            "account": account,
+            "created_at": datetime.now().isoformat(),
+            "original_size_mb": file_size_mb,
+            "encrypted_size_mb": encrypted_size_mb,
+            "file": backup_filename,
         }
 
         meta_path = backup_dir / f"{broker}_{account}_{timestamp}.json"
-        with open(meta_path, 'w') as f:
+        with open(meta_path, "w") as f:
             json.dump(metadata, f, indent=2)
 
         print(f"✅ Metadata saved: {meta_path.name}")
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         print(f"⚠️  IMPORTANT: Store your password securely!")
         print(f"   Without it, the backup cannot be restored.")
@@ -659,10 +637,7 @@ class DataManager:
         return backup_path
 
     def restore_from_backup(
-        self,
-        backup_file: Path,
-        password: str = None,
-        restore_dir: Path = None
+        self, backup_file: Path, password: str = None, restore_dir: Path = None
     ) -> Path:
         """
         Restore raw data from encrypted backup.
@@ -675,23 +650,24 @@ class DataManager:
         Returns:
             Path to restored data
         """
-        import tarfile
+        import base64
         import getpass
+        import tarfile
+
         from cryptography.fernet import Fernet
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-        import base64
 
         if password is None:
             password = getpass.getpass("Enter backup password: ")
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"RESTORING FROM ENCRYPTED BACKUP")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Backup: {backup_file.name}")
 
         # Derive decryption key
-        salt = b'kinetra_backup_salt_v1'
+        salt = b"kinetra_backup_salt_v1"
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -702,7 +678,7 @@ class DataManager:
         fernet = Fernet(key)
 
         # Decrypt
-        with open(backup_file, 'rb') as f:
+        with open(backup_file, "rb") as f:
             encrypted_data = f.read()
 
         try:
@@ -715,7 +691,7 @@ class DataManager:
 
         # Extract tar
         tar_path = self.cache_dir / "restore_temp.tar.gz"
-        with open(tar_path, 'wb') as f:
+        with open(tar_path, "wb") as f:
             f.write(decrypted_data)
 
         # Determine restore location
@@ -731,7 +707,7 @@ class DataManager:
         # Clean up
         tar_path.unlink()
 
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         return restore_dir
 

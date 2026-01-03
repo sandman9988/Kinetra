@@ -23,14 +23,14 @@ Usage:
     pm.restore_latest("data/master/crypto/BTCUSD_H1_20240101_20241231.csv")
 """
 
+import hashlib
+import json
 import os
 import shutil
-import hashlib
 import tempfile
-from pathlib import Path
 from datetime import datetime
-from typing import Union, Optional, Callable
-import json
+from pathlib import Path
+from typing import Callable, Optional, Union
 
 
 class PersistenceManager:
@@ -40,7 +40,7 @@ class PersistenceManager:
         self,
         backup_dir: Union[str, Path] = "data/backups",
         max_backups: int = 10,
-        verify_checksums: bool = True
+        verify_checksums: bool = True,
     ):
         """
         Initialize persistence manager.
@@ -63,7 +63,7 @@ class PersistenceManager:
         """Load backup manifest."""
         if self.manifest_file.exists():
             try:
-                with open(self.manifest_file, 'r') as f:
+                with open(self.manifest_file, "r") as f:
                     return json.load(f)
             except Exception:
                 return {}
@@ -71,16 +71,16 @@ class PersistenceManager:
 
     def _save_manifest(self):
         """Save backup manifest atomically."""
-        temp_file = self.manifest_file.with_suffix('.tmp')
-        with open(temp_file, 'w') as f:
+        temp_file = self.manifest_file.with_suffix(".tmp")
+        with open(temp_file, "w") as f:  # Data safety OK - internal manifest write
             json.dump(self.manifest, f, indent=2)
         temp_file.replace(self.manifest_file)
 
     def _compute_checksum(self, filepath: Path) -> str:
         """Compute SHA256 checksum of file."""
         sha256 = hashlib.sha256()
-        with open(filepath, 'rb') as f:
-            for chunk in iter(lambda: f.read(65536), b''):
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
                 sha256.update(chunk)
         return sha256.hexdigest()
 
@@ -110,12 +110,14 @@ class PersistenceManager:
         if file_key not in self.manifest:
             self.manifest[file_key] = []
 
-        self.manifest[file_key].append({
-            'backup_path': str(backup_path),
-            'timestamp': timestamp,
-            'checksum': checksum,
-            'size_bytes': backup_path.stat().st_size
-        })
+        self.manifest[file_key].append(
+            {
+                "backup_path": str(backup_path),
+                "timestamp": timestamp,
+                "checksum": checksum,
+                "size_bytes": backup_path.stat().st_size,
+            }
+        )
 
         # Rotate old backups
         self._rotate_backups(file_key)
@@ -129,11 +131,11 @@ class PersistenceManager:
 
         if len(backups) > self.max_backups:
             # Sort by timestamp, delete oldest
-            backups_sorted = sorted(backups, key=lambda x: x['timestamp'])
-            to_delete = backups_sorted[:len(backups) - self.max_backups]
+            backups_sorted = sorted(backups, key=lambda x: x["timestamp"])
+            to_delete = backups_sorted[: len(backups) - self.max_backups]
 
             for backup in to_delete:
-                backup_path = Path(backup['backup_path'])
+                backup_path = Path(backup["backup_path"])
                 if backup_path.exists():
                     backup_path.unlink()
                 backups.remove(backup)
@@ -144,7 +146,7 @@ class PersistenceManager:
         self,
         filepath: Union[str, Path],
         content: Union[str, bytes, object],
-        writer: Optional[Callable] = None
+        writer: Optional[Callable] = None,
     ) -> bool:
         """
         Atomically save content to file with automatic backup.
@@ -179,10 +181,10 @@ class PersistenceManager:
 
             # Step 2: Write to temporary file
             with tempfile.NamedTemporaryFile(
-                mode='wb' if isinstance(content, bytes) else 'w',
+                mode="wb" if isinstance(content, bytes) else "w",
                 dir=filepath.parent,
                 delete=False,
-                suffix='.tmp'
+                suffix=".tmp",
             ) as tmp_file:
                 temp_path = Path(tmp_file.name)
 
@@ -238,8 +240,8 @@ class PersistenceManager:
             return False
 
         # Get latest backup
-        latest_backup = sorted(backups, key=lambda x: x['timestamp'])[-1]
-        backup_path = Path(latest_backup['backup_path'])
+        latest_backup = sorted(backups, key=lambda x: x["timestamp"])[-1]
+        backup_path = Path(latest_backup["backup_path"])
 
         if not backup_path.exists():
             print(f"❌ Backup file missing: {backup_path}")
@@ -247,9 +249,9 @@ class PersistenceManager:
 
         try:
             # Verify checksum if enabled
-            if self.verify_checksums and latest_backup['checksum']:
+            if self.verify_checksums and latest_backup["checksum"]:
                 current_checksum = self._compute_checksum(backup_path)
-                if current_checksum != latest_backup['checksum']:
+                if current_checksum != latest_backup["checksum"]:
                     print(f"⚠️  Backup checksum mismatch! File may be corrupted.")
                     return False
 
@@ -273,10 +275,10 @@ class PersistenceManager:
 
         for file_key, backups in list(self.manifest.items()):
             for backup in list(backups):
-                backup_time = datetime.strptime(backup['timestamp'], "%Y%m%d_%H%M%S").timestamp()
+                backup_time = datetime.strptime(backup["timestamp"], "%Y%m%d_%H%M%S").timestamp()
 
                 if backup_time < cutoff:
-                    backup_path = Path(backup['backup_path'])
+                    backup_path = Path(backup["backup_path"])
                     if backup_path.exists():
                         backup_path.unlink()
                     backups.remove(backup)
@@ -291,6 +293,7 @@ class PersistenceManager:
 
 # Global persistence manager instance
 _persistence_manager = None
+
 
 def get_persistence_manager(**kwargs) -> PersistenceManager:
     """Get global PersistenceManager instance (singleton)."""

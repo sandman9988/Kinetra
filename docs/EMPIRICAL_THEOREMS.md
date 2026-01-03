@@ -639,3 +639,20 @@ From `docs/ACTION_PLAN.md`, Phase 3 is complete when:
 - **dqn**: 30 valid combinations
 - **incumbent**: 30 valid combinations
 - **ppo**: 30 valid combinations
+
+
+## Exhaustive Run: unit (20260103_2052)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 3195 (71.0%)
+
+### Agent Performance Summary:
+- **a3c**: 355 valid combinations
+- **competitor**: 355 valid combinations
+- **dqn**: 355 valid combinations
+- **incumbent**: 355 valid combinations
+- **linear_q**: 355 valid combinations
+- **ppo**: 355 valid combinations
+- **researcher**: 355 valid combinations
+- **sac**: 355 valid combinations
+- **td3**: 355 valid combinations

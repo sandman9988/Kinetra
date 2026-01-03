@@ -1,5 +1,27 @@
 # AI AGENT PERSISTENT INSTRUCTIONS
-## Read This at the Start of Every Prompt
+
+> **⚠️ DEPRECATED:** This file has been archived and is no longer the authoritative source.
+> 
+> **→ See [`AGENT_RULES_MASTER.md`](../../AGENT_RULES_MASTER.md) for canonical rules**
+> 
+> This archive is kept for historical reference only. All rules have been consolidated into the master rulebook.
+
+---
+
+## Historical Context
+
+This file previously contained AI agent instructions but has been superseded by:
+
+- **Canonical Rules**: [`AGENT_RULES_MASTER.md`](../../AGENT_RULES_MASTER.md) - Single source of truth
+- **GitHub Copilot Quick Reference**: [`.github/copilot-instructions.md`](../../.github/copilot-instructions.md)
+- **Claude/Zed Quick Reference**: [`.claude/instructions.md`](../../.claude/instructions.md)
+- **Type Checking Guidelines**: [`.claude/type_checking_guidelines.md`](../../.claude/type_checking_guidelines.md)
+
+**DO NOT use this file for current development.** It is retained only for historical context.
+
+---
+
+## Original Content (Archived)
 
 ---
 

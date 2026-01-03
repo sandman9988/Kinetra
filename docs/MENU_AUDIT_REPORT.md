@@ -6,58 +6,63 @@ MENU SYSTEM AUDIT REPORT
 📊 SUMMARY
 ================================================================================
 
-Total Menu Functions:    19
+Total Menu Functions:    24
 Total Script Calls:      12
-Available Scripts:       130
-Scripts Called by Menu:  9
-Unused Scripts:          121
+Available Scripts:       171
+Scripts Called by Menu:  8
+Unused Scripts:          163
 Missing Scripts:         0
 
-Coverage: 6.9%
+Coverage: 4.7%
 
 ================================================================================
 MENU STRUCTURE
 ================================================================================
 
-Menu Functions (9):
+Menu Functions (12):
   • show_backtesting_menu: Show backtesting menu.
   • show_data_management_menu: Show data management menu.
   • show_data_summary: Show data summary.
   • show_exploration_menu: Show exploration testing menu.
-  • show_main_menu: Show main menu.
+  • show_live_testing_guide: Show live testing guide.
+  • show_live_testing_menu: Show live testing menu.
+  • show_main_menu: Show main menu with context awareness.
   • show_performance_metrics: Show performance metrics.
+  • show_progress_message: Show progress message with counter.
   • show_recent_results: Show recent test results.
   • show_system_health: Show current system health.
   • show_system_status_menu: Show system status and health.
 
-Action Functions (10):
+Action Functions (12):
   • run_agent_comparison: Run agent comparison.
   • run_comparative_analysis: Run comparative analysis of multiple strategies.
   • run_custom_backtest: Run custom backtest with full configuration.
   • run_custom_exploration: Run custom exploration with user configuration.
+  • run_demo_account_testing: Run demo account testing.
   • run_measurement_analysis: Run measurement impact analysis.
   • run_monte_carlo_validation: Run Monte Carlo validation.
   • run_quick_backtest: Run quick backtest using exploration results.
   • run_quick_exploration: Run quick exploration with preset configuration.
   • run_scientific_discovery: Run scientific discovery suite.
+  • run_virtual_trading: Run virtual/paper trading test.
   • run_walk_forward_testing: Run walk-forward testing.
 
 ================================================================================
 SCRIPT CALLS (Menu → Scripts)
 ================================================================================
 
-  [✓] get_secure_input → scripts/download/select_metaapi_account.py
-  [✓] get_secure_input → scripts/testing/run_scientific_testing.py
-  [✓] get_secure_input → scripts/training/explore_compare_agents.py
-  [✓] get_secure_input → scripts/testing/run_comprehensive_backtest.py
-  [✓] get_secure_input → scripts/download/download_interactive.py
-  [✓] get_secure_input → scripts/download/check_and_fill_data.py
-  [✓] get_secure_input → scripts/download/check_data_integrity.py
-  [✓] get_secure_input → scripts/download/prepare_data.py
-  [✓] get_secure_input → scripts/download/backup_data.py
-  [✓] get_secure_input → scripts/download/download_interactive.py
-  [✓] get_secure_input → scripts/download/check_data_integrity.py
-  [✓] get_secure_input → scripts/download/prepare_data.py
+  [✓] run_interruptible_subprocess → scripts/download/select_metaapi_account.py
+  [✓] run_interruptible_subprocess → scripts/training/explore_compare_agents.py
+  [✓] run_interruptible_subprocess → scripts/testing/run_live_test.py
+  [✓] run_interruptible_subprocess → scripts/testing/run_live_test.py
+  [✓] run_interruptible_subprocess → scripts/download/download_interactive.py
+  [✓] run_interruptible_subprocess → scripts/download/check_and_fill_data.py
+  [✓] run_interruptible_subprocess → scripts/download/check_data_integrity.py
+  [✓] run_interruptible_subprocess → scripts/download/prepare_data.py
+  [✓] run_interruptible_subprocess → scripts/download/backup_data.py
+  [✓] run_interruptible_subprocess → scripts/download/download_interactive.py
+  [✓] run_interruptible_subprocess → scripts/download/check_data_integrity.py
+  [✓] run_interruptible_subprocess → scripts/download/prepare_data.py
 
 ================================================================================
 COVERAGE BY CATEGORY
@@ -76,11 +81,23 @@ download/:
   ✓ Used: backup_data, check_and_fill_data, check_data_integrity, download_interactive, prepare_data, select_metaapi_account
   ✗ Unused: convert_mt5_format, download_market_data, download_metaapi, download_mt5_data, extract_mt5_specs, fetch_broker_spec_from_metaapi, load_all_symbols, metaapi_bulk_download, metaapi_sync, parallel_data_prep, prepare_exploration_data, standardize_data_cutoff
 
-scripts/:
-  Total:  15
+exploration/:
+  Total:  6
   Called: 0 (0%)
-  Unused: 15
-  ✗ Unused: audit_menu_system, benchmark_performance, branch_manager, cache_manager, dashboard, demo_modular_execution, detect_silent_failures, devops_manager, fix_silent_failures, master_workflow, monitor_daemon, run_local, run_predictor, silent_failure_workflow, train
+  Unused: 6
+  ✗ Unused: rl_exploration_framework, rl_exploration_framework_agents, run_comprehensive_exploration, run_exploration_heartbeat, specialist_agents, tripleganger_system
+
+scripts/:
+  Total:  42
+  Called: 0 (0%)
+  Unused: 42
+  ✗ Unused: audit_data_coverage, audit_menu_system, backtest_compare, backtest_full, backtest_risk, backtest_specialists, backtest_universal, backup_data, batch_backtest, benchmark_performance, branch_manager, cache_manager, classify_unused_scripts, consolidate_data, dashboard, demo_modular_execution, detect_silent_failures, devops_manager, explore_compare_agents, explore_full, explore_measurements, explore_policies, explore_risk, explore_stacking, explore_universal, fix_silent_failures, hunger_games_mvp, kientra_alpha_pipeline, lint_rules, master_workflow, monitor_daemon, optimize_full, optimize_params, optimize_replay, optimize_risk, run_exhaustive_tests, run_hpo, run_local, run_predictor, silent_failure_workflow, train, vectorization_linter
+
+servers/:
+  Total:  1
+  Called: 0 (0%)
+  Unused: 1
+  ✗ Unused: mt5_bridge_server
 
 setup/:
   Total:  1
@@ -89,11 +106,11 @@ setup/:
   ✗ Unused: check_gpu
 
 testing/:
-  Total:  53
-  Called: 2 (4%)
-  Unused: 51
-  ✓ Used: run_comprehensive_backtest, run_scientific_testing
-  ✗ Unused: batch_backtest, demo_backtest_improvements, example_testing_framework, integrate_realistic_backtest, multi_tf_test, phase2_validation, rl_backtest, run_exploration_backtest, run_full_backtest, run_physics_backtest, test_backtest_numerical_validation, test_backtest_trend, test_berserker_strategy, test_doppelganger_triad, test_e2e_symbols_timeframes, test_end_to_end, test_energy_recovery_hypotheses, test_experience_replay, test_exploration_strategies, test_framework_integration, test_freeze_zones, test_friction_costs, test_grafana_export, test_infrastructure_modules, test_marginal_gains, test_menu, test_metaapi_auth, test_mt5_authentication, test_mt5_friction, test_mt5_logger, test_mt5_vantage_full, test_multi_instrument, test_numerical_safety, test_p0_p5_integration, test_parallel_performance, test_performance_module, test_physics, test_portfolio_health, test_real_data_backtest, test_regime_filtering, test_sac, test_strategies, test_trade_lifecycle, test_trade_lifecycle_real_data, test_transaction_log, unified_test_framework, validate_btc_h1_layer1, validate_mql5_compliance, validate_theorems, validate_thesis, verify_calculations
+  Total:  60
+  Called: 1 (2%)
+  Unused: 59
+  ✓ Used: run_live_test
+  ✗ Unused: AUTOMATED_AUDIT_FIX, batch_backtest, conftest, continuous_fix_pipeline, continuous_menu_test, demo_backtest_improvements, example_testing_framework, exercise_menu_continuous, exercise_menu_with_real_data, integrate_realistic_backtest, multi_tf_test, phase2_validation, rl_backtest, run_comprehensive_backtest, run_exploration_backtest, run_full_backtest, run_physics_backtest, run_scientific_testing, test_backtest_numerical_validation, test_backtest_trend, test_berserker_strategy, test_doppelganger_triad, test_e2e_symbols_timeframes, test_end_to_end, test_energy_recovery_hypotheses, test_experience_replay, test_exploration_strategies, test_framework_integration, test_freeze_zones, test_friction_costs, test_grafana_export, test_infrastructure_modules, test_marginal_gains, test_menu, test_metaapi_auth, test_mt5_authentication, test_mt5_friction, test_mt5_logger, test_mt5_vantage_full, test_multi_instrument, test_numerical_safety, test_p0_p5_integration, test_parallel_performance, test_performance_module, test_physics_demo, test_portfolio_health, test_real_data_backtest, test_regime_filtering, test_sac, test_strategies, test_trade_lifecycle, test_trade_lifecycle_real_data, test_transaction_log, unified_test_framework, validate_btc_h1_layer1, validate_mql5_compliance, validate_theorems, validate_thesis, verify_calculations
 
 training/:
   Total:  18
@@ -133,10 +150,15 @@ These scripts exist but are not called by the menu:
   • scripts/analysis/superpot_empirical.py
   • scripts/analysis/superpot_explorer.py
   • scripts/analysis/superpot_physics.py
+  • scripts/audit_data_coverage.py
   • scripts/audit_menu_system.py
+  • scripts/backup_data.py
+  • scripts/batch_backtest.py
   • scripts/benchmark_performance.py
   • scripts/branch_manager.py
   • scripts/cache_manager.py
+  • scripts/classify_unused_scripts.py
+  • scripts/consolidate_data.py
   • scripts/dashboard.py
   • scripts/demo_modular_execution.py
   • scripts/detect_silent_failures.py
@@ -153,23 +175,59 @@ These scripts exist but are not called by the menu:
   • scripts/download/parallel_data_prep.py
   • scripts/download/prepare_exploration_data.py
   • scripts/download/standardize_data_cutoff.py
+  • scripts/exploration/rl_exploration_framework.py
+  • scripts/exploration/rl_exploration_framework_agents.py
+  • scripts/exploration/run_comprehensive_exploration.py
+  • scripts/exploration/run_exploration_heartbeat.py
+  • scripts/exploration/specialist_agents.py
+  • scripts/exploration/tripleganger_system.py
   • scripts/fix_silent_failures.py
+  • scripts/hunger_games_mvp.py
+  • scripts/kientra_alpha_pipeline.py
+  • scripts/lint_rules.py
   • scripts/master_workflow.py
   • scripts/monitor_daemon.py
+  • scripts/run_exhaustive_tests.py
+  • scripts/run_hpo.py
   • scripts/run_local.py
   • scripts/run_predictor.py
+  • scripts/servers/mt5_bridge_server.py
   • scripts/setup/check_gpu.py
   • scripts/silent_failure_workflow.py
+  • scripts/testing/AUTOMATED_AUDIT_FIX.py
   • scripts/testing/batch_backtest.py
+  • scripts/testing/conftest.py
+  • scripts/testing/continuous_fix_pipeline.py
+  • scripts/testing/continuous_menu_test.py
   • scripts/testing/demo_backtest_improvements.py
   • scripts/testing/example_testing_framework.py
+  • scripts/testing/exercise_menu_continuous.py
+  • scripts/testing/exercise_menu_with_real_data.py
   • scripts/testing/integrate_realistic_backtest.py
   • scripts/testing/multi_tf_test.py
   • scripts/testing/phase2_validation.py
   • scripts/testing/rl_backtest.py
+  • scripts/testing/run_comprehensive_backtest.py
   • scripts/testing/run_exploration_backtest.py
   • scripts/testing/run_full_backtest.py
   • scripts/testing/run_physics_backtest.py
+  • scripts/testing/run_scientific_testing.py
+  • scripts/testing/scripts/backtest_compare.py
+  • scripts/testing/scripts/backtest_full.py
+  • scripts/testing/scripts/backtest_risk.py
+  • scripts/testing/scripts/backtest_specialists.py
+  • scripts/testing/scripts/backtest_universal.py
+  • scripts/testing/scripts/explore_compare_agents.py
+  • scripts/testing/scripts/explore_full.py
+  • scripts/testing/scripts/explore_measurements.py
+  • scripts/testing/scripts/explore_policies.py
+  • scripts/testing/scripts/explore_risk.py
+  • scripts/testing/scripts/explore_stacking.py
+  • scripts/testing/scripts/explore_universal.py
+  • scripts/testing/scripts/optimize_full.py
+  • scripts/testing/scripts/optimize_params.py
+  • scripts/testing/scripts/optimize_replay.py
+  • scripts/testing/scripts/optimize_risk.py
   • scripts/testing/test_backtest_numerical_validation.py
   • scripts/testing/test_backtest_trend.py
   • scripts/testing/test_berserker_strategy.py
@@ -196,7 +254,7 @@ These scripts exist but are not called by the menu:
   • scripts/testing/test_p0_p5_integration.py
   • scripts/testing/test_parallel_performance.py
   • scripts/testing/test_performance_module.py
-  • scripts/testing/test_physics.py
+  • scripts/testing/test_physics_demo.py
   • scripts/testing/test_portfolio_health.py
   • scripts/testing/test_real_data_backtest.py
   • scripts/testing/test_regime_filtering.py
@@ -229,6 +287,7 @@ These scripts exist but are not called by the menu:
   • scripts/training/train_sniper.py
   • scripts/training/train_triad.py
   • scripts/training/train_with_metrics.py
+  • scripts/vectorization_linter.py
 
 Recommendation: Review if these should be:
   1. Integrated into menu system

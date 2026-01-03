@@ -20,11 +20,12 @@ PHASE 3: TRADE MANAGEMENT
 - Calibrated from MFE/MAE analysis
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, Optional, List, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 from .physics_engine import PhysicsEngine
 
@@ -44,6 +45,7 @@ class FlowRegime(Enum):
 @dataclass
 class TriggerPrediction:
     """Prediction output with magnitude, direction, and trade management."""
+
     # Magnitude
     probability: float  # 0-1 probability of fat candle
     magnitude_lift: float  # Expected lift vs baseline
@@ -68,6 +70,7 @@ class TriggerPrediction:
 @dataclass
 class TradeExit:
     """Exit decision from adaptive trailing stop."""
+
     should_exit: bool
     reason: str  # 'trailing_stop', 'target', 'stop_loss', 'regime_change', 'hold'
     exit_price: Optional[float]
@@ -90,90 +93,113 @@ class PhysicsFeatures:
 
         # === CORE PHYSICS ===
         physics = self.engine.compute_physics_state(
-            df['close'], df['volume'], include_percentiles=True
+            df["close"], df["volume"], include_percentiles=True
         )
-        result['energy'] = physics['energy']
-        result['damping'] = physics['damping']
-        result['entropy'] = physics['entropy']
-        result['energy_pct'] = physics['energy_pct']
-        result['damping_pct'] = physics['damping_pct']
-        result['entropy_pct'] = physics['entropy_pct']
+        result["energy"] = physics["energy"]
+        result["damping"] = physics["damping"]
+        result["entropy"] = physics["entropy"]
+        result["energy_pct"] = physics["energy_pct"]
+        result["damping_pct"] = physics["damping_pct"]
+        result["entropy_pct"] = physics["entropy_pct"]
 
         # === DERIVATIVES ===
         # Acceleration
-        velocity = df['close'].pct_change()
-        result['acceleration'] = velocity.diff()
+        velocity = df["close"].pct_change()
+        result["acceleration"] = velocity.diff()
 
         # Jerk (1.37x fat candle lift)
-        result['jerk'] = result['acceleration'].diff()
-        result['jerk_pct'] = result['jerk'].abs().rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        result["jerk"] = result["acceleration"].diff()
+        result["jerk_pct"] = (
+            result["jerk"]
+            .abs()
+            .rolling(window, min_periods=self.lookback)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # Impulse (1.30x lift)
-        momentum = df['close'].pct_change(self.lookback)
-        result['impulse'] = momentum.diff(5)
-        result['impulse_pct'] = result['impulse'].abs().rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        momentum = df["close"].pct_change(self.lookback)
+        result["impulse"] = momentum.diff(5)
+        result["impulse_pct"] = (
+            result["impulse"]
+            .abs()
+            .rolling(window, min_periods=self.lookback)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # === ORDER FLOW ===
         # Liquidity (1.34x lift at berserker)
-        bar_range = (df['high'] - df['low']).clip(lower=1e-10)
-        result['liquidity'] = df['volume'] / (bar_range * df['close'] / 100)
-        result['liquidity_pct'] = result['liquidity'].rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        bar_range = (df["high"] - df["low"]).clip(lower=1e-10)
+        result["liquidity"] = df["volume"] / (bar_range * df["close"] / 100)
+        result["liquidity_pct"] = (
+            result["liquidity"]
+            .rolling(window, min_periods=self.lookback)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # Buying pressure (+12% direction edge)
-        bp = (df['close'] - df['low']) / bar_range
-        result['buying_pressure'] = bp.rolling(5).mean().fillna(0.5)
+        bp = (df["close"] - df["low"]) / bar_range
+        result["buying_pressure"] = bp.rolling(5).mean().fillna(0.5)
 
         # === FLOW REGIME (Reynolds) ===
         # Low Reynolds = laminar (smooth) = continuation
         # High Reynolds = turbulent (chaotic) = reversal
         volatility = velocity.rolling(self.lookback).std().clip(lower=1e-10)
-        bar_range_pct = bar_range / df['close']
-        volume_norm = df['volume'] / df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
+        bar_range_pct = bar_range / df["close"]
+        volume_norm = df["volume"] / df["volume"].rolling(self.lookback).mean().clip(lower=1e-10)
         reynolds = (velocity.abs() * bar_range_pct * volume_norm) / volatility
-        result['reynolds'] = reynolds.rolling(self.lookback).mean().fillna(1.0)
-        result['reynolds_pct'] = result['reynolds'].rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        result["reynolds"] = reynolds.rolling(self.lookback).mean().fillna(1.0)
+        result["reynolds_pct"] = (
+            result["reynolds"]
+            .rolling(window, min_periods=self.lookback)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # Viscosity
-        avg_volume = df['volume'].rolling(self.lookback).mean().clip(lower=1e-10)
-        volume_norm_v = df['volume'] / avg_volume
-        result['viscosity'] = bar_range_pct / volume_norm_v.clip(lower=1e-10)
-        result['viscosity'] = result['viscosity'].rolling(self.lookback).mean().fillna(1.0)
-        result['viscosity_pct'] = result['viscosity'].rolling(window, min_periods=self.lookback).apply(
-            lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False
-        ).fillna(0.5)
+        avg_volume = df["volume"].rolling(self.lookback).mean().clip(lower=1e-10)
+        volume_norm_v = df["volume"] / avg_volume
+        result["viscosity"] = bar_range_pct / volume_norm_v.clip(lower=1e-10)
+        result["viscosity"] = result["viscosity"].rolling(self.lookback).mean().fillna(1.0)
+        result["viscosity_pct"] = (
+            result["viscosity"]
+            .rolling(window, min_periods=self.lookback)
+            .apply(lambda x: (x.iloc[-1] > x.iloc[:-1]).mean() if len(x) > 1 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # === CONTEXT ===
         # Flow consistency (laminar indicator)
         return_sign = np.sign(velocity)
-        result['flow_consistency'] = return_sign.rolling(5).apply(
-            lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False
-        ).fillna(0.5)
+        result["flow_consistency"] = (
+            return_sign.rolling(5)
+            .apply(lambda x: (x == x.iloc[-1]).mean() if len(x) > 0 else 0.5, raw=False)
+            .fillna(0.5)
+        )
 
         # Momentum (for direction)
-        result['momentum_5'] = df['close'].pct_change(5)
+        result["momentum_5"] = df["close"].pct_change(5)
 
-        # Inertia (bars same direction)
+        # Inertia (bars same direction) - Vectorized
         direction = np.sign(velocity)
-        counts = []
-        count = 1
-        for i in range(len(direction)):
-            if i == 0:
-                counts.append(1)
-            elif direction.iloc[i] == direction.iloc[i-1] and direction.iloc[i] != 0:
-                count += 1
-                counts.append(count)
-            else:
-                count = 1
-                counts.append(count)
-        result['inertia'] = pd.Series(counts, index=df.index)
+
+        # Find where direction changes
+        direction_values = direction.values
+        changes = np.concatenate([[True], direction_values[1:] != direction_values[:-1]])
+        changes = changes | (direction_values == 0)  # Reset on zero
+
+        # Create group IDs for consecutive same-direction runs
+        group_ids = np.cumsum(changes)
+
+        # Count within each group
+        counts = np.arange(1, len(direction_values) + 1) - np.maximum.accumulate(
+            np.where(changes, np.arange(len(direction_values)), 0)
+        )
+        counts = counts + 1  # Start from 1, not 0
+
+        result["inertia"] = pd.Series(counts, index=df.index)
 
         return result.fillna(0.5)
 
@@ -185,14 +211,14 @@ class CompositePredictor:
 
     # Empirical lift factors
     LIFTS = {
-        'berserker_90_10': 1.83,
-        'berserker_75_25': 1.54,
-        'underdamped': 1.87,
-        'high_jerk': 1.37,
-        'strong_impulse': 1.30,
-        'high_liquidity_berserker': 1.34,
-        'energy_peaked': 1.43,
-        'turbulent_berserker': 1.25,  # Turbulent = bigger but unpredictable
+        "berserker_90_10": 1.83,
+        "berserker_75_25": 1.54,
+        "underdamped": 1.87,
+        "high_jerk": 1.37,
+        "strong_impulse": 1.30,
+        "high_liquidity_berserker": 1.34,
+        "energy_peaked": 1.43,
+        "turbulent_berserker": 1.25,  # Turbulent = bigger but unpredictable
     }
 
     # Log-weights for multiplicative combination
@@ -200,10 +226,10 @@ class CompositePredictor:
 
     # Direction confidence levels
     DIRECTION_CONF = {
-        'base_berserker': 0.537,
-        'laminar_berserker': 0.56,
-        'high_bp_down': 0.62,  # High buying pressure → DOWN
-        'low_bp_up': 0.57,    # Low buying pressure → UP
+        "base_berserker": 0.537,
+        "laminar_berserker": 0.56,
+        "high_bp_down": 0.62,  # High buying pressure → DOWN
+        "low_bp_up": 0.57,  # Low buying pressure → UP
     }
 
     def __init__(self):
@@ -237,50 +263,50 @@ class CompositePredictor:
         is_berserker_75_25 = (energy_pct > 0.75) and (damping_pct < 0.25)
 
         if is_berserker_90_10:
-            conditions_met.append('BERSERKER_90_10')
-            weight = self.WEIGHTS['berserker_90_10']
-            contributing_factors['berserker_90_10'] = weight
+            conditions_met.append("BERSERKER_90_10")
+            weight = self.WEIGHTS["berserker_90_10"]
+            contributing_factors["berserker_90_10"] = weight
             composite_score += weight
         elif is_berserker_75_25:
-            conditions_met.append('BERSERKER_75_25')
-            weight = self.WEIGHTS['berserker_75_25']
-            contributing_factors['berserker_75_25'] = weight
+            conditions_met.append("BERSERKER_75_25")
+            weight = self.WEIGHTS["berserker_75_25"]
+            contributing_factors["berserker_75_25"] = weight
             composite_score += weight
 
         # === DERIVATIVE SIGNALS ===
         # High jerk (1.37x lift)
         if jerk_pct > 0.85:
-            conditions_met.append('HIGH_JERK')
-            weight = self.WEIGHTS['high_jerk']
-            contributing_factors['high_jerk'] = weight
+            conditions_met.append("HIGH_JERK")
+            weight = self.WEIGHTS["high_jerk"]
+            contributing_factors["high_jerk"] = weight
             composite_score += weight
 
         # Strong impulse (1.30x lift)
         if impulse_pct > 0.80:
-            conditions_met.append('STRONG_IMPULSE')
-            weight = self.WEIGHTS['strong_impulse']
-            contributing_factors['strong_impulse'] = weight
+            conditions_met.append("STRONG_IMPULSE")
+            weight = self.WEIGHTS["strong_impulse"]
+            contributing_factors["strong_impulse"] = weight
             composite_score += weight
 
         # === ORDER FLOW ===
         # High liquidity at berserker (1.34x lift)
         if liquidity_pct > 0.70 and (is_berserker_90_10 or is_berserker_75_25):
-            conditions_met.append('HIGH_LIQUIDITY_BERSERKER')
-            weight = self.WEIGHTS['high_liquidity_berserker']
-            contributing_factors['high_liquidity_berserker'] = weight
+            conditions_met.append("HIGH_LIQUIDITY_BERSERKER")
+            weight = self.WEIGHTS["high_liquidity_berserker"]
+            contributing_factors["high_liquidity_berserker"] = weight
             composite_score += weight
 
         # === FLOW REGIME ===
         if reynolds_pct < 0.25:
             flow_regime = FlowRegime.LAMINAR
-            conditions_met.append('LAMINAR_FLOW')
+            conditions_met.append("LAMINAR_FLOW")
         elif reynolds_pct > 0.75:
             flow_regime = FlowRegime.TURBULENT
-            conditions_met.append('TURBULENT_FLOW')
+            conditions_met.append("TURBULENT_FLOW")
             if is_berserker_75_25:
                 # Turbulent berserker = bigger moves
-                weight = self.WEIGHTS['turbulent_berserker']
-                contributing_factors['turbulent_berserker'] = weight
+                weight = self.WEIGHTS["turbulent_berserker"]
+                contributing_factors["turbulent_berserker"] = weight
                 composite_score += weight
         else:
             flow_regime = FlowRegime.TRANSITIONAL
@@ -308,29 +334,29 @@ class CompositePredictor:
             # BUYING PRESSURE is primary direction signal
             if buying_pressure > 0.60:
                 direction = Direction.SELL
-                direction_confidence = self.DIRECTION_CONF['high_bp_down']  # 62%
-                conditions_met.append('FADE_HIGH_BP')
+                direction_confidence = self.DIRECTION_CONF["high_bp_down"]  # 62%
+                conditions_met.append("FADE_HIGH_BP")
             elif buying_pressure < 0.40:
                 direction = Direction.BUY
-                direction_confidence = self.DIRECTION_CONF['low_bp_up']  # 57%
-                conditions_met.append('FADE_LOW_BP')
+                direction_confidence = self.DIRECTION_CONF["low_bp_up"]  # 57%
+                conditions_met.append("FADE_LOW_BP")
             else:
                 # Neutral BP - use momentum as tiebreaker (fade it)
                 if momentum > 0.001:
                     direction = Direction.SELL
-                    direction_confidence = self.DIRECTION_CONF['base_berserker']  # 53.7%
-                    conditions_met.append('FADE_UP_MOMENTUM')
+                    direction_confidence = self.DIRECTION_CONF["base_berserker"]  # 53.7%
+                    conditions_met.append("FADE_UP_MOMENTUM")
                 elif momentum < -0.001:
                     direction = Direction.BUY
-                    direction_confidence = self.DIRECTION_CONF['base_berserker']
-                    conditions_met.append('FADE_DOWN_MOMENTUM')
+                    direction_confidence = self.DIRECTION_CONF["base_berserker"]
+                    conditions_met.append("FADE_DOWN_MOMENTUM")
                 else:
                     direction = Direction.NEUTRAL
 
             # Boost confidence in transitional regime (where BP works best)
             if flow_regime == FlowRegime.TRANSITIONAL and direction != Direction.NEUTRAL:
                 direction_confidence = min(0.65, direction_confidence + 0.05)
-                conditions_met.append('TRANS_BOOST')
+                conditions_met.append("TRANS_BOOST")
         else:
             # Non-berserker: no trade
             direction = Direction.NEUTRAL
@@ -342,19 +368,19 @@ class CompositePredictor:
 
         # === CONFIDENCE LEVEL ===
         if is_berserker_90_10:
-            confidence = 'BERSERKER'
+            confidence = "BERSERKER"
         elif is_berserker_75_25:
-            confidence = 'HIGH'
+            confidence = "HIGH"
         elif probability >= 0.35:
-            confidence = 'MEDIUM'
+            confidence = "MEDIUM"
         else:
-            confidence = 'LOW'
+            confidence = "LOW"
 
         # === MESSAGE ===
         prob_pct = int(probability * 100)
         dir_conf_pct = int(direction_confidence * 100)
 
-        if confidence in ['BERSERKER', 'HIGH']:
+        if confidence in ["BERSERKER", "HIGH"]:
             message = (
                 f"{confidence}: {prob_pct}% fat candle, {dir_conf_pct}% {direction.value}. "
                 f"Flow: {flow_regime.value}. "
@@ -395,6 +421,7 @@ class CompositePredictor:
 @dataclass
 class HistoricalStats:
     """Rolling historical statistics for adaptive thresholds."""
+
     avg_mfe: float = 0.5
     avg_mae: float = 0.3
     mfe_mae_ratio: float = 1.5
@@ -483,7 +510,7 @@ class EnergyRecoveryExit:
 
         # === EFFICIENCY METRICS (Dynamic from history) ===
         # Current efficiency = MFE / MAE (higher = better trade quality)
-        current_efficiency = self.mfe / self.mae if self.mae > 0.01 else float('inf')
+        current_efficiency = self.mfe / self.mae if self.mae > 0.01 else float("inf")
         historical_efficiency = self.hist.mfe_mae_ratio
 
         # Recovery ratio vs expected (from rolling history)
@@ -491,7 +518,9 @@ class EnergyRecoveryExit:
         mae_vs_expected = self.mae / self.expected_mae if self.expected_mae > 0 else 0
 
         # Energy ratio
-        energy_ratio = current_energy_pct / self.entry_energy_pct if self.entry_energy_pct > 0 else 1
+        energy_ratio = (
+            current_energy_pct / self.entry_energy_pct if self.entry_energy_pct > 0 else 1
+        )
 
         # === EXIT CONDITIONS (All adaptive from history) ===
 
@@ -500,7 +529,7 @@ class EnergyRecoveryExit:
             # MAE 50% worse than historical average - exit
             return TradeExit(
                 should_exit=True,
-                reason='mae_exceeded',
+                reason="mae_exceeded",
                 exit_price=close,
                 pnl_pct=current_pnl,
                 mfe_captured_pct=self._calc_mfe_captured(close),
@@ -511,7 +540,7 @@ class EnergyRecoveryExit:
             # Hit 80% of expected MFE, energy dropped 40% - take profits
             return TradeExit(
                 should_exit=True,
-                reason='mfe_target_energy_fade',
+                reason="mfe_target_energy_fade",
                 exit_price=close,
                 pnl_pct=current_pnl,
                 mfe_captured_pct=self._calc_mfe_captured(close),
@@ -523,7 +552,7 @@ class EnergyRecoveryExit:
             if self.in_profit:
                 return TradeExit(
                     should_exit=True,
-                    reason='efficiency_deteriorating',
+                    reason="efficiency_deteriorating",
                     exit_price=close,
                     pnl_pct=current_pnl,
                     mfe_captured_pct=self._calc_mfe_captured(close),
@@ -538,7 +567,7 @@ class EnergyRecoveryExit:
                 if current_pnl > -self.hist.p25_mae:  # Allow small loss up to p25 MAE
                     return TradeExit(
                         should_exit=True,
-                        reason='energy_exhausted',
+                        reason="energy_exhausted",
                         exit_price=close,
                         pnl_pct=current_pnl,
                         mfe_captured_pct=self._calc_mfe_captured(close),
@@ -551,7 +580,7 @@ class EnergyRecoveryExit:
             if mfe_captured_ratio < 0.25:  # Given back 75% of peak gains
                 return TradeExit(
                     should_exit=True,
-                    reason='mfe_protection',
+                    reason="mfe_protection",
                     exit_price=close,
                     pnl_pct=current_pnl,
                     mfe_captured_pct=mfe_captured_ratio * 100,
@@ -561,7 +590,7 @@ class EnergyRecoveryExit:
         if current_damping_pct > 0.80 and self.in_profit and energy_ratio < 0.7:
             return TradeExit(
                 should_exit=True,
-                reason='damping_surge',
+                reason="damping_surge",
                 exit_price=close,
                 pnl_pct=current_pnl,
                 mfe_captured_pct=self._calc_mfe_captured(close),
@@ -572,7 +601,7 @@ class EnergyRecoveryExit:
         if self.bars_held >= max_bars:
             return TradeExit(
                 should_exit=True,
-                reason='max_bars',
+                reason="max_bars",
                 exit_price=close,
                 pnl_pct=current_pnl,
                 mfe_captured_pct=self._calc_mfe_captured(close),
@@ -581,7 +610,7 @@ class EnergyRecoveryExit:
         # Hold
         return TradeExit(
             should_exit=False,
-            reason='hold',
+            reason="hold",
             exit_price=None,
             pnl_pct=current_pnl,
             mfe_captured_pct=self._calc_mfe_captured(close),
@@ -650,7 +679,7 @@ class HistoricalStatsTracker:
 
 def backtest_strategy(
     df: pd.DataFrame,
-    min_confidence: str = 'HIGH',
+    min_confidence: str = "HIGH",
 ) -> Dict:
     """
     Backtest the complete berserker strategy with energy recovery exit.
@@ -672,21 +701,21 @@ def backtest_strategy(
 
         # Generate prediction
         pred = predictor.predict(
-            energy_pct=row['energy_pct'],
-            damping_pct=row['damping_pct'],
-            entropy_pct=row['entropy_pct'],
-            jerk_pct=row['jerk_pct'],
-            impulse_pct=row['impulse_pct'],
-            liquidity_pct=row['liquidity_pct'],
-            reynolds_pct=row['reynolds_pct'],
-            buying_pressure=row['buying_pressure'],
-            momentum=row['momentum_5'],
-            flow_consistency=row['flow_consistency'],
-            inertia=int(row['inertia']),
+            energy_pct=row["energy_pct"],
+            damping_pct=row["damping_pct"],
+            entropy_pct=row["entropy_pct"],
+            jerk_pct=row["jerk_pct"],
+            impulse_pct=row["impulse_pct"],
+            liquidity_pct=row["liquidity_pct"],
+            reynolds_pct=row["reynolds_pct"],
+            buying_pressure=row["buying_pressure"],
+            momentum=row["momentum_5"],
+            flow_consistency=row["flow_consistency"],
+            inertia=int(row["inertia"]),
         )
 
         # Check if should trade
-        conf_levels = ['LOW', 'MEDIUM', 'HIGH', 'BERSERKER']
+        conf_levels = ["LOW", "MEDIUM", "HIGH", "BERSERKER"]
         if conf_levels.index(pred.confidence) < conf_levels.index(min_confidence):
             i += 1
             continue
@@ -699,13 +728,13 @@ def backtest_strategy(
         hist_stats = stats_tracker.get_stats()
 
         # Enter trade
-        entry_price = df.iloc[i]['close']
+        entry_price = df.iloc[i]["close"]
         direction = 1 if pred.direction == Direction.BUY else -1
 
         energy_exit = EnergyRecoveryExit(
             entry_price=entry_price,
             direction=direction,
-            entry_energy_pct=row['energy_pct'],
+            entry_energy_pct=row["energy_pct"],
             magnitude_lift=pred.magnitude_lift,
             flow_regime=pred.flow_regime,
             historical_stats=hist_stats,
@@ -725,12 +754,12 @@ def backtest_strategy(
             feature_row = feature_df.iloc[bar_idx]
 
             exit_result = energy_exit.update(
-                high=bar['high'],
-                low=bar['low'],
-                close=bar['close'],
-                current_energy_pct=feature_row['energy_pct'],
-                current_damping_pct=feature_row['damping_pct'],
-                current_reynolds_pct=feature_row['reynolds_pct'],
+                high=bar["high"],
+                low=bar["low"],
+                close=bar["close"],
+                current_energy_pct=feature_row["energy_pct"],
+                current_damping_pct=feature_row["damping_pct"],
+                current_reynolds_pct=feature_row["reynolds_pct"],
             )
 
             # Track bars to MFE
@@ -743,12 +772,12 @@ def backtest_strategy(
         # Force exit if still holding
         if exit_result is None or not exit_result.should_exit:
             exit_bar = min(i + max_bars, len(df) - 1)
-            exit_price = df.iloc[exit_bar]['close']
+            exit_price = df.iloc[exit_bar]["close"]
             if direction == 1:
                 pnl_pct = (exit_price - entry_price) / entry_price * 100
             else:
                 pnl_pct = (entry_price - exit_price) / entry_price * 100
-            exit_reason = 'max_bars'
+            exit_reason = "max_bars"
             mfe_captured = energy_exit._calc_mfe_captured(exit_price)
         else:
             pnl_pct = exit_result.pnl_pct
@@ -762,50 +791,56 @@ def backtest_strategy(
             bars_to_mfe=bars_to_mfe,
         )
 
-        trades.append({
-            'entry_bar': i,
-            'direction': direction,
-            'confidence': pred.confidence,
-            'flow_regime': pred.flow_regime.value,
-            'pnl_pct': pnl_pct,
-            'mfe': energy_exit.mfe,
-            'mae': energy_exit.mae,
-            'mfe_mae_ratio': energy_exit.mfe / energy_exit.mae if energy_exit.mae > 0.01 else 0,
-            'mfe_captured_pct': mfe_captured,
-            'bars_held': energy_exit.bars_held,
-            'exit_reason': exit_reason,
-            'direction_pred': pred.direction.value,
-            'direction_conf': pred.direction_confidence,
-            'hist_mfe_mae_ratio': hist_stats.mfe_mae_ratio,
-        })
+        trades.append(
+            {
+                "entry_bar": i,
+                "direction": direction,
+                "confidence": pred.confidence,
+                "flow_regime": pred.flow_regime.value,
+                "pnl_pct": pnl_pct,
+                "mfe": energy_exit.mfe,
+                "mae": energy_exit.mae,
+                "mfe_mae_ratio": energy_exit.mfe / energy_exit.mae if energy_exit.mae > 0.01 else 0,
+                "mfe_captured_pct": mfe_captured,
+                "bars_held": energy_exit.bars_held,
+                "exit_reason": exit_reason,
+                "direction_pred": pred.direction.value,
+                "direction_conf": pred.direction_confidence,
+                "hist_mfe_mae_ratio": hist_stats.mfe_mae_ratio,
+            }
+        )
 
         # Skip ahead
         i += energy_exit.bars_held + 1
 
     if not trades:
-        return {'trades': 0, 'message': 'No trades generated'}
+        return {"trades": 0, "message": "No trades generated"}
 
     trades_df = pd.DataFrame(trades)
 
     # Statistics
-    wins = (trades_df['pnl_pct'] > 0).sum()
+    wins = (trades_df["pnl_pct"] > 0).sum()
     total = len(trades_df)
 
     return {
-        'trades': total,
-        'win_rate': wins / total * 100,
-        'total_pnl': trades_df['pnl_pct'].sum(),
-        'avg_pnl': trades_df['pnl_pct'].mean(),
-        'avg_mfe': trades_df['mfe'].mean(),
-        'avg_mae': trades_df['mae'].mean(),
-        'avg_mfe_mae_ratio': trades_df['mfe_mae_ratio'].mean(),
-        'avg_mfe_captured': trades_df['mfe_captured_pct'].mean(),
-        'profit_factor': (
-            trades_df[trades_df['pnl_pct'] > 0]['pnl_pct'].sum() /
-            abs(trades_df[trades_df['pnl_pct'] < 0]['pnl_pct'].sum() or 1)
+        "trades": total,
+        "win_rate": wins / total * 100,
+        "total_pnl": trades_df["pnl_pct"].sum(),
+        "avg_pnl": trades_df["pnl_pct"].mean(),
+        "avg_mfe": trades_df["mfe"].mean(),
+        "avg_mae": trades_df["mae"].mean(),
+        "avg_mfe_mae_ratio": trades_df["mfe_mae_ratio"].mean(),
+        "avg_mfe_captured": trades_df["mfe_captured_pct"].mean(),
+        "profit_factor": (
+            trades_df[trades_df["pnl_pct"] > 0]["pnl_pct"].sum()
+            / abs(trades_df[trades_df["pnl_pct"] < 0]["pnl_pct"].sum() or 1)
         ),
-        'avg_bars_held': trades_df['bars_held'].mean(),
-        'by_exit_reason': trades_df['exit_reason'].value_counts().to_dict(),
-        'by_flow_regime': trades_df.groupby('flow_regime')['pnl_pct'].agg(['count', 'mean', 'sum']).to_dict(),
-        'efficiency_trend': trades_df['mfe_mae_ratio'].rolling(20).mean().iloc[-1] if len(trades_df) > 20 else 0,
+        "avg_bars_held": trades_df["bars_held"].mean(),
+        "by_exit_reason": trades_df["exit_reason"].value_counts().to_dict(),
+        "by_flow_regime": trades_df.groupby("flow_regime")["pnl_pct"]
+        .agg(["count", "mean", "sum"])
+        .to_dict(),
+        "efficiency_trend": trades_df["mfe_mae_ratio"].rolling(20).mean().iloc[-1]
+        if len(trades_df) > 20
+        else 0,
     }

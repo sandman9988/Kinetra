@@ -25,21 +25,23 @@ PERFORMANCE OPTIMIZATIONS:
 - Caching applied to expensive computations
 """
 
+import warnings
+from collections import Counter
+from typing import Dict, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Tuple, Optional
 from scipy.stats import rankdata
-from collections import Counter
-import warnings
 
 # Import optimized implementations
 try:
     from .performance import (
-        sample_entropy_fast,
-        recurrence_matrix_fast,
         determinism_fast,
         extract_recurrence_features_fast,
+        recurrence_matrix_fast,
+        sample_entropy_fast,
     )
+
     _OPTIMIZED_AVAILABLE = True
 except ImportError:
     _OPTIMIZED_AVAILABLE = False
@@ -77,7 +79,7 @@ class AsymmetricReturns:
         if len(prices) < lookback + 1:
             lookback = len(prices) - 1
 
-        recent_prices = prices[-(lookback + 1):]
+        recent_prices = prices[-(lookback + 1) :]
         up, down = AsymmetricReturns.compute_directional_returns(recent_prices)
 
         # Count-based (no magnitude assumption)
@@ -123,35 +125,29 @@ class AsymmetricReturns:
 
         return {
             # Counts (non-parametric)
-            'up_count': up_count,
-            'down_count': down_count,
-            'up_ratio': up_count / max(total, 1),
-            'down_ratio': down_count / max(total, 1),
-
+            "up_count": up_count,
+            "down_count": down_count,
+            "up_ratio": up_count / max(total, 1),
+            "down_ratio": down_count / max(total, 1),
             # Sums (directional magnitude)
-            'up_sum': up_sum,
-            'down_sum': down_sum,  # This is negative
-            'net_direction': up_sum + down_sum,  # Signed
-
+            "up_sum": up_sum,
+            "down_sum": down_sum,  # This is negative
+            "net_direction": up_sum + down_sum,  # Signed
             # Medians (robust central tendency, separate)
-            'up_median': up_median,
-            'down_median': down_median,
-
+            "up_median": up_median,
+            "down_median": down_median,
             # Tails (extremes, separate)
-            'up_p90': up_p90,
-            'down_p10': down_p10,
-
+            "up_p90": up_p90,
+            "down_p10": down_p10,
             # Asymmetry ratio: how much bigger are up moves vs down moves?
             # >1 means up moves larger, <1 means down moves larger
-            'magnitude_asymmetry': abs(up_median / down_median) if down_median != 0 else 1.0,
-
+            "magnitude_asymmetry": abs(up_median / down_median) if down_median != 0 else 1.0,
             # Streak (directional persistence)
-            'current_streak': current_streak,
-
+            "current_streak": current_streak,
             # Streak momentum (ENHANCED - captures "strong continuation" vs "weak chop")
-            'up_streak_magnitude': up_streak_mag,      # Sum of returns during up streak
-            'down_streak_magnitude': down_streak_mag,  # Sum during down streak (negative)
-            'streak_conviction': streak_conviction     # streak_length * avg_magnitude
+            "up_streak_magnitude": up_streak_mag,  # Sum of returns during up streak
+            "down_streak_magnitude": down_streak_mag,  # Sum during down streak (negative)
+            "streak_conviction": streak_conviction,  # streak_length * avg_magnitude
         }
 
 
@@ -164,7 +160,7 @@ class RankBasedMeasures:
     @staticmethod
     def compute_ranks(data: np.ndarray) -> np.ndarray:
         """Convert values to ranks (1 to N)."""
-        return rankdata(data, method='average')
+        return rankdata(data, method="average")
 
     @staticmethod
     def current_percentile_rank(data: np.ndarray) -> float:
@@ -178,8 +174,7 @@ class RankBasedMeasures:
         return (ranks[-1] - 1) / (len(data) - 1)
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 100) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 100) -> Dict:
         """
         Extract rank-based features.
         """
@@ -189,16 +184,16 @@ class RankBasedMeasures:
         start = max(0, bar_idx - lookback + 1)
 
         # Rank of current close in lookback
-        closes = prices['close'].iloc[start:bar_idx + 1].values
+        closes = prices["close"].iloc[start : bar_idx + 1].values
         close_rank = RankBasedMeasures.current_percentile_rank(closes)
 
         # Rank of current range in lookback
-        ranges = (prices['high'] - prices['low']).iloc[start:bar_idx + 1].values
+        ranges = (prices["high"] - prices["low"]).iloc[start : bar_idx + 1].values
         range_rank = RankBasedMeasures.current_percentile_rank(ranges)
 
         # Rank of current volume in lookback (if available)
-        if 'tickvol' in prices.columns:
-            volumes = prices['tickvol'].iloc[start:bar_idx + 1].values
+        if "tickvol" in prices.columns:
+            volumes = prices["tickvol"].iloc[start : bar_idx + 1].values
             volume_rank = RankBasedMeasures.current_percentile_rank(volumes)
         else:
             volume_rank = 0.5
@@ -218,16 +213,15 @@ class RankBasedMeasures:
                 running_low = c
 
         return {
-            'close_rank': close_rank,
-            'range_rank': range_rank,
-            'volume_rank': volume_rank,
-            'new_highs_count': new_highs,
-            'new_lows_count': new_lows,
-            'high_low_ratio': new_highs / max(new_lows, 1),
-
+            "close_rank": close_rank,
+            "range_rank": range_rank,
+            "volume_rank": volume_rank,
+            "new_highs_count": new_highs,
+            "new_lows_count": new_lows,
+            "high_low_ratio": new_highs / max(new_lows, 1),
             # Distance from extremes (rank-based)
-            'rank_from_high': 1.0 - close_rank,  # How far below the high
-            'rank_from_low': close_rank,  # How far above the low
+            "rank_from_high": 1.0 - close_rank,  # How far below the high
+            "rank_from_low": close_rank,  # How far above the low
         }
 
 
@@ -259,7 +253,7 @@ class DirectionalVolatility:
         if len(prices) < lookback + 1:
             lookback = len(prices) - 1
 
-        log_returns = np.diff(np.log(prices[-(lookback + 1):]))
+        log_returns = np.diff(np.log(prices[-(lookback + 1) :]))
 
         up = log_returns[log_returns > 0]
         down = log_returns[log_returns < 0]
@@ -271,16 +265,14 @@ class DirectionalVolatility:
         down_iqr = np.percentile(down, 75) - np.percentile(down, 25) if len(down) >= 4 else 0.0
 
         return {
-            'up_mad': up_mad,
-            'down_mad': down_mad,
-            'volatility_asymmetry': up_mad / down_mad if down_mad > 0 else 1.0,
-
-            'up_iqr': up_iqr,
-            'down_iqr': abs(down_iqr),  # Make positive for comparison
-
+            "up_mad": up_mad,
+            "down_mad": down_mad,
+            "volatility_asymmetry": up_mad / down_mad if down_mad > 0 else 1.0,
+            "up_iqr": up_iqr,
+            "down_iqr": abs(down_iqr),  # Make positive for comparison
             # Which side is more dispersed?
-            'upside_more_volatile': up_mad > down_mad,
-            'downside_more_volatile': down_mad > up_mad,
+            "upside_more_volatile": up_mad > down_mad,
+            "downside_more_volatile": down_mad > up_mad,
         }
 
 
@@ -290,8 +282,9 @@ class DirectionalOrderFlow:
     """
 
     @staticmethod
-    def compute_bar_pressure(open_: float, high: float, low: float,
-                              close: float, volume: float) -> Tuple[float, float]:
+    def compute_bar_pressure(
+        open_: float, high: float, low: float, close: float, volume: float
+    ) -> Tuple[float, float]:
         """
         Compute buying and selling pressure SEPARATELY.
 
@@ -314,8 +307,7 @@ class DirectionalOrderFlow:
         return buy_pressure, sell_pressure
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 50) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 50) -> Dict:
         """
         Extract directional order flow features.
         """
@@ -323,27 +315,31 @@ class DirectionalOrderFlow:
             bar_idx = len(prices) + bar_idx
 
         start = max(0, bar_idx - lookback + 1)
-        subset = prices.iloc[start:bar_idx + 1]
+        subset = prices.iloc[start : bar_idx + 1]
 
-        buy_pressures = []
-        sell_pressures = []
+        # Vectorized: Extract arrays once
+        opens = subset["open"].values
+        highs = subset["high"].values
+        lows = subset["low"].values
+        closes = subset["close"].values
 
-        vol_col = 'tickvol' if 'tickvol' in prices.columns else None
+        vol_col = "tickvol" if "tickvol" in prices.columns else None
+        volumes = subset[vol_col].values if vol_col else np.ones(len(subset))
 
-        for i in range(len(subset)):
-            vol = subset[vol_col].iloc[i] if vol_col else 1.0
-            buy, sell = DirectionalOrderFlow.compute_bar_pressure(
-                subset['open'].iloc[i],
-                subset['high'].iloc[i],
-                subset['low'].iloc[i],
-                subset['close'].iloc[i],
-                vol
-            )
-            buy_pressures.append(buy)
-            sell_pressures.append(sell)
+        # Vectorized: Compute all bars at once
+        ranges = highs - lows
+        zero_ranges = ranges == 0
+        ranges_safe = np.where(zero_ranges, 1.0, ranges)
 
-        buy_pressures = np.array(buy_pressures)
-        sell_pressures = np.array(sell_pressures)
+        up_ranges = closes - lows
+        down_ranges = highs - closes
+
+        buy_pressures = volumes * (up_ranges / ranges_safe)
+        sell_pressures = volumes * (down_ranges / ranges_safe)
+
+        # Handle zero ranges
+        buy_pressures = np.where(zero_ranges, volumes * 0.5, buy_pressures)
+        sell_pressures = np.where(zero_ranges, volumes * 0.5, sell_pressures)
 
         # Cumulative (running) pressure
         cum_buy = np.sum(buy_pressures)
@@ -355,10 +351,10 @@ class DirectionalOrderFlow:
 
         # Pressure acceleration (is buying/selling intensifying?)
         if len(buy_pressures) >= 10:
-            first_half_buy = np.sum(buy_pressures[:len(buy_pressures)//2])
-            second_half_buy = np.sum(buy_pressures[len(buy_pressures)//2:])
-            first_half_sell = np.sum(sell_pressures[:len(sell_pressures)//2])
-            second_half_sell = np.sum(sell_pressures[len(sell_pressures)//2:])
+            first_half_buy = np.sum(buy_pressures[: len(buy_pressures) // 2])
+            second_half_buy = np.sum(buy_pressures[len(buy_pressures) // 2 :])
+            first_half_sell = np.sum(sell_pressures[: len(sell_pressures) // 2])
+            second_half_sell = np.sum(sell_pressures[len(sell_pressures) // 2 :])
 
             buy_acceleration = second_half_buy - first_half_buy
             sell_acceleration = second_half_sell - first_half_sell
@@ -367,20 +363,17 @@ class DirectionalOrderFlow:
             sell_acceleration = 0.0
 
         return {
-            'cum_buy_pressure': cum_buy,
-            'cum_sell_pressure': cum_sell,
-            'net_pressure': cum_buy - cum_sell,  # Signed!
-
-            'recent_buy_pressure': recent_buy,
-            'recent_sell_pressure': recent_sell,
-            'recent_net_pressure': recent_buy - recent_sell,
-
-            'buy_acceleration': buy_acceleration,
-            'sell_acceleration': sell_acceleration,
-
+            "cum_buy_pressure": cum_buy,
+            "cum_sell_pressure": cum_sell,
+            "net_pressure": cum_buy - cum_sell,  # Signed!
+            "recent_buy_pressure": recent_buy,
+            "recent_sell_pressure": recent_sell,
+            "recent_net_pressure": recent_buy - recent_sell,
+            "buy_acceleration": buy_acceleration,
+            "sell_acceleration": sell_acceleration,
             # Dominance (which side is winning?)
-            'buy_dominance': cum_buy / max(cum_sell, 1e-10),
-            'sell_dominance': cum_sell / max(cum_buy, 1e-10),
+            "buy_dominance": cum_buy / max(cum_sell, 1e-10),
+            "sell_dominance": cum_sell / max(cum_buy, 1e-10),
         }
 
 
@@ -396,8 +389,7 @@ class PermutationPatterns:
         return tuple(np.argsort(np.argsort(values)))
 
     @staticmethod
-    def extract_features(prices: np.ndarray, order: int = 3,
-                         lookback: int = 100) -> Dict:
+    def extract_features(prices: np.ndarray, order: int = 3, lookback: int = 100) -> Dict:
         """
         Extract permutation-based features.
         """
@@ -408,16 +400,12 @@ class PermutationPatterns:
         log_returns = np.diff(np.log(recent))
 
         if len(log_returns) < order:
-            return {
-                'pattern_entropy': 0.0,
-                'most_common_pattern': None,
-                'pattern_diversity': 0.0
-            }
+            return {"pattern_entropy": 0.0, "most_common_pattern": None, "pattern_diversity": 0.0}
 
         # Extract all patterns
         patterns = []
         for i in range(len(log_returns) - order + 1):
-            pattern = PermutationPatterns.encode_pattern(log_returns[i:i+order])
+            pattern = PermutationPatterns.encode_pattern(log_returns[i : i + order])
             patterns.append(pattern)
 
         # Count patterns
@@ -433,6 +421,7 @@ class PermutationPatterns:
 
         # Normalize by max possible
         import math
+
         max_entropy = np.log2(math.factorial(order))
         normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
 
@@ -444,15 +433,14 @@ class PermutationPatterns:
         diversity = len(pattern_counts) / max_patterns
 
         return {
-            'pattern_entropy': normalized_entropy,
-            'most_common_pattern': most_common[0],
-            'most_common_frequency': most_common[1] / n_patterns if n_patterns > 0 else 0,
-            'pattern_diversity': diversity,
-
+            "pattern_entropy": normalized_entropy,
+            "most_common_pattern": most_common[0],
+            "most_common_frequency": most_common[1] / n_patterns if n_patterns > 0 else 0,
+            "pattern_diversity": diversity,
             # Trend patterns (specific ordinal signatures)
             # (0,1,2) = monotonic up, (2,1,0) = monotonic down
-            'monotonic_up_freq': pattern_counts.get((0, 1, 2), 0) / max(n_patterns, 1),
-            'monotonic_down_freq': pattern_counts.get((2, 1, 0), 0) / max(n_patterns, 1),
+            "monotonic_up_freq": pattern_counts.get((0, 1, 2), 0) / max(n_patterns, 1),
+            "monotonic_down_freq": pattern_counts.get((2, 1, 0), 0) / max(n_patterns, 1),
         }
 
 
@@ -463,7 +451,7 @@ class RecurrenceFeatures:
 
     ENHANCED: Now includes directional recurrence asymmetry.
     Computes recurrence separately for up-move and down-move sequences.
-    
+
     PERFORMANCE: Uses vectorized numpy operations for O(n²) matrix computation.
     50-100x faster than naive nested loops.
     """
@@ -474,13 +462,13 @@ class RecurrenceFeatures:
         Compute recurrence matrix using vectorized operations.
         R[i,j] = 1 if |x_i - x_j| < threshold * MAD(x)
         Using MAD instead of std for robustness.
-        
+
         PERFORMANCE: Vectorized implementation is ~50x faster than nested loops.
         """
         # Use optimized version if available
         if _OPTIMIZED_AVAILABLE:
             return recurrence_matrix_fast(data, threshold, use_mad=True)
-        
+
         # Fallback to vectorized numpy (still fast)
         n = len(data)
         if n < 2:
@@ -500,12 +488,12 @@ class RecurrenceFeatures:
     def _compute_determinism(R: np.ndarray) -> float:
         """
         Compute determinism from recurrence matrix.
-        
+
         PERFORMANCE: Uses optimized version when available.
         """
         if _OPTIMIZED_AVAILABLE:
             return determinism_fast(R)
-        
+
         n = len(R)
         if n < 2:
             return 0.0
@@ -531,13 +519,13 @@ class RecurrenceFeatures:
     def extract_features(prices: np.ndarray, lookback: int = 50) -> Dict:
         """
         Extract recurrence quantification features with directional asymmetry.
-        
+
         PERFORMANCE: Uses vectorized implementations for significant speedup.
         """
         # Use fully optimized version if available
         if _OPTIMIZED_AVAILABLE:
             return extract_recurrence_features_fast(prices, lookback)
-        
+
         if len(prices) < lookback:
             lookback = len(prices)
 
@@ -546,12 +534,12 @@ class RecurrenceFeatures:
 
         if len(log_returns) < 10:
             return {
-                'recurrence_rate': 0.0,
-                'determinism': 0.0,
-                'laminarity': 0.0,
-                'det_up': 0.0,
-                'det_down': 0.0,
-                'recurrence_asymmetry': 0.0
+                "recurrence_rate": 0.0,
+                "determinism": 0.0,
+                "laminarity": 0.0,
+                "det_up": 0.0,
+                "det_down": 0.0,
+                "recurrence_asymmetry": 0.0,
             }
 
         R = RecurrenceFeatures.compute_recurrence_matrix(log_returns)
@@ -593,12 +581,12 @@ class RecurrenceFeatures:
         recurrence_asymmetry = det_up - det_down
 
         return {
-            'recurrence_rate': rr,
-            'determinism': det,      # High = predictable structure
-            'laminarity': lam,       # High = trapped in states
-            'det_up': det_up,        # Determinism of up-move sequences
-            'det_down': det_down,    # Determinism of down-move sequences
-            'recurrence_asymmetry': recurrence_asymmetry  # Directional structure difference
+            "recurrence_rate": rr,
+            "determinism": det,  # High = predictable structure
+            "laminarity": lam,  # High = trapped in states
+            "det_up": det_up,  # Determinism of up-move sequences
+            "det_down": det_down,  # Determinism of down-move sequences
+            "recurrence_asymmetry": recurrence_asymmetry,  # Directional structure difference
         }
 
 
@@ -615,7 +603,7 @@ class TailBehavior:
         if len(prices) < lookback + 1:
             lookback = len(prices) - 1
 
-        log_returns = np.diff(np.log(prices[-(lookback + 1):]))
+        log_returns = np.diff(np.log(prices[-(lookback + 1) :]))
 
         # Separate tails
         up = log_returns[log_returns > 0]
@@ -624,9 +612,11 @@ class TailBehavior:
         # Left tail (down moves) - looking at extreme losses
         if len(down) >= 5:
             down_sorted = np.sort(down)
-            left_tail_5pct = down_sorted[:max(1, len(down)//20)]
+            left_tail_5pct = down_sorted[: max(1, len(down) // 20)]
             left_tail_mean = np.mean(left_tail_5pct)
-            left_tail_ratio = abs(left_tail_mean) / abs(np.median(down)) if np.median(down) != 0 else 1.0
+            left_tail_ratio = (
+                abs(left_tail_mean) / abs(np.median(down)) if np.median(down) != 0 else 1.0
+            )
         else:
             left_tail_mean = 0.0
             left_tail_ratio = 1.0
@@ -634,7 +624,7 @@ class TailBehavior:
         # Right tail (up moves) - looking at extreme gains
         if len(up) >= 5:
             up_sorted = np.sort(up)[::-1]  # Descending
-            right_tail_5pct = up_sorted[:max(1, len(up)//20)]
+            right_tail_5pct = up_sorted[: max(1, len(up) // 20)]
             right_tail_mean = np.mean(right_tail_5pct)
             right_tail_ratio = right_tail_mean / np.median(up) if np.median(up) != 0 else 1.0
         else:
@@ -642,11 +632,11 @@ class TailBehavior:
             right_tail_ratio = 1.0
 
         return {
-            'left_tail_mean': left_tail_mean,  # Average extreme loss (negative)
-            'right_tail_mean': right_tail_mean,  # Average extreme gain (positive)
-            'left_tail_ratio': left_tail_ratio,  # How extreme are left tail vs median
-            'right_tail_ratio': right_tail_ratio,  # How extreme are right tail vs median
-            'tail_asymmetry': right_tail_ratio / left_tail_ratio if left_tail_ratio > 0 else 1.0,
+            "left_tail_mean": left_tail_mean,  # Average extreme loss (negative)
+            "right_tail_mean": right_tail_mean,  # Average extreme gain (positive)
+            "left_tail_ratio": left_tail_ratio,  # How extreme are left tail vs median
+            "right_tail_ratio": right_tail_ratio,  # How extreme are right tail vs median
+            "tail_asymmetry": right_tail_ratio / left_tail_ratio if left_tail_ratio > 0 else 1.0,
         }
 
 
@@ -674,39 +664,38 @@ class AssumptionFreeEngine:
         features = {}
 
         # Get price array
-        close_prices = prices['close'].values[:bar_idx + 1]
+        close_prices = prices["close"].values[: bar_idx + 1]
 
         if len(close_prices) < 20:
-            return {'error': 'insufficient_data'}
+            return {"error": "insufficient_data"}
 
         # Asymmetric returns
         asym = AsymmetricReturns.extract_features(close_prices)
-        features.update({f'asym_{k}': v for k, v in asym.items()})
+        features.update({f"asym_{k}": v for k, v in asym.items()})
 
         # Rank-based
         rank = RankBasedMeasures.extract_features(prices, bar_idx)
-        features.update({f'rank_{k}': v for k, v in rank.items()})
+        features.update({f"rank_{k}": v for k, v in rank.items()})
 
         # Directional volatility
         dir_vol = DirectionalVolatility.extract_features(close_prices)
-        features.update({f'dvol_{k}': v for k, v in dir_vol.items()})
+        features.update({f"dvol_{k}": v for k, v in dir_vol.items()})
 
         # Order flow
         flow = DirectionalOrderFlow.extract_features(prices, bar_idx)
-        features.update({f'flow_{k}': v for k, v in flow.items()})
+        features.update({f"flow_{k}": v for k, v in flow.items()})
 
         # Permutation patterns
         perm = PermutationPatterns.extract_features(close_prices)
-        features.update({f'perm_{k}': v for k, v in perm.items()
-                        if not isinstance(v, tuple)})
+        features.update({f"perm_{k}": v for k, v in perm.items() if not isinstance(v, tuple)})
 
         # Recurrence (expensive, use sparingly)
         rec = RecurrenceFeatures.extract_features(close_prices)
-        features.update({f'rec_{k}': v for k, v in rec.items()})
+        features.update({f"rec_{k}": v for k, v in rec.items()})
 
         # Tail behavior
         tail = TailBehavior.extract_features(close_prices)
-        features.update({f'tail_{k}': v for k, v in tail.items()})
+        features.update({f"tail_{k}": v for k, v in tail.items()})
 
         return features
 

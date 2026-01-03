@@ -14,22 +14,24 @@ Key Features:
 - VPIN-like toxicity proxy
 """
 
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
 
 
 @dataclass
 class LiquidityFeatures:
     """Container for liquidity-related features."""
-    cvd: float                    # Cumulative volume delta
-    cvd_delta: float              # Recent CVD change
-    amihud: float                 # Illiquidity measure
-    signed_volume: float          # Current bar's directional volume
-    range_impact: float           # Price move per unit volume
-    volume_imbalance: float       # Normalized buy-sell imbalance
-    is_liquidity_thin: bool       # Liquidity stress flag
+
+    cvd: float  # Cumulative volume delta
+    cvd_delta: float  # Recent CVD change
+    amihud: float  # Illiquidity measure
+    signed_volume: float  # Current bar's directional volume
+    range_impact: float  # Price move per unit volume
+    volume_imbalance: float  # Normalized buy-sell imbalance
+    is_liquidity_thin: bool  # Liquidity stress flag
 
 
 class CVDExtractor:
@@ -44,8 +46,9 @@ class CVDExtractor:
     """
 
     @staticmethod
-    def compute_bar_delta(open_: float, high: float, low: float,
-                          close: float, volume: float) -> float:
+    def compute_bar_delta(
+        open_: float, high: float, low: float, close: float, volume: float
+    ) -> float:
         """
         Compute signed volume delta for a single bar.
 
@@ -72,22 +75,29 @@ class CVDExtractor:
         Returns:
             Array of CVD values (running sum of deltas)
         """
-        deltas = np.zeros(len(prices))
+        # Vectorized: Extract arrays once
+        opens = prices["open"].values
+        highs = prices["high"].values
+        lows = prices["low"].values
+        closes = prices["close"].values
+        volumes = prices["tickvol"].values if "tickvol" in prices.columns else np.ones(len(prices))
 
-        for i in range(len(prices)):
-            deltas[i] = CVDExtractor.compute_bar_delta(
-                prices['open'].iloc[i],
-                prices['high'].iloc[i],
-                prices['low'].iloc[i],
-                prices['close'].iloc[i],
-                prices['tickvol'].iloc[i] if 'tickvol' in prices.columns else 1.0
-            )
+        # Vectorized computation of deltas
+        ranges = highs - lows
+        zero_ranges = ranges == 0
+        ranges_safe = np.where(zero_ranges, 1.0, ranges)
+
+        clv = (closes - lows) / ranges_safe
+        direction = 2 * clv - 1
+        deltas = direction * volumes
+
+        # Handle zero ranges (neutral)
+        deltas = np.where(zero_ranges, 0.0, deltas)
 
         return np.cumsum(deltas)
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 50) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 50) -> Dict:
         """
         Extract CVD-related features at given bar.
 
@@ -102,14 +112,14 @@ class CVDExtractor:
 
         if bar_idx < 10:
             return {
-                'cvd': 0.0,
-                'cvd_delta': 0.0,
-                'cvd_acceleration': 0.0,
-                'cvd_divergence': 0.0,
-                'signed_volume': 0.0
+                "cvd": 0.0,
+                "cvd_delta": 0.0,
+                "cvd_acceleration": 0.0,
+                "cvd_divergence": 0.0,
+                "signed_volume": 0.0,
             }
 
-        cvd = CVDExtractor.compute_cvd(prices.iloc[:bar_idx + 1])
+        cvd = CVDExtractor.compute_cvd(prices.iloc[: bar_idx + 1])
 
         current_cvd = cvd[-1]
         lookback_start = max(0, len(cvd) - lookback)
@@ -127,7 +137,7 @@ class CVDExtractor:
             cvd_acceleration = 0.0
 
         # Price-CVD divergence (bearish divergence = price up, CVD down)
-        price_change = prices['close'].iloc[bar_idx] - prices['close'].iloc[lookback_start]
+        price_change = prices["close"].iloc[bar_idx] - prices["close"].iloc[lookback_start]
         if abs(cvd_delta) > 0 and abs(price_change) > 0:
             # Normalize to same scale
             cvd_norm = cvd_delta / (abs(cvd_delta) + 1e-10)
@@ -138,19 +148,19 @@ class CVDExtractor:
 
         # Current bar's signed volume
         signed_vol = CVDExtractor.compute_bar_delta(
-            prices['open'].iloc[bar_idx],
-            prices['high'].iloc[bar_idx],
-            prices['low'].iloc[bar_idx],
-            prices['close'].iloc[bar_idx],
-            prices['tickvol'].iloc[bar_idx] if 'tickvol' in prices.columns else 1.0
+            prices["open"].iloc[bar_idx],
+            prices["high"].iloc[bar_idx],
+            prices["low"].iloc[bar_idx],
+            prices["close"].iloc[bar_idx],
+            prices["tickvol"].iloc[bar_idx] if "tickvol" in prices.columns else 1.0,
         )
 
         return {
-            'cvd': current_cvd,
-            'cvd_delta': cvd_delta,
-            'cvd_acceleration': cvd_acceleration,
-            'cvd_divergence': divergence,
-            'signed_volume': signed_vol
+            "cvd": current_cvd,
+            "cvd_delta": cvd_delta,
+            "cvd_acceleration": cvd_acceleration,
+            "cvd_divergence": divergence,
+            "signed_volume": signed_vol,
         }
 
 
@@ -183,8 +193,7 @@ class AmihudExtractor:
         return np.abs(returns) / safe_volumes
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 50) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 50) -> Dict:
         """
         Extract Amihud-related features.
 
@@ -199,20 +208,20 @@ class AmihudExtractor:
 
         if bar_idx < 10:
             return {
-                'amihud': 0.0,
-                'amihud_mean': 0.0,
-                'amihud_std': 0.0,
-                'amihud_percentile': 0.5,
-                'is_liquidity_thin': False
+                "amihud": 0.0,
+                "amihud_mean": 0.0,
+                "amihud_std": 0.0,
+                "amihud_percentile": 0.5,
+                "is_liquidity_thin": False,
             }
 
         # Compute log returns
-        close = prices['close'].values[:bar_idx + 1]
+        close = prices["close"].values[: bar_idx + 1]
         log_returns = np.diff(np.log(close))
 
         # Get volumes
-        if 'tickvol' in prices.columns:
-            volumes = prices['tickvol'].values[1:bar_idx + 1]
+        if "tickvol" in prices.columns:
+            volumes = prices["tickvol"].values[1 : bar_idx + 1]
         else:
             volumes = np.ones(len(log_returns))
 
@@ -231,11 +240,11 @@ class AmihudExtractor:
             percentile = 0.5
 
         return {
-            'amihud': current,
-            'amihud_mean': mean_amihud,
-            'amihud_std': std_amihud,
-            'amihud_percentile': percentile,
-            'is_liquidity_thin': percentile > 0.9
+            "amihud": current,
+            "amihud_mean": mean_amihud,
+            "amihud_std": std_amihud,
+            "amihud_percentile": percentile,
+            "is_liquidity_thin": percentile > 0.9,
         }
 
 
@@ -258,8 +267,9 @@ class RangeImpactExtractor:
         return ranges / safe_volumes
 
     @staticmethod
-    def compute_signed_range_impact(opens: np.ndarray, highs: np.ndarray,
-                                     lows: np.ndarray, closes: np.ndarray) -> np.ndarray:
+    def compute_signed_range_impact(
+        opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, closes: np.ndarray
+    ) -> np.ndarray:
         """
         Compute SIGNED range impact - preserves directional information.
 
@@ -277,8 +287,7 @@ class RangeImpactExtractor:
         return (closes - opens) / safe_ranges
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 50) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 50) -> Dict:
         """
         Extract range impact features including signed variant.
         """
@@ -287,22 +296,22 @@ class RangeImpactExtractor:
 
         if bar_idx < 10:
             return {
-                'range_impact': 0.0,
-                'range_impact_percentile': 0.5,
-                'normalized_range': 0.0,
-                'signed_range_impact': 0.0,
-                'signed_range_mean': 0.0,
-                'is_fat_candle': False
+                "range_impact": 0.0,
+                "range_impact_percentile": 0.5,
+                "normalized_range": 0.0,
+                "signed_range_impact": 0.0,
+                "signed_range_mean": 0.0,
+                "is_fat_candle": False,
             }
 
-        ranges = (prices['high'] - prices['low']).values[:bar_idx + 1]
-        opens = prices['open'].values[:bar_idx + 1]
-        highs = prices['high'].values[:bar_idx + 1]
-        lows = prices['low'].values[:bar_idx + 1]
-        closes = prices['close'].values[:bar_idx + 1]
+        ranges = (prices["high"] - prices["low"]).values[: bar_idx + 1]
+        opens = prices["open"].values[: bar_idx + 1]
+        highs = prices["high"].values[: bar_idx + 1]
+        lows = prices["low"].values[: bar_idx + 1]
+        closes = prices["close"].values[: bar_idx + 1]
 
-        if 'tickvol' in prices.columns:
-            volumes = prices['tickvol'].values[:bar_idx + 1]
+        if "tickvol" in prices.columns:
+            volumes = prices["tickvol"].values[: bar_idx + 1]
         else:
             volumes = np.ones(len(ranges))
 
@@ -323,16 +332,18 @@ class RangeImpactExtractor:
 
         # Signed range impact - current and mean
         signed_current = signed_impacts[-1]
-        signed_recent = signed_impacts[-lookback:] if len(signed_impacts) >= lookback else signed_impacts
+        signed_recent = (
+            signed_impacts[-lookback:] if len(signed_impacts) >= lookback else signed_impacts
+        )
         signed_mean = np.mean(signed_recent)
 
         return {
-            'range_impact': current,
-            'range_impact_percentile': percentile,
-            'normalized_range': normalized,
-            'signed_range_impact': signed_current,
-            'signed_range_mean': signed_mean,
-            'is_fat_candle': normalized > 3.0  # 3x median range
+            "range_impact": current,
+            "range_impact_percentile": percentile,
+            "normalized_range": normalized,
+            "signed_range_impact": signed_current,
+            "signed_range_mean": signed_mean,
+            "is_fat_candle": normalized > 3.0,  # 3x median range
         }
 
 
@@ -353,26 +364,26 @@ class VolumeImbalanceExtractor:
         -1 = 100% selling pressure
         +1 = 100% buying pressure
         """
-        imbalance = np.zeros(len(prices))
+        # Vectorized: Extract arrays once
+        highs = prices["high"].values
+        lows = prices["low"].values
+        closes = prices["close"].values
 
-        for i in range(len(prices)):
-            high = prices['high'].iloc[i]
-            low = prices['low'].iloc[i]
-            close = prices['close'].iloc[i]
+        # Vectorized computation
+        ranges = highs - lows
+        zero_ranges = ranges == 0
+        ranges_safe = np.where(zero_ranges, 1.0, ranges)
 
-            range_ = high - low
-            if range_ == 0:
-                imbalance[i] = 0.0
-            else:
-                # CLV as imbalance proxy
-                clv = (close - low) / range_
-                imbalance[i] = 2 * clv - 1
+        clv = (closes - lows) / ranges_safe
+        imbalance = 2 * clv - 1
+
+        # Handle zero ranges (neutral)
+        imbalance = np.where(zero_ranges, 0.0, imbalance)
 
         return imbalance
 
     @staticmethod
-    def extract_features(prices: pd.DataFrame, bar_idx: int = -1,
-                         lookback: int = 20) -> Dict:
+    def extract_features(prices: pd.DataFrame, bar_idx: int = -1, lookback: int = 20) -> Dict:
         """
         Extract volume imbalance features.
         """
@@ -380,15 +391,9 @@ class VolumeImbalanceExtractor:
             bar_idx = len(prices) + bar_idx
 
         if bar_idx < 5:
-            return {
-                'volume_imbalance': 0.0,
-                'imbalance_streak': 0,
-                'imbalance_skew': 0.0
-            }
+            return {"volume_imbalance": 0.0, "imbalance_streak": 0, "imbalance_skew": 0.0}
 
-        imbalance = VolumeImbalanceExtractor.compute_imbalance(
-            prices.iloc[:bar_idx + 1]
-        )
+        imbalance = VolumeImbalanceExtractor.compute_imbalance(prices.iloc[: bar_idx + 1])
 
         current = imbalance[-1]
         recent = imbalance[-lookback:] if len(imbalance) >= lookback else imbalance
@@ -405,13 +410,14 @@ class VolumeImbalanceExtractor:
 
         # Skewness of recent imbalance
         from scipy.stats import skew
+
         skewness = skew(recent) if len(recent) > 3 else 0.0
 
         return {
-            'volume_imbalance': current,
-            'imbalance_streak': streak,
-            'imbalance_skew': skewness,
-            'imbalance_mean': np.mean(recent)
+            "volume_imbalance": current,
+            "imbalance_streak": streak,
+            "imbalance_skew": skewness,
+            "imbalance_mean": np.mean(recent),
         }
 
 
@@ -434,8 +440,9 @@ class LiquidityFeatureEngine:
 
         # CVD features
         cvd_feats = self.cvd.extract_features(prices, bar_idx)
-        features.update({f'cvd_{k}' if not k.startswith('cvd') else k: v
-                        for k, v in cvd_feats.items()})
+        features.update(
+            {f"cvd_{k}" if not k.startswith("cvd") else k: v for k, v in cvd_feats.items()}
+        )
 
         # Amihud features
         amihud_feats = self.amihud.extract_features(prices, bar_idx)

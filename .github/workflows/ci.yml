@@ -177,6 +177,66 @@ jobs:
           mypy kinetra/ --ignore-missing-imports
         continue-on-error: true
 
+  rules-validation:
+    name: Validate Against Canonical Rules
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Check canonical rules references
+        run: |
+          python scripts/lint_rules.py --check-references
+        continue-on-error: false
+
+      - name: Lint code against rules
+        run: |
+          python scripts/lint_rules.py kinetra/
+        continue-on-error: false
+
+      - name: Check for banned patterns (TA indicators)
+        run: |
+          echo "Checking for traditional TA indicators..."
+          if grep -rn --include="*.py" -E "\b(RSI|MACD|Bollinger|ADX|Stochastic)\b" kinetra/ --exclude-dir=__pycache__; then
+            echo "ERROR: Traditional TA indicators found! Use physics-based features only."
+            exit 1
+          fi
+          echo "✅ No banned TA indicators found"
+        continue-on-error: false
+
+      - name: Check for hardcoded credentials
+        run: |
+          echo "Checking for hardcoded credentials..."
+          if grep -rn --include="*.py" -E "(METAAPI_TOKEN|API_KEY|SECRET|PASSWORD)\s*=\s*[\"'][^\"']+[\"']" kinetra/ tests/ --exclude-dir=__pycache__; then
+            echo "ERROR: Hardcoded credentials found!"
+            exit 1
+          fi
+          echo "✅ No hardcoded credentials found"
+        continue-on-error: false
+
+      - name: Check for unsafe data operations
+        run: |
+          echo "Checking for unsafe data operations..."
+          if grep -rn --include="*.py" "\.to_csv(" kinetra/ --exclude-dir=__pycache__ | grep -v "atomic\|PersistenceManager\|test_"; then
+            echo "WARNING: Direct CSV writes found. Use PersistenceManager.atomic_save()"
+            exit 0  # Warning only
+          fi
+          echo "✅ All data operations use PersistenceManager"
+        continue-on-error: true
+
+      - name: Verify AGENT_RULES_MASTER.md exists
+        run: |
+          if [ ! -f "AGENT_RULES_MASTER.md" ]; then
+            echo "ERROR: Canonical rulebook AGENT_RULES_MASTER.md not found!"
+            exit 1
+          fi
+          echo "✅ Canonical rulebook found"
+
   agent-factory-tests:
     name: Agent Factory Verification
     runs-on: ubuntu-latest

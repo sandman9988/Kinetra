@@ -15,32 +15,35 @@ Agent Activation:
 Dynamic Exit: Energy-weighted cumulative PnL score S_τ
 """
 
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Dict, Tuple, List, Any
-from enum import Enum
-from dataclasses import dataclass
-
-from numpy import floating, dtype, ndarray
+from numpy import dtype, floating, ndarray
 
 
 class AgentType(Enum):
     """Agent activation types based on physics state."""
-    NONE = "none"           # No agent active - stay flat
-    BERSERKER = "berserker" # Underdamped, high energy - aggressive trend following
-    SNIPER = "sniper"       # Critical damping, moderate energy - precision entries
+
+    NONE = "none"  # No agent active - stay flat
+    BERSERKER = "berserker"  # Underdamped, high energy - aggressive trend following
+    SNIPER = "sniper"  # Critical damping, moderate energy - precision entries
 
 
 class RegimeState(Enum):
     """Market regime based on damping classification."""
-    UNDERDAMPED = "underdamped"   # Low friction, trending
-    CRITICAL = "critical"         # Balanced friction, transitional
-    OVERDAMPED = "overdamped"     # High friction, ranging
+
+    UNDERDAMPED = "underdamped"  # Low friction, trending
+    CRITICAL = "critical"  # Balanced friction, transitional
+    OVERDAMPED = "overdamped"  # High friction, ranging
 
 
 @dataclass
 class PhysicsState:
     """Complete physics state at a given bar."""
+
     body_ratio: float
     energy: float
     damping: float
@@ -51,19 +54,20 @@ class PhysicsState:
 
     def to_dict(self) -> Dict:
         return {
-            'body_ratio': self.body_ratio,
-            'energy': self.energy,
-            'damping': self.damping,
-            'entropy': self.entropy,
-            'friction': self.friction,
-            'regime': self.regime.value,
-            'active_agent': self.active_agent.value
+            "body_ratio": self.body_ratio,
+            "energy": self.energy,
+            "damping": self.damping,
+            "entropy": self.entropy,
+            "friction": self.friction,
+            "regime": self.regime.value,
+            "active_agent": self.active_agent.value,
         }
 
 
 @dataclass
 class TradeMetrics:
     """Metrics for an open trade."""
+
     entry_price: float
     entry_bar: int
     entry_energy: float
@@ -87,7 +91,7 @@ class PhysicsEngineV7:
         epsilon: float = 1e-10,
         spread_bps: float = 1.0,
         commission_bps: float = 0.5,
-        funding_bps: float = 0.0
+        funding_bps: float = 0.0,
     ):
         """
         Initialize physics engine.
@@ -108,11 +112,7 @@ class PhysicsEngineV7:
         self.funding_bps = funding_bps
 
     def calculate_body_ratio(
-        self,
-        open_: pd.Series,
-        high: pd.Series,
-        low: pd.Series,
-        close: pd.Series
+        self, open_: pd.Series, high: pd.Series, low: pd.Series, close: pd.Series
     ) -> ndarray[tuple[Any, ...], dtype[Any]]:
         """
         Calculate body ratio: |C_t - O_t| / (H_t - L_t + ε)
@@ -127,11 +127,7 @@ class PhysicsEngineV7:
         # Ensure bounded [0, 1]
         return body_ratio.clip(0.0, 1.0)
 
-    def calculate_energy(
-        self,
-        body_ratio: pd.Series,
-        volume: pd.Series
-    ) -> pd.Series:
+    def calculate_energy(self, body_ratio: pd.Series, volume: pd.Series) -> pd.Series:
         """
         Calculate energy: (body_ratio_t)² × vol_ewma_t
 
@@ -145,15 +141,11 @@ class PhysicsEngineV7:
         vol_normalized = vol_ewma / (vol_ewma.rolling(100).mean() + self.epsilon)
 
         # Energy = body_ratio² × normalized volume
-        energy = (body_ratio ** 2) * vol_normalized
+        energy = (body_ratio**2) * vol_normalized
 
         return energy.fillna(0.0).clip(lower=0.0)
 
-    def calculate_damping(
-        self,
-        high: pd.Series,
-        low: pd.Series
-    ) -> pd.Series:
+    def calculate_damping(self, high: pd.Series, low: pd.Series) -> pd.Series:
         """
         Calculate damping: (H_t - L_t) / (H_{t-1} - L_{t-1} + ε)
 
@@ -170,10 +162,7 @@ class PhysicsEngineV7:
         # Clip to reasonable range to avoid extreme outliers
         return damping.fillna(1.0).clip(lower=0.01, upper=10.0)
 
-    def calculate_entropy(
-        self,
-        volume: pd.Series
-    ) -> pd.Series:
+    def calculate_entropy(self, volume: pd.Series) -> pd.Series:
         """
         Calculate entropy: σ(V) / μ(V) over lookback window
 
@@ -195,11 +184,7 @@ class PhysicsEngineV7:
         """
         return self.spread_bps + self.commission_bps + self.funding_bps
 
-    def classify_regime(
-        self,
-        damping: float,
-        damping_history: pd.Series
-    ) -> RegimeState:
+    def classify_regime(self, damping: float, damping_history: pd.Series) -> RegimeState:
         """
         Classify market regime based on damping percentiles.
 
@@ -218,11 +203,7 @@ class PhysicsEngineV7:
             return RegimeState.CRITICAL
 
     def determine_active_agent(
-        self,
-        energy: float,
-        damping: float,
-        energy_history: pd.Series,
-        damping_history: pd.Series
+        self, energy: float, damping: float, energy_history: pd.Series, damping_history: pd.Series
     ) -> AgentType:
         """
         Determine which agent should be active based on physics state.
@@ -252,11 +233,7 @@ class PhysicsEngineV7:
 
         return AgentType.NONE
 
-    def compute_physics_state(
-        self,
-        df: pd.DataFrame,
-        min_history: int = 50
-    ) -> pd.DataFrame:
+    def compute_physics_state(self, df: pd.DataFrame, min_history: int = 50) -> pd.DataFrame:
         """
         Compute complete physics state for OHLCV DataFrame.
 
@@ -268,11 +245,11 @@ class PhysicsEngineV7:
             DataFrame with physics metrics and agent activations
         """
         # Extract OHLCV
-        open_ = df['Open']
-        high = df['High']
-        low = df['Low']
-        close = df['Close']
-        volume = df['Volume'] if 'Volume' in df.columns else pd.Series(1.0, index=df.index)
+        open_ = df["Open"]
+        high = df["High"]
+        low = df["Low"]
+        close = df["Close"]
+        volume = df["Volume"] if "Volume" in df.columns else pd.Series(1.0, index=df.index)
 
         # Calculate base metrics
         body_ratio = self.calculate_body_ratio(open_, high, low, close)
@@ -282,41 +259,42 @@ class PhysicsEngineV7:
         friction = self.calculate_friction()
 
         # Create result DataFrame
-        result = pd.DataFrame({
-            'body_ratio': body_ratio,
-            'energy': energy,
-            'damping': damping,
-            'entropy': entropy,
-            'friction': friction
-        }, index=df.index)
+        result = pd.DataFrame(
+            {
+                "body_ratio": body_ratio,
+                "energy": energy,
+                "damping": damping,
+                "entropy": entropy,
+                "friction": friction,
+            },
+            index=df.index,
+        )
 
         # Classify regime and determine active agent for each bar
-        regimes = []
-        agents = []
+        # Vectorized approach: pre-allocate and process
+        n = len(result)
+        regimes = np.full(n, RegimeState.CRITICAL.value, dtype=object)
+        agents = np.full(n, AgentType.NONE.value, dtype=object)
 
-        for i in range(len(result)):
-            if i < min_history:
-                regimes.append(RegimeState.CRITICAL.value)
-                agents.append(AgentType.NONE.value)
-            else:
-                # Use rolling history for percentile calculations
-                energy_hist = result['energy'].iloc[:i]
-                damping_hist = result['damping'].iloc[:i]
+        # Process bars after min_history using expanding window
+        for i in range(min_history, n):
+            # Use rolling history for percentile calculations
+            energy_hist = result["energy"].iloc[:i]
+            damping_hist = result["damping"].iloc[:i]
 
-                current_damping = result['damping'].iloc[i]
-                current_energy = result['energy'].iloc[i]
+            current_damping = result["damping"].iloc[i]
+            current_energy = result["energy"].iloc[i]
 
-                regime = self.classify_regime(current_damping, damping_hist)
-                agent = self.determine_active_agent(
-                    current_energy, current_damping,
-                    energy_hist, damping_hist
-                )
+            regime = self.classify_regime(current_damping, damping_hist)
+            agent = self.determine_active_agent(
+                current_energy, current_damping, energy_hist, damping_hist
+            )
 
-                regimes.append(regime.value)
-                agents.append(agent.value)
+            regimes[i] = regime.value
+            agents[i] = agent.value
 
-        result['regime'] = regimes
-        result['active_agent'] = agents
+        result["regime"] = regimes
+        result["active_agent"] = agents
 
         return result
 
@@ -341,12 +319,7 @@ class EnergyWeightedExitManager:
         self.active_trades: Dict[str, TradeMetrics] = {}
 
     def open_trade(
-        self,
-        trade_id: str,
-        entry_price: float,
-        entry_bar: int,
-        entry_energy: float,
-        direction: int
+        self, trade_id: str, entry_price: float, entry_bar: int, entry_energy: float, direction: int
     ):
         """Record a new trade opening."""
         self.active_trades[trade_id] = TradeMetrics(
@@ -356,15 +329,11 @@ class EnergyWeightedExitManager:
             direction=direction,
             cumulative_score=0.0,
             max_score=0.0,
-            bars_held=0
+            bars_held=0,
         )
 
     def update_score(
-        self,
-        trade_id: str,
-        current_close: float,
-        prev_close: float,
-        current_energy: float
+        self, trade_id: str, current_close: float, prev_close: float, current_energy: float
     ) -> Tuple[bool, float]:
         """
         Update the energy-weighted score and check for exit signal.
@@ -528,7 +497,7 @@ def classify_regime_adaptive(
     symc_series: pd.Series,
     underdamped_pct: float = 33.0,
     overdamped_pct: float = 67.0,
-    lookback: int = 100
+    lookback: int = 100,
 ) -> np.ndarray:
     """
     ADAPTIVE regime classification - NO FIXED THRESHOLDS.
@@ -555,19 +524,19 @@ def classify_regime_adaptive(
     """
     symc = symc_series.values
     n = len(symc)
-    regimes = np.full(n, 'critical', dtype=object)
+    regimes = np.full(n, "critical", dtype=object)
 
     for i in range(n):
         # Use available history up to lookback
         start = max(0, i - lookback + 1)
-        window = symc[start:i+1]
+        window = symc[start : i + 1]
 
         if len(window) < 5:
             # Not enough data - use current value relative to 1.0
             if symc[i] < 0.9:
-                regimes[i] = 'underdamped'
+                regimes[i] = "underdamped"
             elif symc[i] > 1.1:
-                regimes[i] = 'overdamped'
+                regimes[i] = "overdamped"
             continue
 
         # Adaptive thresholds from data distribution
@@ -576,9 +545,9 @@ def classify_regime_adaptive(
 
         # Classify based on where current value falls
         if symc[i] < low_thresh:
-            regimes[i] = 'underdamped'
+            regimes[i] = "underdamped"
         elif symc[i] > high_thresh:
-            regimes[i] = 'overdamped'
+            regimes[i] = "overdamped"
         # else: 'critical' (middle third)
 
     return regimes
@@ -645,7 +614,9 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
 
     # Core components - CORRECT PHYSICS
     mass = compute_liquidity_mass(high, low, close, volume, lookback)
-    force = compute_order_flow_force(high.values, high.values, low.values, close.values, volume.values)
+    force = compute_order_flow_force(
+        high.values, high.values, low.values, close.values, volume.values
+    )
     acceleration = compute_acceleration(force, mass)
 
     # Velocity = rate of price change
@@ -665,19 +636,20 @@ def compute_oscillator_state(high, low, close, volume, lookback: int = 20):
     regime = classify_regime_adaptive(symc_series)
 
     return {
-        'mass': mass,
-        'force': force,
-        'acceleration': acceleration,
-        'velocity': velocity,
-        'displacement': displacement,
-        'symc': symc,
-        'regime': regime
+        "mass": mass,
+        "force": force,
+        "acceleration": acceleration,
+        "velocity": velocity,
+        "displacement": displacement,
+        "symc": symc,
+        "regime": regime,
     }
 
 
 # =============================================================================
 # BACKTESTING.PY INTEGRATION
 # =============================================================================
+
 
 def compute_body_ratio_indicator(open_, high, low, close, epsilon: float = 1e-10):
     """Body ratio indicator for backtesting.py."""
@@ -700,7 +672,7 @@ def compute_energy_v7(open_, high, low, close, volume, span: int = 10, epsilon: 
     vol_ewma = volume.ewm(span=span).mean()
     vol_normalized = vol_ewma / (vol_ewma.rolling(100).mean() + epsilon)
 
-    energy = (body_ratio ** 2) * vol_normalized
+    energy = (body_ratio**2) * vol_normalized
     return energy.fillna(0.0).clip(lower=0.0).values
 
 
@@ -817,7 +789,7 @@ def compute_rolling_dominant_period(close, base_window: int = None):
 
     # Compute rolling dominant period
     for i in range(base_window, n):
-        window_returns = returns.iloc[max(0, i - base_window):i].dropna()
+        window_returns = returns.iloc[max(0, i - base_window) : i].dropna()
         if len(window_returns) >= 10:
             periods[i] = compute_dominant_period_single(window_returns.values)
 
@@ -872,9 +844,7 @@ def compute_energy_probability(energy, lookback: int):
         rank = (x.iloc[:-1] < x.iloc[-1]).sum()
         return rank / (len(x) - 1)
 
-    p_energy = energy.rolling(lookback, min_periods=lookback).apply(
-        percentile_rank, raw=False
-    )
+    p_energy = energy.rolling(lookback, min_periods=lookback).apply(percentile_rank, raw=False)
 
     return p_energy.fillna(0.5).values
 
@@ -949,8 +919,8 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
         low = pd.Series(low).reset_index(drop=True)
         volume = pd.Series(volume).reset_index(drop=True)
         oscillator = compute_oscillator_state(high.values, low.values, close.values, volume.values)
-        mass = pd.Series(oscillator['mass'])
-        acceleration = pd.Series(oscillator['acceleration'])
+        mass = pd.Series(oscillator["mass"])
+        acceleration = pd.Series(oscillator["acceleration"])
 
     # Compute ROLLING dominant period - adapts per bar
     rolling_periods = compute_rolling_dominant_period(close)
@@ -963,7 +933,7 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
             continue
 
         start_idx = max(0, i - T)
-        local_close = close.iloc[start_idx:i + 1]
+        local_close = close.iloc[start_idx : i + 1]
         price_changes = local_close.diff().dropna()
 
         if len(price_changes) < 2:
@@ -1000,9 +970,9 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
 
         start_idx = max(0, i - T)
 
-        local_energy = energy.iloc[start_idx:i + 1]
-        local_damping = damping.iloc[start_idx:i + 1]
-        local_direction = direction_scores.iloc[start_idx:i + 1]
+        local_energy = energy.iloc[start_idx : i + 1]
+        local_damping = damping.iloc[start_idx : i + 1]
+        local_direction = direction_scores.iloc[start_idx : i + 1]
 
         if len(local_energy) < 5:
             continue
@@ -1040,8 +1010,8 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
 
         # MICROSTRUCTURE REGIME CONDITIONS (if oscillator available)
         if use_oscillator:
-            local_mass = mass.iloc[start_idx:i + 1]
-            local_accel = acceleration.iloc[start_idx:i + 1]
+            local_mass = mass.iloc[start_idx : i + 1]
+            local_accel = acceleration.iloc[start_idx : i + 1]
             curr_mass = mass.iloc[i]
             curr_accel = acceleration.iloc[i]
 
@@ -1057,30 +1027,24 @@ def compute_agent_signal(energy, damping, close, high=None, low=None, volume=Non
             high_acceleration = curr_accel > accel_mean + accel_std
 
             # Berserker: BREAKOUT regime + high energy + high acceleration
-            berserker_cond = (
-                is_breakout_regime and
-                curr_energy > energy_upper and
-                high_acceleration
-            )
+            berserker_cond = is_breakout_regime and curr_energy > energy_upper and high_acceleration
 
             # Sniper: RANGE regime + laminar flow (high direction consistency)
             sniper_cond = (
-                is_range_regime and
-                curr_direction > direction_upper and
-                curr_energy > energy_mean
+                is_range_regime and curr_direction > direction_upper and curr_energy > energy_mean
             )
         else:
             # Fallback: original Gaussian-based conditions
             berserker_cond = (
-                curr_energy > energy_upper and
-                curr_direction > direction_upper and
-                curr_damping < damping_lower
+                curr_energy > energy_upper
+                and curr_direction > direction_upper
+                and curr_damping < damping_lower
             )
 
             sniper_cond = (
-                curr_energy > energy_mean and
-                curr_direction > direction_mean and
-                damping_lower < curr_damping < damping_upper
+                curr_energy > energy_mean
+                and curr_direction > direction_mean
+                and damping_lower < curr_damping < damping_upper
             )
 
         if berserker_cond:
@@ -1115,7 +1079,7 @@ def compute_asymmetric_reward(
     alpha_loss: float = 3.0,
     alpha_gain: float = 1.0,
     lambda_vol: float = 0.1,
-    delta_time: float = 0.01
+    delta_time: float = 0.01,
 ) -> float:
     """
     Asymmetrical Reward Function for RL training.
@@ -1162,7 +1126,9 @@ def compute_asymmetric_reward(
     return reward - vol_penalty - time_penalty
 
 
-def detect_frozen_market(symc_history: pd.Series, threshold: float = 2.0, lookback: int = 10) -> bool:
+def detect_frozen_market(
+    symc_history: pd.Series, threshold: float = 2.0, lookback: int = 10
+) -> bool:
     """
     Detect "Frozen" market condition - extreme overdamping before shock.
 
@@ -1183,9 +1149,7 @@ def detect_frozen_market(symc_history: pd.Series, threshold: float = 2.0, lookba
 
 
 def compute_trade_quality_score(
-    pnl_net: float,
-    spread_pips: float,
-    safety_margin: float = 2.0
+    pnl_net: float, spread_pips: float, safety_margin: float = 2.0
 ) -> float:
     """
     Quality score for Shadow Trading validation.
@@ -1213,6 +1177,7 @@ def compute_trade_quality_score(
 # PERFORMANCE METRICS - PHYSICS-BASED
 # =============================================================================
 
+
 def calculate_omega_ratio(returns: pd.Series, threshold: float = 0.0) -> float:
     """
     OMEGA RATIO - The "Thermodynamic/State-Space" Choice.
@@ -1234,12 +1199,14 @@ def calculate_omega_ratio(returns: pd.Series, threshold: float = 0.0) -> float:
     losses = abs(returns[returns < threshold].sum())
 
     if losses == 0:
-        return float('inf') if gains > 0 else 1.0
+        return float("inf") if gains > 0 else 1.0
 
     return gains / losses
 
 
-def calculate_stutzer_index(returns: pd.Series, benchmark: float = 0.0, max_iter: int = 100) -> float:
+def calculate_stutzer_index(
+    returns: pd.Series, benchmark: float = 0.0, max_iter: int = 100
+) -> float:
     """
     STUTZER INDEX - The "Statistical Mechanics" Choice.
 
@@ -1308,7 +1275,7 @@ def calculate_rachev_ratio(returns: pd.Series, alpha: float = 0.05, beta: float 
     cvar_losses = abs(losses_tail.mean()) if len(losses_tail) > 0 else 0
 
     if cvar_losses == 0:
-        return float('inf') if cvar_gains > 0 else 1.0
+        return float("inf") if cvar_gains > 0 else 1.0
 
     return cvar_gains / cvar_losses
 
@@ -1325,9 +1292,9 @@ def calculate_all_physics_metrics(returns: pd.Series) -> dict:
     returns = pd.Series(returns).dropna()
 
     return {
-        'omega': calculate_omega_ratio(returns),
-        'stutzer': calculate_stutzer_index(returns),
-        'rachev': calculate_rachev_ratio(returns),
+        "omega": calculate_omega_ratio(returns),
+        "stutzer": calculate_stutzer_index(returns),
+        "rachev": calculate_rachev_ratio(returns),
     }
 
 
@@ -1346,15 +1313,13 @@ def calculate_z_factor(returns: pd.Series, benchmark: float = 0.0) -> float:
     std_ret = returns.std()
 
     if std_ret == 0:
-        return float('inf') if mean_ret > benchmark else 0.0
+        return float("inf") if mean_ret > benchmark else 0.0
 
     return (mean_ret - benchmark) / std_ret * np.sqrt(n)
 
 
 def calculate_energy_captured(
-    trade_returns: pd.Series,
-    energy_at_entry: pd.Series,
-    total_energy: float
+    trade_returns: pd.Series, energy_at_entry: pd.Series, total_energy: float
 ) -> float:
     """
     Calculate percentage of energy captured by profitable trades.
@@ -1370,10 +1335,7 @@ def calculate_energy_captured(
     return (energy_captured / total_energy) * 100
 
 
-def calculate_mfe_captured(
-    actual_pnl: pd.Series,
-    mfe: pd.Series
-) -> float:
+def calculate_mfe_captured(actual_pnl: pd.Series, mfe: pd.Series) -> float:
     """
     Calculate percentage of Maximum Favorable Excursion captured.
 
@@ -1389,10 +1351,7 @@ def calculate_mfe_captured(
 
 
 def validate_theorem_targets(
-    omega: float,
-    z_factor: float,
-    energy_pct: float,
-    mfe_pct: float
+    omega: float, z_factor: float, energy_pct: float, mfe_pct: float
 ) -> Dict[str, bool]:
     """
     Validate performance against theorem targets.
@@ -1404,11 +1363,11 @@ def validate_theorem_targets(
     - MFE Captured > 60%
     """
     return {
-        'omega_passed': omega > 2.7,
-        'z_factor_passed': z_factor > 2.5,
-        'energy_captured_passed': energy_pct > 65.0,
-        'mfe_captured_passed': mfe_pct > 60.0,
-        'all_passed': omega > 2.7 and z_factor > 2.5 and energy_pct > 65.0 and mfe_pct > 60.0
+        "omega_passed": omega > 2.7,
+        "z_factor_passed": z_factor > 2.5,
+        "energy_captured_passed": energy_pct > 65.0,
+        "mfe_captured_passed": mfe_pct > 60.0,
+        "all_passed": omega > 2.7 and z_factor > 2.5 and energy_pct > 65.0 and mfe_pct > 60.0,
     }
 
 
@@ -1468,7 +1427,7 @@ def compute_fractal_dimension_katz(close, window: int = 50):
     fd = np.full(n, 1.5)
 
     for i in range(window, n):
-        local = close.iloc[i - window:i].values
+        local = close.iloc[i - window : i].values
         num_points = len(local)
 
         # Total path length L = sum of absolute price changes
@@ -1523,7 +1482,7 @@ def compute_fractal_dimension_higuchi(close, k_max: int = 10, window: int = 100)
     fd = np.full(n, 1.5)
 
     for i in range(window, n):
-        local = close.iloc[i - window:i].values
+        local = close.iloc[i - window : i].values
         N = len(local)
 
         # Ensure k_max is valid
@@ -1606,7 +1565,7 @@ def compute_sample_entropy(close, m: int = 2, r_mult: float = 0.2, window: int =
     sampen = np.full(n, 0.0)
 
     for i in range(window, n):
-        local = close.iloc[i - window:i].values
+        local = close.iloc[i - window : i].values
         N = len(local)
 
         # Tolerance based on local std
@@ -1623,8 +1582,8 @@ def compute_sample_entropy(close, m: int = 2, r_mult: float = 0.2, window: int =
             for j in range(N - template_len):
                 for k in range(j + 1, N - template_len):
                     # Check if templates match within tolerance
-                    template_j = local[j:j + template_len]
-                    template_k = local[k:k + template_len]
+                    template_j = local[j : j + template_len]
+                    template_k = local[k : k + template_len]
                     if np.max(np.abs(template_j - template_k)) < r:
                         count += 1
             return count
@@ -1656,7 +1615,7 @@ def compute_sample_entropy_fast(close, m: int = 2, r_mult: float = 0.2, window: 
     sampen = np.full(n, 0.0)
 
     for i in range(window, n):
-        local = close.iloc[i - window:i].values
+        local = close.iloc[i - window : i].values
         N = len(local)
 
         std = np.std(local)
@@ -1667,7 +1626,7 @@ def compute_sample_entropy_fast(close, m: int = 2, r_mult: float = 0.2, window: 
 
         # Create embedded vectors
         def embed(x, m):
-            return np.array([x[j:j + m] for j in range(len(x) - m + 1)])
+            return np.array([x[j : j + m] for j in range(len(x) - m + 1)])
 
         # Embedded sequences
         X_m = embed(local, m)
@@ -1784,7 +1743,7 @@ def compute_ftle(close, window: int = 50, tau: int = 1):
     ftle = np.full(n, 0.0)
 
     for i in range(window, n):
-        local = close.iloc[i - window:i].values
+        local = close.iloc[i - window : i].values
 
         # Create phase space embedding
         returns = np.diff(local)
@@ -1800,7 +1759,7 @@ def compute_ftle(close, window: int = 50, tau: int = 1):
 
             # Find nearest neighbor (excluding self and immediate neighbors)
             distances = np.abs(returns - x_j)
-            distances[max(0, j - 2):min(len(returns), j + 3)] = np.inf
+            distances[max(0, j - 2) : min(len(returns), j + 3)] = np.inf
 
             if np.all(np.isinf(distances)):
                 continue
@@ -1872,11 +1831,11 @@ def compute_market_state_features(high, low, close, volume, window: int = 50):
     volume = pd.Series(volume)
 
     return {
-        'fractal_dim': compute_fractal_dimension_katz(close.values, window),
-        'sample_entropy': compute_sample_entropy_fast(close.values, window=window),
-        'center_of_mass': compute_center_of_mass(close.values, volume.values, window // 2),
-        'com_divergence': compute_com_divergence(close.values, volume.values, window // 2),
-        'ftle': compute_ftle_fast(close.values, window),
+        "fractal_dim": compute_fractal_dimension_katz(close.values, window),
+        "sample_entropy": compute_sample_entropy_fast(close.values, window=window),
+        "center_of_mass": compute_center_of_mass(close.values, volume.values, window // 2),
+        "com_divergence": compute_com_divergence(close.values, volume.values, window // 2),
+        "ftle": compute_ftle_fast(close.values, window),
     }
 
 
@@ -1916,7 +1875,7 @@ def classify_market_regime_physics(fractal_dim, sample_entropy, ftle, symc):
         # Chaos regime: High FTLE + High Entropy
         chaos_score = abs(ftle_val) + se_val
 
-        scores = {'trend': trend_score, 'range': range_score, 'chaos': chaos_score}
+        scores = {"trend": trend_score, "range": range_score, "chaos": chaos_score}
         best = max(scores, key=scores.get)
         confidence = scores[best] / (sum(abs(v) for v in scores.values()) + 1e-10)
 
@@ -1979,10 +1938,7 @@ def compute_vpin_proxy(close, volume, window: int = 50):
     return vpin.fillna(0.0).clip(0, 1).values
 
 
-def compute_rl_state_vector(
-    high, low, close, volume,
-    window: int = 50
-) -> Dict[str, np.ndarray]:
+def compute_rl_state_vector(high, low, close, volume, window: int = 50) -> Dict[str, np.ndarray]:
     """
     Compute complete RL state vector for Regime-Conditioned Network.
 
@@ -2022,52 +1978,46 @@ def compute_rl_state_vector(
     vpin = compute_vpin_proxy(close.values, volume.values, window)
 
     # SymC for regime
-    symc = oscillator['symc']
+    symc = oscillator["symc"]
 
     # Regime classification (one-hot encoding)
     regimes, confidences = classify_market_regime_physics(fd, se, ftle, symc)
 
     regime_onehot = np.zeros((len(close), 3))
     for i, regime in enumerate(regimes):
-        if regime == 'trend':
+        if regime == "trend":
             regime_onehot[i, 0] = 1
-        elif regime == 'range':
+        elif regime == "range":
             regime_onehot[i, 1] = 1
         else:  # chaos
             regime_onehot[i, 2] = 1
 
     return {
         # Context (for gating)
-        'regime_trend': regime_onehot[:, 0],
-        'regime_range': regime_onehot[:, 1],
-        'regime_chaos': regime_onehot[:, 2],
-        'regime_confidence': np.array(confidences),
-
+        "regime_trend": regime_onehot[:, 0],
+        "regime_range": regime_onehot[:, 1],
+        "regime_chaos": regime_onehot[:, 2],
+        "regime_confidence": np.array(confidences),
         # Risk (for distribution learning)
-        'kurtosis': kurtosis,
-        'vpin': vpin,
-        'entropy': se,
-
+        "kurtosis": kurtosis,
+        "vpin": vpin,
+        "entropy": se,
         # Momentum (for trend detection)
-        'fractal_dim': fd,
-        'ftle': ftle,
-
+        "fractal_dim": fd,
+        "ftle": ftle,
         # Flow (for conviction)
-        'order_flow': oscillator['force'],
-        'com_divergence': com_div,
-
+        "order_flow": oscillator["force"],
+        "com_divergence": com_div,
         # Oscillator (for microstructure)
-        'mass': oscillator['mass'],
-        'acceleration': oscillator['acceleration'],
-        'velocity': oscillator['velocity'],
-        'symc': symc,
+        "mass": oscillator["mass"],
+        "acceleration": oscillator["acceleration"],
+        "velocity": oscillator["velocity"],
+        "symc": symc,
     }
 
 
 def compute_action_mask(
-    state_vector: Dict[str, np.ndarray],
-    idx: int,
-    mode: str = "virtual"
+    state_vector: Dict[str, np.ndarray], idx: int, mode: str = "virtual"
 ) -> Dict[str, bool]:
     """
     Compute action mask based on regime state.
@@ -2087,10 +2037,10 @@ def compute_action_mask(
     """
     # Default: all actions allowed
     mask = {
-        'buy': True,
-        'sell': True,
-        'hold': True,
-        'close': True,
+        "buy": True,
+        "sell": True,
+        "hold": True,
+        "close": True,
     }
 
     # VIRTUAL MODE: No gates! Explore freely.
@@ -2100,17 +2050,17 @@ def compute_action_mask(
     # LIVE MODE: Dynamic conditional locks
     # These use ADAPTIVE thresholds based on recent distribution
 
-    regime_chaos = state_vector['regime_chaos'][idx]
-    vpin = state_vector['vpin'][idx]
-    ftle = state_vector['ftle'][idx]
-    symc = state_vector['symc'][idx]
+    regime_chaos = state_vector["regime_chaos"][idx]
+    vpin = state_vector["vpin"][idx]
+    ftle = state_vector["ftle"][idx]
+    symc = state_vector["symc"][idx]
 
     # Get adaptive thresholds from recent data
     lookback = min(idx + 1, 100)
     if lookback > 10:
-        ftle_recent = state_vector['ftle'][max(0, idx-lookback):idx+1]
-        vpin_recent = state_vector['vpin'][max(0, idx-lookback):idx+1]
-        symc_recent = state_vector['symc'][max(0, idx-lookback):idx+1]
+        ftle_recent = state_vector["ftle"][max(0, idx - lookback) : idx + 1]
+        vpin_recent = state_vector["vpin"][max(0, idx - lookback) : idx + 1]
+        symc_recent = state_vector["symc"][max(0, idx - lookback) : idx + 1]
 
         # Adaptive: extreme = top 5% of recent distribution
         ftle_extreme = np.percentile(np.abs(ftle_recent), 95)
@@ -2124,18 +2074,18 @@ def compute_action_mask(
 
     # Crisis/Chaos: No new positions (only in extreme conditions)
     if regime_chaos > 0.7 or abs(ftle) > ftle_extreme:
-        mask['buy'] = False
-        mask['sell'] = False
+        mask["buy"] = False
+        mask["sell"] = False
 
     # High toxicity: No new positions
     if vpin > vpin_extreme:
-        mask['buy'] = False
-        mask['sell'] = False
+        mask["buy"] = False
+        mask["sell"] = False
 
     # Frozen market: Force close existing positions
     if symc > symc_extreme:
-        mask['buy'] = False
-        mask['sell'] = False
+        mask["buy"] = False
+        mask["sell"] = False
 
     return mask
 
@@ -2158,11 +2108,12 @@ def compute_action_mask(
 @dataclass
 class WelfordState:
     """State for Welford's online algorithm."""
+
     count: int = 0
     mean: float = 0.0
     M2: float = 0.0  # Sum of squared deviations
-    min_val: float = float('inf')
-    max_val: float = float('-inf')
+    min_val: float = float("inf")
+    max_val: float = float("-inf")
 
     def update(self, x: float):
         """Update statistics with new value using Welford's algorithm."""
@@ -2202,6 +2153,7 @@ class WelfordState:
 @dataclass
 class OnlineDownsideState:
     """State for online downside deviation calculation."""
+
     count: int = 0
     negative_count: int = 0
     sum_sq_negative: float = 0.0
@@ -2225,6 +2177,7 @@ class OnlineDownsideState:
 @dataclass
 class OnlineUlcerState:
     """State for online Ulcer Index calculation."""
+
     count: int = 0
     peak_equity: float = 0.0
     sum_sq_drawdown: float = 0.0
@@ -2236,7 +2189,7 @@ class OnlineUlcerState:
 
         if self.peak_equity > 0:
             drawdown_pct = (self.peak_equity - equity) / self.peak_equity * 100
-            self.sum_sq_drawdown += drawdown_pct ** 2
+            self.sum_sq_drawdown += drawdown_pct**2
 
     @property
     def ulcer_index(self) -> float:
@@ -2249,6 +2202,7 @@ class OnlineUlcerState:
 @dataclass
 class OnlineSortinoState:
     """State for online Sortino Ratio calculation."""
+
     return_state: WelfordState = None
     downside_state: OnlineDownsideState = None
     risk_free_rate: float = 0.0
@@ -2269,13 +2223,14 @@ class OnlineSortinoState:
         """Sortino Ratio = (mean - rf) / downside_deviation."""
         dd = self.downside_state.downside_deviation
         if dd == 0:
-            return 0.0 if self.return_state.mean <= self.risk_free_rate else float('inf')
+            return 0.0 if self.return_state.mean <= self.risk_free_rate else float("inf")
         return (self.return_state.mean - self.risk_free_rate) / dd
 
 
 @dataclass
 class OnlineOmegaState:
     """State for online Omega Ratio calculation."""
+
     sum_gains: float = 0.0
     sum_losses: float = 0.0
     count: int = 0
@@ -2293,7 +2248,7 @@ class OnlineOmegaState:
     def omega_ratio(self) -> float:
         """Omega Ratio = sum(gains) / sum(losses)."""
         if self.sum_losses == 0:
-            return float('inf') if self.sum_gains > 0 else 1.0
+            return float("inf") if self.sum_gains > 0 else 1.0
         return self.sum_gains / self.sum_losses
 
 
@@ -2368,7 +2323,7 @@ class OnlineMetricsTracker:
         """Sharpe Ratio = (mean - rf) / std."""
         std = self.return_state.sample_std
         if std == 0:
-            return 0.0 if self.return_state.mean <= self.risk_free_rate else float('inf')
+            return 0.0 if self.return_state.mean <= self.risk_free_rate else float("inf")
         return (self.return_state.mean - self.risk_free_rate) / std
 
     @property
@@ -2416,19 +2371,19 @@ class OnlineMetricsTracker:
     def get_metrics(self) -> Dict[str, float]:
         """Get all current metrics as a dict."""
         return {
-            'total_return_pct': self.total_return_pct,
-            'sharpe_ratio': self.sharpe_ratio,
-            'sortino_ratio': self.sortino_ratio,
-            'omega_ratio': self.omega_ratio,
-            'ulcer_index': self.ulcer_index,
-            'ulcer_performance_index': self.ulcer_performance_index,
-            'max_drawdown_pct': self.max_drawdown_pct,
-            'win_rate': self.win_rate,
-            'trade_count': self.trade_count,
-            'total_pnl': self.total_pnl,
-            'current_equity': self.current_equity,
-            'mean_return': self.return_state.mean,
-            'return_std': self.return_state.sample_std,
+            "total_return_pct": self.total_return_pct,
+            "sharpe_ratio": self.sharpe_ratio,
+            "sortino_ratio": self.sortino_ratio,
+            "omega_ratio": self.omega_ratio,
+            "ulcer_index": self.ulcer_index,
+            "ulcer_performance_index": self.ulcer_performance_index,
+            "max_drawdown_pct": self.max_drawdown_pct,
+            "win_rate": self.win_rate,
+            "trade_count": self.trade_count,
+            "total_pnl": self.total_pnl,
+            "current_equity": self.current_equity,
+            "mean_return": self.return_state.mean,
+            "return_std": self.return_state.sample_std,
         }
 
     def reset(self, initial_equity: float = None):
@@ -2536,17 +2491,9 @@ def wasserstein_distance_1d(p: np.ndarray, q: np.ndarray) -> float | floating[An
     n = max(len(p), len(q))
 
     if len(p) != n:
-        p_sorted = np.interp(
-            np.linspace(0, 1, n),
-            np.linspace(0, 1, len(p)),
-            p_sorted
-        )
+        p_sorted = np.interp(np.linspace(0, 1, n), np.linspace(0, 1, len(p)), p_sorted)
     if len(q) != n:
-        q_sorted = np.interp(
-            np.linspace(0, 1, n),
-            np.linspace(0, 1, len(q)),
-            q_sorted
-        )
+        q_sorted = np.interp(np.linspace(0, 1, n), np.linspace(0, 1, len(q)), q_sorted)
 
     # W_1 distance = mean of absolute differences of sorted values
     return np.mean(np.abs(p_sorted - q_sorted))
@@ -2583,8 +2530,8 @@ def wasserstein_distance_cdf(p: np.ndarray, q: np.ndarray, n_points: int = 100) 
     x = np.linspace(x_min, x_max, n_points)
 
     # Empirical CDFs
-    cdf_p = np.searchsorted(np.sort(p), x, side='right') / len(p)
-    cdf_q = np.searchsorted(np.sort(q), x, side='right') / len(q)
+    cdf_p = np.searchsorted(np.sort(p), x, side="right") / len(p)
+    cdf_q = np.searchsorted(np.sort(q), x, side="right") / len(q)
 
     # Integrate |F_p - F_q|
     dx = (x_max - x_min) / (n_points - 1)
@@ -2592,9 +2539,7 @@ def wasserstein_distance_cdf(p: np.ndarray, q: np.ndarray, n_points: int = 100) 
 
 
 def compute_regime_shift_wasserstein(
-    returns: np.ndarray,
-    window: int = 50,
-    reference_window: int = 200
+    returns: np.ndarray, window: int = 50, reference_window: int = 200
 ) -> np.ndarray:
     """
     Detect regime shifts using Wasserstein Distance.
@@ -2625,10 +2570,10 @@ def compute_regime_shift_wasserstein(
 
     for i in range(window + reference_window, n):
         # Recent distribution
-        recent = returns[i - window:i]
+        recent = returns[i - window : i]
 
         # Historical distribution (before recent)
-        historical = returns[i - window - reference_window:i - window]
+        historical = returns[i - window - reference_window : i - window]
 
         # Wasserstein distance
         distances[i] = wasserstein_distance_1d(recent, historical)
@@ -2637,9 +2582,7 @@ def compute_regime_shift_wasserstein(
 
 
 def compute_distribution_stability(
-    returns: np.ndarray,
-    window: int = 50,
-    lag: int = 10
+    returns: np.ndarray, window: int = 50, lag: int = 10
 ) -> np.ndarray:
     """
     Measure distribution stability over time.
@@ -2658,8 +2601,8 @@ def compute_distribution_stability(
     stability = np.ones(n)
 
     for i in range(window + lag, n):
-        current = returns[i - window:i]
-        lagged = returns[i - window - lag:i - lag]
+        current = returns[i - window : i]
+        lagged = returns[i - window - lag : i - lag]
 
         w_dist = wasserstein_distance_1d(current, lagged)
 
@@ -2671,9 +2614,7 @@ def compute_distribution_stability(
 
 
 def quantile_wasserstein(
-    predicted_quantiles: np.ndarray,
-    actual: float,
-    tau: np.ndarray = None
+    predicted_quantiles: np.ndarray, actual: float, tau: np.ndarray = None
 ) -> float:
     """
     Wasserstein Distance for QR-DQN evaluation.
@@ -2710,9 +2651,7 @@ def quantile_wasserstein(
 
 
 def compute_tail_wasserstein(
-    p: np.ndarray,
-    q: np.ndarray,
-    tail_percentile: float = 0.05
+    p: np.ndarray, q: np.ndarray, tail_percentile: float = 0.05
 ) -> Tuple[float, float]:
     """
     Wasserstein Distance focused on distribution tails.
@@ -2750,7 +2689,9 @@ def compute_tail_wasserstein(
     p_right = p[p >= p_right_threshold]
     q_right = q[q >= q_right_threshold]
 
-    right_W = wasserstein_distance_1d(p_right, q_right) if len(p_right) > 0 and len(q_right) > 0 else 0.0
+    right_W = (
+        wasserstein_distance_1d(p_right, q_right) if len(p_right) > 0 and len(q_right) > 0 else 0.0
+    )
 
     return left_W, right_W
 
@@ -2765,12 +2706,7 @@ class OnlineWassersteinTracker:
     Useful for real-time regime shift detection.
     """
 
-    def __init__(
-        self,
-        current_size: int = 50,
-        historical_size: int = 200,
-        update_freq: int = 10
-    ):
+    def __init__(self, current_size: int = 50, historical_size: int = 200, update_freq: int = 10):
         """
         Initialize tracker.
 
@@ -2809,11 +2745,12 @@ class OnlineWassersteinTracker:
 
         # Compute distance periodically
         if self.count % self.update_freq == 0:
-            if len(self.current_reservoir) >= self.current_size // 2 and \
-               len(self.historical_reservoir) >= self.historical_size // 2:
+            if (
+                len(self.current_reservoir) >= self.current_size // 2
+                and len(self.historical_reservoir) >= self.historical_size // 2
+            ):
                 self.last_distance = wasserstein_distance_1d(
-                    np.array(self.current_reservoir),
-                    np.array(self.historical_reservoir)
+                    np.array(self.current_reservoir), np.array(self.historical_reservoir)
                 )
 
         return self.last_distance
@@ -2847,9 +2784,7 @@ class OnlineWassersteinTracker:
 
 
 def compute_rl_distribution_features(
-    returns: np.ndarray,
-    window: int = 50,
-    n_quantiles: int = 10
+    returns: np.ndarray, window: int = 50, n_quantiles: int = 10
 ) -> Dict[str, np.ndarray]:
     """
     Compute distribution-aware features for QR-DQN.
@@ -2877,27 +2812,27 @@ def compute_rl_distribution_features(
     tau = np.linspace(0.5 / n_quantiles, 1 - 0.5 / n_quantiles, n_quantiles)
 
     for i in range(window, n):
-        local = returns[i - window:i]
+        local = returns[i - window : i]
 
         # Quantiles of current window
         quantiles[i] = np.percentile(local, tau * 100)
 
         # Wasserstein vs historical
         if i >= 2 * window:
-            historical = returns[i - 2 * window:i - window]
+            historical = returns[i - 2 * window : i - window]
             wasserstein[i] = wasserstein_distance_1d(local, historical)
             tail_left[i], tail_right[i] = compute_tail_wasserstein(local, historical)
 
         # Stability vs lagged
         if i >= window + 10:
-            lagged = returns[i - window - 10:i - 10]
+            lagged = returns[i - window - 10 : i - 10]
             w = wasserstein_distance_1d(local, lagged)
             stability[i] = 1.0 / (1.0 + w * 100)
 
     return {
-        'quantiles': quantiles,
-        'wasserstein': wasserstein,
-        'tail_left_w': tail_left,
-        'tail_right_w': tail_right,
-        'stability': stability,
+        "quantiles": quantiles,
+        "wasserstein": wasserstein,
+        "tail_left_w": tail_left,
+        "tail_right_w": tail_right,
+        "stability": stability,
     }

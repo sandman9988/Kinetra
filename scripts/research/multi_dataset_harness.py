@@ -10,16 +10,17 @@ Usage:
     python scripts/research/multi_dataset_harness.py [--parallel N] [--output DIR]
 """
 
-import sys
-from pathlib import Path
-from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, asdict
-from typing import Dict, List, Optional, Tuple
-import json
 import argparse
+import json
+import sys
 import warnings
-warnings.filterwarnings('ignore')
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+warnings.filterwarnings("ignore")
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -32,16 +33,17 @@ from kinetra.config import MAX_WORKERS
 from kinetra.dsp_features import DSPFeatureEngine, extract_dsp_features
 from kinetra.liquidity_features import LiquidityFeatureEngine, extract_liquidity_features
 from kinetra.regime_discovery import (
+    CrossAssetRegimeAnalyzer,
     RegimeDiscoveryEngine,
     RegimeDiscoveryResult,
-    CrossAssetRegimeAnalyzer,
-    discover_regimes
+    discover_regimes,
 )
 
 
 @dataclass
 class DatasetInfo:
     """Metadata about a dataset."""
+
     path: Path
     symbol: str
     timeframe: str
@@ -54,6 +56,7 @@ class DatasetInfo:
 @dataclass
 class DatasetResult:
     """Results from analyzing a single dataset."""
+
     dataset_key: str
     asset_class: str
     timeframe: str
@@ -89,18 +92,14 @@ class DatasetDiscovery:
             print(f"[ERROR] Master data directory not found: {master_dir}")
             return []
 
-        datasets = []
-
-        for asset_class_dir in master_dir.iterdir():
-            if not asset_class_dir.is_dir():
-                continue
-
-            asset_class = asset_class_dir.name
-
-            for csv_file in asset_class_dir.glob("*.csv"):
-                info = self._parse_filename(csv_file, asset_class)
-                if info:
-                    datasets.append(info)
+        # Vectorized: nested list comprehension instead of nested loops
+        datasets = [
+            info
+            for asset_class_dir in master_dir.iterdir()
+            if asset_class_dir.is_dir()
+            for csv_file in asset_class_dir.glob("*.csv")
+            if (info := self._parse_filename(csv_file, asset_class_dir.name)) is not None
+        ]
 
         self.datasets = sorted(datasets, key=lambda x: (x.asset_class, x.symbol, x.timeframe))
         return self.datasets
@@ -109,7 +108,7 @@ class DatasetDiscovery:
         """Parse dataset info from filename."""
         # Format: SYMBOL_TIMEFRAME_STARTDATE_ENDDATE.csv
         name = path.stem
-        parts = name.split('_')
+        parts = name.split("_")
 
         if len(parts) < 4:
             return None
@@ -119,7 +118,7 @@ class DatasetDiscovery:
 
         # Quick row count
         try:
-            with open(path, 'r') as f:
+            with open(path, "r") as f:
                 bar_count = sum(1 for _ in f) - 1  # Subtract header
         except Exception:
             bar_count = 0
@@ -129,9 +128,9 @@ class DatasetDiscovery:
             symbol=symbol,
             timeframe=timeframe,
             asset_class=asset_class,
-            start_date=parts[2] if len(parts) > 2 else '',
-            end_date=parts[3] if len(parts) > 3 else '',
-            bar_count=bar_count
+            start_date=parts[2] if len(parts) > 2 else "",
+            end_date=parts[3] if len(parts) > 3 else "",
+            bar_count=bar_count,
         )
 
     def get_by_class(self, asset_class: str) -> List[DatasetInfo]:
@@ -145,19 +144,19 @@ class DatasetDiscovery:
 
 def load_dataset(info: DatasetInfo) -> pd.DataFrame:
     """Load a dataset from CSV."""
-    df = pd.read_csv(info.path, sep='\t')
+    df = pd.read_csv(info.path, sep="\t")
 
     # Standardize column names
-    df.columns = [c.strip('<>').lower() for c in df.columns]
+    df.columns = [c.strip("<>").lower() for c in df.columns]
 
     # Parse datetime
-    if 'date' in df.columns and 'time' in df.columns:
-        df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
-    elif 'datetime' in df.columns:
-        df['datetime'] = pd.to_datetime(df['datetime'])
+    if "date" in df.columns and "time" in df.columns:
+        df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"])
+    elif "datetime" in df.columns:
+        df["datetime"] = pd.to_datetime(df["datetime"])
 
     # Ensure required columns
-    required = ['open', 'high', 'low', 'close']
+    required = ["open", "high", "low", "close"]
     for col in required:
         if col not in df.columns:
             raise ValueError(f"Missing required column: {col}")
@@ -197,18 +196,18 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
                 persistence_asymmetry=0.0,
                 dominant_scale=0,
                 processing_time=0.0,
-                error="Insufficient data (< 200 bars)"
+                error="Insufficient data (< 200 bars)",
             )
 
         # Compute log returns
-        log_returns = np.log(df['close'] / df['close'].shift(1)).dropna().values
+        log_returns = np.log(df["close"] / df["close"].shift(1)).dropna().values
 
         # Basic statistics
         mean_return = np.mean(log_returns)
         volatility = np.std(log_returns)
 
         # Fat candle detection (range > 3x median)
-        ranges = (df['high'] - df['low']).values
+        ranges = (df["high"] - df["low"]).values
         median_range = np.median(ranges)
         fat_candles = np.sum(ranges > 3 * median_range)
         fat_pct = fat_candles / len(ranges) * 100
@@ -216,10 +215,10 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
         # Extract DSP features for sample
         dsp_engine = DSPFeatureEngine()
         sample_dsp = dsp_engine.extract_all(df, bar_idx=len(df) - 1)
-        up_persistence = sample_dsp.get('up_persistence', 0.5)
-        down_persistence = sample_dsp.get('down_persistence', 0.5)
-        persistence_asymmetry = sample_dsp.get('persistence_asymmetry', 0.0)
-        dominant_scale = sample_dsp.get('wavelet_dominant_scale', 0)
+        up_persistence = sample_dsp.get("up_persistence", 0.5)
+        down_persistence = sample_dsp.get("down_persistence", 0.5)
+        persistence_asymmetry = sample_dsp.get("persistence_asymmetry", 0.0)
+        dominant_scale = sample_dsp.get("wavelet_dominant_scale", 0)
 
         # Regime discovery
         regime_engine = RegimeDiscoveryEngine(min_regimes=2, max_regimes=8)
@@ -248,7 +247,7 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
             persistence_asymmetry=persistence_asymmetry,
             dominant_scale=dominant_scale,
             processing_time=processing_time,
-            error=None
+            error=None,
         )
 
     except Exception as e:
@@ -271,7 +270,7 @@ def analyze_single_dataset(info: DatasetInfo) -> DatasetResult:
             persistence_asymmetry=0.0,
             dominant_scale=0,
             processing_time=processing_time,
-            error=str(e)
+            error=str(e),
         )
 
 
@@ -293,7 +292,9 @@ class TestHarness:
         """
         # Discover datasets
         datasets = self.discovery.discover()
-        print(f"\n[HARNESS] Found {len(datasets)} datasets across {len(set(d.asset_class for d in datasets))} asset classes")
+        print(
+            f"\n[HARNESS] Found {len(datasets)} datasets across {len(set(d.asset_class for d in datasets))} asset classes"
+        )
 
         # Print breakdown
         by_class = {}
@@ -323,10 +324,7 @@ class TestHarness:
         results = []
 
         with ProcessPoolExecutor(max_workers=self.n_workers) as executor:
-            futures = {
-                executor.submit(analyze_single_dataset, info): info
-                for info in datasets
-            }
+            futures = {executor.submit(analyze_single_dataset, info): info for info in datasets}
 
             for i, future in enumerate(as_completed(futures)):
                 info = futures[future]
@@ -335,10 +333,14 @@ class TestHarness:
                     results.append(result)
 
                     status = "OK" if result.error is None else f"WARN: {result.error[:30]}"
-                    print(f"  [{i+1}/{len(datasets)}] {result.dataset_key}: {result.n_regimes} regimes ({status})")
+                    print(
+                        f"  [{i + 1}/{len(datasets)}] {result.dataset_key}: {result.n_regimes} regimes ({status})"
+                    )
 
                 except Exception as e:
-                    print(f"  [{i+1}/{len(datasets)}] {info.symbol}_{info.timeframe}: ERROR - {e}")
+                    print(
+                        f"  [{i + 1}/{len(datasets)}] {info.symbol}_{info.timeframe}: ERROR - {e}"
+                    )
 
         return results
 
@@ -351,7 +353,9 @@ class TestHarness:
             results.append(result)
 
             status = "OK" if result.error is None else f"WARN: {result.error[:30]}"
-            print(f"  [{i+1}/{len(datasets)}] {result.dataset_key}: {result.n_regimes} regimes ({status})")
+            print(
+                f"  [{i + 1}/{len(datasets)}] {result.dataset_key}: {result.n_regimes} regimes ({status})"
+            )
 
         return results
 
@@ -362,7 +366,7 @@ class TestHarness:
 
         # Save as JSON
         json_path = self.output_dir / f"harness_results_{timestamp}.json"
-        with open(json_path, 'w') as f:
+        with open(json_path, "w") as f:
             json.dump([asdict(r) for r in self.results], f, indent=2, default=str)
         print(f"[HARNESS] Results saved to {json_path}")
 
@@ -382,35 +386,37 @@ class TestHarness:
         successful = [r for r in self.results if r.error is None]
 
         summary = {
-            'total_datasets': len(self.results),
-            'successful': len(successful),
-            'failed': len(self.results) - len(successful),
-            'by_asset_class': {},
-            'by_timeframe': {},
-            'regime_statistics': {},
-            'feature_insights': {}
+            "total_datasets": len(self.results),
+            "successful": len(successful),
+            "failed": len(self.results) - len(successful),
+            "by_asset_class": {},
+            "by_timeframe": {},
+            "regime_statistics": {},
+            "feature_insights": {},
         }
 
         # By asset class
         for cls in set(r.asset_class for r in successful):
             class_results = [r for r in successful if r.asset_class == cls]
-            summary['by_asset_class'][cls] = {
-                'count': len(class_results),
-                'avg_regimes': np.mean([r.n_regimes for r in class_results]),
-                'avg_volatility': np.mean([r.volatility for r in class_results]),
-                'avg_up_persistence': np.mean([r.up_persistence for r in class_results]),
-                'avg_down_persistence': np.mean([r.down_persistence for r in class_results]),
-                'avg_persistence_asymmetry': np.mean([r.persistence_asymmetry for r in class_results]),
-                'avg_fat_candle_pct': np.mean([r.fat_candle_pct for r in class_results])
+            summary["by_asset_class"][cls] = {
+                "count": len(class_results),
+                "avg_regimes": np.mean([r.n_regimes for r in class_results]),
+                "avg_volatility": np.mean([r.volatility for r in class_results]),
+                "avg_up_persistence": np.mean([r.up_persistence for r in class_results]),
+                "avg_down_persistence": np.mean([r.down_persistence for r in class_results]),
+                "avg_persistence_asymmetry": np.mean(
+                    [r.persistence_asymmetry for r in class_results]
+                ),
+                "avg_fat_candle_pct": np.mean([r.fat_candle_pct for r in class_results]),
             }
 
         # By timeframe
         for tf in set(r.timeframe for r in successful):
             tf_results = [r for r in successful if r.timeframe == tf]
-            summary['by_timeframe'][tf] = {
-                'count': len(tf_results),
-                'avg_regimes': np.mean([r.n_regimes for r in tf_results]),
-                'avg_volatility': np.mean([r.volatility for r in tf_results])
+            summary["by_timeframe"][tf] = {
+                "count": len(tf_results),
+                "avg_regimes": np.mean([r.n_regimes for r in tf_results]),
+                "avg_volatility": np.mean([r.volatility for r in tf_results]),
             }
 
         # Regime label frequency
@@ -422,30 +428,43 @@ class TestHarness:
         for label in all_labels:
             label_counts[label] = label_counts.get(label, 0) + 1
 
-        summary['regime_statistics']['label_frequency'] = dict(
+        summary["regime_statistics"]["label_frequency"] = dict(
             sorted(label_counts.items(), key=lambda x: -x[1])
         )
-        summary['regime_statistics']['avg_regimes_per_dataset'] = np.mean(
+        summary["regime_statistics"]["avg_regimes_per_dataset"] = np.mean(
             [r.n_regimes for r in successful]
         )
 
         # Feature insights - Persistence distribution (replaces Hurst)
         # Persistence > 0.5 = trending, < 0.5 = mean-reverting
-        summary['feature_insights']['persistence_distribution'] = {
-            'trending_pct': np.mean([r.up_persistence > 0.55 or r.down_persistence > 0.55 for r in successful]) * 100,
-            'mean_reverting_pct': np.mean([r.up_persistence < 0.45 and r.down_persistence < 0.45 for r in successful]) * 100,
-            'random_walk_pct': np.mean([0.45 <= r.up_persistence <= 0.55 and 0.45 <= r.down_persistence <= 0.55 for r in successful]) * 100,
-            'asymmetric_pct': np.mean([abs(r.persistence_asymmetry) > 0.1 for r in successful]) * 100
+        summary["feature_insights"]["persistence_distribution"] = {
+            "trending_pct": np.mean(
+                [r.up_persistence > 0.55 or r.down_persistence > 0.55 for r in successful]
+            )
+            * 100,
+            "mean_reverting_pct": np.mean(
+                [r.up_persistence < 0.45 and r.down_persistence < 0.45 for r in successful]
+            )
+            * 100,
+            "random_walk_pct": np.mean(
+                [
+                    0.45 <= r.up_persistence <= 0.55 and 0.45 <= r.down_persistence <= 0.55
+                    for r in successful
+                ]
+            )
+            * 100,
+            "asymmetric_pct": np.mean([abs(r.persistence_asymmetry) > 0.1 for r in successful])
+            * 100,
         }
 
         return summary
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Multi-dataset testing harness')
-    parser.add_argument('--parallel', type=int, default=4, help='Number of parallel workers')
-    parser.add_argument('--output', type=str, default='data/research', help='Output directory')
-    parser.add_argument('--sequential', action='store_true', help='Run sequentially (debug mode)')
+    parser = argparse.ArgumentParser(description="Multi-dataset testing harness")
+    parser.add_argument("--parallel", type=int, default=4, help="Number of parallel workers")
+    parser.add_argument("--output", type=str, default="data/research", help="Output directory")
+    parser.add_argument("--sequential", action="store_true", help="Run sequentially (debug mode)")
 
     args = parser.parse_args()
 
@@ -469,24 +488,25 @@ def main():
     print(f"Failed: {summary.get('failed', 0)}")
 
     print("\n--- By Asset Class ---")
-    for cls, stats in summary.get('by_asset_class', {}).items():
-        print(f"  {cls}: {stats['count']} datasets, "
-              f"avg {stats['avg_regimes']:.1f} regimes, "
-              f"up_persist {stats['avg_up_persistence']:.3f}, "
-              f"down_persist {stats['avg_down_persistence']:.3f}")
+    for cls, stats in summary.get("by_asset_class", {}).items():
+        print(
+            f"  {cls}: {stats['count']} datasets, "
+            f"avg {stats['avg_regimes']:.1f} regimes, "
+            f"up_persist {stats['avg_up_persistence']:.3f}, "
+            f"down_persist {stats['avg_down_persistence']:.3f}"
+        )
 
     print("\n--- By Timeframe ---")
-    for tf, stats in summary.get('by_timeframe', {}).items():
-        print(f"  {tf}: {stats['count']} datasets, "
-              f"avg {stats['avg_regimes']:.1f} regimes")
+    for tf, stats in summary.get("by_timeframe", {}).items():
+        print(f"  {tf}: {stats['count']} datasets, avg {stats['avg_regimes']:.1f} regimes")
 
     print("\n--- Regime Labels (most common) ---")
-    labels = summary.get('regime_statistics', {}).get('label_frequency', {})
+    labels = summary.get("regime_statistics", {}).get("label_frequency", {})
     for label, count in list(labels.items())[:10]:
         print(f"  {label}: {count} occurrences")
 
     print("\n--- Persistence Distribution ---")
-    persist_dist = summary.get('feature_insights', {}).get('persistence_distribution', {})
+    persist_dist = summary.get("feature_insights", {}).get("persistence_distribution", {})
     print(f"  Trending (persist > 0.55): {persist_dist.get('trending_pct', 0):.1f}%")
     print(f"  Mean-reverting (persist < 0.45): {persist_dist.get('mean_reverting_pct', 0):.1f}%")
     print(f"  Random walk: {persist_dist.get('random_walk_pct', 0):.1f}%")
