@@ -18,13 +18,13 @@ Financial Audit Compliance:
 """
 
 import math
+import multiprocessing as mp
 import warnings
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Union
-from concurrent.futures import ProcessPoolExecutor, as_completed
-import multiprocessing as mp
 
 import numpy as np
 import pandas as pd
@@ -35,14 +35,16 @@ from .symbol_spec import SymbolSpec
 
 # Import financial audit utilities
 try:
-    from .financial_audit import SafeMath, DigitNormalizer
+    from .financial_audit import DigitNormalizer, SafeMath
+
     AUDIT_AVAILABLE = True
 except ImportError:
     AUDIT_AVAILABLE = False
 
 # Try GPU physics
 try:
-    from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    from .parallel import TORCH_AVAILABLE, GPUPhysicsEngine
+
     GPU_AVAILABLE = TORCH_AVAILABLE
 except ImportError:
     GPU_AVAILABLE = False
@@ -270,7 +272,7 @@ class BacktestEngine:
             timeframe: Data timeframe for proper metric annualization (M1, M5, M15, M30, H1, H4, D1, W1, MN)
             leverage: Account leverage for margin calculations
             enable_logging: Enable detailed MT5-style transaction logging
-        
+
         Raises:
             ValueError: If parameters are invalid
         """
@@ -283,12 +285,12 @@ class BacktestEngine:
             raise ValueError(f"max_positions must be >= 1, got {max_positions}")
         if leverage <= 0:
             raise ValueError(f"leverage must be positive, got {leverage}")
-        
+
         valid_timeframes = ["M1", "M5", "M15", "M30", "H1", "H4", "D1", "W1", "MN"]
         if timeframe not in valid_timeframes:
             warnings.warn(f"Unknown timeframe '{timeframe}', using H1. Valid: {valid_timeframes}")
             timeframe = "H1"
-        
+
         self.initial_capital = initial_capital
         self.risk_per_trade = risk_per_trade
         self.max_positions = max_positions
@@ -344,10 +346,11 @@ class BacktestEngine:
             ValueError: If data lacks required columns or if equity becomes negative
         """
         self.reset()
-        
+
         # Initialize logger if enabled
         if self.enable_logging:
             from .trade_logger import MT5Logger
+
             self.logger = MT5Logger(
                 symbol=symbol_spec.symbol,
                 timeframe=self.timeframe,
@@ -359,14 +362,14 @@ class BacktestEngine:
         required = ["open", "high", "low", "close"]
         if not all(col in data.columns for col in required):
             raise ValueError(f"Data must contain columns: {required}")
-        
+
         # Validate data quality (no NaN/Inf in critical columns)
         for col in required:
             if data[col].isna().any():
                 raise ValueError(f"Data contains NaN values in column '{col}'")
             if np.isinf(data[col]).any():
                 raise ValueError(f"Data contains Inf values in column '{col}'")
-        
+
         # Check data length
         if len(data) < 2:
             raise ValueError(f"Data must have at least 2 bars, got {len(data)}")
@@ -434,15 +437,12 @@ class BacktestEngine:
             mark_to_market = self._calculate_mtm(open_position, row["close"], symbol_spec)
             equity_value = self.equity + mark_to_market
             self.equity_history.append(equity_value)
-            
+
             # Calculate and track margin level (safe division)
             if open_position is not None:
                 # Margin = (volume * contract_size * price) / leverage
                 margin_required = (
-                    open_position.lots * 
-                    symbol_spec.contract_size * 
-                    row["close"] / 
-                    self.leverage
+                    open_position.lots * symbol_spec.contract_size * row["close"] / self.leverage
                 )
                 # Margin level = equity / margin * 100%
                 if margin_required > 0:
@@ -458,7 +458,7 @@ class BacktestEngine:
             if equity_value < 0:
                 warnings.warn(f"Equity became negative at bar {i}, stopping backtest")
                 break
-            
+
             # Check for margin call (margin level < 100%)
             if open_position is not None and self.margin_history[-1] < 100.0:
                 warnings.warn(
@@ -588,7 +588,7 @@ class BacktestEngine:
     ) -> Trade:
         """
         Open a new position with proper cost calculation and validation.
-        
+
         Args:
             symbol: Trading symbol
             direction: TradeDirection.LONG or TradeDirection.SHORT
@@ -597,10 +597,10 @@ class BacktestEngine:
             spec: SymbolSpec with instrument specifications
             energy: Physics energy at entry
             regime: Physics regime at entry
-            
+
         Returns:
             Trade object
-            
+
         Raises:
             ValueError: If position sizing calculations fail
         """
@@ -608,22 +608,24 @@ class BacktestEngine:
 
         # Calculate position size based on risk (safe math)
         risk_amount = safe_multiply(self.equity, self.risk_per_trade)
-        
+
         # Validate spec parameters (defensive programming with explicit checks)
         spread_points = spec.spread_points
         if spread_points <= 0 or math.isnan(spread_points) or math.isinf(spread_points):
             warnings.warn(f"Invalid spread_points {spread_points}, using 1.0")
             spread_points = 1.0
-        
+
         tick_value = spec.tick_value
         if tick_value <= 0 or math.isnan(tick_value) or math.isinf(tick_value):
             raise ValueError(f"Invalid tick_value {tick_value}")
-        
+
         # Calculate lot size (simplified: risk = X% of equity, size accordingly)
-        denominator = safe_multiply(safe_multiply(spread_points, tick_value), 2.0)  # 2x spread as stop
+        denominator = safe_multiply(
+            safe_multiply(spread_points, tick_value), 2.0
+        )  # 2x spread as stop
         lots = safe_divide(risk_amount, denominator, default=spec.volume_min)
         lots = min(lots, spec.volume_max)
-        
+
         # Normalize to broker constraints
         lots = max(lots, spec.volume_min)
         if spec.volume_step > 0:
@@ -651,7 +653,7 @@ class BacktestEngine:
             mfe=0.0,
             mae=0.0,
         )
-        
+
         # Log order if logging enabled
         if self.logger:
             self.logger.log_order_send(
@@ -676,7 +678,7 @@ class BacktestEngine:
     ) -> None:
         """
         Close an open position with proper cost calculation and logging.
-        
+
         Args:
             trade: Trade to close
             exit_price: Exit price
@@ -701,10 +703,9 @@ class BacktestEngine:
         if tick_size <= 0 or math.isnan(tick_size) or math.isinf(tick_size):
             warnings.warn(f"Invalid tick_size {tick_size}, using 1.0")
             tick_size = 1.0
-        
+
         trade.gross_pnl = safe_multiply(
-            safe_divide(price_diff, tick_size) * spec.tick_value,
-            trade.lots
+            safe_divide(price_diff, tick_size) * spec.tick_value, trade.lots
         )
 
         # Exit costs
@@ -719,13 +720,20 @@ class BacktestEngine:
         # Swap costs (simplified: assume 1 swap per day held)
         # Better approximation based on timeframe
         timeframe_hours = {
-            "M1": 1/60, "M5": 1/12, "M15": 1/4, "M30": 1/2,
-            "H1": 1, "H4": 4, "D1": 24, "W1": 168, "MN": 720,
+            "M1": 1 / 60,
+            "M5": 1 / 12,
+            "M15": 1 / 4,
+            "M30": 1 / 2,
+            "H1": 1,
+            "H4": 4,
+            "D1": 24,
+            "W1": 168,
+            "MN": 720,
         }
         hours_per_bar = timeframe_hours.get(self.timeframe, 1)
         hours_held = bars_held * hours_per_bar
         days_held = max(1, int(hours_held / 24))
-        
+
         trade.swap_cost = spec.holding_cost(trade.direction.value, trade.lots, days_held)
 
         # Net P&L
@@ -733,7 +741,7 @@ class BacktestEngine:
 
         # Update equity
         self.equity += trade.net_pnl
-        
+
         # Log deal if logging enabled
         if self.logger:
             self.logger.log_deal(
@@ -753,7 +761,7 @@ class BacktestEngine:
     def _update_mfe_mae(self, trade: Trade, row: pd.Series, spec: SymbolSpec) -> None:
         """
         Update MFE/MAE for open position with validation.
-        
+
         Args:
             trade: Open trade to update
             row: Current OHLCV bar
@@ -763,7 +771,7 @@ class BacktestEngine:
         if pd.isna(row["high"]) or pd.isna(row["low"]):
             warnings.warn("NaN in high/low data, skipping MFE/MAE update")
             return
-            
+
         if trade.direction == TradeDirection.LONG:
             favorable = row["high"] - trade.entry_price
             adverse = trade.entry_price - row["low"]
@@ -779,18 +787,18 @@ class BacktestEngine:
     ) -> float:
         """
         Calculate mark-to-market P&L for open position with safe math.
-        
+
         Args:
             position: Open position (None if no position)
             current_price: Current market price
             spec: SymbolSpec with instrument specifications
-            
+
         Returns:
             Mark-to-market P&L in account currency
         """
         if position is None:
             return 0.0
-        
+
         # Validate current price
         if pd.isna(current_price) or np.isinf(current_price):
             warnings.warn(f"Invalid current_price {current_price}, using entry price")
@@ -809,11 +817,8 @@ class BacktestEngine:
         if tick_size <= 0 or math.isnan(tick_size) or math.isinf(tick_size):
             warnings.warn(f"Invalid tick_size {tick_size}, using 1.0")
             tick_size = 1.0
-        
-        return safe_multiply(
-            safe_divide(price_diff, tick_size) * spec.tick_value,
-            position.lots
-        )
+
+        return safe_multiply(safe_divide(price_diff, tick_size) * spec.tick_value, position.lots)
 
     def _build_agent_state(
         self, row: pd.Series, physics_state: pd.DataFrame, bar_index: int
@@ -902,7 +907,7 @@ class BacktestEngine:
         rolling_max = equity_curve.expanding().max()
         drawdown = equity_curve - rolling_max
         max_dd = drawdown.min()
-        
+
         # Safe calculation of max drawdown percentage
         dd_idx = drawdown.idxmin()
         rolling_max_at_dd = rolling_max[dd_idx]
@@ -969,7 +974,7 @@ class BacktestEngine:
             win_rate = safe_divide(len(winners), total_trades, 0.0)
             avg_win = float(np.mean([t.net_pnl for t in winners])) if winners else 0.0
             avg_loss = float(np.mean([abs(t.net_pnl) for t in losers])) if losers else 0.0
-            
+
             numerator = win_rate * avg_win - (1 - win_rate) * avg_loss
             z_factor = safe_divide(numerator, avg_loss, 0.0)
             z_factor = validate_finite(z_factor, "z_factor", 0.0)
@@ -1096,3 +1101,22 @@ class BacktestEngine:
         """Create bootstrap sample of data."""
         indices = np.random.choice(len(data), size=len(data), replace=True)
         return data.iloc[indices].reset_index(drop=True)
+
+
+def monte_carlo_backtest(
+    data: pd.DataFrame, symbol_spec: SymbolSpec, n_runs: int = 100, shuffle_method: str = "returns"
+) -> pd.DataFrame:
+    """
+    Wrapper for Monte Carlo backtesting.
+
+    Args:
+        data: Original OHLCV data
+        symbol_spec: Instrument specification
+        n_runs: Number of simulation runs
+        shuffle_method: "returns" or "bootstrap"
+
+    Returns:
+        pd.DataFrame of results from each run
+    """
+    engine = BacktestEngine()
+    return engine.monte_carlo_validation(data, symbol_spec, n_runs, shuffle_method)

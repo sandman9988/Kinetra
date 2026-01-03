@@ -2,25 +2,29 @@ name: Kinetra CI - Continuous Validation
 
 on:
   push:
-    branches: [ main, develop, copilot/** ]
+    branches: [main, develop, copilot/**]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+  schedule:
+    # Nightly full exhaustive test at 2 AM UTC
+    - cron: "0 2 * * *"
 
 jobs:
-  test:
+  fast-tests:
+    name: Fast Tests (CI Mode)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
-    
+        python-version: ["3.10", "3.11"]
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
@@ -28,65 +32,196 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest-xdist pytest-timeout
-      
-      - name: Run unit tests
+          pip install pytest-xdist pytest-cov
+
+      - name: Run core unit tests
+        env:
+          KINETRA_CI_MODE: 1
         run: |
-          pytest tests/ -v --tb=short --maxfail=3 -n auto
-        timeout-minutes: 10
-      
+          pytest tests/test_physics.py tests/test_risk.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run integration tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_integration.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run exhaustive combinations (CI subset)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_exhaustive_combinations.py -v --tb=short
+        timeout-minutes: 15
+
       - name: Check test coverage
+        env:
+          KINETRA_CI_MODE: 1
         run: |
-          pytest tests/ --cov=kinetra --cov-report=xml --cov-report=term
-          # Require minimum 80% coverage
-      
+          pytest tests/ --cov=kinetra --cov-report=xml --cov-report=term-missing
+        timeout-minutes: 20
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
 
-  code-quality:
+  exhaustive-tests:
+    name: Exhaustive Tests (Full Mode)
     runs-on: ubuntu-latest
-    
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[exhaustive]')
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      
+          python-version: "3.11"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-xdist pytest-cov
+
+      - name: Run full exhaustive tests
+        env:
+          KINETRA_CI_MODE: 0
+        run: |
+          pytest tests/test_exhaustive_combinations.py -v --tb=short -n 4
+        timeout-minutes: 180
+
+      - name: Generate dashboard report
+        if: always()
+        run: |
+          python -c "
+          from kinetra.test_dashboard import TestDashboard
+          dashboard = TestDashboard()
+          dashboard.generate_static_report('test_report.html')
+          print('✅ Dashboard report generated')
+          "
+        timeout-minutes: 5
+
+      - name: Upload exhaustive test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: exhaustive-test-results
+          path: |
+            data/exhaustive_results_*.csv
+            plots/*.png
+            logs/exhaustive.log
+          retention-days: 30
+
+      - name: Upload dashboard report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-dashboard
+          path: test_report.html
+          retention-days: 30
+
+      - name: Update empirical theorems
+        if: success()
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add docs/EMPIRICAL_THEOREMS.md || true
+          git commit -m "Update empirical theorems from exhaustive tests [skip ci]" || true
+          git push || true
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
       - name: Install linters
         run: |
           pip install ruff black mypy
-      
+
       - name: Run ruff (lint)
         run: |
           ruff check kinetra/ tests/
         continue-on-error: true
-      
+
       - name: Check formatting (black)
         run: |
-          black --check kinetra/ tests/
+          black --check kinetra/ tests/ --line-length 100
         continue-on-error: true
-      
+
       - name: Type checking (mypy)
         run: |
           mypy kinetra/ --ignore-missing-imports
         continue-on-error: true
 
-  security:
+  agent-factory-tests:
+    name: Agent Factory Verification
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test AgentFactory
+        run: |
+          python -m kinetra.agent_factory
+        timeout-minutes: 2
+
+      - name: Test all agent instantiation
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_exhaustive_combinations.py::test_all_agents -v
+        timeout-minutes: 3
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Run security scan
         uses: github/codeql-action/analyze@v2
+        continue-on-error: true
+
+      - name: Check for secrets
+        run: |
+          # Ensure no API keys or secrets in code
+          if grep -r "METAAPI_TOKEN\s*=\s*['\"]" kinetra/ tests/; then
+            echo "ERROR: Found hardcoded API token!"
+            exit 1
+          fi
         continue-on-error: true

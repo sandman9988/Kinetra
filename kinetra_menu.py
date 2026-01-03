@@ -20,24 +20,25 @@ Usage:
     python kinetra_menu.py
 """
 
-import sys
-import subprocess
 import signal
+import subprocess
+import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
 from tqdm import tqdm
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from kinetra.workflow_manager import WorkflowManager
 from kinetra.data_discovery import DataDiscovery
-
+from kinetra.workflow_manager import WorkflowManager
 
 # =============================================================================
 # MENU UTILITIES
 # =============================================================================
+
 
 def run_interruptible_subprocess(cmd: List[str], description: str = "Process") -> int:
     """
@@ -92,22 +93,23 @@ def run_interruptible_subprocess(cmd: List[str], description: str = "Process") -
         # Restore original signal handler
         signal.signal(signal.SIGINT, original_handler)
 
+
 def get_secure_input(prompt: str, confirm: bool = False) -> str | None:
     """
     Get secure input (masked, like password).
-    
+
     Args:
         prompt: Prompt to display
         confirm: If True, ask for confirmation input
-        
+
     Returns:
         The entered value (stripped of whitespace and duplicates)
     """
     import getpass
-    
+
     while True:
         value = getpass.getpass(f"\n{prompt}: ").strip()
-        
+
         # Strip duplicate pastes (common error)
         if len(value) > 50:  # Likely a UUID or token
             # Check if it's duplicated (e.g., pasted twice)
@@ -115,44 +117,44 @@ def get_secure_input(prompt: str, confirm: bool = False) -> str | None:
             if value[:mid] == value[mid:]:
                 print("  ⚠️  Detected duplicate paste - using single copy")
                 value = value[:mid]
-        
+
         if not value:
             print("  ❌ Input cannot be empty")
             continue
-        
+
         # Show feedback that something was entered
         print(f"  ✓ Received {len(value)} characters")
-        
+
         if confirm:
             confirm_value = getpass.getpass(f"  Confirm {prompt}: ").strip()
             if value != confirm_value:
                 print("  ❌ Values don't match, try again")
                 continue
-        
+
         return value
 
 
 def save_to_env(key: str, value: str) -> bool:
     """
     Save a key-value pair to .env file.
-    
+
     Args:
         key: Environment variable name
         value: Value to save
-        
+
     Returns:
         True if successful
     """
     env_file = Path(".env")
-    
+
     try:
         # Read existing .env or create new
         if env_file.exists():
-            with open(env_file, 'r') as f:
+            with open(env_file, "r") as f:
                 lines = f.readlines()
         else:
             lines = []
-        
+
         # Update or add the key
         updated = False
         for i, line in enumerate(lines):
@@ -160,14 +162,14 @@ def save_to_env(key: str, value: str) -> bool:
                 lines[i] = f"{key}={value}\n"
                 updated = True
                 break
-        
+
         if not updated:
             lines.append(f"{key}={value}\n")
-        
+
         # Write back
-        with open(env_file, 'w') as f:
+        with open(env_file, "w") as f:
             f.writelines(lines)
-        
+
         return True
     except Exception as e:
         print(f"  ❌ Error saving to .env: {e}")
@@ -184,7 +186,7 @@ def print_header(text: str, width: int = 80):
 def print_submenu_header(text: str, breadcrumb: str = "", width: int = 80):
     """
     Print formatted submenu header with breadcrumb navigation.
-    
+
     Args:
         text: Submenu title
         breadcrumb: Navigation breadcrumb (e.g., "Main Menu > Live Testing")
@@ -202,12 +204,12 @@ def print_submenu_header(text: str, breadcrumb: str = "", width: int = 80):
 def create_progress_bar(total: int, desc: str = "Processing", unit: str = "item") -> tqdm:
     """
     Create a progress bar for tracking operations.
-    
+
     Args:
         total: Total number of items
         desc: Description for the progress bar
         unit: Unit name (e.g., 'file', 'iteration')
-        
+
     Returns:
         tqdm progress bar object
     """
@@ -215,14 +217,14 @@ def create_progress_bar(total: int, desc: str = "Processing", unit: str = "item"
         total=total,
         desc=desc,
         unit=unit,
-        bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+        bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
     )
 
 
 def show_progress_message(current: int, total: int, message: str):
     """
     Show progress message with counter.
-    
+
     Args:
         current: Current item number
         total: Total items
@@ -232,12 +234,12 @@ def show_progress_message(current: int, total: int, message: str):
     print(f"  [{current}/{total}] ({percentage:.0f}%) {message}")
 
 
-from typing import Dict, List, Optional, Tuple, Callable, Any
-
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 # =============================================================================
 # STATUS CHECKING UTILITIES
 # =============================================================================
+
 
 class MenuContext:
     """Track menu context and navigation state."""
@@ -287,39 +289,40 @@ class SystemStatus:
     def check_data_ready() -> tuple[bool, str]:
         """
         Check if data is prepared and ready.
-        
+
         Returns:
             (status, message) tuple
         """
         prepared_dir = Path("data/prepared")
         train_dir = prepared_dir / "train"
         test_dir = prepared_dir / "test"
-        
+
         if not train_dir.exists() or not test_dir.exists():
             return False, "❌ Data not prepared"
-        
+
         train_files = list(train_dir.glob("*.csv"))
         test_files = list(test_dir.glob("*.csv"))
-        
+
         if len(train_files) == 0 or len(test_files) == 0:
             return False, "❌ No data files found"
-        
+
         return True, f"✅ Data ready ({len(train_files)} train, {len(test_files)} test files)"
-    
+
     @staticmethod
     def check_mt5_available() -> tuple[bool, str]:
         """
         Check if MT5 is available.
-        
+
         Returns:
             (status, message) tuple
         """
         try:
             import MetaTrader5 as mt5
+
             return True, "✅ MT5 available"
         except ImportError:
             return False, "⚠️  MT5 not installed"
-    
+
     @staticmethod
     def check_metaapi_available() -> tuple[bool, str]:
         """
@@ -331,6 +334,7 @@ class SystemStatus:
         # First check if SDK is installed
         try:
             import metaapi_cloud_sdk
+
             sdk_available = True
         except ImportError:
             sdk_available = False
@@ -339,9 +343,9 @@ class SystemStatus:
         env_file = Path(".env")
         has_creds = False
         if env_file.exists():
-            with open(env_file, 'r') as f:
+            with open(env_file, "r") as f:
                 content = f.read()
-            has_creds = 'METAAPI_TOKEN' in content or 'METAAPI_ACCOUNT_ID' in content
+            has_creds = "METAAPI_TOKEN" in content or "METAAPI_ACCOUNT_ID" in content
 
         # Return status based on both SDK and credentials
         if not sdk_available:
@@ -360,19 +364,19 @@ class SystemStatus:
             (status, message) tuple
         """
         return SystemStatus.check_metaapi_available()
-    
+
     @staticmethod
     def get_status_summary() -> str:
         """
         Get summary status bar.
-        
+
         Returns:
             Status bar string
         """
         data_status, data_msg = SystemStatus.check_data_ready()
         mt5_status, mt5_msg = SystemStatus.check_mt5_available()
         creds_status, creds_msg = SystemStatus.check_credentials()
-        
+
         return f"  {data_msg} | {mt5_msg} | {creds_msg}"
 
 
@@ -381,7 +385,7 @@ def get_input(
     valid_choices: Optional[List[str]] = None,
     input_type: Callable[[str], Any] = str,
     allow_back: bool = True,
-    default: Optional[str] = None
+    default: Optional[str] = None,
 ) -> Any:
     """
     Get user input with optional validation and type conversion.
@@ -423,11 +427,15 @@ def get_input(
 
             # Handle navigation shortcuts
             if allow_back:
-                if choice_lower in ['exit', 'quit', 'q']:
+                if choice_lower in ["exit", "quit", "q"]:
                     print("\n👋 Exiting Kinetra...")
                     sys.exit(0)
-                elif choice_lower in ['back', 'b'] and 'b' not in (valid_choices or []) and '0' not in (valid_choices or []):
-                    choice = '0'  # Normalize to '0'
+                elif (
+                    choice_lower in ["back", "b"]
+                    and "b" not in (valid_choices or [])
+                    and "0" not in (valid_choices or [])
+                ):
+                    choice = "0"  # Normalize to '0'
 
             if valid_choices and choice not in valid_choices:
                 retry_count += 1
@@ -435,7 +443,7 @@ def get_input(
                 print(f"   Shortcuts: 0=back, q=quit (attempt {retry_count}/{max_retries})")
                 if retry_count >= max_retries:
                     print("⚠️  Max retries reached. Returning to previous menu...")
-                    return '0' if '0' in (valid_choices or []) else None
+                    return "0" if "0" in (valid_choices or []) else None
                 continue
 
             if not choice and input_type is not str:
@@ -458,15 +466,15 @@ def get_input(
             retry_count += 1
             if retry_count >= max_retries:
                 print("⚠️  Max retries reached. Returning to previous menu...")
-                return '0' if valid_choices and '0' in valid_choices else None
+                return "0" if valid_choices and "0" in valid_choices else None
 
-    return '0' if valid_choices and '0' in valid_choices else None
+    return "0" if valid_choices and "0" in valid_choices else None
 
 
 def wait_for_enter(message: str = "\n📊 Press Enter to return to menu..."):
     """
     Wait for user to press Enter, handling EOF gracefully.
-    
+
     Args:
         message: Message to display
     """
@@ -482,11 +490,11 @@ def confirm_action(message: str, default: bool = True) -> bool:
     try:
         default_str = "Y/n" if default else "y/N"
         response = input(f"\n{message} [{default_str}]: ").strip().lower()
-        
+
         if not response:
             return default
-        
-        return response in ['y', 'yes']
+
+        return response in ["y", "yes"]
     except (EOFError, StopIteration):
         # Input stream ended, return default
         return default
@@ -496,43 +504,44 @@ def confirm_action(message: str, default: bool = True) -> bool:
 # CONFIGURATION MANAGEMENT
 # =============================================================================
 
+
 class MenuConfig:
     """Configuration for menu system."""
-    
+
     # Asset classes
     ASSET_CLASSES = {
-        'crypto': 'Cryptocurrency',
-        'forex': 'Foreign Exchange',
-        'indices': 'Stock Indices',
-        'metals': 'Precious Metals',
-        'commodities': 'Commodities'
+        "crypto": "Cryptocurrency",
+        "forex": "Foreign Exchange",
+        "indices": "Stock Indices",
+        "metals": "Precious Metals",
+        "commodities": "Commodities",
     }
-    
+
     # Timeframes
     TIMEFRAMES = {
-        'M15': '15 Minutes',
-        'M30': '30 Minutes',
-        'H1': '1 Hour',
-        'H4': '4 Hours',
-        'D1': '1 Day'
+        "M15": "15 Minutes",
+        "M30": "30 Minutes",
+        "H1": "1 Hour",
+        "H4": "4 Hours",
+        "D1": "1 Day",
     }
-    
+
     # Agent types
     AGENT_TYPES = {
-        'ppo': 'PPO (Proximal Policy Optimization)',
-        'dqn': 'DQN (Deep Q-Network)',
-        'linear': 'Linear Q-Learning',
-        'berserker': 'Berserker Strategy',
-        'triad': 'Triad System (Incumbent/Competitor/Researcher)'
+        "ppo": "PPO (Proximal Policy Optimization)",
+        "dqn": "DQN (Deep Q-Network)",
+        "linear": "Linear Q-Learning",
+        "berserker": "Berserker Strategy",
+        "triad": "Triad System (Incumbent/Competitor/Researcher)",
     }
-    
+
     # Testing modes
     TESTING_MODES = {
-        'virtual': 'Virtual Testing (Simulated)',
-        'demo': 'Demo Account (MT5 Demo)',
-        'historical': 'Historical Backtest (Test Data)'
+        "virtual": "Virtual Testing (Simulated)",
+        "demo": "Demo Account (MT5 Demo)",
+        "historical": "Historical Backtest (Test Data)",
     }
-    
+
     @classmethod
     def get_all_asset_classes(cls) -> List[str]:
         """Get list of all asset classes."""
@@ -553,7 +562,10 @@ class MenuConfig:
 # AUTHENTICATION MENU
 # =============================================================================
 
-def show_authentication_menu(wf_manager: WorkflowManager, context: Optional[MenuContext] = None) -> bool:
+
+def show_authentication_menu(
+    wf_manager: WorkflowManager, context: Optional[MenuContext] = None
+) -> bool:
     """
     Show authentication menu.
 
@@ -601,17 +613,17 @@ Available options:
   0. Back to Main Menu
     """)
 
-    choice = get_input("Select option", ['0', '1', '2'])
+    choice = get_input("Select option", ["0", "1", "2"])
 
     result = False
     try:
-        if choice == '0':
+        if choice == "0":
             result = False
-        elif choice == '1':
+        elif choice == "1":
             if context:
                 context.last_action = "Select MetaAPI Account"
             result = select_metaapi_account(wf_manager)
-        elif choice == '2':
+        elif choice == "2":
             if context:
                 context.last_action = "Test Connection"
             result = test_connection(wf_manager)
@@ -630,23 +642,23 @@ Available options:
 def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
     """Select and authenticate with MetaAPI account."""
     print_submenu_header("Select MetaAPI Account")
-    
+
     print("\n📋 Launching account selection...")
-    
+
     try:
         import subprocess
+
         result = subprocess.run(
-            [sys.executable, "scripts/download/select_metaapi_account.py"],
-            stderr=subprocess.STDOUT
+            [sys.executable, "scripts/download/select_metaapi_account.py"], stderr=subprocess.STDOUT
         )
-        
+
         if result.returncode == 0:
             print("\n✅ Account selected successfully")
             return True
         else:
             print("\n❌ Account selection failed")
             return False
-            
+
     except Exception as e:
         print(f"\n❌ Error selecting account: {e}")
         return False
@@ -655,18 +667,18 @@ def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
 def test_connection(wf_manager: WorkflowManager) -> bool:
     """Test connection to MetaAPI."""
     print_submenu_header("Test Connection")
-    
+
     print("\n🔌 Testing connection to MetaAPI...")
-    
+
     # Check if credentials exist
     env_file = Path(".env")
     if not env_file.exists():
         print("❌ No credentials found. Please select an account first.")
         return False
-    
+
     print("✅ Credentials found")
     print("✅ Connection test passed")
-    
+
     return True
 
 
@@ -674,10 +686,11 @@ def test_connection(wf_manager: WorkflowManager) -> bool:
 # EXPLORATION TESTING MENU
 # =============================================================================
 
+
 def show_exploration_menu(wf_manager: WorkflowManager):
     """Show exploration testing menu."""
     print_header("EXPLORATION TESTING (Hypothesis & Theorem Generation)")
-    
+
     print("""
 Exploration discovers what works where by MEASURING, not ASSUMING.
 
@@ -696,68 +709,68 @@ Available options:
   5. Measurement Impact Analysis
   0. Back to Main Menu
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4", "5"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         run_quick_exploration(wf_manager)
-    elif choice == '2':
+    elif choice == "2":
         run_custom_exploration(wf_manager)
-    elif choice == '3':
+    elif choice == "3":
         run_scientific_discovery(wf_manager)
-    elif choice == '4':
+    elif choice == "4":
         run_agent_comparison(wf_manager)
-    elif choice == '5':
+    elif choice == "5":
         run_measurement_analysis(wf_manager)
 
 
 def run_quick_exploration(wf_manager: WorkflowManager):
     """Run quick exploration with preset configuration."""
     print_submenu_header("Quick Exploration")
-    
+
     config = {
-        'asset_classes': ['crypto', 'forex'],
-        'instruments_per_class': 3,
-        'timeframes': ['H1', 'H4'],
-        'agent_type': 'ppo',
-        'episodes': 100
+        "asset_classes": ["crypto", "forex"],
+        "instruments_per_class": 3,
+        "timeframes": ["H1", "H4"],
+        "agent_type": "ppo",
+        "episodes": 100,
     }
-    
+
     print("\n📋 Configuration:")
     print(f"  Asset Classes: {', '.join(config['asset_classes'])}")
     print(f"  Instruments: Top {config['instruments_per_class']} per class")
     print(f"  Timeframes: {', '.join(config['timeframes'])}")
     print(f"  Agent: {config['agent_type'].upper()}")
     print(f"  Episodes: {config['episodes']}")
-    
+
     if not confirm_action("Run quick exploration?"):
         return
-    
+
     print("\n🚀 Starting quick exploration...")
-    
+
     # Step 1: Auto-manage data
     print("\n1️⃣ Data Management...")
     data_ready = ensure_data_available(wf_manager, config)
-    
+
     if not data_ready:
         print("\n❌ Data preparation failed. Cannot continue.")
         input("\nPress Enter to return to menu...")
         return
-    
+
     # Step 2: Run exploration
     print("\n2️⃣ Running Exploration...")
     success = run_exploration_script(wf_manager, config)
-    
+
     if success:
         print("\n✅ Quick exploration complete!")
-        
+
         # Display results summary
         display_exploration_results()
     else:
         print("\n❌ Exploration failed. Check the error messages above.")
-    
+
     # Wait for user acknowledgment before returning to menu
     input("\n📊 Press Enter to return to main menu...")
 
@@ -765,67 +778,67 @@ def run_quick_exploration(wf_manager: WorkflowManager):
 def run_custom_exploration(wf_manager: WorkflowManager):
     """Run custom exploration with user configuration."""
     print_submenu_header("Custom Exploration")
-    
+
     config = {}
-    
+
     # Select asset classes
     print("\n📊 Select Asset Classes:")
-    config['asset_classes'] = select_asset_classes()
-    
+    config["asset_classes"] = select_asset_classes()
+
     # Select instruments
     print("\n🎯 Select Instruments:")
-    config['instruments'] = select_instruments(config['asset_classes'])
-    
+    config["instruments"] = select_instruments(config["asset_classes"])
+
     # Select timeframes
     print("\n⏰ Select Timeframes:")
-    config['timeframes'] = select_timeframes()
-    
+    config["timeframes"] = select_timeframes()
+
     # Select agent types
     print("\n🤖 Select Agent Types:")
-    config['agent_types'] = select_agent_types()
-    
+    config["agent_types"] = select_agent_types()
+
     # Configure episodes
     episodes = get_input("Number of episodes (default 100)", None)
-    config['episodes'] = int(episodes) if episodes else 100
-    
+    config["episodes"] = int(episodes) if episodes else 100
+
     print("\n📋 Configuration Summary:")
     print(f"  Asset Classes: {', '.join(config['asset_classes'])}")
     print(f"  Instruments: {len(config['instruments'])} selected")
     print(f"  Timeframes: {', '.join(config['timeframes'])}")
     print(f"  Agent Types: {', '.join(config['agent_types'])}")
     print(f"  Episodes: {config['episodes']}")
-    
+
     if not confirm_action("Run custom exploration?"):
         return
-    
+
     print("\n🚀 Starting custom exploration...")
-    
+
     # Auto-manage data
     print("\n1️⃣ Data Management...")
     data_ready = ensure_data_available(wf_manager, config)
-    
+
     if not data_ready:
         print("\n❌ Data preparation failed. Cannot continue.")
         input("\nPress Enter to return to menu...")
         return
-    
+
     # Run exploration
     print("\n2️⃣ Running Exploration...")
     success = run_exploration_script(wf_manager, config)
-    
+
     if success:
         print("\n✅ Custom exploration complete!")
         display_exploration_results()
     else:
         print("\n❌ Exploration failed. Check the error messages above.")
-    
+
     input("\n📊 Press Enter to return to main menu...")
 
 
 def run_scientific_discovery(wf_manager: WorkflowManager):
     """Run scientific discovery suite."""
     print_submenu_header("Scientific Discovery Suite")
-    
+
     print("""
 Scientific discovery methods:
   • Hidden dimension discovery (PCA/ICA)
@@ -833,10 +846,10 @@ Scientific discovery methods:
   • Adversarial filtering (GAN-style)
   • Meta-learning feature discovery
     """)
-    
+
     if not confirm_action("Run scientific discovery suite?"):
         return
-    
+
     print("\n🔬 Running scientific discovery...")
     print("💡 Press Ctrl+C at any time to stop\n")
 
@@ -845,9 +858,10 @@ Scientific discovery methods:
             cmd=[
                 sys.executable,
                 "scripts/testing/run_scientific_testing.py",
-                "--phase", "discovery"
+                "--phase",
+                "discovery",
             ],
-            description="Scientific discovery"
+            description="Scientific discovery",
         )
 
         if returncode == 0:
@@ -858,14 +872,14 @@ Scientific discovery methods:
             print(f"\n⚠️ Discovery completed with warnings (exit code {returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def run_agent_comparison(wf_manager: WorkflowManager):
     """Run agent comparison."""
     print_submenu_header("Agent Comparison")
-    
+
     print("""
 Compare agent types:
   • PPO (Proximal Policy Optimization)
@@ -874,22 +888,22 @@ Compare agent types:
   • Berserker Strategy
   • Triad System
     """)
-    
+
     if not confirm_action("Run agent comparison?"):
         return
-    
+
     print("\n🤖 Running agent comparison...")
-    
+
     try:
         import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/training/explore_compare_agents.py"
-        ], check=False)
-        
+
+        result = subprocess.run(
+            [sys.executable, "scripts/training/explore_compare_agents.py"], check=False
+        )
+
         if result.returncode == 0:
             print("\n✅ Agent comparison complete!")
-            
+
             # Display next steps
             print("\n" + "=" * 80)
             print("  NEXT STEPS")
@@ -906,14 +920,14 @@ Compare agent types:
             print(f"\n⚠️ Comparison completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def run_measurement_analysis(wf_manager: WorkflowManager):
     """Run measurement impact analysis."""
     print_submenu_header("Measurement Impact Analysis")
-    
+
     print("""
 Analyze physics measurements:
   • Energy (kinetic energy from price momentum)
@@ -921,13 +935,13 @@ Analyze physics measurements:
   • Damping (friction/mean reversion)
   • Regime detection (underdamped/critical/overdamped)
     """)
-    
+
     if not confirm_action("Run measurement analysis?"):
         return
-    
+
     print("\n📊 Running measurement analysis...")
     print("✅ Measurement analysis complete!")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
@@ -935,10 +949,11 @@ Analyze physics measurements:
 # BACKTESTING MENU
 # =============================================================================
 
+
 def show_backtesting_menu(wf_manager: WorkflowManager):
     """Show backtesting menu."""
     print_header("BACKTESTING (ML/RL EA Validation)")
-    
+
     print("""
 Validate discovered strategies with realistic cost modeling:
   • MT5-accurate friction (spread, commission, slippage)
@@ -954,110 +969,106 @@ Available options:
   5. Comparative Analysis (Multiple strategies)
   0. Back to Main Menu
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4", "5"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         run_quick_backtest(wf_manager)
-    elif choice == '2':
+    elif choice == "2":
         run_custom_backtest(wf_manager)
-    elif choice == '3':
+    elif choice == "3":
         run_monte_carlo_validation(wf_manager)
-    elif choice == '4':
+    elif choice == "4":
         run_walk_forward_testing(wf_manager)
-    elif choice == '5':
+    elif choice == "5":
         run_comparative_analysis(wf_manager)
 
 
 def run_quick_backtest(wf_manager: WorkflowManager):
     """Run quick backtest using exploration results."""
     print_submenu_header("Quick Backtest")
-    
+
     print("\n📊 Loading exploration results...")
-    
-    config = {
-        'use_exploration_results': True,
-        'monte_carlo_runs': 100,
-        'risk_threshold': 0.55
-    }
-    
+
+    config = {"use_exploration_results": True, "monte_carlo_runs": 100, "risk_threshold": 0.55}
+
     print(f"  Monte Carlo Runs: {config['monte_carlo_runs']}")
     print(f"  CHS Threshold: {config['risk_threshold']}")
-    
+
     if not confirm_action("Run quick backtest?"):
         return
-    
+
     print("\n🚀 Starting quick backtest...")
     success = run_backtest_script(wf_manager, config)
-    
+
     if success:
         print("\n✅ Quick backtest complete!")
         display_backtest_results()
     else:
         print("\n❌ Backtest failed. Check the error messages above.")
-    
+
     input("\n📊 Press Enter to return to main menu...")
 
 
 def run_custom_backtest(wf_manager: WorkflowManager):
     """Run custom backtest with full configuration."""
     print_submenu_header("Custom Backtesting")
-    
+
     config = {}
-    
+
     # Select testing mode
     print("\n🎯 Select Testing Mode:")
     print("  a. Virtual Testing (Simulated)")
     print("  b. Demo Account Testing (MT5 Demo)")
     print("  c. Historical Backtest (Test Data)")
-    
-    mode_choice = get_input("Select mode", ['a', 'b', 'c'])
-    mode_map = {'a': 'virtual', 'b': 'demo', 'c': 'historical'}
-    config['testing_mode'] = mode_map[mode_choice]
-    
+
+    mode_choice = get_input("Select mode", ["a", "b", "c"])
+    mode_map = {"a": "virtual", "b": "demo", "c": "historical"}
+    config["testing_mode"] = mode_map[mode_choice]
+
     # Select agent/strategy
     print("\n🤖 Select Agent/Strategy:")
     print("  a. Load from exploration results")
     print("  b. Select specific agent type")
     print("  c. Compare multiple agents")
-    
-    agent_choice = get_input("Select option", ['a', 'b', 'c'])
-    
-    if agent_choice == 'a':
-        config['use_exploration_results'] = True
-    elif agent_choice == 'b':
-        config['agent_types'] = select_agent_types()
+
+    agent_choice = get_input("Select option", ["a", "b", "c"])
+
+    if agent_choice == "a":
+        config["use_exploration_results"] = True
+    elif agent_choice == "b":
+        config["agent_types"] = select_agent_types()
     else:
-        config['compare_agents'] = True
-        config['agent_types'] = select_agent_types()
-    
+        config["compare_agents"] = True
+        config["agent_types"] = select_agent_types()
+
     # Configure risk parameters
     print("\n🛡️ Configure Risk Parameters:")
     max_dd = get_input("Max drawdown % (default 20)", None)
-    config['max_drawdown'] = float(max_dd) if max_dd else 20.0
-    
+    config["max_drawdown"] = float(max_dd) if max_dd else 20.0
+
     chs_threshold = get_input("CHS circuit breaker (default 0.55)", None)
-    config['chs_threshold'] = float(chs_threshold) if chs_threshold else 0.55
-    
+    config["chs_threshold"] = float(chs_threshold) if chs_threshold else 0.55
+
     print("\n📋 Configuration Summary:")
     print(f"  Testing Mode: {config['testing_mode']}")
     print(f"  Max Drawdown: {config['max_drawdown']}%")
     print(f"  CHS Threshold: {config['chs_threshold']}")
-    
+
     if not confirm_action("Run custom backtest?"):
         return
-    
+
     print("\n🚀 Starting custom backtest...")
     success = run_backtest_script(wf_manager, config)
-    
+
     if success:
         print("\n✅ Custom backtest complete!")
         display_backtest_results()
     else:
         print("\n❌ Backtest failed. Check the error messages above.")
-    
+
     input("\n📊 Press Enter to return to main menu...")
 
 
@@ -1076,9 +1087,10 @@ def run_monte_carlo_validation(wf_manager: WorkflowManager):
             cmd=[
                 sys.executable,
                 "scripts/testing/run_comprehensive_backtest.py",
-                "--monte-carlo", str(num_runs)
+                "--monte-carlo",
+                str(num_runs),
             ],
-            description="Monte Carlo validation"
+            description="Monte Carlo validation",
         )
 
         if returncode == 0:
@@ -1097,39 +1109,39 @@ def run_monte_carlo_validation(wf_manager: WorkflowManager):
 def run_walk_forward_testing(wf_manager: WorkflowManager):
     """Run walk-forward testing."""
     print_submenu_header("Walk-Forward Testing")
-    
+
     window = get_input("Window size in days (default 90)", None)
     window_size = int(window) if window else 90
-    
+
     step = get_input("Step size in days (default 30)", None)
     step_size = int(step) if step else 30
-    
+
     print(f"\n📊 Walk-forward: window={window_size}d, step={step_size}d")
-    
+
     if not confirm_action("Run walk-forward testing?"):
         return
-    
+
     print("\n🚀 Running walk-forward testing...")
     print("⚠️  Walk-forward testing not yet implemented")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def run_comparative_analysis(wf_manager: WorkflowManager):
     """Run comparative analysis of multiple strategies."""
     print_submenu_header("Comparative Analysis")
-    
+
     print("\n🔬 Select agents to compare:")
     agent_types = select_agent_types()
-    
+
     print(f"\n📊 Comparing {len(agent_types)} agents: {', '.join(agent_types)}")
-    
+
     if not confirm_action("Run comparative analysis?"):
         return
-    
+
     print("\n🚀 Running comparative analysis...")
     print("⚠️  Comparative analysis not yet implemented")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
@@ -1137,17 +1149,18 @@ def run_comparative_analysis(wf_manager: WorkflowManager):
 # LIVE TESTING MENU
 # =============================================================================
 
+
 def show_live_testing_menu(wf_manager: WorkflowManager):
     """Show live testing menu."""
     print_header("LIVE TESTING (Virtual, Demo & Live Trading)")
-    
+
     print("""
 Live testing with safety gates and real-time monitoring:
   • Virtual/Paper trading (no real connection)
   • Demo account testing (MT5 demo)
   • Live connection testing
   • Real-time CHS monitoring with circuit breakers
-  
+
 Safety Philosophy:
   • NEVER deploy to live without demo validation
   • Circuit breakers halt on CHS < 0.55
@@ -1161,25 +1174,25 @@ Available options:
   4. View Live Testing Guide
   0. Back to Main Menu
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         run_virtual_trading(wf_manager)
-    elif choice == '2':
+    elif choice == "2":
         run_demo_account_testing(wf_manager)
-    elif choice == '3':
+    elif choice == "3":
         test_mt5_connection(wf_manager)
-    elif choice == '4':
+    elif choice == "4":
         show_live_testing_guide(wf_manager)
 
 
 def run_virtual_trading(wf_manager: WorkflowManager):
     """Run virtual/paper trading test."""
     print_submenu_header("Virtual Trading (Paper Trading)", "Main Menu > Live Testing")
-    
+
     print("""
 Virtual trading mode uses synthetic data stream for testing.
   • No MT5 connection required
@@ -1187,14 +1200,14 @@ Virtual trading mode uses synthetic data stream for testing.
   • Real-time simulation with circuit breakers
   • Identical code to live trading
     """)
-    
+
     # Configuration
     print("\n🎯 Configuration:")
-    
+
     # Select symbol
     print("\nSymbol (default: EURUSD):")
     symbol = input("  Enter symbol (or press Enter for default): ").strip() or "EURUSD"
-    
+
     # Select agent type
     print("\n🤖 Agent Type:")
     print("  a. PPO (Proximal Policy Optimization)")
@@ -1202,23 +1215,23 @@ Virtual trading mode uses synthetic data stream for testing.
     print("  c. Linear Q-Learning")
     print("  d. Berserker Strategy")
     print("  e. Triad System")
-    
-    agent_choice = get_input("Select agent", ['a', 'b', 'c', 'd', 'e'])
-    agent_map = {'a': 'ppo', 'b': 'dqn', 'c': 'linear', 'd': 'berserker', 'e': 'triad'}
+
+    agent_choice = get_input("Select agent", ["a", "b", "c", "d", "e"])
+    agent_map = {"a": "ppo", "b": "dqn", "c": "linear", "d": "berserker", "e": "triad"}
     agent_type = agent_map[agent_choice]
-    
+
     # Duration
     duration = get_input("Duration in minutes (default 60)", None)
     duration = int(duration) if duration else 60
-    
+
     # Max trades
     max_trades = get_input("Max trades (default 10)", None)
     max_trades = int(max_trades) if max_trades else 10
-    
+
     # CHS threshold
     chs_threshold = get_input("CHS circuit breaker (default 0.55)", None)
     chs_threshold = float(chs_threshold) if chs_threshold else 0.55
-    
+
     print("\n📋 Summary:")
     print(f"  Mode: Virtual/Paper Trading")
     print(f"  Symbol: {symbol}")
@@ -1226,10 +1239,10 @@ Virtual trading mode uses synthetic data stream for testing.
     print(f"  Duration: {duration} minutes")
     print(f"  Max Trades: {max_trades}")
     print(f"  CHS Threshold: {chs_threshold}")
-    
+
     if not confirm_action("Start virtual trading test?"):
         return
-    
+
     print("\n🚀 Starting virtual trading test...")
     print("💡 Press Ctrl+C at any time to stop\n")
 
@@ -1238,14 +1251,20 @@ Virtual trading mode uses synthetic data stream for testing.
             cmd=[
                 sys.executable,
                 "scripts/testing/run_live_test.py",
-                "--mode", "virtual",
-                "--symbol", symbol,
-                "--agent", agent_type,
-            "--duration", str(duration),
-            "--max-trades", str(max_trades),
-            "--chs-threshold", str(chs_threshold)
+                "--mode",
+                "virtual",
+                "--symbol",
+                symbol,
+                "--agent",
+                agent_type,
+                "--duration",
+                str(duration),
+                "--max-trades",
+                str(max_trades),
+                "--chs-threshold",
+                str(chs_threshold),
             ],
-            description="Virtual trading test"
+            description="Virtual trading test",
         )
 
         if returncode == 0:
@@ -1256,23 +1275,23 @@ Virtual trading mode uses synthetic data stream for testing.
             print(f"\n❌ Test failed (exit code {returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def run_demo_account_testing(wf_manager: WorkflowManager):
     """Run demo account testing."""
     print_submenu_header("Demo Account Testing", "Main Menu > Live Testing")
-    
+
     print("""
 ⚠️  IMPORTANT: Demo account testing requires:
   1. MT5 terminal running
   2. Demo account configured
   3. MetaTrader5 Python package installed
-  
+
 This will execute REAL trades on your DEMO account!
     """)
-    
+
     # Safety check
     if not confirm_action("Have you verified MT5 is running with demo account?", default=False):
         print("\n⚠️  Please set up MT5 demo account first")
@@ -1281,22 +1300,22 @@ This will execute REAL trades on your DEMO account!
         print("   3. Enable automated trading (Tools → Options → Expert Advisors)")
         input("\nPress Enter to return to menu...")
         return
-    
+
     # Configuration (similar to virtual)
     print("\n🎯 Configuration:")
-    
+
     symbol = input("  Symbol (default: EURUSD): ").strip() or "EURUSD"
-    
+
     print("\n🤖 Agent Type:")
     print("  a. PPO  b. DQN  c. Linear  d. Berserker  e. Triad")
-    agent_choice = get_input("Select agent", ['a', 'b', 'c', 'd', 'e'])
-    agent_map = {'a': 'ppo', 'b': 'dqn', 'c': 'linear', 'd': 'berserker', 'e': 'triad'}
+    agent_choice = get_input("Select agent", ["a", "b", "c", "d", "e"])
+    agent_map = {"a": "ppo", "b": "dqn", "c": "linear", "d": "berserker", "e": "triad"}
     agent_type = agent_map[agent_choice]
-    
+
     duration = int(input("  Duration in minutes (default 30): ").strip() or "30")
     max_trades = int(input("  Max trades (default 5): ").strip() or "5")
     chs_threshold = float(input("  CHS threshold (default 0.55): ").strip() or "0.55")
-    
+
     print("\n📋 Summary:")
     print(f"  Mode: DEMO ACCOUNT (Real trades on demo)")
     print(f"  Symbol: {symbol}")
@@ -1304,40 +1323,50 @@ This will execute REAL trades on your DEMO account!
     print(f"  Duration: {duration} minutes")
     print(f"  Max Trades: {max_trades}")
     print(f"  CHS Threshold: {chs_threshold}")
-    
+
     print("\n⚠️  Final confirmation: This will trade on your demo account!")
     if not confirm_action("Proceed with demo testing?", default=False):
         return
-    
+
     print("\n🚀 Starting demo account test...")
-    
+
     try:
         import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/testing/run_live_test.py",
-            "--mode", "demo",
-            "--symbol", symbol,
-            "--agent", agent_type,
-            "--duration", str(duration),
-            "--max-trades", str(max_trades),
-            "--chs-threshold", str(chs_threshold)
-        ], check=False)
-        
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "scripts/testing/run_live_test.py",
+                "--mode",
+                "demo",
+                "--symbol",
+                symbol,
+                "--agent",
+                agent_type,
+                "--duration",
+                str(duration),
+                "--max-trades",
+                str(max_trades),
+                "--chs-threshold",
+                str(chs_threshold),
+            ],
+            check=False,
+        )
+
         if result.returncode == 0:
             print("\n✅ Demo test complete!")
         else:
             print(f"\n❌ Test failed (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def test_mt5_connection(wf_manager: WorkflowManager):
     """Test MT5 connection."""
     print_submenu_header("Test MT5 Connection", "Main Menu > Live Testing")
-    
+
     print("\n🔌 Testing connection to MT5 terminal...")
     print("   This will verify:")
     print("   • MT5 terminal is running")
@@ -1345,15 +1374,14 @@ def test_mt5_connection(wf_manager: WorkflowManager):
     print("   • Account is accessible")
     print("   • Automated trading is enabled")
     print("")
-    
+
     try:
         import subprocess
-        result = subprocess.run([
-            sys.executable,
-            "scripts/testing/run_live_test.py",
-            "--test-connection"
-        ], check=False)
-        
+
+        result = subprocess.run(
+            [sys.executable, "scripts/testing/run_live_test.py", "--test-connection"], check=False
+        )
+
         if result.returncode == 0:
             print("\n✅ Connection test passed!")
         else:
@@ -1366,32 +1394,32 @@ def test_mt5_connection(wf_manager: WorkflowManager):
             print("      Tools → Options → Expert Advisors → Allow automated trading")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def show_live_testing_guide(wf_manager: WorkflowManager):
     """Show live testing guide."""
     print_submenu_header("Live Testing Guide", "Main Menu > Live Testing")
-    
+
     print("""
 KINETRA LIVE TESTING GUIDE
 ==========================
 
 1. TESTING PROGRESSION (ALWAYS follow this order!)
-   
+
    Step 1: Virtual Trading (Paper Trading)
    ├─→ No MT5 connection required
    ├─→ Safe testing environment
    ├─→ Validates agent logic
    └─→ Identifies obvious issues
-   
+
    Step 2: Demo Account Testing
    ├─→ Real MT5 connection
    ├─→ Real market data
    ├─→ Real trade execution (but demo money)
    └─→ Final validation before live
-   
+
    Step 3: Live Trading (NOT in this menu - requires approval)
    ├─→ Only after successful demo testing
    ├─→ Start with minimal capital
@@ -1399,50 +1427,50 @@ KINETRA LIVE TESTING GUIDE
    └─→ Have kill switch ready
 
 2. SAFETY FEATURES
-   
+
    Circuit Breakers:
    • Automatically halt if CHS < 0.55
    • Monitor in real-time
    • Resume when CHS recovers
-   
+
    Trade Limits:
    • Max trades per session
    • Position size limits
    • Drawdown gates
-   
+
    Validation:
    • All orders validated by OrderValidator
    • MT5 constraints enforced (stops level, freeze level)
    • Automatic adjustment of invalid parameters
 
 3. REQUIRED SETUP
-   
+
    For Demo/Live Testing:
    a) Install MetaTrader5 package:
       pip install MetaTrader5
-   
+
    b) Launch MT5 terminal
-   
+
    c) Enable automated trading:
       Tools → Options → Expert Advisors
       ✓ Allow automated trading
       ✓ Allow DLL imports
       ✓ Disable "Ask manual confirmation"
-   
+
    d) Verify connection:
       Use "Test MT5 Connection" option in menu
 
 4. BEST PRACTICES
-   
+
    • ALWAYS start with virtual trading
    • Test on demo for at least 1 week
    • Monitor CHS continuously
    • Never override circuit breakers
    • Keep detailed logs
    • Review all trades manually
-   
+
 5. PERFORMANCE TARGETS
-   
+
    Before moving to next stage:
    • CHS > 0.90 consistently
    • Omega Ratio > 2.7
@@ -1452,7 +1480,7 @@ KINETRA LIVE TESTING GUIDE
 
 Press Enter to return to menu...
     """)
-    
+
     wait_for_enter("")
 
 
@@ -1460,10 +1488,11 @@ Press Enter to return to menu...
 # DATA MANAGEMENT MENU
 # =============================================================================
 
+
 def show_data_management_menu(wf_manager: WorkflowManager):
     """Show data management menu."""
     print_header("DATA MANAGEMENT")
-    
+
     print("""
 Automated data management with:
   • Atomic file operations (no corruption)
@@ -1480,36 +1509,36 @@ Available options:
   6. Backup & Restore
   0. Back to Main Menu
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4", "5", "6"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         auto_download_for_config(wf_manager)
-    elif choice == '2':
+    elif choice == "2":
         manual_download(wf_manager)
-    elif choice == '3':
+    elif choice == "3":
         check_fill_missing_data(wf_manager)
-    elif choice == '4':
+    elif choice == "4":
         check_data_integrity(wf_manager)
-    elif choice == '5':
+    elif choice == "5":
         prepare_data(wf_manager)
-    elif choice == '6':
+    elif choice == "6":
         backup_restore_data(wf_manager)
 
 
 def auto_download_for_config(wf_manager: WorkflowManager):
     """Auto-download data for a testing configuration."""
     print_submenu_header("Auto-Download for Configuration")
-    
+
     print("\n📋 This will analyze your test configuration and download required data.")
-    
+
     # Select configuration
     config = {}
-    config['asset_classes'] = select_asset_classes()
-    config['timeframes'] = select_timeframes()
-    
+    config["asset_classes"] = select_asset_classes()
+    config["timeframes"] = select_timeframes()
+
     print("\n📥 Downloading data...")
     ensure_data_available(wf_manager, config)
     print("\n✅ Data download complete!")
@@ -1518,99 +1547,97 @@ def auto_download_for_config(wf_manager: WorkflowManager):
 def manual_download(wf_manager: WorkflowManager):
     """Manual data download."""
     print_submenu_header("Manual Download")
-    
+
     print("\n📥 Launching interactive download...")
-    
+
     try:
         import subprocess
+
         result = subprocess.run(
-            [sys.executable, "scripts/download/download_interactive.py"],
-            check=False
+            [sys.executable, "scripts/download/download_interactive.py"], check=False
         )
-        
+
         if result.returncode == 0:
             print("\n✅ Download complete!")
         else:
             print(f"\n⚠️  Download completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def check_fill_missing_data(wf_manager: WorkflowManager):
     """Check and fill missing data."""
     print_submenu_header("Check & Fill Missing Data")
-    
+
     print("\n🔍 Scanning for missing data...")
-    
+
     try:
         import subprocess
+
         result = subprocess.run(
-            [sys.executable, "scripts/download/check_and_fill_data.py"],
-            check=False
+            [sys.executable, "scripts/download/check_and_fill_data.py"], check=False
         )
-        
+
         if result.returncode == 0:
             print("\n✅ Check complete!")
         else:
             print(f"\n⚠️  Check completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def check_data_integrity(wf_manager: WorkflowManager):
     """Check data integrity."""
     print_submenu_header("Data Integrity Check")
-    
+
     print("\n🔍 Checking data integrity...")
-    
+
     try:
         import subprocess
+
         result = subprocess.run(
-            [sys.executable, "scripts/download/check_data_integrity.py"],
-            check=False
+            [sys.executable, "scripts/download/check_data_integrity.py"], check=False
         )
-        
+
         if result.returncode == 0:
             print("\n✅ Integrity check complete!")
         else:
             print(f"\n⚠️  Integrity check completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def prepare_data(wf_manager: WorkflowManager):
     """Prepare data for training/testing."""
     print_submenu_header("Prepare Data")
-    
+
     print("\n📊 Preparing data (train/test split)...")
-    
+
     try:
         import subprocess
-        result = subprocess.run(
-            [sys.executable, "scripts/download/prepare_data.py"],
-            check=False
-        )
-        
+
+        result = subprocess.run([sys.executable, "scripts/download/prepare_data.py"], check=False)
+
         if result.returncode == 0:
             print("\n✅ Data preparation complete!")
         else:
             print(f"\n⚠️  Preparation completed with warnings (exit code {result.returncode})")
     except Exception as e:
         print(f"\n❌ Error: {e}")
-    
+
     input("\n📊 Press Enter to return to menu...")
 
 
 def backup_restore_data(wf_manager: WorkflowManager):
     """Backup and restore data."""
     print_submenu_header("Backup & Restore")
-    
+
     print("""
 Available options:
   1. Backup master data
@@ -1619,26 +1646,27 @@ Available options:
   4. Restore from backup
   0. Back
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         print("\n💾 Backing up master data...")
         try:
             import subprocess
+
             subprocess.run([sys.executable, "scripts/download/backup_data.py", "--master"])
             print("✅ Backup complete!")
         except Exception as e:
             print(f"❌ Error: {e}")
-    elif choice == '2':
+    elif choice == "2":
         print("\n💾 Backing up prepared data...")
         print("✅ Backup complete!")
-    elif choice == '3':
+    elif choice == "3":
         print("\n📋 Available backups:")
         print("  (backup listing not yet implemented)")
-    elif choice == '4':
+    elif choice == "4":
         print("\n♻️ Restoring from backup...")
         print("✅ Restore complete!")
 
@@ -1647,10 +1675,11 @@ Available options:
 # SYSTEM STATUS MENU
 # =============================================================================
 
+
 def show_system_status_menu(wf_manager: WorkflowManager):
     """Show system status and health."""
     print_header("SYSTEM STATUS & HEALTH")
-    
+
     print("""
 Available options:
   1. Current System Health
@@ -1659,25 +1688,25 @@ Available options:
   4. Performance Metrics
   0. Back to Main Menu
     """)
-    
-    choice = get_input("Select option", ['0', '1', '2', '3', '4'])
-    
-    if choice == '0':
+
+    choice = get_input("Select option", ["0", "1", "2", "3", "4"])
+
+    if choice == "0":
         return
-    elif choice == '1':
+    elif choice == "1":
         show_system_health()
-    elif choice == '2':
+    elif choice == "2":
         show_recent_results()
-    elif choice == '3':
+    elif choice == "3":
         show_data_summary()
-    elif choice == '4':
+    elif choice == "4":
         show_performance_metrics()
 
 
 def show_system_health():
     """Show current system health."""
     print_submenu_header("Current System Health")
-    
+
     print("\n🏥 System Health Status:")
     print("  Composite Health Score (CHS): N/A")
     print("  Active Agents: N/A")
@@ -1688,12 +1717,12 @@ def show_system_health():
 def show_recent_results():
     """Show recent test results."""
     print_submenu_header("Recent Test Results")
-    
+
     results_dir = Path("data/results")
     if not results_dir.exists():
         print("\n📋 No results found yet.")
         return
-    
+
     print("\n📊 Recent test results:")
     print("  (results listing not yet implemented)")
 
@@ -1701,18 +1730,18 @@ def show_recent_results():
 def show_data_summary():
     """Show data summary."""
     print_submenu_header("Data Summary")
-    
+
     master_dir = Path("data/master")
     prepared_dir = Path("data/prepared")
-    
+
     print("\n📊 Data Summary:")
-    
+
     if master_dir.exists():
         master_files = list(master_dir.glob("*.csv"))
         print(f"  Master Data: {len(master_files)} files")
     else:
         print("  Master Data: Not found")
-    
+
     if prepared_dir.exists():
         train_dir = prepared_dir / "train"
         test_dir = prepared_dir / "test"
@@ -1726,7 +1755,7 @@ def show_data_summary():
 def show_performance_metrics():
     """Show performance metrics."""
     print_submenu_header("Performance Metrics")
-    
+
     print("\n📊 Target Performance Metrics:")
     print("  Omega Ratio: > 2.7")
     print("  Z-Factor: > 2.5")
@@ -1739,6 +1768,7 @@ def show_performance_metrics():
 # HELPER FUNCTIONS
 # =============================================================================
 
+
 def select_asset_classes() -> tuple[str, ...] | list[str] | list[Any]:
     """Let user select asset classes."""
     print("  a. All asset classes")
@@ -1747,22 +1777,22 @@ def select_asset_classes() -> tuple[str, ...] | list[str] | list[Any]:
     print("  d. Indices (US30, SPX500, etc.)")
     print("  e. Metals (XAUUSD, XAGUSD)")
     print("  f. Commodities (XTIUSD, etc.)")
-    
-    choice = get_input("Select option", ['a', 'b', 'c', 'd', 'e', 'f'])
-    
-    if choice == 'a':
+
+    choice = get_input("Select option", ["a", "b", "c", "d", "e", "f"])
+
+    if choice == "a":
         return MenuConfig.get_all_asset_classes()
-    elif choice == 'b':
-        return ['crypto']
-    elif choice == 'c':
-        return ['forex']
-    elif choice == 'd':
-        return ['indices']
-    elif choice == 'e':
-        return ['metals']
-    elif choice == 'f':
-        return ['commodities']
-    
+    elif choice == "b":
+        return ["crypto"]
+    elif choice == "c":
+        return ["forex"]
+    elif choice == "d":
+        return ["indices"]
+    elif choice == "e":
+        return ["metals"]
+    elif choice == "f":
+        return ["commodities"]
+
     return []
 
 
@@ -1771,17 +1801,17 @@ def select_instruments(asset_classes: List[str]) -> List[str]:
     print("  a. All instruments in selected classes")
     print("  b. Top N per class")
     print("  c. Custom selection")
-    
-    choice = get_input("Select option", ['a', 'b', 'c'])
-    
-    if choice == 'a':
-        return ['all']
-    elif choice == 'b':
+
+    choice = get_input("Select option", ["a", "b", "c"])
+
+    if choice == "a":
+        return ["all"]
+    elif choice == "b":
         n = get_input("Top N instruments per class (default 3)", None)
         return [f"top_{n if n else '3'}"]
     else:
         print("  (Custom selection not yet implemented)")
-        return ['all']
+        return ["all"]
 
 
 def select_timeframes() -> list[str] | tuple[str, ...]:
@@ -1790,19 +1820,19 @@ def select_timeframes() -> list[str] | tuple[str, ...]:
     print("  b. Intraday (M15, M30, H1)")
     print("  c. Daily+ (H4, D1)")
     print("  d. Custom selection")
-    
-    choice = get_input("Select option", ['a', 'b', 'c', 'd'])
-    
-    if choice == 'a':
+
+    choice = get_input("Select option", ["a", "b", "c", "d"])
+
+    if choice == "a":
         return MenuConfig.get_all_timeframes()
-    elif choice == 'b':
-        return ['M15', 'M30', 'H1']
-    elif choice == 'c':
-        return ['H4', 'D1']
+    elif choice == "b":
+        return ["M15", "M30", "H1"]
+    elif choice == "c":
+        return ["H4", "D1"]
     else:
         print("  Enter timeframes (comma-separated, e.g., H1,H4):")
         timeframes_str = input("  Timeframes: ").strip()
-        return [tf.strip() for tf in timeframes_str.split(',')]
+        return [tf.strip() for tf in timeframes_str.split(",")]
 
 
 def select_agent_types() -> list[str] | tuple[str, ...]:
@@ -1812,32 +1842,32 @@ def select_agent_types() -> list[str] | tuple[str, ...]:
     print("  c. DQN (Deep Q-Network)")
     print("  d. Linear Q-Learning")
     print("  e. Multiple selection")
-    
-    choice = get_input("Select option", ['a', 'b', 'c', 'd', 'e'])
-    
-    if choice == 'a':
+
+    choice = get_input("Select option", ["a", "b", "c", "d", "e"])
+
+    if choice == "a":
         return MenuConfig.get_all_agent_types()
-    elif choice == 'b':
-        return ['ppo']
-    elif choice == 'c':
-        return ['dqn']
-    elif choice == 'd':
-        return ['linear']
+    elif choice == "b":
+        return ["ppo"]
+    elif choice == "c":
+        return ["dqn"]
+    elif choice == "d":
+        return ["linear"]
     else:
         print("  Enter agent types (comma-separated, e.g., ppo,dqn):")
         agents_str = input("  Agents: ").strip()
-        return [agent.strip() for agent in agents_str.split(',')]
+        return [agent.strip() for agent in agents_str.split(",")]
 
 
 def ensure_data_available(wf_manager: WorkflowManager, config: Dict) -> bool:
     """
     Ensure all required data is available.
-    
+
     Returns:
         True if data is ready, False if preparation failed
     """
     print("  🔍 Checking for required data...")
-    
+
     # Check if data exists
     master_dir = Path("data/master")
     if not master_dir.exists():
@@ -1845,15 +1875,17 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict) -> bool:
         # Download data
         try:
             import subprocess
+
             subprocess.run([sys.executable, "scripts/download/download_interactive.py"])
         except Exception as e:
             print(f"  ❌ Error downloading data: {e}")
             return False
-    
+
     # Check data integrity
     print("  🔍 Checking data integrity...")
     try:
         import subprocess
+
         result = subprocess.run(
             [sys.executable, "scripts/download/check_data_integrity.py"],
             capture_output=True,
@@ -1868,18 +1900,19 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict) -> bool:
             print(result.stdout.strip())
     except Exception as e:
         print(f"  ⚠️ Warning: Could not check integrity: {e}")
-    
+
     # Prepare data if needed
     prepared_dir = Path("data/prepared")
     if not prepared_dir.exists() or not list(prepared_dir.glob("**/*.csv")):
         print("  📊 Preparing data (train/test split)...")
         try:
             import subprocess
+
             subprocess.run([sys.executable, "scripts/download/prepare_data.py"])
         except Exception as e:
             print(f"  ❌ Error preparing data: {e}")
             return False
-    
+
     print("  ✅ Data is ready!")
     return True
 
@@ -1887,24 +1920,24 @@ def ensure_data_available(wf_manager: WorkflowManager, config: Dict) -> bool:
 def run_exploration_script(wf_manager: WorkflowManager, config: Dict) -> bool:
     """
     Run exploration script with given configuration.
-    
+
     Returns:
         True if successful, False otherwise
     """
     try:
         # Use comprehensive exploration script
         script = "run_comprehensive_exploration.py"
-        
+
         print(f"  🚀 Launching {script}...")
         result = subprocess.run([sys.executable, script], check=False)
-        
+
         if result.returncode == 0:
             print("  ✅ Exploration complete!")
             return True
         else:
             print(f"  ❌ Exploration failed with exit code {result.returncode}")
             return False
-        
+
     except subprocess.CalledProcessError as e:
         print(f"  ❌ Error running exploration: Process failed with code {e.returncode}")
         return False
@@ -1916,26 +1949,26 @@ def run_exploration_script(wf_manager: WorkflowManager, config: Dict) -> bool:
 def run_backtest_script(wf_manager: WorkflowManager, config: Dict) -> bool:
     """
     Run backtest script with given configuration.
-    
+
     Returns:
         True if successful, False otherwise
     """
     try:
         import subprocess
-        
+
         # Use comprehensive backtest script
         script = "scripts/testing/run_comprehensive_backtest.py"
-        
+
         print(f"  🚀 Launching {script}...")
         result = subprocess.run([sys.executable, script], check=False)
-        
+
         if result.returncode == 0:
             print("  ✅ Backtest complete!")
             return True
         else:
             print(f"  ❌ Backtest failed with exit code {result.returncode}")
             return False
-        
+
     except Exception as e:
         print(f"  ❌ Error running backtest: {e}")
         return False
@@ -1946,48 +1979,54 @@ def display_exploration_results():
     print("\n" + "=" * 80)
     print("  EXPLORATION RESULTS")
     print("=" * 80)
-    
+
     # Check for recent results
     results_dir = Path("results")
     if results_dir.exists():
-        result_files = sorted(results_dir.glob("comprehensive_exploration_*.json"), 
-                             key=lambda p: p.stat().st_mtime, reverse=True)
-        
+        result_files = sorted(
+            results_dir.glob("comprehensive_exploration_*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+
         if result_files:
             latest = result_files[0]
             print(f"\n📊 Latest Results: {latest.name}")
-            
+
             try:
                 import json
-                with open(latest, 'r') as f:
+
+                with open(latest, "r") as f:
                     results = json.load(f)
-                
+
                 # Display key metrics
-                cumulative = results.get('cumulative', {})
+                cumulative = results.get("cumulative", {})
                 print(f"\n🎯 Summary:")
                 print(f"  Episodes: {cumulative.get('episodes', 'N/A')}")
                 print(f"  Total Reward: {cumulative.get('total_reward', 0):+.1f}")
-                print(f"  Avg Reward: {cumulative.get('total_reward', 0) / max(cumulative.get('episodes', 1), 1):+.2f}")
+                print(
+                    f"  Avg Reward: {cumulative.get('total_reward', 0) / max(cumulative.get('episodes', 1), 1):+.2f}"
+                )
                 print(f"  Total PnL: {cumulative.get('total_pnl', 0):+.2f}%")
-                
+
                 # Display by asset class
-                per_class = results.get('per_class', {})
+                per_class = results.get("per_class", {})
                 if per_class:
                     print(f"\n📈 Performance by Asset Class:")
                     for cls, stats in per_class.items():
-                        eps = stats.get('episodes', 0)
+                        eps = stats.get("episodes", 0)
                         if eps > 0:
-                            avg_r = stats.get('total_reward', 0) / eps
-                            avg_pnl = stats.get('total_pnl', 0) / eps
+                            avg_r = stats.get("total_reward", 0) / eps
+                            avg_pnl = stats.get("total_pnl", 0) / eps
                             print(f"  {cls:<20}: Avg Reward={avg_r:+.2f}, Avg PnL={avg_pnl:+.3f}%")
-                
+
             except Exception as e:
                 print(f"  ⚠️ Could not parse results: {e}")
         else:
             print("\n📋 No results found yet.")
     else:
         print("\n📋 No results directory found.")
-    
+
     print("\n" + "=" * 80)
     print("  NEXT STEPS")
     print("=" * 80)
@@ -2007,13 +2046,14 @@ def display_backtest_results():
     print("\n" + "=" * 80)
     print("  BACKTEST RESULTS")
     print("=" * 80)
-    
+
     # Check for recent results
     results_dir = Path("data/results")
     if results_dir.exists():
-        result_files = sorted(results_dir.glob("backtest_*.json"), 
-                             key=lambda p: p.stat().st_mtime, reverse=True)
-        
+        result_files = sorted(
+            results_dir.glob("backtest_*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+        )
+
         if result_files:
             latest = result_files[0]
             print(f"\n📊 Latest Results: {latest.name}")
@@ -2022,7 +2062,7 @@ def display_backtest_results():
             print("\n📋 No results found yet.")
     else:
         print("\n📋 No results directory found.")
-    
+
     print("\n" + "=" * 80)
     print("  NEXT STEPS")
     print("=" * 80)
@@ -2040,6 +2080,7 @@ def display_backtest_results():
 # =============================================================================
 # MAIN MENU
 # =============================================================================
+
 
 def show_main_menu(wf_manager: WorkflowManager, context: Optional[MenuContext] = None):
     """Show main menu with context awareness."""
@@ -2082,28 +2123,29 @@ Philosophy:
 Navigation: Type 0 to go back | Type q to quit
     """)
 
-    choice = get_input("Select option", ['0', '1', '2', '3', '4', '5', '6'], default='0')
+    choice = get_input("Select option", ["0", "1", "2", "3", "4", "5", "6"], default="0")
 
     try:
-        if choice == '0' or choice is None:
+        if choice == "0" or choice is None:
             return False
-        elif choice == '1':
+        elif choice == "1":
             show_authentication_menu(wf_manager, context)
-        elif choice == '2':
+        elif choice == "2":
             show_exploration_menu(wf_manager)
-        elif choice == '3':
+        elif choice == "3":
             show_backtesting_menu(wf_manager)
-        elif choice == '4':
+        elif choice == "4":
             show_live_testing_menu(wf_manager)
-        elif choice == '5':
+        elif choice == "5":
             show_data_management_menu(wf_manager)
-        elif choice == '6':
+        elif choice == "6":
             show_system_status_menu(wf_manager)
     except Exception as e:
         print(f"\n❌ Error in menu operation: {e}")
         if context:
             context.log_error(f"Menu operation: {str(e)}")
         import traceback
+
         traceback.print_exc()
         wait_for_enter("\n⚠️  Press Enter to continue...")
 
@@ -2124,7 +2166,7 @@ def main():
             log_dir="logs",
             backup_dir="data/backups/workflow",
             enable_backups=True,
-            enable_checksums=True
+            enable_checksums=True,
         )
         print("✅ Workflow manager initialized")
     except Exception as e:
@@ -2172,6 +2214,7 @@ def main():
 
             # Show traceback for debugging
             import traceback
+
             print("\n📋 Error details:")
             traceback.print_exc()
 
@@ -2210,5 +2253,5 @@ def main():
     print("=" * 80)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

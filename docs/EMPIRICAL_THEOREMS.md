@@ -603,3 +603,39 @@ From `docs/ACTION_PLAN.md`, Phase 3 is complete when:
 *"Extraordinary claims require extraordinary evidence." — Carl Sagan*
 
 *"Question everything, validate empirically, assume nothing." — Kinetra Philosophy*
+
+
+## Exhaustive Run: unit (20260103_1552)
+
+- **Total combinations tested**: 3000
+- **Valid combinations**: 2100 (70.0%)
+
+### Agent Performance Summary:
+- **competitor**: 350 valid combinations
+- **dqn**: 350 valid combinations
+- **incumbent**: 350 valid combinations
+- **linear_q**: 350 valid combinations
+- **ppo**: 350 valid combinations
+- **researcher**: 350 valid combinations
+
+
+## Exhaustive Run: unit (20260103_1603)
+
+- **Total combinations tested**: 132
+- **Valid combinations**: 93 (70.5%)
+
+### Agent Performance Summary:
+- **dqn**: 31 valid combinations
+- **incumbent**: 31 valid combinations
+- **ppo**: 31 valid combinations
+
+
+## Exhaustive Run: unit (20260103_1610)
+
+- **Total combinations tested**: 132
+- **Valid combinations**: 90 (68.2%)
+
+### Agent Performance Summary:
+- **dqn**: 30 valid combinations
+- **incumbent**: 30 valid combinations
+- **ppo**: 30 valid combinations

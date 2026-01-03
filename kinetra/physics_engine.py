@@ -107,15 +107,17 @@ class PhysicsEngine:
         self.mass = float(mass)
 
         # BacktestEngine uses this to avoid using early noisy bars
-        self.lookback = int(max(
-            lookback,
-            damping_window,
-            entropy_window,
-            re_slow,
-            re_fast,
-            pe_window,
-            pct_window // 4,
-        ))
+        self.lookback = int(
+            max(
+                lookback,
+                damping_window,
+                entropy_window,
+                re_slow,
+                re_fast,
+                pe_window,
+                pct_window // 4,
+            )
+        )
 
         # Hybrid HMM-SVM components
         self.hmm = hmm.GaussianHMM(
@@ -345,16 +347,17 @@ class PhysicsEngine:
 
         H = - Σ p_i log(p_i)
         Normalised by log(bins) to map roughly to [0,1].
-        
+
         PERFORMANCE: Uses vectorized implementation when available,
         otherwise falls back to pandas .apply() (slower).
         """
         window = int(window)  # Ensure integer for pandas .rolling()
         bins = int(bins)  # Ensure integer for np.histogram()
-        
+
         # Try to use optimized version
         try:
             from .performance import rolling_entropy_vectorized
+
             result = rolling_entropy_vectorized(v.values, window, bins)
             return pd.Series(result, index=v.index).bfill().fillna(0.0)
         except ImportError:
@@ -463,7 +466,7 @@ class PhysicsEngine:
     def _rolling_percentile(x: pd.Series, window: int) -> pd.Series:
         """
         Rolling percentile (0–1) of current value within last 'window' samples.
-        
+
         PERFORMANCE: Uses vectorized implementation when available,
         providing significant speedup over pandas .apply().
         """
@@ -472,6 +475,7 @@ class PhysicsEngine:
         # Try to use optimized version
         try:
             from .performance import rolling_percentile_vectorized
+
             result = rolling_percentile_vectorized(x.values, window)
             return pd.Series(result, index=x.index).bfill().fillna(0.5)
         except ImportError:

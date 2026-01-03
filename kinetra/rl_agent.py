@@ -5,20 +5,23 @@ PPO-based agent that learns adaptive trigger conditions for berserker mode.
 No fixed thresholds - learns from physics state percentiles.
 """
 
-import numpy as np
-from typing import Dict, List, Tuple, Optional, Any
 from collections import deque
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 
 try:
     import torch
     import torch.nn as nn
     import torch.optim as optim
     from torch.distributions import Categorical
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
     torch = None
     nn = None
+    Categorical = None
 
 
 class PPOBuffer:
@@ -119,6 +122,7 @@ class KinetraAgent:
 
     def _build_network(self, state_dim: int, action_dim: int, hidden_dim: int):
         """Build Actor-Critic network."""
+
         class ActorCritic(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -177,9 +181,7 @@ class KinetraAgent:
 
         return action
 
-    def select_action_with_prob(
-        self, state: np.ndarray
-    ) -> Tuple[int, Any, Any]:
+    def select_action_with_prob(self, state: np.ndarray) -> Tuple[int, Any, Any]:
         """Select action and return log prob and value for training."""
         if self.network is None:
             return np.random.randint(0, self.action_dim), None, None
@@ -275,7 +277,10 @@ class KinetraAgent:
                 # PPO clipped objective
                 ratio = torch.exp(new_log_probs - batch_old_log_probs)
                 surr1 = ratio * batch_advantages
-                surr2 = torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * batch_advantages
+                surr2 = (
+                    torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon)
+                    * batch_advantages
+                )
                 policy_loss = -torch.min(surr1, surr2).mean()
 
                 # Value loss
@@ -308,19 +313,23 @@ class KinetraAgent:
     def save(self, path: str):
         """Save model checkpoint."""
         if self.network is not None:
-            torch.save({
-                'network_state_dict': self.network.state_dict(),
-                'optimizer_state_dict': self.optimizer.state_dict(),
-                'training_step': self.training_step,
-            }, path)
+            torch.save(
+                {
+                    "network_state_dict": self.network.state_dict(),
+                    "optimizer_state_dict": self.optimizer.state_dict(),
+                    "training_step": self.training_step,
+                },
+                path,
+            )
 
     def load(self, path: str):
         """Load model checkpoint."""
         if self.network is not None:
             checkpoint = torch.load(path, map_location=self.device)
-            self.network.load_state_dict(checkpoint['network_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            self.training_step = checkpoint['training_step']
+            self.network.load_state_dict(checkpoint["network_state_dict"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            self.training_step = checkpoint["training_step"]
+            self.training_step = checkpoint["training_step"]
 
     def get_action_probs(self, state: np.ndarray) -> np.ndarray:
         """Get action probabilities for analysis."""

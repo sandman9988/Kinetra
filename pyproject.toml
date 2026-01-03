@@ -58,6 +58,14 @@ dependencies = [
     # Plotting and visualization
     "matplotlib>=3.10.0,<4.0.0",
     "seaborn>=0.13.0,<1.0.0",
+
+    # Interactive dashboard and reporting
+    "plotly>=5.18.0,<6.0.0",
+    "dash>=2.14.0,<3.0.0",
+    "dash-bootstrap-components>=1.5.0,<2.0.0",
+
+    # Parallel processing
+    "joblib>=1.3.0,<2.0.0",
 ]
 
 [project.optional-dependencies]
@@ -65,12 +73,25 @@ dev = [
     "pytest>=9.0.0,<10.0.0",
     "pytest-cov>=6.0.0,<7.0.0",
     "pytest-asyncio>=1.3.0,<2.0.0",
+    "pytest-xdist>=3.5.0,<4.0.0",  # Parallel test execution
     "hypothesis>=6.122.0,<7.0.0",
     "black>=25.12.0,<26.0.0",
     "ruff>=0.9.0,<1.0.0",
     "mypy>=1.14.0,<2.0.0",
     "ipython>=8.0.0,<9.0.0",
     "ipdb>=0.13.0,<1.0.0",
+]
+
+visualization = [
+    # Additional visualization tools for advanced reporting
+    "kaleido>=0.2.1",  # Static image export for plotly
+    "pillow>=10.0.0,<11.0.0",  # Image processing
+]
+
+gpu = [
+    # GPU-specific packages (install separately based on hardware)
+    # For NVIDIA: torch with CUDA
+    # For AMD: torch with ROCm (install from AMD repos)
 ]
 
 [tool.setuptools.packages.find]
