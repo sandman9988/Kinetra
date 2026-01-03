@@ -753,7 +753,7 @@ if __name__ == "__main__":
     # Example 3: Visual feedback
     print("\n3. Visual Feedback:")
     show_token_saved(
-        token="eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.long_token_here",
+        token="eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.EXAMPLE_TOKEN_PLACEHOLDER",
         account_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         save_location=Path(".env"),
     )
