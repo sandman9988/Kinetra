@@ -654,6 +654,78 @@ def select_metaapi_account(wf_manager: WorkflowManager) -> bool:
 
         if result.returncode == 0:
             print("\n✅ Account selected successfully")
+
+            # Prompt to download data
+            print("\n" + "=" * 80)
+            print("  NEXT STEP: Download Market Data")
+            print("=" * 80)
+            print("\nWould you like to download data now?")
+            print("  [1] Yes - Launch interactive data download")
+            print("  [2] No - Return to main menu")
+
+            choice = get_input("\nSelect option", ["1", "2"], default="1")
+
+            if choice == "1":
+                print("\n📥 Launching interactive download...")
+                result = subprocess.run(
+                    [sys.executable, "scripts/download/download_interactive.py"], check=False
+                )
+                if result.returncode == 0:
+                    print("\n✅ Download complete!")
+
+                    # Prompt for data preparation
+                    print("\n" + "=" * 80)
+                    print("  NEXT STEP: Prepare Data for Testing")
+                    print("=" * 80)
+                    print("\nWould you like to consolidate and prepare the data?")
+                    print("  [1] Yes - Run data consolidation")
+                    print("  [2] No - I'll do it later")
+
+                    prep_choice = get_input("\nSelect option", ["1", "2"], default="1")
+
+                    if prep_choice == "1":
+                        print("\n📊 Running data consolidation...")
+                        consolidate_result = subprocess.run(
+                            [sys.executable, "scripts/consolidate_data.py", "--symlink"],
+                            check=False,
+                        )
+                        if consolidate_result.returncode == 0:
+                            print("\n✅ Data consolidation complete!")
+
+                            # Prompt for testing
+                            print("\n" + "=" * 80)
+                            print("  NEXT STEP: Run Tests")
+                            print("=" * 80)
+                            print("\nWould you like to run exhaustive tests now?")
+                            print("  [1] Yes - Run tests with dashboard")
+                            print("  [2] No - Return to main menu")
+
+                            test_choice = get_input("\nSelect option", ["1", "2"], default="2")
+
+                            if test_choice == "1":
+                                print("\n🧪 Running exhaustive tests...")
+                                test_result = subprocess.run(
+                                    [
+                                        sys.executable,
+                                        "scripts/run_exhaustive_tests.py",
+                                        "--generate-dashboard",
+                                    ],
+                                    check=False,
+                                )
+                                if test_result.returncode == 0:
+                                    print("\n✅ Tests complete! Check test_results/ for dashboard.")
+                            else:
+                                print("\n✅ You can run tests later from Data Management menu")
+                        else:
+                            print("\n⚠️ Data consolidation completed with warnings")
+                    else:
+                        print("\n✅ You can consolidate data later from Data Management menu")
+                else:
+                    print(f"\n⚠️ Download completed with warnings (exit code {result.returncode})")
+            else:
+                print("\n✅ You can download data later from Data Management menu")
+
+            input("\n📊 Press Enter to return to main menu...")
             return True
         else:
             print("\n❌ Account selection failed")
