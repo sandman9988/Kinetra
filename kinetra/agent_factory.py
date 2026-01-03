@@ -11,6 +11,9 @@ Supported agents:
 - Incumbent (IncumbentAgent) - PPO-style Triad agent
 - Competitor (CompetitorAgent) - A2C-style Triad agent
 - Researcher (ResearcherAgent) - SAC-style Triad agent
+- A3C (A3CAgent) - Asynchronous Advantage Actor-Critic (via SB3)
+- SAC (SACAgent) - Soft Actor-Critic (via SB3)
+- TD3 (TD3Agent) - Twin Delayed DDPG (via SB3)
 
 Philosophy: Make it EASY to swap agents for empirical comparison.
 All agents implement a unified interface for the test harness.
@@ -32,6 +35,17 @@ from kinetra.triad_system import (
     IncumbentAgent,
     ResearcherAgent,
 )
+
+# SB3-based agent imports (optional)
+try:
+    from kinetra.sb3_agents import A3CAgent, SACAgent, TD3Agent
+
+    SB3_AVAILABLE = True
+except ImportError:
+    SB3_AVAILABLE = False
+    A3CAgent = None
+    SACAgent = None
+    TD3Agent = None
 
 logger = logging.getLogger(__name__)
 
@@ -261,6 +275,31 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
         "param_mapping": {"state_dim": "state_dim", "action_dim": "n_actions"},
     },
 }
+
+# Add SB3 agents if available
+if SB3_AVAILABLE:
+    AGENT_REGISTRY.update(
+        {
+            "a3c": {
+                "class": A3CAgent,
+                "description": "A3C (Asynchronous Advantage Actor-Critic) - Parallel exploration",
+                "default_params": {"state_dim": 43, "action_dim": 4},
+                "param_mapping": {"state_dim": "state_dim", "action_dim": "action_dim"},
+            },
+            "sac": {
+                "class": SACAgent,
+                "description": "SAC (Soft Actor-Critic) - Entropy-regularized continuous control",
+                "default_params": {"state_dim": 43, "action_dim": 4},
+                "param_mapping": {"state_dim": "state_dim", "action_dim": "action_dim"},
+            },
+            "td3": {
+                "class": TD3Agent,
+                "description": "TD3 (Twin Delayed DDPG) - Robust continuous control",
+                "default_params": {"state_dim": 43, "action_dim": 4},
+                "param_mapping": {"state_dim": "state_dim", "action_dim": "action_dim"},
+            },
+        }
+    )
 
 
 # =============================================================================

@@ -66,6 +66,12 @@ dependencies = [
 
     # Parallel processing
     "joblib>=1.3.0,<2.0.0",
+
+    # Hyperparameter optimization
+    "optuna>=3.5.0,<4.0.0",
+
+    # Reinforcement learning (for A3C, SAC, TD3 agents)
+    "stable-baselines3>=2.2.0,<3.0.0",
 ]
 
 [project.optional-dependencies]
@@ -86,6 +92,12 @@ visualization = [
     # Additional visualization tools for advanced reporting
     "kaleido>=0.2.1",  # Static image export for plotly
     "pillow>=10.0.0,<11.0.0",  # Image processing
+]
+
+hpo = [
+    # Hyperparameter optimization with advanced features
+    "optuna>=3.5.0,<4.0.0",
+    "optuna-dashboard>=0.15.0,<1.0.0",  # Web-based visualization
 ]
 
 gpu = [
