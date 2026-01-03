@@ -1,0 +1,5424 @@
+
+====================================================================================================
+FILE: scripts/analysis/analyze_asymmetric_rewards.py
+====================================================================================================
+
+DESCRIPTION:
+Asymmetric Reward Shaping: The Journey Counts
+
+Key principle: Punish MAE (adverse excursion), reward MFE capture efficiency.
+
+Metrics:
+- Edge Ratio: MFE / MAE (opportunity vs risk)
+- Journey Quality: How clean was the path to profit?
+- Capture Efficiency: P&L / MFE (how much of the opportunity we got)
+- Path Score: Penalize "oscillating" trades vs "clean" trades
+
+A trade that goes +1% then -0.5% then ends +0.5% is WORSE than
+a trade that goes +0.5% directly, even if same final P&L.
+
+
+FUNCTIONS (3):
+  • analyze_trade_journey(df: pd.DataFrame, entry_idx: int, direction: int, )
+  • compute_journey_quality(journey)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_berserker_context.py
+====================================================================================================
+
+DESCRIPTION:
+Berserker Context Analysis
+
+Key insight: Extreme readings can signal REVERSAL or ACCELERATION.
+Context determines which.
+
+Context Categories:
+1. EXHAUSTION (expect reversal):
+   - At range extreme (support/resistance)
+   - Momentum extreme (overextended)
+   - Flow exhaustion (buying/selling pressure fading)
+
+2. BREAKOUT (expect acceleration):
+   - Breaking range boundary
+   - Fresh momentum (not overextended)
+   - Flow supporting direction
+
+This determines how to interpret berserker signal.
+
+
+FUNCTIONS (5):
+  • classify_berserker_context(df: pd.DataFrame, lookback: int = 20)
+  • test_context_signals(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_refined_contexts(df: pd.DataFrame, berserker_mask: pd.Series)
+  • create_context_based_signal(df: pd.DataFrame, berserker_mask: pd.Series)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_direction.py
+====================================================================================================
+
+DESCRIPTION:
+Analyze what physics features predict DIRECTION of energy release.
+
+We know high energy + low damping predicts MAGNITUDE (1.83x lift).
+Now find what predicts whether the move is UP or DOWN.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_directional_tension.py
+====================================================================================================
+
+DESCRIPTION:
+Directional Tension Analysis
+
+Physics insight: Energy tells us WHEN, but we need ASYMMETRY to tell us WHERE.
+
+Key concepts:
+1. Tension = stored energy waiting to release (berserker detects this)
+2. Direction = which side has more tension (asymmetric pressure)
+
+Measures to test:
+1. Order flow pressure (approximated from OHLC)
+2. Directional energy asymmetry (up-moves vs down-moves energy)
+3. Resistance vs support tension (price compression)
+4. Volume-weighted directional pressure
+
+
+FUNCTIONS (4):
+  • test_directional_signals(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_combined_signals(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_counter_trend_with_tension(df: pd.DataFrame, berserker_mask: pd.Series)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_energy.py
+====================================================================================================
+
+DESCRIPTION:
+Energy Analysis Script
+
+Analyzes potential energy across a backtest period to identify:
+- Top third of energy releases (long opportunities)
+- Top third of energy releases (short opportunities)
+- Regime distribution
+- Energy capture potential
+
+Usage:
+    python scripts/analyze_energy.py --symbol BTCUSD --timeframe H1
+
+
+CLI ARGUMENTS (6):
+  • '--data', type=str, help='Path to CSV data file'
+  • '--symbol', type=str, default='BTCUSD', help='Symbol name'
+  • '--lookback', type=int, default=20, help='Lookback period for energy calculation'
+  • '--percentile', type=float, default=66.67, help='Percentile threshold for top energy'
+  • '--save', type=str, help='Path to save plot'
+  • '--no-plot', action='store_true', help='Skip plotting'
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_energy_both.py
+====================================================================================================
+
+DESCRIPTION:
+Unified Energy Analysis: Per-Bar vs Per-Trend
+
+Shows both perspectives:
+1. PER-BAR: Individual bar contribution (how energy dissipates each bar)
+2. PER-TREND: Cumulative capture (how much of total move we get)
+
+Key metric: CAPTURE EFFICIENCY = Cumulative P&L / MFE
+
+
+FUNCTIONS (2):
+  • analyze_unified(df: pd.DataFrame, signals: pd.Index, direction_col)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_energy_capture.py
+====================================================================================================
+
+DESCRIPTION:
+Energy Capture Analysis - How much of the move can we capture?
+
+Clean analysis of trade management for berserker entries.
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • Trade
+
+====================================================================================================
+FILE: scripts/analysis/analyze_extended_physics.py
+====================================================================================================
+
+DESCRIPTION:
+Extended Physics Features Analysis
+
+Testing additional physics concepts for fat candle prediction:
+1. Liquidity (volume depth, spread proxy)
+2. ROC (Rate of Change - normalized velocity)
+3. Acceleration (momentum of momentum - second derivative)
+4. Angular Momentum (rotational energy in price cycles)
+5. Inertia (resistance to direction change)
+6. Potential Energy (stored energy in compression/ranges)
+
+
+FUNCTIONS (4):
+  • test_physics_features(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_direction_features(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_combined_physics(df: pd.DataFrame, berserker_mask: pd.Series)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_fat_candles.py
+====================================================================================================
+
+DESCRIPTION:
+Fat Candle Analysis
+
+Berserker's prey: FAT CANDLES (big energy releases)
+Not MR trader - catching big directional moves.
+
+Questions:
+1. What predicts FAT CANDLE occurring?
+2. What predicts FAT CANDLE direction?
+3. What is the optimal context for each direction?
+
+
+FUNCTIONS (5):
+  • analyze_fat_candles(df: pd.DataFrame, berserker_mask: pd.Series)
+  • analyze_fat_candle_direction(df_berk: pd.DataFrame, df_all: pd.DataFrame)
+  • analyze_optimal_fat_candle_setup(df_berk: pd.DataFrame, df_all: pd.DataFrame)
+  • analyze_candle_size_vs_context(df_berk: pd.DataFrame, df_all: pd.DataFrame)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_flow_entropy.py
+====================================================================================================
+
+DESCRIPTION:
+Analyze ENTROPY and LAMINAR FLOW for direction prediction.
+
+Physics concepts:
+- Low entropy = orderly state, more predictable direction
+- Laminar flow = smooth, consistent directional movement
+- Turbulent flow = chaotic, direction unclear
+
+Hypothesis: Low entropy + laminar flow should predict direction better.
+
+
+FUNCTIONS (5):
+  • analyze_entropy_direction(df: pd.DataFrame)
+  • analyze_laminar_flow(df: pd.DataFrame)
+  • analyze_flow_consistency(df: pd.DataFrame)
+  • analyze_combined_signal(df: pd.DataFrame)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_per_bar_energy.py
+====================================================================================================
+
+DESCRIPTION:
+Per-Bar Energy Release Analysis
+
+Measure how energy dissipates bar-by-bar after berserker trigger.
+Not cumulative - but the actual per-bar contribution.
+
+
+FUNCTIONS (3):
+  • analyze_per_bar_energy(df: pd.DataFrame, signals: pd.Index, direction_col)
+  • analyze_cumulative_energy(df: pd.DataFrame, signals: pd.Index, direction_col)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_reversal.py
+====================================================================================================
+
+DESCRIPTION:
+Analyze if berserker bars are REVERSAL or CONTINUATION signals.
+
+Key finding from direction analysis:
+- Momentum has NEGATIVE correlation with forward returns on berserker bars
+- This suggests mean reversion, not continuation
+
+Test hypothesis: Berserker bars mark exhaustion/reversal points.
+
+
+FUNCTIONS (1):
+  • analyze_reversal_patterns(data_path: str = None)
+
+====================================================================================================
+FILE: scripts/analysis/analyze_reynolds_continuation.py
+====================================================================================================
+
+DESCRIPTION:
+Reynolds Number: Continuation vs Reversal Prediction
+
+Hypothesis:
+- Low Reynolds (laminar flow) = smooth trend = CONTINUATION
+- High Reynolds (turbulent flow) = chaotic = REVERSAL
+
+Test empirically on berserker signals.
+
+
+FUNCTIONS (4):
+  • test_reynolds_continuation(df: pd.DataFrame, berserker_mask: pd.Series)
+  • test_combined_signals(df_berk: pd.DataFrame)
+  • analyze_reynolds_magnitude(df: pd.DataFrame, berserker_mask: pd.Series)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/analyze_trade_management.py
+====================================================================================================
+
+DESCRIPTION:
+Trade Management Analysis for Berserker Entries
+
+Analyze how much of the energy release we can capture:
+- MAE (Maximum Adverse Excursion) - worst drawdown during trade
+- MFE (Maximum Favorable Excursion) - best profit during trade
+- Trailing Stop optimization
+- Energy capture efficiency
+- Omega ratio for risk-adjusted performance
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • TradeResult
+
+====================================================================================================
+FILE: scripts/analysis/analyze_triggers.py
+====================================================================================================
+
+DESCRIPTION:
+Trigger Analysis Script
+
+Analyzes what happens BEFORE high-energy bars to find reliable entry signals.
+Goal: Identify the point of release with high probability.
+
+Looks at:
+- Energy buildup patterns (lagged energy)
+- Regime transitions before releases
+- Damping/entropy patterns
+- Momentum divergence
+
+Usage:
+    python scripts/analyze_triggers.py --symbol BTCUSD --lookback 20
+
+
+CLI ARGUMENTS (5):
+  • '--data', type=str, help='Path to CSV data file'
+  • '--symbol', type=str, default='BTCUSD', help='Symbol name'
+  • '--lookback', type=int, default=20, help='Lookback for energy calculation'
+  • '--pre-bars', type=int, default=5, help='Bars to analyze before release'
+  • '--percentile', type=float, default=80, help='Percentile threshold for high energy'
+
+FUNCTIONS (2):
+  • main()
+  • print_prerelease_profile(profile: dict, df: pd.DataFrame)
+
+====================================================================================================
+FILE: scripts/analysis/analyze_volatility_estimators.py
+====================================================================================================
+
+DESCRIPTION:
+Compare Volatility Estimators for Energy Normalization
+
+Estimators:
+1. ATR (Average True Range) - Simple, lagging
+2. Yang-Zhang - Uses OHLC efficiently, less biased
+3. Parkinson - Uses High/Low only
+4. Rogers-Satchell - Uses OHLC, handles drift
+5. Garman-Klass - Uses OHLC, more efficient than close-to-close
+
+Goal: Find best normalizer for MAE/MFE that gives regime-invariance.
+
+
+FUNCTIONS (2):
+  • test_normalizer(df: pd.DataFrame, signals: pd.Index, direction_col)
+  • main()
+
+====================================================================================================
+FILE: scripts/analysis/debug_csv.py
+====================================================================================================
+
+DESCRIPTION:
+Debug CSV loading.
+
+
+FUNCTIONS (1):
+  • clean_col(c)
+
+====================================================================================================
+FILE: scripts/analysis/pathfinder_deep_dive.py
+====================================================================================================
+
+DESCRIPTION:
+PATHFINDER DEEP DIVE
+====================
+
+Focus on promising signals. More episodes, more symbols, find the edge.
+
+
+FUNCTIONS (2):
+  • train_eval(agent, env, train_eps=50, eval_eps=10, max_steps=5)
+  • main()
+
+CLASSES (2):
+  • TradingEnv
+  • PPOAgent
+
+====================================================================================================
+FILE: scripts/analysis/quick_results.py
+====================================================================================================
+
+DESCRIPTION:
+QUICK RESULTS - Get Numbers on Screen NOW
+==========================================
+
+Uses existing CSV data directly - NO preparation needed.
+Shows actual trading performance numbers immediately.
+
+
+FUNCTIONS (2):
+  • backtest_agent(agent, data: pd.DataFrame, symbol: str, spread_cos)
+  • main()
+
+CLASSES (4):
+  • SimpleAgent
+  • MomentumAgent
+  • MeanReversionAgent
+  • BreakoutAgent
+
+====================================================================================================
+FILE: scripts/analysis/superpot_by_class.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT BY ASSET CLASS
+=======================
+
+Run SuperPot separately for each asset class:
+- Crypto
+- Forex
+- Metals
+- Commodities
+- Indices
+
+Then find COMMON DENOMINATORS - features that survive across ALL classes.
+
+These are the universal truths the market is telling us.
+
+Usage:
+    python scripts/superpot_by_class.py
+    python scripts/superpot_by_class.py --episodes 100 --prune-every 20
+
+
+CLI ARGUMENTS (5):
+  • '--episodes', type=int, default=100, help='Episodes per class'
+  • '--prune-every', type=int, default=20, help='Prune every N episodes'
+  • '--prune-count', type=int, default=10, help='Features to prune'
+  • '--max-steps', type=int, default=500, help='Max steps per episode'
+  • '--classes', nargs='+', default=None, 
+                       help='Specific classes (crypto forex metals commodities indices
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • AssetClassTrainer
+
+====================================================================================================
+FILE: scripts/analysis/superpot_complete.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT COMPLETE EXPLORATION
+=============================
+
+Run ALL combinations:
+1. By Asset Class (crypto, forex, metals, commodities, indices)
+2. By Timeframe (M15, M30, H1, H4)
+3. By Role (trader, risk_manager, portfolio_manager)
+4. Cross-combinations
+
+Find what features matter WHERE and for WHOM.
+
+Usage:
+    python scripts/superpot_complete.py
+    python scripts/superpot_complete.py --quick  # Fast test
+
+
+CLI ARGUMENTS (4):
+  • '--quick', action='store_true', help='Quick test mode'
+  • '--episodes', type=int, default=80, help='Episodes per dimension'
+  • '--prune-every', type=int, default=15, help='Prune interval'
+  • '--prune-count', type=int, default=8, help='Features to prune'
+
+CONSTANTS (1):
+  ROLE_CONFIGS = {
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • RoleConfig
+  • RoleAwareAgent
+  • DimensionTrainer
+
+====================================================================================================
+FILE: scripts/analysis/superpot_dsp_driven.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT DSP-DRIVEN EMPIRICAL DISCOVERY
+=======================================
+
+Phase 3: Empirical Discovery (Week 4+)
+├─ MotherLoad SuperPot testing
+├─ Algorithm comparison
+├─ Specialization testing
+├─ Alpha source ranking
+└─ Output: ≥3 theorems with p < 0.01
+
+**PHILOSOPHY ENFORCEMENT**:
+- NO-PERIODS: Use DSP-detected cycles, not fixed periods
+- NO-SYMMETRY: Asymmetric up/down calculations
+- NO-LINEAR: Spearman (not Pearson) correlation
+- NO-MAGIC: No magic numbers (20-period MA, etc.)
+- EMPIR
+
+
+CLI ARGUMENTS (12):
+  • '--episodes', type=int, default=200,
+                       help='Episodes per test'
+  • '--all-instruments', action='store_true',
+                       help='Use all available instruments'
+  • '--all-measurements', action='store_true',
+                       help='Use all measurements (DSP + physics + traditional
+  • '--prune-adaptive', action='store_true', default=True,
+                       help='Use adaptive pruning (default: True
+  • '--algorithm-comparison', action='store_true',
+                       help='Compare RL algorithms (PPO, DQN, TD3, SAC
+  • '--specialization-test', action='store_true',
+                       help='Test universal vs class-specific features'
+  • '--alpha-ranking', action='store_true',
+                       help='Rank alpha sources by contribution'
+  • '--generate-theorems', action='store_true', default=True,
+                       help='Generate empirical theorems (p < 0.01
+  • '--asset-class', type=str, default=None,
+                       help='Filter by asset class'
+  • '--timeframe', type=str, default=None,
+                       help='Filter by timeframe'
+  • '--max-files', type=int, default=50,
+                       help='Max data files to use'
+  • '--quick', action='store_true',
+                       help='Quick test mode'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (5):
+  • AlgorithmResult
+  • AlgorithmComparator
+  • SpecializationTester
+  • AlphaSourceRanker
+  • TheoremGenerator
+
+====================================================================================================
+FILE: scripts/analysis/superpot_empirical.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT EMPIRICAL TESTING
+==========================
+
+Execute comprehensive empirical testing with ALL measurements:
+1. Combine physics-based + traditional measurements (~300+ features)
+2. Test across all asset classes, timeframes, and instruments
+3. Prune worst performers adaptively
+4. Discover universal vs class-specific vs instrument-specific features
+5. Statistical validation (p < 0.01)
+6. Generate empirical theorems
+
+Philosophy:
+- NO assumptions about what matters
+- Let data decide through
+
+
+CLI ARGUMENTS (7):
+  • '--episodes', type=int, default=100, 
+                       help='Total episodes to run'
+  • '--max-steps', type=int, default=500,
+                       help='Max steps per episode'
+  • '--prune-every', type=int, default=20,
+                       help='Prune features every N episodes'
+  • '--max-files', type=int, default=30,
+                       help='Max data files to use'
+  • '--asset-class', type=str, default=None,
+                       help='Filter by asset class (crypto, forex, metals, etc.
+  • '--timeframe', type=str, default=None,
+                       help='Filter by timeframe (M15, H1, H4, etc.
+  • '--quick', action='store_true',
+                       help='Quick test (fewer episodes
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • UnifiedMeasurementExtractor
+  • AdaptiveFeatureTracker
+  • SimpleRLAgent
+
+====================================================================================================
+FILE: scripts/analysis/superpot_explorer.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT EXPLORER
+=================
+
+Throw ALL measurements in a pot. Let agents figure out what matters.
+After every X episodes, throw out the worst Y measurements.
+
+This is EMPIRICAL feature discovery - no assumptions about what matters.
+
+The market tells us what's useful. We don't assume.
+
+Usage:
+    python scripts/superpot_explorer.py
+    python scripts/superpot_explorer.py --prune-every 20 --prune-count 5
+
+
+CLI ARGUMENTS (5):
+  • '--episodes', type=int, default=100, help='Total episodes'
+  • '--prune-every', type=int, default=20, help='Prune every N episodes'
+  • '--prune-count', type=int, default=10, help='Features to prune each time'
+  • '--max-files', type=int, default=30, help='Max files to use'
+  • '--max-steps', type=int, default=500, help='Max steps per episode'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • SuperPotExtractor
+  • FeatureImportanceTracker
+  • SuperPotAgent
+
+====================================================================================================
+FILE: scripts/analysis/superpot_physics.py
+====================================================================================================
+
+DESCRIPTION:
+SUPERPOT PHYSICS - First Principles Measurements
+=================================================
+
+ALL measurements derived from first principles:
+- NO symmetry assumptions
+- NO linearity assumptions  
+- NO fixed timeframe assumptions
+
+Categories:
+1. KINEMATICS - Position derivatives (velocity through pop)
+2. ENERGY - Kinetic, potential, efficiency
+3. FLOW DYNAMICS - Reynolds, damping, viscosity
+4. THERMODYNAMICS - Entropy, phase compression
+5. FIELD THEORY - Gradients, divergence, pressure
+6. 
+
+
+CLI ARGUMENTS (5):
+  • '--episodes', type=int, default=150, help='Total episodes'
+  • '--prune-every', type=int, default=25, help='Prune interval'
+  • '--prune-count', type=int, default=10, help='Features to prune'
+  • '--max-files', type=int, default=40, help='Max files'
+  • '--max-steps', type=int, default=500, help='Steps per episode'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • PhysicsExtractor
+  • PhysicsFeatureTracker
+  • PhysicsAgent
+
+====================================================================================================
+FILE: scripts/audit_data_coverage.py
+====================================================================================================
+
+DESCRIPTION:
+Data Coverage Audit Script for Kinetra
+=======================================
+
+Analyzes available data coverage across instruments and timeframes.
+Identifies gaps and generates actionable reports.
+
+Usage:
+    # Basic audit
+    python scripts/audit_data_coverage.py
+
+    # With detailed report
+    python scripts/audit_data_coverage.py --report data/coverage_report.csv
+
+    # Check specific instruments
+    python scripts/audit_data_coverage.py --instruments BTCUSD EURUSD
+
+    # Minimum bars thresh
+
+
+CLI ARGUMENTS (7):
+  • 
+        "--instruments",
+        nargs="+",
+        help="Specific instruments to check (default: all
+  • 
+        "--timeframes",
+        nargs="+",
+        help="Specific timeframes to check (default: all
+  • 
+        "--min-bars",
+        type=int,
+        default=MIN_BARS_REQUIRED,
+        help=f"Minimum bars for good coverage (default: {MIN_BARS_REQUIRED}
+  • 
+        "--data-dir",
+        type=Path,
+        help="Data directory (default: data/master_standardized
+  • 
+        "--report",
+        type=Path,
+        help="Export coverage report to CSV (e.g., data/coverage_report.csv
+  • 
+        "--json",
+        type=Path,
+        help="Export coverage report to JSON (e.g., data/coverage_report.json
+  • 
+        "--show-gaps",
+        action="store_true",
+        help="Show detailed gap analysis",
+    
+
+CONSTANTS (5):
+  PROJECT_ROOT = Path(__file__).parent.parent
+  INSTRUMENTS = {
+  TIMEFRAMES = ["M15", "M30", "H1", "H4", "D1"]
+  MIN_BARS_REQUIRED = 1000  # ~40 days H1, ~1000 days D1
+  DATA_SOURCES = [
+
+HARDCODED LISTS:
+  TIMEFRAMES = ["M15", "M30", "H1", "H4", "D1"]
+
+CLASSES (2):
+  • Colors
+  • CoverageAnalyzer
+
+====================================================================================================
+FILE: scripts/audit_menu_system.py
+====================================================================================================
+
+DESCRIPTION:
+Menu System Audit Tool
+======================
+
+Comprehensive audit that:
+1. Maps all menu options to their implementation
+2. Identifies scripts called vs. scripts available
+3. Finds deadweight (unused scripts)
+4. Finds unimplemented menu options
+5. Generates visual mapping
+
+Usage:
+    python scripts/audit_menu_system.py
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • MenuAuditor
+
+====================================================================================================
+FILE: scripts/backup_data.py
+====================================================================================================
+
+DESCRIPTION:
+Simple Data Backup Wrapper for Pre-Commit Hook
+===============================================
+
+Lightweight wrapper around the full backup system for use in pre-commit hooks.
+
+Usage:
+    python scripts/backup_data.py [--quiet]
+
+
+====================================================================================================
+FILE: scripts/batch_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Batch Backtest: Dynamic Empirical Pipeline
+
+MVP for dynamic symbol discovery (MetaAPI/MT5 query, suffixes like EURUSD.m), non-linear prep
+(log-returns, medians), SuperPot PPO survival (Ω>2.7, win>55%), triggers/harvesters (log-trail),
+asym risk (Omega/RoR), replay stub (entropy log). CLI menu-like.
+
+Usage: python scripts/batch_backtest.py --symbols EURUSD --timeframe H1 --years 2023 2024 --split 70 30 --agent superpot --mc-runs 50 --dry-run
+
+Integrates existing: physics_engine, rl_agent,
+
+
+CLI ARGUMENTS (7):
+  • "--symbols", nargs="+", default=SYMBOLS_DEFAULT
+  • "--tf", default=TFS_DEFAULT[0]
+  • "--years", nargs="+", default=YEARS_DEFAULT
+  • "--split", action="store_true", default=True
+  • "--train-pct", type=int, default=70
+  • "--mc-runs", type=int, default=NUM_MC_RUNS
+  • "--dry-run", action="store_true", help="No RL/train, just fetch/prep"
+
+CONSTANTS (14):
+  NUM_MC_RUNS = 50
+  BASELINE_OMEGA = 2.7
+  SURVIVAL_OME = BASELINE_OMEGA
+  SURVIVAL_WIN = 55.0
+  METAAPI_TOKEN = os.getenv("METAAPI_TOKEN")
+  METAAPI_ACCOUNT_ID = "e8f8c21a-32b5-40b0-9bf7-672e8ffab91f"
+  DATA_DIR = "data/master_standardized"
+  SYMBOLS_DEFAULT = ["BTCUSD"]
+  TFS_DEFAULT = ["H1"]
+  YEARS_DEFAULT = ["2023", "2024"]
+
+CLASSES (1):
+  • SimpleTradingEnv
+
+====================================================================================================
+FILE: scripts/benchmark_performance.py
+====================================================================================================
+
+DESCRIPTION:
+Performance Benchmark Script
+============================
+
+Measures performance improvements from optimizations:
+1. Lazy imports (import time)
+2. Sample entropy (JIT vs pure Python)
+3. Recurrence matrix (vectorized vs loops)
+4. Rolling operations (vectorized vs pandas .apply())
+5. Data loading (cached vs uncached)
+
+Usage:
+    python scripts/benchmark_performance.py
+
+
+FUNCTIONS (10):
+  • print_header(text: str)
+  • print_result(name: str, time_sec: float, baseline_sec: float = )
+  • benchmark_import_time()
+  • benchmark_sample_entropy()
+  • benchmark_recurrence_matrix()
+  • benchmark_rolling_operations()
+  • benchmark_rolling_entropy()
+  • benchmark_data_loading()
+  • benchmark_physics_engine()
+  • main()
+
+====================================================================================================
+FILE: scripts/branch_manager.py
+====================================================================================================
+
+DESCRIPTION:
+Branch Management Helper Script
+
+Provides utilities for managing local and remote Git branches,
+ensuring proper synchronization between local development,
+local main, and cloud/remote main branches.
+
+Usage:
+    python scripts/branch_manager.py --setup     # Initial setup
+    python scripts/branch_manager.py --sync      # Sync with remote
+    python scripts/branch_manager.py --status    # Show branch status
+    python scripts/branch_manager.py --cleanup   # Clean merged branches
+    python script
+
+
+CLI ARGUMENTS (8):
+  • "--setup", action="store_true",
+                       help="Set up local main branch tracking origin/main"
+  • "--sync", action="store_true",
+                       help="Sync current branch with remote"
+  • "--status", action="store_true",
+                       help="Show comprehensive branch status"
+  • "--list", action="store_true",
+                       help="List branches"
+  • "--cleanup", action="store_true",
+                       help="Clean up merged branches"
+  • "--all", action="store_true",
+                       help="Show all branches (local and remote
+  • "--remote", action="store_true",
+                       help="Show only remote branches"
+  • "--confirm", action="store_true",
+                       help="Confirm cleanup (actually delete branches
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • BranchManager
+
+====================================================================================================
+FILE: scripts/cache_manager.py
+====================================================================================================
+
+DESCRIPTION:
+DATA CACHE MANAGER
+==================
+
+Once data is prepared, save it - never prepare again!
+
+Usage:
+    # First time: prepare and cache
+    python cache_manager.py prepare
+    
+    # Later: just load from cache (instant!)
+    python cache_manager.py load
+
+
+CONSTANTS (1):
+  CACHE_DIR = Path("/workspace/data/cache")
+
+FUNCTIONS (2):
+  • save_to_cache(data: dict, name: str)
+  • main()
+
+====================================================================================================
+FILE: scripts/classify_unused_scripts.py
+====================================================================================================
+
+DESCRIPTION:
+Script Classification and Integration Analysis
+==============================================
+
+Analyzes all 121 unused scripts and categorizes them into:
+1. INTEGRATE - Should be added to menu system
+2. STANDALONE - Document as standalone tools  
+3. DEPRECATE - Legacy/obsolete, can be removed
+4. TEST - Unit/integration tests (don't add to menu)
+
+Usage:
+    python scripts/classify_unused_scripts.py
+
+
+CONSTANTS (1):
+  CLASSIFICATIONS = {
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/consolidate_data.py
+====================================================================================================
+
+DESCRIPTION:
+Data Consolidation Script for Kinetra
+======================================
+
+Consolidates data from various subdirectories into the standard format
+expected by the exhaustive testing framework.
+
+Usage:
+    # Create symlinks (recommended - saves space)
+    python scripts/consolidate_data.py --symlink
+
+    # Copy files (if symlinks not supported)
+    python scripts/consolidate_data.py --copy
+
+    # Preview only (no changes)
+    python scripts/consolidate_data.py --dry-run
+
+Philosophy:
+- Leverage 
+
+
+CLI ARGUMENTS (5):
+  • 
+        "--symlink",
+        action="store_true",
+        help="Create symlinks (recommended - saves space
+  • 
+        "--copy",
+        action="store_true",
+        help="Copy files (use if symlinks not supported
+  • 
+        "--dry-run",
+        action="store_true",
+        help="Preview actions without executing",
+    
+  • 
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing files",
+    
+  • 
+        "--target-dir",
+        type=Path,
+        default=TARGET_DIR,
+        help=f"Target directory (default: {TARGET_DIR}
+
+CONSTANTS (5):
+  PROJECT_ROOT = Path(__file__).parent.parent
+  SOURCE_DIRS = [
+  TARGET_DIR = "data/master_standardized"
+  INSTRUMENT_MAPPINGS = {
+  TIMEFRAME_MAPPINGS = {
+
+CLASSES (2):
+  • Colors
+  • DataConsolidator
+
+====================================================================================================
+FILE: scripts/dashboard.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Training Dashboard Server
+
+A proper web dashboard for monitoring training progress.
+Opens in browser automatically.
+
+Usage:
+    python scripts/dashboard.py
+
+
+CONSTANTS (2):
+  METRICS_PORT = 8001
+  DASHBOARD_PORT = 8080
+
+FUNCTIONS (1):
+  • run_dashboard()
+
+CLASSES (1):
+  • DashboardHandler
+
+====================================================================================================
+FILE: scripts/demo_modular_execution.py
+====================================================================================================
+
+DESCRIPTION:
+Demo: Modular Order Execution - Same Agent Code for Backtest and Live
+
+Shows how dependency injection allows SAME agent code to run in
+both backtest and live trading contexts.
+
+Key insight: Agent doesn't know if it's in backtest or live!
+OrderExecutor interface abstracts the difference.
+
+
+FUNCTIONS (4):
+  • demo_backtest_mode()
+  • demo_live_mode()
+  • demo_constraint_validation()
+  • main()
+
+CLASSES (1):
+  • SimpleAgent
+
+====================================================================================================
+FILE: scripts/detect_silent_failures.py
+====================================================================================================
+
+DESCRIPTION:
+Silent Failure Detection Tool for Kinetra
+
+This script systematically tests the codebase to discover all silent failures.
+It runs various operations and collects failures in the silent failure log.
+
+Usage:
+    python scripts/detect_silent_failures.py
+    python scripts/detect_silent_failures.py --mode quick
+    python scripts/detect_silent_failures.py --mode comprehensive
+    python scripts/detect_silent_failures.py --mode targeted --module kinetra.data_loader
+
+
+CLI ARGUMENTS (3):
+  • 
+        "--mode",
+        choices=["quick", "comprehensive", "targeted"],
+        default="quick",
+        help="Detection mode (default: quick
+  • 
+        "--module",
+        help="Specific module to test (for targeted mode
+  • 
+        "--export",
+        help="Export failures to specified file",
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • FailureDetector
+
+====================================================================================================
+FILE: scripts/devops_manager.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra DevOps Manager
+======================
+
+Master script for all DevOps operations:
+- Deduplication
+- Parallelization config
+- GPU setup
+- Git sync
+- Security scanning
+- Environment setup
+- Real-time monitoring
+- File backup and integrity
+
+Usage:
+    python scripts/devops_manager.py --all           # Run all checks
+    python scripts/devops_manager.py --dedup        # Find duplicates
+    python scripts/devops_manager.py --security     # Security scan
+    python scripts/devops_manager.py --en
+
+
+CLI ARGUMENTS (12):
+  • '--all', action='store_true', help='Run all checks'
+  • '--dedup', action='store_true', help='Find duplicates'
+  • '--dedup-remove', action='store_true', help='Remove duplicate data files'
+  • '--security', action='store_true', help='Security scan'
+  • '--env', action='store_true', help='Setup environment'
+  • '--gpu', action='store_true', help='Configure GPU'
+  • '--git', action='store_true', help='Git sync status'
+  • '--parallel', action='store_true', help='Show parallelization config'
+  • '--monitor', action='store_true', help='Start real-time monitoring'
+  • '--backup', action='store_true', help='Backup critical files'
+  • '--integrity', action='store_true', help='Verify file integrity'
+  • '--fix', action='store_true', help='Auto-fix issues'
+
+FUNCTIONS (13):
+  • print_header(title: str)
+  • run_dedup(remove: bool = False)
+  • run_security()
+  • run_env_setup()
+  • run_gpu_setup()
+  • run_git_sync()
+  • run_parallel_config()
+  • run_monitoring()
+  • run_backup()
+  • run_integrity()
+  • run_all()
+  • run_fix()
+  • main()
+
+====================================================================================================
+FILE: scripts/download/backup_data.py
+====================================================================================================
+
+DESCRIPTION:
+Automated Data Backup System
+==============================
+
+Backs up all data/master CSV files with atomic safety.
+
+Usage:
+    # Backup all master data
+    python scripts/backup_data.py
+
+    # Restore from latest backup
+    python scripts/backup_data.py --restore
+
+    # Cleanup old backups (>30 days)
+    python scripts/backup_data.py --cleanup --days 30
+
+
+CLI ARGUMENTS (4):
+  • "--restore", action="store_true", help="Restore from latest backups"
+  • "--cleanup", action="store_true", help="Delete old backups"
+  • "--days", type=int, default=30, help="Days threshold for cleanup (default: 30
+  • "--dir", type=str, default="data/master", help="Data directory (default: data/master
+
+FUNCTIONS (4):
+  • backup_all_data(master_dir: Path)
+  • restore_all_data(master_dir: Path)
+  • cleanup_old_backups(days_old: int)
+  • main()
+
+====================================================================================================
+FILE: scripts/download/check_and_fill_data.py
+====================================================================================================
+
+DESCRIPTION:
+Check and Fill Missing Data
+============================
+
+Continuously improve database by:
+1. Checking for missing timeframes (e.g., has M15/H1/H4 but missing M30)
+2. Checking for data gaps in existing files
+3. Checking for new symbols from broker
+4. Offering to download missing pieces
+
+Usage:
+    python scripts/check_and_fill_data.py
+
+
+CONSTANTS (2):
+  TIMEFRAME_MAP = {
+  ALL_TIMEFRAMES = list(TIMEFRAME_MAP.keys())
+
+FUNCTIONS (2):
+  • print_header(text: str)
+  • print_step(step_num: int, text: str)
+
+CLASSES (1):
+  • DataFiller
+
+====================================================================================================
+FILE: scripts/download/check_data_integrity.py
+====================================================================================================
+
+DESCRIPTION:
+Data Integrity Checker
+======================
+
+Step 5: Check downloaded data for:
+- Download failures
+- Interruptions
+- Stoppages
+- Missing data
+- Corrupt files
+- Data quality issues
+
+Usage:
+    python scripts/check_data_integrity.py
+
+
+FUNCTIONS (3):
+  • print_header(text: str)
+  • print_step(step_num: int, text: str)
+  • main()
+
+CLASSES (2):
+  • IntegrityIssue
+  • DataIntegrityChecker
+
+====================================================================================================
+FILE: scripts/download/convert_mt5_format.py
+====================================================================================================
+
+DESCRIPTION:
+Convert MT5 Format Files
+========================
+
+Converts MT5 export format to standard format:
+- Combines <DATE> and <TIME> into 'time'
+- Renames columns: <OPEN> -> open, <HIGH> -> high, etc.
+- Keeps essential columns only
+
+Usage:
+    python scripts/convert_mt5_format.py
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/download/download_interactive.py
+====================================================================================================
+
+DESCRIPTION:
+Interactive MetaAPI Data Downloader
+====================================
+
+Step-by-step workflow:
+1. Select MetaAPI account
+2. Select asset class(es) to download
+3. Select specific symbols and timeframes
+4. Download efficiently with progress tracking
+
+Usage:
+    python scripts/download_interactive.py
+
+
+CONSTANTS (2):
+  ASSET_CLASSES = {
+  TIMEFRAME_MAP = {"M15": "15m", "M30": "30m", "H1": "1h", "H4": "4h", "D1": "1d"}
+
+FUNCTIONS (3):
+  • print_header(text: str)
+  • print_step(step_num: int, text: str)
+  • save_credentials_to_env(token: str = None, account_id: str = None)
+
+CLASSES (1):
+  • InteractiveDownloader
+
+====================================================================================================
+FILE: scripts/download/download_market_data.py
+====================================================================================================
+
+DESCRIPTION:
+MT5 Market Data Downloader
+
+Downloads all active MarketWatch symbols with multiple timeframes.
+Calculates friction costs from symbol_info (spread, swap, margin).
+Normalizes and validates data for RL training.
+
+Usage:
+    python3 scripts/download_market_data.py
+
+
+CLI ARGUMENTS (4):
+  • '--output', type=str, default='data/master',
+                       help='Output directory'
+  • '--days', type=int, default=365,
+                       help='Days of history to download'
+  • '--max-symbols', type=int, default=None,
+                       help='Limit number of symbols (for testing
+  • '--clean', action='store_true',
+                       help='Remove existing data before download'
+
+CONSTANTS (2):
+  TIMEFRAMES = {
+  MIN_BARS = 1000
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • SymbolInfo
+
+====================================================================================================
+FILE: scripts/download/download_metaapi.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI Market Data Downloader
+
+Downloads market data via MetaAPI cloud service.
+Works on Linux/Mac/Windows - no need for MT5 Python package.
+
+Setup:
+1. Create account at https://app.metaapi.cloud/
+2. Add your MT5 account (broker credentials)
+3. Get your API token
+4. Set environment variables:
+   export METAAPI_TOKEN="your-token"
+   export METAAPI_ACCOUNT_ID="your-account-id"
+
+Usage:
+    python3 scripts/download_metaapi.py
+
+
+CLI ARGUMENTS (4):
+  • '--output', type=str, default='data/master',
+                       help='Output directory'
+  • '--days', type=int, default=365,
+                       help='Days of history'
+  • '--symbols', type=str, default=None,
+                       help='Comma-separated symbols (default: all
+  • '--clean', action='store_true',
+                       help='Remove existing data'
+
+CONSTANTS (3):
+  TIMEFRAMES = ['15m', '30m', '1h', '4h']
+  MIN_BARS = 500
+  DAYS_TO_DOWNLOAD = 365
+
+HARDCODED LISTS:
+  TIMEFRAMES = ['15m', '30m', '1h', '4h']
+
+CLASSES (1):
+  • MetaAPIDownloader
+
+====================================================================================================
+FILE: scripts/download/download_mt5_data.py
+====================================================================================================
+
+DESCRIPTION:
+Download historical data from MT5 Terminal
+
+Requires:
+- MetaTrader 5 terminal running (Windows or Wine)
+- pip install MetaTrader5
+
+Usage:
+    python scripts/download_mt5_data.py
+
+Instruments to download (customizable):
+- Crypto: BTCUSD, ETHUSD
+- Forex: EURUSD, GBPUSD, USDJPY
+- Commodities: XAUUSD (Gold), COPPER-C
+- Indices: US500, US30
+
+
+CLI ARGUMENTS (1):
+  • "--list", action="store_true", help="List available symbols"
+
+CONSTANTS (3):
+  INSTRUMENTS = [
+  TIMEFRAMES = ["M30", "H1", "H4", "D1"]
+  BARS_TO_DOWNLOAD = {
+
+HARDCODED LISTS:
+  INSTRUMENTS = [
+    # Crypto
+    "BTCUSD", "ETHUSD", "LTCUSD",
+    # Forex majors
+    "EURUSD", "GBPUSD", "USDJPY", "AUDUSD",
+    # Commodities
+    "XAUUSD", "COPPER-C", "USOIL",
+    # Indices
+    "US
+  TIMEFRAMES = ["M30", "H1", "H4", "D1"]
+
+FUNCTIONS (2):
+  • download_all()
+  • list_available_symbols()
+
+====================================================================================================
+FILE: scripts/download/extract_mt5_specs.py
+====================================================================================================
+
+DESCRIPTION:
+Extract MT5 Symbol Specifications
+
+Pulls complete contract specifications from MT5 terminal and saves to JSON.
+Run this periodically to keep specs up-to-date with broker changes.
+
+Usage:
+    python3 scripts/extract_mt5_specs.py
+    python3 scripts/extract_mt5_specs.py --symbols EURUSD BTCUSD XAUUSD
+    python3 scripts/extract_mt5_specs.py --all  # Extract all visible symbols
+
+
+CLI ARGUMENTS (3):
+  • 
+        '--symbols',
+        nargs='+',
+        help='Specific symbols to extract (default: common instruments
+  • 
+        '--all',
+        action='store_true',
+        help='Extract all visible symbols from MT5'
+    
+  • 
+        '--output',
+        type=str,
+        default='data/master/instrument_specs.json',
+        help='Output JSON file path (default: data/master/instrument_specs.json
+
+CONSTANTS (1):
+  DEFAULT_SYMBOLS = [
+
+HARDCODED LISTS:
+  SYMBOLS = [
+    # Forex majors
+    "EURUSD", "GBPUSD", "USDJPY", "USDCHF",
+    "AUDUSD", "NZDUSD", "USDCAD",
+
+    # Forex minors
+    "EURJPY", "GBPJPY", "EURGBP",
+
+    # Crypto
+    "BTCUSD", "ETHUSD",
+
+FUNCTIONS (2):
+  • main()
+  • get_all_mt5_symbols()
+
+====================================================================================================
+FILE: scripts/download/fetch_broker_spec_from_metaapi.py
+====================================================================================================
+
+DESCRIPTION:
+Fetch Broker Symbol Specification from MetaAPI
+================================================
+
+Gets real-time symbol specs directly from broker via MetaAPI.
+No hardcoded values - everything comes from the API.
+
+This eliminates broker-specific hardcoding and ensures accuracy.
+
+
+====================================================================================================
+FILE: scripts/download/load_all_symbols.py
+====================================================================================================
+
+DESCRIPTION:
+Extract symbol and timeframe from filename, e.g., BTCUSD_H1_... -> ('BTCUSD', 'H1')
+
+
+FUNCTIONS (3):
+  • parse_filename(filename)
+  • load_csv(filepath)
+  • main()
+
+====================================================================================================
+FILE: scripts/download/metaapi_bulk_download.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI Bulk Data Download
+==========================
+Downloads data for all asset classes, organizes properly,
+with atomic saves and proper naming conventions.
+
+
+CONSTANTS (7):
+  API_TOKEN = os.environ.get('METAAPI_TOKEN')
+  ACCOUNT_ID = os.environ.get('METAAPI_ACCOUNT_ID')
+  PREFERRED_SYMBOLS = {
+  ASSET_CLASS_PATTERNS = {
+  TIMEFRAMES = ['1h', '4h']  # H1 and H4
+  SYMBOL_ALIASES = {
+  MAX_CONCURRENT_DOWNLOADS = MAX_NETWORK_WORKERS
+
+HARDCODED LISTS:
+  TIMEFRAMES = ['1h', '4h']
+
+FUNCTIONS (1):
+  • atomic_write_csv(df: pd.DataFrame, filepath: Path, sep: str = '\t')
+
+CLASSES (2):
+  • ProgressTracker
+  • DynamicThrottler
+
+====================================================================================================
+FILE: scripts/download/metaapi_sync.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI Cloud Data Sync
+
+Automatically downloads and categorizes instrument data from MetaTrader via MetaAPI.
+
+Features:
+- Download all available symbols and specifications
+- Categorize instruments by asset class (forex, crypto, indices, commodities, etc.)
+- Download historical OHLCV data for all timeframes
+- Weekly auto-update capability (Saturday night)
+
+Usage:
+    # List accounts
+    python scripts/metaapi_sync.py --list-accounts
+
+    # Download symbol specifications
+    python scripts/metaap
+
+
+CLI ARGUMENTS (9):
+  • '--list-accounts', action='store_true',
+                       help='List all MetaTrader accounts'
+  • '--symbols', action='store_true',
+                       help='Download symbol specifications'
+  • '--history', action='store_true',
+                       help='Download historical OHLCV data'
+  • '--timeframe', default='1h',
+                       help='Timeframe for historical data (1m, 5m, 15m, 30m, 1h, 4h, 1d
+  • '--days', type=int, default=365,
+                       help='Days of history to download'
+  • '--asset-classes', nargs='+',
+                       help='Filter by asset classes (forex_major, crypto, etc.
+  • '--full-sync', action='store_true',
+                       help='Full sync (symbols + all timeframe data
+  • '--weekly-update', action='store_true',
+                       help='Weekly update mode for cron job'
+  • '--account-id', help='Specific account ID to use'
+
+CONSTANTS (7):
+  FOREX_MAJORS = {
+  FOREX_MINORS = {
+  CRYPTO_KEYWORDS = ['BTC', 'ETH', 'LTC', 'XRP', 'BCH', 'ADA', 'DOT', 'LINK',
+  INDEX_KEYWORDS = ['US500', 'US30', 'US100', 'NAS100', 'DJ30', 'SP500', 'NDX',
+  METAL_KEYWORDS = ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER', 'PLATINUM',
+  ENERGY_KEYWORDS = ['WTI', 'BRENT', 'OIL', 'CRUDE', 'NGAS', 'NATGAS', 'UKO', 'USO']
+  SOFT_KEYWORDS = ['WHEAT', 'CORN', 'SOYBEAN', 'COFFEE', 'COCOA', 'SUGAR',
+
+FUNCTIONS (3):
+  • atomic_write_text(filepath: Path, content: str, mode: str = 'w')
+  • atomic_write_json(filepath: Path, data: dict, indent: int = 2)
+  • atomic_write_csv(filepath: Path, df: pd.DataFrame, **kwargs)
+
+CLASSES (3):
+  • AssetClass
+  • SymbolInfo
+  • MetaAPISync
+
+====================================================================================================
+FILE: scripts/download/parallel_data_prep.py
+====================================================================================================
+
+DESCRIPTION:
+Parallel Data Preparation Pipeline
+===================================
+GPU-accelerated physics + 32-thread parallel processing for:
+- Holiday tagging (using market_calendar)
+- Physics feature computation (60+ measurements) - GPU BATCH
+- Parquet output with full metadata
+
+Uses GPU for physics, ThreadPoolExecutor for I/O.
+
+
+CLI ARGUMENTS (2):
+  • '--data-dir', type=Path, default=None
+  • '--output-dir', type=Path, default=None
+
+FUNCTIONS (1):
+  • prep_all_data(data_dir: Path = None, output_dir: Path = None)
+
+CLASSES (1):
+  • PrepProgress
+
+====================================================================================================
+FILE: scripts/download/prepare_data.py
+====================================================================================================
+
+DESCRIPTION:
+Data Preparation
+================
+
+Step 6: Prepare data for training:
+- Split master data to train/test (no peeking)
+- Handle public holidays
+- Handle trading hours (forex 24/5, indices market hours)
+- Handle missing data
+- Timezone alignment
+- Generate physics features
+
+Usage:
+    python scripts/prepare_data.py
+
+
+FUNCTIONS (3):
+  • print_header(text: str)
+  • print_step(step_num: int, text: str)
+  • main()
+
+CLASSES (1):
+  • DataPreparer
+
+====================================================================================================
+FILE: scripts/download/prepare_exploration_data.py
+====================================================================================================
+
+DESCRIPTION:
+Prepare Downloaded Data for Exploration Training
+==================================================
+
+Takes raw downloaded data and prepares it for multi-instrument RL exploration:
+1. Organize by asset class (forex/crypto/commodities)
+2. Generate physics features (energy, entropy, damping)
+3. Create standardized training datasets
+4. Save metadata for each asset
+
+Usage:
+    python scripts/prepare_exploration_data.py
+
+
+FUNCTIONS (1):
+  • prepare_all_data()
+
+====================================================================================================
+FILE: scripts/download/select_metaapi_account.py
+====================================================================================================
+
+DESCRIPTION:
+Interactive MetaAPI Account Selector
+=====================================
+
+Simple, clean interface to:
+1. List all MetaAPI broker accounts
+2. Use arrow keys to select account
+3. Hit Enter to connect
+
+Usage:
+    python scripts/select_metaapi_account.py
+
+Environment Variables:
+    METAAPI_TOKEN - Your MetaAPI API token (required)
+
+
+====================================================================================================
+FILE: scripts/download/standardize_data_cutoff.py
+====================================================================================================
+
+DESCRIPTION:
+Data Cutoff Standardization Utility
+
+Ensures all training data has consistent temporal boundaries to prevent:
+- Lookahead bias (training on future data)
+- Temporal leakage across instruments
+- Inconsistent episode lengths
+
+Usage:
+    python scripts/standardize_data_cutoff.py --analyze
+    python scripts/standardize_data_cutoff.py --cutoff "2025-12-26 20:00"
+    python scripts/standardize_data_cutoff.py --auto  # Uses earliest common cutoff
+
+
+CLI ARGUMENTS (8):
+  • 
+        "--data-dir",
+        default="data/master",
+        help="Directory containing CSV data files"
+    
+  • 
+        "--analyze",
+        action="store_true",
+        help="Analyze current cutoffs without making changes"
+    
+  • 
+        "--cutoff",
+        type=str,
+        help="Target cutoff datetime (e.g., '2025-12-26 20:00'
+  • 
+        "--auto",
+        action="store_true",
+        help="Automatically use earliest common cutoff"
+    
+  • 
+        "--output-dir",
+        type=str,
+        help="Output directory for standardized data"
+    
+  • 
+        "--apply",
+        action="store_true",
+        help="Actually apply changes (default is dry run
+  • 
+        "--gaps",
+        action="store_true",
+        help="Analyze gaps in data (holidays, weekends, unusual gaps
+  • 
+        "--timeframe",
+        default="H1",
+        help="Timeframe for gap analysis (default: H1
+
+FUNCTIONS (3):
+  • print_analysis(analysis: Dict)
+  • print_gap_analysis(gaps: Dict)
+  • main()
+
+====================================================================================================
+FILE: scripts/exploration/rl_exploration_framework.py
+====================================================================================================
+
+DESCRIPTION:
+First-Principles RL Exploration Framework
+
+Philosophy: "We don't know what we don't know"
+- NO feature gating - expose ALL 64 dimensions
+- NO hard-coded rules - let agent discover patterns
+- Iterative exploration with physics-based reward shaping
+- Track what the agent learns (feature importance emergence)
+
+Design:
+1. TradingEnv: Gym-like environment wrapping physics state
+2. RewardShaper: Physics-informed reward (not just PnL)
+3. FeatureTracker: Monitor which features agent uses
+4. ExplorationL
+
+
+CLI ARGUMENTS (5):
+  • "--multi", action="store_true", default=True, help="Run multi-instrument exploration (default
+  • "--single", action="store_true", help="Run single-instrument exploration (BTCUSD only
+  • "--data-dir", type=str, default="data/master",
+                        help="Path to data directory containing CSV files"
+  • "--episodes", type=int, default=25,
+                        help="Episodes per instrument (multi
+  • "--agents", type=str, default="Random,LinearQ,TabularQ",
+                        help="Comma-separated list of agents to test"
+
+CLASSES (19):
+  • PersistenceManager
+  • GracefulRunner
+  • JupyterDisplay
+  • TradeState
+  • TradingEnv
+  • RewardShaper
+  • FeatureTracker
+  • BaseAgent
+  • LinearQAgent
+  • TabularQAgent
+  • RandomAgent
+  • PhysicsGymEnv
+  • SB3AgentWrapper
+  • TrainingProgressCallback
+  • ExplorationConfig
+  • ExplorationLoop
+  • InstrumentData
+  • MultiInstrumentLoader
+  • MultiInstrumentEnv
+
+====================================================================================================
+FILE: scripts/exploration/rl_exploration_framework_agents.py
+====================================================================================================
+
+DESCRIPTION:
+Deep RL Agents for Exploration Framework
+==========================================
+
+Implements PPO, SAC, and TD3 agents following the BaseAgent interface.
+Lightweight implementations optimized for trading exploration.
+
+
+CLASSES (3):
+  • PPOAgent
+  • SACAgent
+  • TD3Agent
+
+====================================================================================================
+FILE: scripts/exploration/run_comprehensive_exploration.py
+====================================================================================================
+
+DESCRIPTION:
+Comprehensive Exploration Runner with PHYSICS-Based Discovery Engine
+=====================================================================
+
+Uses PHYSICS-ONLY measurements. NO traditional indicators.
+Discovers what works per asset class - NO assumptions.
+
+Key Physics Features:
+- Kinematics: velocity, acceleration, jerk, snap, crackle, pop (6 derivatives)
+- Energy: kinetic, potential (compression + displacement), efficiency
+- Flow dynamics: Reynolds number, damping, viscosity, liquidity
+- Thermody
+
+
+CLI ARGUMENTS (3):
+  • "--data-dir", default="data/master"
+  • "--episodes", type=int, default=100
+  • "--verbose", action="store_true", default=True
+
+CONSTANTS (1):
+  ASSET_CLASS_MAP = {
+
+FUNCTIONS (1):
+  • _load_module(name: str, file_path: str)
+
+CLASSES (1):
+  • ComprehensiveTradingEnv
+
+====================================================================================================
+FILE: scripts/exploration/run_exploration_heartbeat.py
+====================================================================================================
+
+DESCRIPTION:
+Exploration Runner with Live Heartbeat Stats
+Shows real-time progress per instrument, per run, cumulative, and per portfolio.
+
+Automatically standardizes data (temporal alignment) before each run.
+
+
+CLI ARGUMENTS (7):
+  • "--data-dir", default="data/master",
+                        help="Source data directory (will be standardized
+  • "--config", default="Heartbeat_FullDataset"
+  • "--mae-w", type=float, default=2.5
+  • "--lr", type=float, default=0.05
+  • "--gamma", type=float, default=0.9
+  • "--episodes", type=int, default=50
+  • "--skip-standardize", action="store_true",
+                        help="Skip data standardization (use raw data
+
+CONSTANTS (2):
+  ASSET_CLASS = {
+  LEVERAGE_CAPS = {
+
+FUNCTIONS (1):
+  • get_asset_class(instrument_key)
+
+====================================================================================================
+FILE: scripts/exploration/specialist_agents.py
+====================================================================================================
+
+DESCRIPTION:
+Specialist Agents with Doppelgänger Integration & Self-Healing Portfolio
+
+Architecture:
+- Asset Class Specialists: Forex, Crypto, Index, Commodity, Metals
+- Each specialist has: Live Agent + Shadow A (Frozen) + Shadow B (Online)
+- Virtual PnL tracking with full risk metrics
+- Self-Healing Portfolio Health Score
+
+Risk Metrics:
+- Sharpe, Sortino, Omega (risk-adjusted return)
+- Calmar, Burke, Sterling (drawdown-based)
+- Edge Validation (profit factor, win rate)
+- Portfolio Health Score (composite 0
+
+
+CONSTANTS (1):
+  INSTRUMENT_MAPPING = {
+
+FUNCTIONS (1):
+  • demo_specialist_system()
+
+CLASSES (6):
+  • AssetClass
+  • RiskMetrics
+  • VirtualPortfolio
+  • EdgeValidator
+  • DoppelgangerSpecialist
+  • PortfolioHealthScore
+
+====================================================================================================
+FILE: scripts/exploration/tripleganger_system.py
+====================================================================================================
+
+DESCRIPTION:
+Tripleganger Risk Management System
+
+A comprehensive risk management framework with:
+1. Shadow Agent Architecture (Live + Frozen + Retraining)
+2. Dynamic Circuit Breakers (Kurtosis, VPIN, Flash Crash)
+3. Adaptive Thresholds (No Hardcoded Values)
+4. Trade & Portfolio Risk Management
+5. Exploration vs Live Mode Distinction
+
+Philosophy:
+- Open for exploration during backtesting (learn all patterns)
+- Gated during live trading (protect capital)
+- All thresholds are DYNAMIC (rolling percentiles, z-sc
+
+
+FUNCTIONS (1):
+  • demo_tripleganger()
+
+CLASSES (18):
+  • TradingMode
+  • ModeConfig
+  • AdaptiveThreshold
+  • CircuitBreakerState
+  • BaseCircuitBreaker
+  • KurtosisCircuitBreaker
+  • VPINCircuitBreaker
+  • VolatilityCircuitBreaker
+  • LyapunovCircuitBreaker
+  • FlashCrashCircuitBreaker
+  • CircuitBreakerManager
+  • TradeRiskLimits
+  • TradeRiskManager
+  • PortfolioRiskManager
+  • ShadowAgentState
+  • AgentPerformance
+  • ShadowAgent
+  • TrplegangerSystem
+
+====================================================================================================
+FILE: scripts/fix_silent_failures.py
+====================================================================================================
+
+DESCRIPTION:
+Automated Silent Failure Fixer for Kinetra
+
+This script analyzes detected silent failures and provides automated fixes.
+It can suggest fixes, apply them, and validate the results.
+
+Usage:
+    # Analyze failures and suggest fixes
+    python scripts/fix_silent_failures.py --analyze
+    
+    # Apply fixes automatically (with backup)
+    python scripts/fix_silent_failures.py --fix --auto
+    
+    # Apply specific fix by ID
+    python scripts/fix_silent_failures.py --fix --id FAILURE_ID
+    
+    # Dr
+
+
+CLI ARGUMENTS (5):
+  • 
+        "--analyze",
+        action="store_true",
+        help="Analyze failures and suggest fixes",
+    
+  • 
+        "--fix",
+        action="store_true",
+        help="Apply automated fixes",
+    
+  • 
+        "--dry-run",
+        action="store_true",
+        help="Show what would be fixed without applying",
+    
+  • 
+        "--validate",
+        action="store_true",
+        help="Validate applied fixes",
+    
+  • 
+        "--auto",
+        action="store_true",
+        help="Automatically apply all fixes without confirmation",
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • FailureFixer
+
+====================================================================================================
+FILE: scripts/hunger_games_mvp.py
+====================================================================================================
+
+DESCRIPTION:
+Hunger Games MVP: Alpha Crucible Arena (Real Empirical Edition)
+
+Empirical testing of 20 tributes (5 per category: traditional, physics, imbalance, patterns)
+on real MetaAPI data for top 5 symbols across classes. Runs MC (50x) in Super Harvester,
+with OOS validation (70/30 split). Periods: 2023 (train), 2024 (OOS), combined split.
+Analysis: Win rates (>55%), Omega, Z, unknowns (e.g., corrs, regime drops).
+
+Run: python scripts/hunger_games_mvp.py --symbols EURUSD BTCUSD NAS100 XAUUSD US30 --tf H1
+
+
+CLI ARGUMENTS (4):
+  • 
+        "--symbols",
+        nargs="+",
+        default=SYMBOLS_DEFAULT,
+        help="Top symbols (default: EURUSD BTCUSD NAS100 XAUUSD US30
+  • "--tf", default=TFS_DEFAULT[0], help="Timeframe (default: H1
+  • 
+        "--years", nargs="+", default=YEARS_DEFAULT, help="Years (default: 2023 2024
+  • 
+        "--split", nargs=2, type=int, default=SPLIT_DEFAULT, help="Train/OOS % (default: 70 30
+
+CONSTANTS (14):
+  DATA_DIR = "data/master_standardized"  # Fallback
+  NUM_MC_RUNS = 50
+  BASELINE_OMEGA = 2.7
+  SURVIVAL_OME = BASELINE_OMEGA
+  SURVIVAL_PVAL = 0.01
+  SURVIVAL_UPLIFT = 0.05
+  SYMBOLS_DEFAULT = ["EURUSD", "BTCUSD", "NAS100", "XAUUSD", "US30"]  # Top 5 across classes
+  TFS_DEFAULT = ["H1"]
+  NUM_BARS = 8760  # Full year H1 approx (365*24)
+  YEARS_DEFAULT = ["2023", "2024"]
+
+FUNCTIONS (3):
+  • test_feature_stability(prices, noise)
+  • analyze_period_results(results: List[Dict], symbol: str, period: str, is_)
+  • main(symbols: List[str], tf: str, years: List[str], spl)
+
+CLASSES (1):
+  • EmpiricalSuperHarvester
+
+====================================================================================================
+FILE: scripts/kientra_alpha_pipeline.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Alpha Pipeline: Non-Linear, Asymmetric Phased Workflow
+
+Reject linearity (log-returns, medians, quantiles, non-param KS tests) and symmetry (Omega/RoR,
+skew-clip, asymmetric penalties). Phased evolution:
+
+Phase 1: SuperPot PPO on all symbols (2023/2024/combined 70/30) for survival (Omega>2.7, win>55%,
+OOS drop<5%). Survivors advance.
+
+Phase 2: Crucible on survivors for entry triggers (non-linear features, e.g., log E_t).
+
+Phase 3: Harvesters (log-trail: trail = log(ATR) * rank(E_t)).
+
+Ph
+
+
+CLI ARGUMENTS (4):
+  • "--symbols", nargs="+", default=SYMBOLS_DEFAULT
+  • "--tf", default=TFS_DEFAULT[0]
+  • "--years", nargs="+", default=YEARS_DEFAULT
+  • "--split", nargs=2, type=int, default=SPLIT_DEFAULT
+
+CONSTANTS (15):
+  NUM_MC_RUNS = 50
+  BASELINE_OMEGA = 2.7
+  SURVIVAL_OME = BASELINE_OMEGA
+  SURVIVAL_WIN = 55.0
+  SURVIVAL_OOS_DROP = 5.0  # %
+  SYMBOLS_DEFAULT = ["EURUSD", "BTCUSD", "NAS100", "XAUUSD", "US30"]
+  TFS_DEFAULT = ["H1"]
+  YEARS_DEFAULT = ["2023", "2024"]
+  SPLIT_DEFAULT = [70, 30]
+  METAAPI_TOKEN = os.getenv("METAAPI_TOKEN")
+
+FUNCTIONS (1):
+  • analyze_phases(survivors: List[str], triggers: Dict, mfe: Dict, c)
+
+====================================================================================================
+FILE: scripts/lint_rules.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Rules Linter - Validates code against canonical rules in AGENT_RULES_MASTER.md
+
+This script enforces non-negotiable constraints from the canonical rulebook:
+- No traditional TA indicators (RSI, MACD, BB, ATR, ADX, etc.)
+- No magic numbers in thresholds
+- No hardcoded API keys/credentials
+- Use of PersistenceManager.atomic_save() for data operations
+- Proper RNG seeding in backtest code
+- No live order placement code
+- Vectorization over Python loops where possible
+
+Exit code 0: All check
+
+
+CLI ARGUMENTS (3):
+  • 
+        "paths", nargs="*", help="Specific files or directories to lint (default: kinetra/
+  • 
+        "--check-references",
+        action="store_true",
+        help="Only check that instruction files reference the canonical rulebook",
+    
+  • 
+        "--warnings-as-errors", action="store_true", help="Treat warnings as errors (exit code 1
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • RuleViolation
+  • RulesLinter
+
+====================================================================================================
+FILE: scripts/master_workflow.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Master Workflow
+=======================
+
+Complete end-to-end workflow in one process:
+1. Authentication & account selection
+2. Download data (with options)
+2.5. Auto-convert MT5 format to standard format
+3. Check and fill missing data
+4. Check data integrity
+5. Prepare data (train/test split)
+6. Run exploration (agent comparison)
+
+Features:
+- Atomic credential storage with file tampering detection
+- Automatic backups and recovery
+- Performance measurement and logging
+- Comprehensive fail
+
+
+FUNCTIONS (3):
+  • print_header(text: str)
+  • save_credentials_to_env(token: str, account_id: str = None, wf_manager: Wo)
+  • main()
+
+====================================================================================================
+FILE: scripts/monitor_daemon.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Monitoring Daemon
+=========================
+
+Background daemon for continuous monitoring.
+Can be run as a systemd service.
+
+Usage:
+    python scripts/monitor_daemon.py
+    
+Or install as systemd service:
+    sudo cp scripts/kinetra-monitor.service /etc/systemd/system/
+    sudo systemctl enable kinetra-monitor
+    sudo systemctl start kinetra-monitor
+
+
+CONSTANTS (1):
+  CONFIG = {
+
+FUNCTIONS (3):
+  • setup_logging()
+  • log_event_to_file(event: MonitorEvent, filepath: str)
+  • main()
+
+CLASSES (1):
+  • MonitorDaemon
+
+====================================================================================================
+FILE: scripts/mt5_metaapi_sync.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI MT5 Data Manager - Download & Sync Historical Market Data
+
+Features:
+- Initial download (2+ years of OHLC candles)
+- Incremental sync (extend existing database daily/hourly)
+- Metadata tracking (last sync timestamp)
+- Partial candle handling (refreshes latest 2 candles)
+- Retry logic with exponential backoff
+- Pure Python (no web server needed)
+
+Setup:
+1. Sign up at https://app.metaapi.cloud/ (from residential IP)
+2. Add your MT5 account (demo or live)
+3. Get API token and account ID fro
+
+
+CLI ARGUMENTS (9):
+  • '--init', action='store_true',
+                           help='Initial download (e.g., 2 years
+  • '--sync', action='store_true',
+                           help='Extend existing data with new candles'
+  • '--sync-all', action='store_true',
+                           help='Sync all configured symbols/timeframes'
+  • '--symbol', type=str, default=DEFAULT_SYMBOL,
+                       help=f'Symbol to download (default: {DEFAULT_SYMBOL}
+  • '--timeframe', type=str, default=DEFAULT_TIMEFRAME,
+                       choices=list(TIMEFRAME_MAP.keys(
+  • '--years', type=int, default=DEFAULT_YEARS,
+                       help=f'Years of history for --init (default: {DEFAULT_YEARS}
+  • '--symbols', type=str,
+                       help='Comma-separated symbols for --sync-all (e.g., EURUSD,GBPUSD
+  • '--timeframes', type=str,
+                       help='Comma-separated timeframes for --sync-all (e.g., H1,H4
+  • '--output', type=str, default=str(DEFAULT_OUTPUT_DIR
+
+CONSTANTS (8):
+  DEFAULT_OUTPUT_DIR = Path("data/metaapi")
+  DEFAULT_TIMEFRAME = "H1"
+  DEFAULT_SYMBOL = "EURUSD"
+  DEFAULT_YEARS = 2
+  MIN_BARS = 500
+  MAX_RETRIES = 4
+  RETRY_DELAYS = [2, 4, 8, 16]  # Exponential backoff in seconds
+  TIMEFRAME_MAP = {
+
+CLASSES (1):
+  • MetaAPIDataManager
+
+====================================================================================================
+FILE: scripts/research/__init__.py
+====================================================================================================
+
+====================================================================================================
+FILE: scripts/research/analyze_results.py
+====================================================================================================
+
+DESCRIPTION:
+Results Analysis & Reporting Framework
+========================================
+
+Analyzes multi-dataset harness results to answer key research questions:
+1. Do regimes differ by asset class?
+2. What features predict fat candles?
+3. Are there universal patterns vs class-specific?
+4. How do timeframes affect regime structure?
+
+Usage:
+    python scripts/research/analyze_results.py --input data/research/harness_results_*.json
+
+
+CLI ARGUMENTS (2):
+  • '--input', type=str, required=True, help='Path to harness results JSON'
+  • '--output', type=str, help='Output path for report JSON'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • ResearchQuestion
+  • ResultsAnalyzer
+
+====================================================================================================
+FILE: scripts/research/fat_candle_forensics.py
+====================================================================================================
+
+DESCRIPTION:
+Fat Candle Forensics - What Triggers Big Moves?
+
+RESEARCH QUESTION:
+What conditions precede large market movements ("fat candles")?
+Are these conditions consistent across asset classes?
+Can we predict the next fat candle?
+
+APPROACH:
+1. Find all fat candles (>3 ATR moves)
+2. Look back 5-50 bars before each
+3. Identify which measurements were elevated
+4. Test if patterns are consistent
+5. Build predictive models
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • FatCandlePattern
+  • FatCandleForensics
+
+====================================================================================================
+FILE: scripts/research/measurement_toolkit.py
+====================================================================================================
+
+DESCRIPTION:
+Measurement Toolkit - First Principles Research
+
+ASSUMPTION: We know nothing about what drives markets.
+
+This toolkit provides:
+1. Raw observable measurements (price, volume, time)
+2. Derived measurements (returns, volatility, etc.)
+3. Physics-inspired measurements (energy, damping, etc.)
+4. Statistical validation (correlation, predictive power)
+
+Purpose: Discover empirically what actually matters.
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • MeasurementResult
+  • MeasurementToolkit
+
+====================================================================================================
+FILE: scripts/research/multi_dataset_harness.py
+====================================================================================================
+
+DESCRIPTION:
+Multi-Dataset Testing Harness
+==============================
+
+Runs assumption-free research across all 87 datasets.
+Discovers regimes, identifies patterns, and produces comprehensive analysis.
+
+Usage:
+    python scripts/research/multi_dataset_harness.py [--parallel N] [--output DIR]
+
+
+CLI ARGUMENTS (3):
+  • "--parallel", type=int, default=4, help="Number of parallel workers"
+  • "--output", type=str, default="data/research", help="Output directory"
+  • "--sequential", action="store_true", help="Run sequentially (debug mode
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (4):
+  • DatasetInfo
+  • DatasetResult
+  • DatasetDiscovery
+  • TestHarness
+
+====================================================================================================
+FILE: scripts/run_exhaustive_tests.py
+====================================================================================================
+
+DESCRIPTION:
+Exhaustive Test Runner for Kinetra
+===================================
+
+Comprehensive test orchestration script for local and CI environments.
+
+Usage:
+    # Fast CI mode (subset of combinations)
+    python scripts/run_exhaustive_tests.py --ci-mode
+
+    # Full exhaustive mode (all combinations)
+    python scripts/run_exhaustive_tests.py --full
+
+    # Specific test types
+    python scripts/run_exhaustive_tests.py --test-type unit
+    python scripts/run_exhaustive_tests.py --test-type integration
+ 
+
+
+CLI ARGUMENTS (10):
+  • 
+        "--ci-mode",
+        action="store_true",
+        help="CI mode - fast subset testing (5-10 minutes
+  • 
+        "--full",
+        action="store_true",
+        help="Full exhaustive mode - all combinations (1-2 hours
+  • 
+        "--test-type",
+        choices=["unit", "integration", "monte_carlo", "walk_forward"],
+        help="Specific test type to run",
+    
+  • 
+        "--all",
+        action="store_true",
+        help="Run all test types (unit, integration, monte_carlo, walk_forward
+  • 
+        "--parallel",
+        type=int,
+        metavar="N",
+        help="Number of parallel workers (default: auto
+  • 
+        "--coverage",
+        action="store_true",
+        help="Generate coverage report",
+    
+  • 
+        "--stop-on-fail",
+        action="store_true",
+        help="Stop on first test failure",
+    
+  • 
+        "--skip-verify",
+        action="store_true",
+        help="Skip pre-flight verification",
+    
+  • 
+        "--report-dir",
+        type=Path,
+        default=Path("test_results"
+  • 
+        "--generate-dashboard",
+        action="store_true",
+        help="Generate interactive dashboard report (requires plotly/dash
+
+CONSTANTS (1):
+  PROJECT_ROOT = Path(__file__).parent.parent
+
+CLASSES (1):
+  • Colors
+
+====================================================================================================
+FILE: scripts/run_hpo.py
+====================================================================================================
+
+DESCRIPTION:
+Hyperparameter Optimization (HPO) Runner
+=========================================
+
+Command-line interface for running hyperparameter optimization
+on Kinetra agents using Optuna.
+
+Usage:
+    # Optimize single agent/instrument/timeframe
+    python scripts/run_hpo.py --agent ppo --instrument BTCUSD --timeframe H1 --trials 100
+
+    # Optimize multiple configurations (sweep)
+    python scripts/run_hpo.py --sweep --agents ppo dqn --instruments BTCUSD EURUSD --timeframes H1 H4
+
+    # Use specific data
+
+
+CLI ARGUMENTS (20):
+  • 
+        "--agent",
+        type=str,
+        choices=["ppo", "dqn", "linear_q", "a3c", "sac", "td3"],
+        help="Agent type for single optimization",
+    
+  • 
+        "--sweep",
+        action="store_true",
+        help="Run HPO sweep across multiple configurations",
+    
+  • 
+        "--instrument",
+        type=str,
+        help="Instrument symbol (e.g., BTCUSD, EURUSD
+  • 
+        "--timeframe",
+        type=str,
+        choices=["M15", "M30", "H1", "H4", "D1"],
+        help="Timeframe",
+    
+  • 
+        "--data",
+        type=Path,
+        help="Path to data CSV file (overrides instrument/timeframe auto-load
+  • 
+        "--agents",
+        nargs="+",
+        choices=["ppo", "dqn", "linear_q", "a3c", "sac", "td3"],
+        help="Agent types for sweep mode",
+    
+  • 
+        "--instruments",
+        nargs="+",
+        help="Instruments for sweep mode (e.g., BTCUSD EURUSD XAUUSD
+  • 
+        "--timeframes",
+        nargs="+",
+        choices=["M15", "M30", "H1", "H4", "D1"],
+        help="Timeframes for sweep mode",
+    
+  • 
+        "--trials",
+        type=int,
+        default=100,
+        help="Number of optimization trials (default: 100
+  • 
+        "--monte-carlo",
+        type=int,
+        default=10,
+        help="Monte Carlo runs per trial for robustness (default: 10
+  • 
+        "--timeout",
+        type=int,
+        help="Timeout in seconds (optional
+  • 
+        "--metric",
+        type=str,
+        default="omega",
+        choices=["omega", "sharpe", "z_factor", "energy_pct"],
+        help="Primary metric to optimize (default: omega
+  • 
+        "--study-name",
+        type=str,
+        help="Study name for persistence (auto-generated if not provided
+  • 
+        "--storage",
+        type=str,
+        help="Optuna storage URL (e.g., sqlite:///hpo_studies.db
+  • 
+        "--pruner",
+        type=str,
+        default="median",
+        choices=["median", "successive_halving", "none"],
+        help="Pruning strategy (default: median
+  • 
+        "--n-jobs",
+        type=int,
+        default=1,
+        help="Number of parallel jobs (default: 1, -1 for all cores
+  • 
+        "--output-dir",
+        type=Path,
+        default=Path("hpo_results"
+  • 
+        "--no-progress",
+        action="store_true",
+        help="Disable progress bar",
+    
+  • 
+        "--quiet",
+        action="store_true",
+        help="Suppress non-critical logging",
+    
+  • 
+        "--use-gpu",
+        action="store_true",
+        help="Enable GPU acceleration (requires CUDA/ROCm
+
+FUNCTIONS (5):
+  • parse_args()
+  • validate_args(args)
+  • run_single_optimization(args)
+  • run_sweep_optimization(args)
+  • main()
+
+====================================================================================================
+FILE: scripts/run_local.py
+====================================================================================================
+
+DESCRIPTION:
+KINETRA LOCAL RUNNER
+====================
+Save this as run_local.py in your Kinetra folder and run:
+    python run_local.py
+
+No external dependencies beyond numpy/pandas.
+
+
+FUNCTIONS (3):
+  • find_data_dir()
+  • train_eval(agent, env, train_eps=50, eval_eps=10, max_steps=5)
+  • main()
+
+CLASSES (2):
+  • TradingEnv
+  • PPOAgent
+
+====================================================================================================
+FILE: scripts/run_predictor.py
+====================================================================================================
+
+DESCRIPTION:
+Trigger Predictor Demo
+
+Shows the probability predictor in action on historical data.
+Identifies BERSERKER opportunities with high-probability energy release.
+
+Usage:
+    python scripts/run_predictor.py --symbol BTCUSD
+
+
+CLI ARGUMENTS (4):
+  • '--data', type=str, help='Path to CSV data file'
+  • '--symbol', type=str, default='BTCUSD', help='Symbol name'
+  • '--lookback', type=int, default=20, help='Physics lookback'
+  • '--bars', type=int, default=100, help='Bars to analyze'
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/servers/mt5_bridge_server.py
+====================================================================================================
+
+DESCRIPTION:
+MT5 Bridge Server for WSL2
+
+Run this script on Windows with MT5 terminal open.
+It serves symbol specs and tick data to WSL2 clients.
+
+Usage:
+    python mt5_bridge_server.py [--port 5555]
+
+
+CLI ARGUMENTS (1):
+  • "--port", type=int, default=5555
+
+CLASSES (1):
+  • MT5BridgeServer
+
+====================================================================================================
+FILE: scripts/setup/check_gpu.py
+====================================================================================================
+
+DESCRIPTION:
+GPU Detection Script for ROCm/CUDA
+
+
+====================================================================================================
+FILE: scripts/setup_metaapi_credentials.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI Credential Setup
+========================
+
+Centralized script to configure MetaAPI credentials for Kinetra.
+
+This script:
+1. Prompts for your MetaAPI token (once)
+2. Lets you select/add multiple broker accounts
+3. Saves everything securely to .env
+4. Validates that credentials work
+
+Usage:
+    python scripts/setup_metaapi_credentials.py
+
+    # Re-run to add more accounts:
+    python scripts/setup_metaapi_credentials.py --add-account
+
+Environment Variables Set:
+    METAAPI_TOKEN          
+
+
+CLI ARGUMENTS (1):
+  • 
+        "--add-account",
+        action="store_true",
+        help="Add additional accounts without re-entering token",
+    
+
+FUNCTIONS (3):
+  • print_header(title: str)
+  • write_env_file(env_vars: Dict[str, str], comments: Optional[Dict[)
+  • main()
+
+====================================================================================================
+FILE: scripts/silent_failure_workflow.py
+====================================================================================================
+
+DESCRIPTION:
+Silent Failure Workflow Orchestrator for Kinetra
+
+This script orchestrates the complete workflow for detecting, analyzing, and fixing
+silent failures in the codebase.
+
+Workflow:
+1. Detect failures (run all tests and collect failures)
+2. Analyze failures (categorize and prioritize)
+3. Fix failures (apply automated fixes)
+4. Validate fixes (ensure nothing broke)
+5. Report results (generate comprehensive report)
+
+Usage:
+    # Run complete workflow
+    python scripts/silent_failure_workflow.py
+    
+
+
+
+CLI ARGUMENTS (5):
+  • 
+        "--dry-run",
+        action="store_true",
+        help="Run in dry-run mode (no actual fixes applied
+  • 
+        "--quick",
+        action="store_true",
+        help="Run in quick mode (faster, less comprehensive
+  • 
+        "--detect-only",
+        action="store_true",
+        help="Only run failure detection",
+    
+  • 
+        "--analyze-only",
+        action="store_true",
+        help="Only run failure analysis",
+    
+  • 
+        "--fix-only",
+        action="store_true",
+        help="Only run fixing (assumes detection already run
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • WorkflowOrchestrator
+
+====================================================================================================
+FILE: scripts/testing/AUTOMATED_AUDIT_FIX.py
+====================================================================================================
+
+DESCRIPTION:
+Automated Audit & Fix Tool for All Testing Scripts
+===================================================
+
+This script systematically audits and fixes ALL testing/training scripts for:
+1. Scientific rigor violations (random data per agent)
+2. Data persistence failures (no atomic saves)
+3. Missing checkpointing
+4. Non-atomic writes
+
+Usage:
+    python scripts/testing/AUTOMATED_AUDIT_FIX.py --audit    # Show issues
+    python scripts/testing/AUTOMATED_AUDIT_FIX.py --fix      # Apply fixes
+    python s
+
+
+CLI ARGUMENTS (4):
+  • '--audit', action='store_true', help='Run audit and show report'
+  • '--fix', action='store_true', help='Apply automated fixes'
+  • '--verify', action='store_true', help='Verify all fixes applied'
+  • '--output', default='AUDIT_REPORT.txt', help='Output report file'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • AuditIssue
+  • TestScriptAuditor
+
+====================================================================================================
+FILE: scripts/testing/batch_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Batch backtesting script for multiple instruments.
+
+
+CLI ARGUMENTS (3):
+  • '--instrument', type=str, default='BTCUSD', help='Instrument to backtest'
+  • '--timeframe', type=str, default='H1', help='Timeframe'
+  • '--runs', type=int, default=1, help='Number of Monte Carlo runs'
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/conftest.py
+====================================================================================================
+
+DESCRIPTION:
+Pytest configuration for Kinetra testing.
+
+Adds command-line options for test data selection.
+
+
+FUNCTIONS (1):
+  • pytest_addoption(parser)
+
+====================================================================================================
+FILE: scripts/testing/continuous_fix_pipeline.py
+====================================================================================================
+
+DESCRIPTION:
+Continuous Testing, Fixing, and Verification Pipeline
+======================================================
+
+Automated pipeline for production readiness:
+1. Run comprehensive tests
+2. Collect and categorize errors
+3. Apply automated fixes
+4. Verify fixes
+5. Report progress
+6. Loop until production-ready
+
+Usage:
+    python scripts/testing/continuous_fix_pipeline.py [--max-cycles 10] [--auto-fix]
+
+
+CLI ARGUMENTS (3):
+  • 
+        '--max-cycles',
+        type=int,
+        default=10,
+        help='Maximum test-fix cycles (default: 10
+  • 
+        '--auto-fix',
+        action='store_true',
+        help='Automatically apply fixes where possible'
+    
+  • 
+        '--log-dir',
+        type=str,
+        default='logs/continuous_pipeline',
+        help='Directory for logs'
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • ErrorCategory
+  • ContinuousTestPipeline
+
+====================================================================================================
+FILE: scripts/testing/continuous_menu_test.py
+====================================================================================================
+
+DESCRIPTION:
+Continuous Menu Testing Framework
+==================================
+
+Runs menu testing continuously with comprehensive error logging and auto-fixing.
+
+Features:
+- Continuous testing loop
+- Comprehensive error logging
+- Automatic error recovery
+- Missing script detection and creation
+- Data preparation automation
+- Statistics tracking and reporting
+- Graceful shutdown on KeyboardInterrupt
+
+Usage:
+    python scripts/testing/continuous_menu_test.py [options]
+    
+Options:
+    --max-iterations N   
+
+
+CLI ARGUMENTS (5):
+  • 
+        '--max-iterations',
+        type=int,
+        default=None,
+        help='Maximum number of test iterations (default: unlimited
+  • 
+        '--delay',
+        type=float,
+        default=5.0,
+        help='Delay between iterations in seconds (default: 5.0
+  • 
+        '--no-fix',
+        action='store_true',
+        help='Disable automatic error fixing'
+    
+  • 
+        '--log-file',
+        type=str,
+        default='logs/continuous_menu_test.log',
+        help='Path to log file (default: logs/continuous_menu_test.log
+  • 
+        '--no-prepare',
+        action='store_true',
+        help='Do not prepare test data automatically'
+    
+
+FUNCTIONS (2):
+  • main()
+  • main()
+
+CLASSES (4):
+  • MenuTestError
+  • MissingScriptError
+  • DataPreparationError
+  • ContinuousMenuTester
+
+====================================================================================================
+FILE: scripts/testing/demo_backtest_improvements.py
+====================================================================================================
+
+DESCRIPTION:
+Demo script showing BacktestEngine improvements.
+
+Demonstrates:
+1. Timeframe-aware metric calculations
+2. Margin level tracking
+3. Safe math operations
+4. MT5-style logging (optional)
+5. Comprehensive data validation
+
+
+FUNCTIONS (4):
+  • create_eurusd_spec()
+  • create_trending_data(n_bars=200, trend_strength=0.0001)
+  • simple_trend_signal(row, physics_state, bar_index)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/example_testing_framework.py
+====================================================================================================
+
+DESCRIPTION:
+Example: How to Use the Testing Framework Programmatically
+
+This script demonstrates how to use the Kinetra Testing Framework
+in your own code to run custom experiments.
+
+
+FUNCTIONS (5):
+  • example_minimal()
+  • example_comprehensive()
+  • example_custom_metrics()
+  • example_statistical_validation()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/exercise_menu_continuous.py
+====================================================================================================
+
+DESCRIPTION:
+Continuous Menu Exerciser
+==========================
+
+Exercises the Kinetra menu system continuously by:
+- Navigating through all menu options automatically
+- Testing each function path
+- Logging all errors encountered
+- Collecting statistics on menu behavior
+- Identifying missing scripts and broken paths
+
+Usage:
+    python scripts/testing/exercise_menu_continuous.py [--iterations N] [--log-file PATH]
+
+
+CLI ARGUMENTS (3):
+  • 
+        '--iterations',
+        type=int,
+        default=1,
+        help='Number of iterations to run (default: 1
+  • 
+        '--log-file',
+        type=str,
+        default='logs/menu_exercise.log',
+        help='Path to log file'
+    
+  • 
+        '--quiet',
+        action='store_true',
+        help='Suppress console output'
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • MenuExerciser
+
+====================================================================================================
+FILE: scripts/testing/exercise_menu_with_real_data.py
+====================================================================================================
+
+DESCRIPTION:
+Real Data Menu Exerciser
+=========================
+
+Exercises the Kinetra menu system with real data to identify:
+- Performance bottlenecks
+- Data handling issues
+- Memory problems
+- Slow operations
+
+Uses actual data from data/master/ directory (87 CSV files, 117MB).
+
+Usage:
+    python scripts/testing/exercise_menu_with_real_data.py [--verbose] [--profile]
+
+
+CLI ARGUMENTS (3):
+  • 
+        '--log-file',
+        type=str,
+        default='logs/real_data_exercise.log',
+        help='Path to log file'
+    
+  • 
+        '--profile',
+        action='store_true',
+        help='Enable profiling'
+    
+  • 
+        '--quiet',
+        action='store_true',
+        help='Suppress console output'
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • RealDataExerciser
+
+====================================================================================================
+FILE: scripts/testing/integrate_realistic_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Integration Guide: Realistic Backtesting in Exploration Framework
+
+Shows how to use RealisticBacktester to get accurate, repeatable
+exploration results that transfer to live trading.
+
+Key idea: After training, validate with realistic backtest BEFORE deploying.
+
+
+FUNCTIONS (3):
+  • print_validation_summary(result: BacktestResult, spec: SymbolSpec)
+  • compare_simple_vs_realistic(agent, data: pd.DataFrame, spec: SymbolSpec)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/multi_tf_test.py
+====================================================================================================
+
+FUNCTIONS (3):
+  • atomic_save(data, filepath)
+  • process_group(args)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/phase2_validation.py
+====================================================================================================
+
+DESCRIPTION:
+Phase 2: Integration Testing Script
+====================================
+
+Validates that P0-P5 components work together end-to-end.
+
+Tests:
+1. P0 Validation: DSP-driven features (no fixed periods)
+2. P1 Validation: RL agent training via testing framework
+3. P2 Validation: Physics integration in environment
+4. P3 Validation: Chaos discovery integrated
+5. End-to-End: Full test suite comparison
+
+Usage:
+    python scripts/testing/phase2_validation.py --quick
+    python scripts/testing/phase2_validat
+
+
+CLI ARGUMENTS (3):
+  • '--quick', action='store_true', help='Quick test (fewer episodes
+  • '--full', action='store_true', help='Full test suite'
+  • '--test', type=str, help='Run specific test (p0, p1, p2, p3, e2e
+
+FUNCTIONS (6):
+  • test_p0_dsp_features()
+  • test_p1_rl_agents(quick: bool = True)
+  • test_p2_physics_env()
+  • test_p3_chaos_discovery(quick: bool = True)
+  • test_end_to_end_integration(quick: bool = True)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/rl_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+RL-Integrated Backtester
+
+Runs backtests in VIRTUAL mode (no gates) and collects experience for RL training.
+
+Features:
+- Physics-based state representation
+- Friction-aware reward shaping
+- Adaptive regime classification
+- Atomic checkpointing
+- Experience replay buffer collection
+
+Usage:
+    python scripts/rl_backtest.py [data/*.csv]
+    python scripts/rl_backtest.py --synthetic  # Generate test data
+
+
+CLI ARGUMENTS (5):
+  • 'files', nargs='*', help='CSV data files'
+  • '--synthetic', action='store_true', help='Use synthetic data'
+  • '--bars', type=int, default=2000, help='Bars for synthetic data'
+  • '--symbol', default='EURUSD', help='Symbol name'
+  • '--checkpoint-dir', default='./checkpoints', help='Checkpoint directory'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • Experience
+  • TradeResult
+
+====================================================================================================
+FILE: scripts/testing/run_comprehensive_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Comprehensive Physics Backtest Runner with Detailed Logging
+
+Runs all physics strategies on each CSV file with extensive per-trade
+and per-run statistics for reward shaping and composite health scores.
+
+Output:
+- Per-trade details (JSON + CSV) for RL reward shaping
+- Per-run metrics for composite health score
+- Physics state analysis per trade
+
+Usage:
+    python scripts/run_comprehensive_backtest.py /path/to/data/*.csv
+
+
+CLI ARGUMENTS (3):
+  • 
+        'csv_files',
+        nargs='*',
+        help='CSV files to process'
+    
+  • 
+        '--monte-carlo',
+        type=int,
+        default=None,
+        help='Number of Monte Carlo runs (uses prepared data
+  • 
+        '--output-dir',
+        type=str,
+        default='backtest_results',
+        help='Output directory for results'
+    
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/run_exploration_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Kinetra Exploration Backtest
+
+Comprehensive exploration of trading strategies across:
+- Multiple symbols (EURJPY, GBPUSD, XAUUSD, etc.)
+- Multiple timeframes (M15, H1, H4)
+- Multiple strategies (MA crossover, breakout, mean reversion)
+- Parameter optimization
+- Full MT5-style logging
+- Grafana metrics export
+- Health monitoring
+- Agent performance tracking
+
+This is a production-quality exploration run that demonstrates
+the full power of the Kinetra adaptive trading system.
+
+
+FUNCTIONS (1):
+  • run_exploration_backtest()
+
+CLASSES (1):
+  • StrategyGenerator
+
+====================================================================================================
+FILE: scripts/testing/run_full_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Full Physics Backtest Runner with Plotting
+
+Runs all physics strategies (v7.0) on each CSV file and plots results.
+
+Usage:
+    python scripts/run_full_backtest.py /path/to/your/data/*.csv
+    python scripts/run_full_backtest.py /home/renier/QuantumHunter/*.csv
+
+Example:
+    python scripts/run_full_backtest.py data/master/forex/EURUSD_H1_*.csv data/master/crypto/BTCUSD_H1_*.csv
+
+
+CONSTANTS (1):
+  ALL_STRATEGIES = {
+
+FUNCTIONS (4):
+  • plot_comparison(results_df: pd.DataFrame, title: str = "Strategy C)
+  • plot_equity_curves(df: pd.DataFrame, results_df: pd.DataFrame, title:)
+  • analyze_physics(df: pd.DataFrame)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/run_live_test.py
+====================================================================================================
+
+DESCRIPTION:
+Live Testing Script for Kinetra
+================================
+
+Implements live testing workflow with safety gates:
+- Virtual (paper) trading mode
+- Demo account testing
+- Live connection testing
+- Real-time monitoring with CHS tracking
+
+Safety Philosophy:
+- NEVER deploy to live without demo validation
+- Circuit breakers halt on CHS < 0.55
+- All trades validated by OrderValidator
+- Real-time risk monitoring
+
+Usage:
+    # Virtual/paper trading (no real connection)
+    python scripts/testing/run
+
+
+CLI ARGUMENTS (7):
+  • 
+        '--mode',
+        choices=['virtual', 'demo', 'live'],
+        default='virtual',
+        help='Testing mode'
+    
+  • 
+        '--symbol',
+        default='EURUSD',
+        help='Trading symbol'
+    
+  • 
+        '--agent',
+        default='ppo',
+        choices=['ppo', 'dqn', 'linear', 'berserker', 'triad'],
+        help='Agent type'
+    
+  • 
+        '--duration',
+        type=int,
+        default=60,
+        help='Test duration in minutes'
+    
+  • 
+        '--max-trades',
+        type=int,
+        default=10,
+        help='Maximum trades before auto-stop'
+    
+  • 
+        '--chs-threshold',
+        type=float,
+        default=0.55,
+        help='CHS circuit breaker threshold'
+    
+  • 
+        '--test-connection',
+        action='store_true',
+        help='Test MT5 connection only'
+    
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • LiveTestRunner
+
+====================================================================================================
+FILE: scripts/testing/run_physics_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Physics-Based Backtesting Runner
+
+Empirically tests thermodynamics/physics/kinematics trading strategies
+using REAL MT5 market data.
+
+Usage:
+    python scripts/run_physics_backtest.py --data path/to/mt5_data.csv
+    python scripts/run_physics_backtest.py --data path/to/data.csv --strategy multi_physics
+    python scripts/run_physics_backtest.py --data path/to/data.csv --compare-all
+    python scripts/run_physics_backtest.py --data path/to/data.csv --walk-forward
+
+Examples:
+    # Run single strat
+
+
+CLI ARGUMENTS (18):
+  • '--data', '-d', required=True,
+                        help='Path to MT5 CSV data file'
+  • '--compare-all', action='store_true',
+                            help='Compare all physics strategies'
+  • '--walk-forward', action='store_true',
+                            help='Run walk-forward validation'
+  • '--optimize', action='store_true',
+                            help='Optimize strategy parameters'
+  • '--analyze', action='store_true',
+                            help='Analyze physics state only (no trading
+  • '--strategy', '-s', default='multi_physics',
+                        choices=list_strategies(
+  • '--start-date', help='Start date (YYYY-MM-DD
+  • '--end-date', help='End date (YYYY-MM-DD
+  • '--include-weekends', action='store_true',
+                        help='Include weekend data'
+  • '--cash', type=float, default=100000,
+                        help='Initial capital (default: 100000
+  • '--commission', type=float, default=0.001,
+                        help='Commission per trade (default: 0.001
+  • '--margin', type=float, default=1.0,
+                        help='Margin requirement (default: 1.0
+  • '--train-bars', type=int, default=500,
+                        help='Training window size (default: 500
+  • '--test-bars', type=int, default=100,
+                        help='Test window size (default: 100
+  • '--step-bars', type=int, default=50,
+                        help='Step size between windows (default: 50
+  • '--optimize-each-window', action='store_true',
+                        help='Optimize parameters for each window'
+  • '--optimize-for', default='Return [%]',
+                        help='Metric to optimize (default: Return [%%]
+  • '--output', '-o', help='Output file for results'
+
+FUNCTIONS (8):
+  • print_header(title: str)
+  • print_section(title: str)
+  • run_single_backtest(args)
+  • run_strategy_comparison(args)
+  • run_walk_forward(args)
+  • run_optimization(args)
+  • analyze_physics_state(args)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/run_scientific_testing.py
+====================================================================================================
+
+DESCRIPTION:
+Master Orchestrator for Scientific Testing Framework
+=====================================================
+
+Complete testing programme execution with:
+1. Data validation and preparation
+2. Discovery method execution
+3. Statistical validation (PBO, CPCV)
+4. Integrated backtesting
+5. Code review integration
+6. Auto-fixing and continuation
+7. Progress tracking and resumption
+
+Usage:
+    # Full scientific testing program
+    python scripts/run_scientific_testing.py --full
+    
+    # Quick validation
+
+
+CLI ARGUMENTS (6):
+  • '--full', action='store_true',
+                       help='Run complete testing programme'
+  • '--quick', action='store_true',
+                       help='Quick mode for validation'
+  • '--phase', type=str,
+                       choices=['data', 'discovery', 'validation', 'backtest', 'report'],
+                       help='Run specific phase only'
+  • '--output-dir', type=str, default='scientific_testing_results',
+                       help='Output directory'
+  • '--no-git-sync', action='store_true',
+                       help='Disable git sync checks (for offline/local-only usage
+  • '--check-sync', action='store_true',
+                       help='Only check git sync status and exit'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • ScientificTestingOrchestrator
+
+====================================================================================================
+FILE: scripts/testing/scripts/backtest_compare.py
+====================================================================================================
+
+DESCRIPTION:
+Backtest Compare
+================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/backtest_full.py
+====================================================================================================
+
+DESCRIPTION:
+Backtest Full
+=============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/backtest_risk.py
+====================================================================================================
+
+DESCRIPTION:
+Backtest Risk
+=============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/backtest_specialists.py
+====================================================================================================
+
+DESCRIPTION:
+Backtest Specialists
+====================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/backtest_universal.py
+====================================================================================================
+
+DESCRIPTION:
+Backtest Universal
+==================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_compare_agents.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Compare Agents
+======================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_full.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Full
+============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_measurements.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Measurements
+====================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_policies.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Policies
+================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_risk.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Risk
+============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_stacking.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Stacking
+================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/explore_universal.py
+====================================================================================================
+
+DESCRIPTION:
+Explore Universal
+=================
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/optimize_full.py
+====================================================================================================
+
+DESCRIPTION:
+Optimize Full
+=============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/optimize_params.py
+====================================================================================================
+
+DESCRIPTION:
+Optimize Params
+===============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/optimize_replay.py
+====================================================================================================
+
+DESCRIPTION:
+Optimize Replay
+===============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/scripts/optimize_risk.py
+====================================================================================================
+
+DESCRIPTION:
+Optimize Risk
+=============
+
+Stub implementation - exits gracefully for testing.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_backtest_numerical_validation.py
+====================================================================================================
+
+DESCRIPTION:
+Comprehensive Backtest Numerical Validation
+============================================
+
+Tests for financial calculation accuracy:
+- Floating point precision
+- Division by zero protection
+- NaN/Inf handling
+- Large/small number handling
+- Overflow/underflow prevention
+- Digit normalization
+- Financial auditing standards compliance
+
+Run: python scripts/test_backtest_numerical_validation.py
+
+
+FUNCTIONS (2):
+  • run_all_tests()
+  • run_full_backtest_validation()
+
+CLASSES (6):
+  • TestSafeMath
+  • TestDigitNormalizer
+  • TestPnLCalculator
+  • TestRiskMetrics
+  • TestAuditTrail
+  • TestBacktestEngineNumerical
+
+====================================================================================================
+FILE: scripts/testing/test_backtest_trend.py
+====================================================================================================
+
+DESCRIPTION:
+Incremental Backtest Test - T3 MA Crossover + ADX + Chandelier Exit Strategy
+
+Tests the backtest engine with a trend-following strategy:
+- T3 Moving Average crossover (Tim Tillson, 1998)
+- ADX filter with +DI/-DI directional confirmation
+- Chandelier Exit for trailing stops
+
+Usage:
+    python scripts/test_backtest_trend.py
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • TrendStrategy
+
+====================================================================================================
+FILE: scripts/testing/test_berserker_strategy.py
+====================================================================================================
+
+DESCRIPTION:
+Test Berserker Strategy: Fat Candle Hunter with Energy Recovery Exit
+
+Tests:
+1. Fat candle prediction accuracy (magnitude)
+2. Direction: Laminar=continuation, Turbulent=reversal
+3. Energy recovery exit with dynamic MAE/MFE thresholds
+
+
+FUNCTIONS (7):
+  • df()
+  • feature_df(df)
+  • test_fat_candle_prediction(df: pd.DataFrame, feature_df: pd.DataFrame)
+  • test_direction_by_flow(df: pd.DataFrame, feature_df: pd.DataFrame)
+  • test_energy_recovery_exit(df: pd.DataFrame, feature_df: pd.DataFrame)
+  • analyze_flow_regime_performance(df: pd.DataFrame)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_doppelganger_triad.py
+====================================================================================================
+
+DESCRIPTION:
+DoppelgangerTriad Integration Test
+
+Tests the DoppelgangerTriad system with real RL agents:
+1. Integration with KinetraAgent (PPO-based)
+2. Drift detection with performance degradation
+3. Promotion logic with improvement
+4. Rollback capability
+5. Trade result tracking
+
+This validates the shadow agent system works correctly for continual learning.
+
+
+FUNCTIONS (9):
+  • test_triad_initialization()
+  • test_action_selection()
+  • test_learning_update()
+  • test_trade_tracking()
+  • test_drift_detection()
+  • test_promotion_logic()
+  • test_rollback()
+  • test_system_summary()
+  • run_all_tests()
+
+====================================================================================================
+FILE: scripts/testing/test_e2e_symbols_timeframes.py
+====================================================================================================
+
+DESCRIPTION:
+End-to-End Test: 2 Symbols × 2 Timeframes
+==========================================
+
+Complete E2E test that validates the full Kinetra pipeline:
+1. MetaAPI authentication and connection
+2. Symbol/timeframe data download/update
+3. Data validation and preparation
+4. Superpot test suite execution
+5. Theorem validation workflow
+6. Comprehensive reporting
+
+Features:
+- On/off ramps: abort, skip, retry, exit at each stage
+- Full logging with real-time recovery
+- State persistence and restoration
+- Ato
+
+
+CLI ARGUMENTS (7):
+  • 
+        '--symbols',
+        nargs='+',
+        default=['BTCUSD', 'EURUSD'],
+        help='Symbols to test (default: BTCUSD EURUSD
+  • 
+        '--timeframes',
+        nargs='+',
+        default=['H1', 'H4'],
+        help='Timeframes to test (default: H1 H4
+  • 
+        '--days',
+        type=int,
+        default=365,
+        help='Days of history to download (default: 365
+  • 
+        '--quick',
+        action='store_true',
+        help='Quick test mode (fewer episodes, less history
+  • 
+        '--resume',
+        action='store_true',
+        help='Resume from latest checkpoint'
+    
+  • 
+        '--checkpoint',
+        type=str,
+        help='Resume from specific checkpoint file'
+    
+  • 
+        '--action-on-error',
+        choices=['abort', 'skip', 'retry', 'prompt'],
+        default='retry',
+        help='Action on error (default: retry
+
+CLASSES (5):
+  • StageStatus
+  • ActionOnError
+  • StageResult
+  • E2ETestConfig
+  • E2ETestOrchestrator
+
+====================================================================================================
+FILE: scripts/testing/test_end_to_end.py
+====================================================================================================
+
+DESCRIPTION:
+End-to-End Integration Test
+
+Tests the complete adaptive trading system pipeline:
+1. Data loading (real EURJPY M15 market data)
+2. DoppelgangerTriad initialization with KinetraAgent
+3. Realistic backtesting with MT5 constraints
+4. Trade lifecycle execution (entry → MFE/MAE → exit)
+5. Experience replay integration
+6. Portfolio health monitoring (4 pillars)
+7. Drift detection and agent promotion
+8. Complete system integration
+
+This validates that all components work together correctly in productio
+
+
+FUNCTIONS (15):
+  • data()
+  • spec()
+  • triad()
+  • signals(data)
+  • result(data, signals, spec)
+  • logger()
+  • buffer()
+  • labeler()
+  • monitor()
+  • run_backtest(data: pd.DataFrame, signals: pd.DataFrame, spec: S)
+  • test_experience_replay(result)
+  • test_health_monitoring(result, triad: DoppelgangerTriad)
+  • test_drift_and_promotion(triad: DoppelgangerTriad)
+  • validate_system_integration()
+  • run_end_to_end_test()
+
+====================================================================================================
+FILE: scripts/testing/test_energy_recovery_hypotheses.py
+====================================================================================================
+
+DESCRIPTION:
+Empirical Test of Energy Recovery Hypotheses from Theorem Proofs
+
+Hypotheses to test:
+1. Energy extraction efficiency η = 68% achievable
+2. ARS reward components: optimal α (MFE), β (MAE), γ (Time)
+3. ATR normalization improves regime-invariance
+4. Time penalty reduces overholding losses
+
+ARS Formula from theorem:
+R_t = (PnL / E_t) + α·(MFE/ATR) - β·(MAE/ATR) - γ·Time
+
+
+FUNCTIONS (8):
+  • df()
+  • signals(df)
+  • direction_col()
+  • test_hypothesis_1_energy_efficiency(df, signals, direction_col)
+  • test_hypothesis_2_ars_weights(df, signals, direction_col)
+  • test_hypothesis_3_atr_normalization(df, signals, direction_col)
+  • test_hypothesis_4_time_penalty(df, signals, direction_col)
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_experience_replay.py
+====================================================================================================
+
+DESCRIPTION:
+Test Experience Replay System - Integration Test
+
+Tests the continual learning pipeline end-to-end with a single instrument:
+1. TradeLogger captures all state correctly
+2. TradeLabeler labels trades properly
+3. ExperienceAnalyzer finds patterns
+4. PrioritizedReplayBuffer prioritizes correctly
+5. Full pipeline integrates without errors
+
+NOT testing profitability - testing EXECUTION and LOGIC.
+
+
+FUNCTIONS (7):
+  • test_trade_logger()
+  • test_trade_labeler()
+  • test_experience_analyzer()
+  • test_prioritized_replay_buffer()
+  • test_full_pipeline()
+  • test_drift_detection()
+  • run_all_tests()
+
+====================================================================================================
+FILE: scripts/testing/test_exploration_strategies.py
+====================================================================================================
+
+DESCRIPTION:
+Exploration-Based ML/RL Strategy Testing
+
+FIRST PRINCIPLES APPROACH - No Gating, Pure Exploration
+
+Two paradigms:
+1. Fat Candle Hunter: "Find me an edge by focusing on fat candles"
+2. Laminar Flow Trader: "Find the best trend opportunities via rolling distributions"
+
+NO magic numbers - physics/kinematics based with adaptive features.
+NO pre-filtering or gating - let the agent discover what matters.
+We don't know what we don't know.
+
+Usage:
+    python scripts/test_exploration_strategies.py --symb
+
+
+CLI ARGUMENTS (4):
+  • "--symbol", type=str, default="BTCUSD", help="Symbol to test"
+  • "--data", type=str, help="Path to CSV data file"
+  • 
+        "--mode",
+        type=str,
+        choices=["fat_candle", "laminar"],
+        default="fat_candle",
+        help="Exploration mode",
+    
+  • "--episodes", type=int, default=10, help="Number of episodes"
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (4):
+  • FatCandleRewardShaper
+  • LaminarFlowRewardShaper
+  • SimpleExplorationAgent
+  • ExplorationResult
+
+====================================================================================================
+FILE: scripts/testing/test_framework_integration.py
+====================================================================================================
+
+DESCRIPTION:
+Framework Integration Test
+
+Tests the complete pipeline:
+1. UnifiedDataLoader → DataPackage
+2. MT5 spec loading from JSON
+3. MultiInstrumentLoader integration
+4. Exploration engine compatibility
+
+Features:
+- Atomic result persistence (crash-safe)
+- Parallel test execution (multiprocessing)
+- Detailed logging
+
+Goal: Find where it breaks, not prove it works!
+
+
+FUNCTIONS (7):
+  • test_1_data_package()
+  • test_2_unified_data_loader()
+  • test_3_instrument_specs_json()
+  • test_4_multi_instrument_loader()
+  • test_5_exploration_env_compatibility()
+  • test_6_market_type_detection()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_freeze_zones.py
+====================================================================================================
+
+DESCRIPTION:
+Test MT5 Freeze Zones and Stops Levels Implementation
+
+Verifies:
+1. SymbolSpec has new fields (trade_stops_level, trade_freeze_level, etc.)
+2. Validation methods work correctly
+3. JSON serialization includes new fields
+4. Data loader can read specs with new fields
+
+
+FUNCTIONS (6):
+  • test_new_fields()
+  • test_stop_distance_validation()
+  • test_safe_stop_distance()
+  • test_json_serialization()
+  • test_data_loader_compatibility()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_friction_costs.py
+====================================================================================================
+
+DESCRIPTION:
+Friction Costs Test - Comprehensive Validation
+
+Tests all transaction costs:
+1. Spread (entry + exit, dynamic per-candle)
+2. Commission (per lot, both sides)
+3. Swap (daily rollover)
+4. Triple swap (Wednesday 3x rollover)
+5. Slippage (optional)
+
+Validates that sim-to-real gap is minimized by accurate friction modeling.
+
+
+FUNCTIONS (6):
+  • test_spread_costs()
+  • test_commission()
+  • test_daily_swap()
+  • test_triple_swap()
+  • test_all_costs_combined()
+  • run_all_tests()
+
+====================================================================================================
+FILE: scripts/testing/test_grafana_export.py
+====================================================================================================
+
+DESCRIPTION:
+Grafana Export Test
+
+Demonstrates exporting all Kinetra metrics to Grafana for visualization:
+- Real-time trade metrics
+- Friction costs breakdown
+- Execution quality (MFE/MAE)
+- Portfolio health monitoring
+- Market regime tracking
+- Agent performance
+
+Supports multiple backends:
+- Prometheus (pull-based scraping)
+- InfluxDB (push-based)
+- Graphite (push-based)
+- JSON (debugging)
+
+
+FUNCTIONS (1):
+  • run_backtest_with_grafana_export()
+
+====================================================================================================
+FILE: scripts/testing/test_infrastructure_modules.py
+====================================================================================================
+
+DESCRIPTION:
+Infrastructure Modules Test Suite
+=================================
+
+Tests for:
+- Network resilience (latency, reconnect, redundancy)
+- Hardware optimization (detection, auto-tuning)
+- Trading costs (spread, commission, swap, slippage)
+
+Run: python scripts/test_infrastructure_modules.py
+
+
+FUNCTIONS (3):
+  • run_all_tests()
+  • demo_hardware_profile()
+  • demo_trading_costs()
+
+CLASSES (4):
+  • TestNetworkResilience
+  • TestHardwareOptimizer
+  • TestTradingCosts
+  • TestPrebuiltSpecs
+
+====================================================================================================
+FILE: scripts/testing/test_marginal_gains.py
+====================================================================================================
+
+DESCRIPTION:
+Test marginal/incremental gains of stacking direction filters.
+
+Question: What is the cumulative edge when we add each filter?
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_menu.py
+====================================================================================================
+
+DESCRIPTION:
+Testing Menu
+============
+
+Main testing interface offering:
+1. Exploration - First principles discovery
+2. Optimization - Replay learning
+3. Backtesting - Validate strategies
+
+Usage:
+    python scripts/test_menu.py
+
+
+FUNCTIONS (5):
+  • print_header(text: str)
+  • show_exploration_menu()
+  • show_optimization_menu()
+  • show_backtest_menu()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_metaapi_auth.py
+====================================================================================================
+
+DESCRIPTION:
+MetaAPI Authentication & Data Download Test
+
+
+FUNCTIONS (2):
+  • api_token()
+  • account_id()
+
+====================================================================================================
+FILE: scripts/testing/test_mt5_authentication.py
+====================================================================================================
+
+DESCRIPTION:
+MT5 Terminal Authentication & Data Download Test
+================================================
+
+Complete test of MT5 terminal connection including:
+1. Authentication/login to trading account
+2. Terminal info verification
+3. Account info retrieval
+4. Symbol data download
+5. Data validation
+6. Save to CSV
+
+This demonstrates the FULL pipeline from authentication to data download.
+
+
+====================================================================================================
+FILE: scripts/testing/test_mt5_friction.py
+====================================================================================================
+
+DESCRIPTION:
+Test MT5 Bridge and Friction Model
+
+Demonstrates:
+1. Connecting to MT5 (auto-detects mode)
+2. Getting live friction data
+3. Physics-based friction estimation from bar data
+
+Usage:
+    # From WSL2 (needs bridge server on Windows)
+    python scripts/test_mt5_friction.py
+
+    # On Windows with MT5
+    python scripts/test_mt5_friction.py
+
+
+FUNCTIONS (4):
+  • test_mt5_connection()
+  • test_physics_friction()
+  • test_friction_series()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_mt5_logger.py
+====================================================================================================
+
+DESCRIPTION:
+MT5-Style Logger Test
+
+Demonstrates enhanced transaction logging with:
+- Real-time order/deal logging
+- Position tracking with detailed metrics
+- Comprehensive friction cost breakdown
+- MFE/MAE analysis
+- Regime tracking
+- Health monitoring
+- Final summary statistics
+
+Mimics MT5's backtest output but with significantly more detail.
+
+
+FUNCTIONS (1):
+  • run_backtest_with_logging()
+
+====================================================================================================
+FILE: scripts/testing/test_mt5_vantage_full.py
+====================================================================================================
+
+DESCRIPTION:
+Complete MT5 Vantage Backtest - End to End
+==========================================
+
+Full pipeline:
+1. Download real MT5 data from Vantage terminal
+2. Process and validate data
+3. Generate real strategy signals (MA crossover)
+4. Run realistic backtest with all friction costs
+5. MT5-style enhanced logging
+6. Grafana metrics export
+7. Complete analysis
+
+This is a GENUINE backtest with REAL data and REAL strategy.
+
+
+FUNCTIONS (1):
+  • run_complete_backtest()
+
+====================================================================================================
+FILE: scripts/testing/test_multi_instrument.py
+====================================================================================================
+
+DESCRIPTION:
+Test multi-instrument backtest functionality.
+Uses two instruments from available data.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_numerical_safety.py
+====================================================================================================
+
+DESCRIPTION:
+Numerical Safety & Data Validation Tests
+
+Tests for production-critical issues:
+- Array overflow/underflow
+- NaN propagation
+- Memory leaks
+- Normalization stability
+- Scaling edge cases
+- Safe maths operations
+- Atomic persistence
+
+Goal: Break it before production does!
+
+
+FUNCTIONS (12):
+  • test_nan_propagation()
+  • test_overflow_underflow()
+  • test_normalization_stability()
+  • test_memory_leaks()
+  • test_safe_division()
+  • test_atomic_persistence()
+  • test_array_broadcasting()
+  • test_digit_precision()
+  • test_floating_point_precision()
+  • test_type_conversions()
+  • test_timestamp_precision()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_p0_p5_integration.py
+====================================================================================================
+
+DESCRIPTION:
+Integration Test for P0-P5 Components
+======================================
+
+Tests that all integrated components work together:
+- P0: DSP-SuperPot feature extraction
+- P1: Agent Factory
+- P2: Unified Trading Environment
+- P3: Discovery Methods (Chaos)
+- P4: Results Analyzer
+- P5: Unified Training CLI (tested via imports)
+
+Run this to validate Phase 1 integration is complete.
+
+
+FUNCTIONS (7):
+  • test_p0_dsp_superpot()
+  • test_p1_agent_factory()
+  • test_p2_unified_env()
+  • test_p3_discovery_methods()
+  • test_p4_results_analyzer()
+  • test_p5_training_cli()
+  • run_all_tests()
+
+====================================================================================================
+FILE: scripts/testing/test_parallel_performance.py
+====================================================================================================
+
+DESCRIPTION:
+Parallel Performance Benchmark
+
+Tests the parallel backtest runner with multiple instruments.
+Benchmarks CPU and GPU performance.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_performance_module.py
+====================================================================================================
+
+DESCRIPTION:
+Performance Module Test Suite
+=============================
+
+Tests for:
+- Ring buffers (tick, bar)
+- LRU cache with TTL
+- Async operations
+- Timer operations
+- Parallel processing
+- Performance monitoring
+
+Run: python scripts/test_performance_module.py
+
+
+FUNCTIONS (3):
+  • run_all_tests()
+  • benchmark_ring_buffer()
+  • benchmark_cache()
+
+CLASSES (10):
+  • TestRingBuffer
+  • TestTickBuffer
+  • TestBarBuffer
+  • TestLRUCache
+  • TestComputeCache
+  • TestAsyncExecutor
+  • TestTimer
+  • TestOnTickHandler
+  • TestParallelProcessor
+  • TestPerformanceMonitor
+
+====================================================================================================
+FILE: scripts/testing/test_physics_demo.py
+====================================================================================================
+
+DESCRIPTION:
+Quick test of physics calculations and strategies.
+
+Generates synthetic OHLCV data and tests all physics measures.
+
+
+FUNCTIONS (4):
+  • test_physics_measures()
+  • test_online_trackers()
+  • test_strategies()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_portfolio_health.py
+====================================================================================================
+
+DESCRIPTION:
+Portfolio Health Monitoring Integration Test
+
+Tests the 4-pillar health monitoring system:
+1. Return & Efficiency scoring
+2. Downside Risk scoring
+3. Structural Stability scoring
+4. Behavioral Health scoring
+5. Health state transitions
+6. Action recommendations
+
+This validates the health monitoring system works correctly for production use.
+
+
+FUNCTIONS (8):
+  • test_initialization()
+  • test_healthy_portfolio()
+  • test_degraded_portfolio()
+  • test_health_actions()
+  • test_edge_decay_detection()
+  • test_health_summary()
+  • test_insufficient_data()
+  • run_all_tests()
+
+====================================================================================================
+FILE: scripts/testing/test_real_data_backtest.py
+====================================================================================================
+
+DESCRIPTION:
+Real Data Backtest & Optimization Test
+=======================================
+
+Tests:
+1. Load actual CSV data for multiple symbols/timeframes
+2. Run backtests with accurate cost calculations (spread, commission, swap)
+3. Verify cumulative P&L calculations
+4. Test Bayesian and Genetic optimization
+5. Compare results across symbols
+
+Symbols tested:
+- XAUUSD (Gold) - H1, H4
+- BTCUSD (Bitcoin) - H1, M30
+- GBPUSD (Forex) - H1
+
+Run: python scripts/test_real_data_backtest.py
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • Trade
+  • AccurateBacktester
+
+====================================================================================================
+FILE: scripts/testing/test_regime_filtering.py
+====================================================================================================
+
+DESCRIPTION:
+Test 3-Regime Filtering in TradingEnv
+
+Validates that regime filtering works correctly:
+1. Physics regime filtering (laminar, underdamped, overdamped)
+2. Volatility regime filtering (low, medium, high)
+3. Momentum regime filtering (uptrend, ranging, downtrend)
+
+Demonstrates regime-specialized environment creation.
+
+Usage:
+    # Run with any available data
+    pytest scripts/testing/test_regime_filtering.py
+
+    # Run with specific symbol and timeframe
+    pytest scripts/testing/test_regime_filte
+
+
+CONSTANTS (2):
+  TEST_DATA_PATH = find_test_data()
+  TEST_DATA_AVAILABLE = TEST_DATA_PATH is not None
+
+FUNCTIONS (8):
+  • test_regime_classification()
+  • test_physics_regime_filtering()
+  • test_volatility_regime_filtering()
+  • test_momentum_regime_filtering()
+  • test_combined_regime_filtering()
+  • test_regime_specialists()
+  • test_environment_reset_and_step()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_sac.py
+====================================================================================================
+
+DESCRIPTION:
+Quick SAC test on physics data.
+
+
+CONSTANTS (1):
+  DATA_DIR = Path(os.environ.get(
+
+FUNCTIONS (2):
+  • load_first_dataset()
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/test_strategies.py
+====================================================================================================
+
+DESCRIPTION:
+Test Strategies for Backtesting Engine Validation
+
+Three strategy types with simple, low-lag indicators:
+1. Trend Following (momentum-based)
+2. Mean Reversion (oversold/overbought)
+3. Breakout (range expansion)
+
+Uses rolling periods with adaptive thresholds (no magic numbers).
+All thresholds are percentile-based, adapting to each instrument's characteristics.
+
+Usage:
+    python scripts/test_strategies.py --symbol BTCUSD --data data/master/crypto/BTCUSD_H1_*.csv
+    python scripts/test_strategies
+
+
+CLI ARGUMENTS (5):
+  • "--symbol", type=str, default="BTCUSD", help="Symbol to test"
+  • "--data", type=str, help="Path to CSV data file"
+  • "--capital", type=float, default=10000.0, help="Initial capital"
+  • "--stress-test", action="store_true", help="Run stress tests"
+  • 
+        "--strategy",
+        type=str,
+        choices=["trend", "mr", "breakout", "all"],
+        default="all",
+        help="Strategy to test",
+    
+
+FUNCTIONS (2):
+  • print_comparison(results: Dict[str, BacktestResult])
+  • main()
+
+CLASSES (5):
+  • StrategyConfig
+  • BaseStrategy
+  • TrendStrategy
+  • MeanReversionStrategy
+  • BreakoutStrategy
+
+====================================================================================================
+FILE: scripts/testing/test_trade_lifecycle.py
+====================================================================================================
+
+DESCRIPTION:
+Trade Lifecycle - Comprehensive & Correct Sequence of Events
+=============================================================
+
+This demonstrates the complete trade lifecycle with all events in correct order:
+
+1. PRE-TRADE VALIDATION
+   - Symbol validation
+   - Volume normalization & limits check
+   - Margin requirement check
+   - Free margin check
+   - Stops level validation
+
+2. ORDER SUBMISSION
+   - Create order request
+   - Validate order parameters
+   - Queue for execution
+
+3. ORDER EXECUTION
+  
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (6):
+  • TradeEvent
+  • CloseReason
+  • TradeRequest
+  • TradeResult
+  • Position
+  • TradeLifecycleManager
+
+====================================================================================================
+FILE: scripts/testing/test_trade_lifecycle_real_data.py
+====================================================================================================
+
+DESCRIPTION:
+Trade Lifecycle Test with Real Market Data
+
+Tests the complete trade lifecycle using real EURJPY M15 data:
+1. Load real market data from CSV
+2. Generate simple entry/exit signals
+3. Run backtest and validate trade lifecycle
+4. Verify MFE/MAE tracking, costs, and metrics
+
+This validates the backtester works correctly on real market conditions.
+
+
+FUNCTIONS (1):
+  • run_lifecycle_test()
+
+====================================================================================================
+FILE: scripts/testing/test_transaction_log.py
+====================================================================================================
+
+DESCRIPTION:
+Transaction Log Test - Detailed Cost Breakdown
+
+Validates that all friction costs are calculated accurately and logged properly:
+1. Entry/exit prices with spread
+2. Commission (per lot, both sides)
+3. Swap (daily rollover with triple swap)
+4. Slippage (optional)
+5. Net P&L calculation
+
+Tests against real EURJPY data with MT5 constraints.
+
+
+FUNCTIONS (2):
+  • print_transaction_log(trades, spec: SymbolSpec)
+  • run_transaction_log_test()
+
+====================================================================================================
+FILE: scripts/testing/unified_test_framework.py
+====================================================================================================
+
+DESCRIPTION:
+Unified Testing Framework - Consolidates All Test Scripts
+===========================================================
+
+**FULLY INTEGRATED SYSTEM**
+
+Integrates:
+1. explore_specialization.py - Agent specialization strategies
+2. train_triad.py - Triad system training
+3. superpot_by_class.py - Asset class testing
+4. superpot_complete.py - Complete exploration
+5. **Data download and preparation**
+6. **Backtesting of discovered strategies**
+7. Additional: Stacking, control groups, efficiency metrics
+
+
+
+
+CLI ARGUMENTS (15):
+  • '--full', action='store_true',
+                       help='Run full test suite (all combinations
+  • '--extreme', action='store_true',
+                       help='EXTREME mode: Run ALL possible combinations (hidden dimensions, meta-learning, chaos, etc.
+  • '--quick', action='store_true',
+                       help='Quick test (fewer episodes, limited instruments
+  • '--suite', type=str, 
+                       choices=['control', 'physics', 'rl', 'specialization', 'stacking', 'triad',
+                               'hidden', 'meta', 'cross_regime', 'cross_asset',
+  • '--compare', nargs='+',
+                       help='Compare multiple suites'
+  • '--asset-classes', nargs='+',
+                       choices=['crypto', 'forex', 'metals', 'commodities', 'indices'],
+                       help='Filter by asset classes'
+  • '--timeframes', nargs='+',
+                       help='Filter by timeframes (e.g., M15 H1 H4
+  • '--max-instruments', type=int, default=3,
+                       help='Max instruments per asset class (default: 3
+  • '--output-dir', type=str, default='test_results',
+                       help='Output directory for results'
+  • '--no-plots', action='store_true',
+                       help='Skip plot generation'
+  • '--episodes', type=int,
+                       help='Override number of episodes'
+  • '--backtest', action='store_true',
+                       help='Backtest discovered strategies automatically'
+  • '--auto-download', action='store_true',
+                       help='Automatically download missing data'
+  • '--validate-data', action='store_true',
+                       help='Validate data quality before testing'
+  • '--min-quality', type=float, default=0.7,
+                       help='Minimum data quality score (0-1, default: 0.7
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • ResultVisualizer
+
+====================================================================================================
+FILE: scripts/testing/validate_btc_h1_layer1.py
+====================================================================================================
+
+DESCRIPTION:
+BTC H1 Layer-1 Validation Script
+
+Validates the enhanced physics engine and Layer-1 sensors on BTC hourly data:
+1. Load and clean BTC H1 data
+2. Compute Layer-1 physics state
+3. Run regime clustering (GMM)
+4. Validate "universal truths" per regime
+5. Run simple baseline strategy to validate engine
+
+This script serves as the reference implementation for validating
+the physics-based approach before extending to other instruments.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/validate_mql5_compliance.py
+====================================================================================================
+
+DESCRIPTION:
+MQL5/MetaAPI Compliance Validator
+
+Validates that all MT5 and MetaAPI integrations comply with standard library
+conventions and best practices.
+
+Usage:
+    python scripts/validate_mql5_compliance.py
+    python scripts/validate_mql5_compliance.py --fix  # Auto-fix issues
+
+
+CLI ARGUMENTS (2):
+  • '--json', action='store_true', help='Output as JSON'
+  • '--strict', action='store_true', help='Fail on warnings'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • Severity
+  • ComplianceIssue
+  • MQL5ComplianceValidator
+
+====================================================================================================
+FILE: scripts/testing/validate_theorems.py
+====================================================================================================
+
+DESCRIPTION:
+Theorem Validation Framework
+
+Systematically tests physics hypotheses and explores feature combinations
+to find high-probability trigger conditions.
+
+Theorems to validate:
+1. Underdamped regimes have more energy release potential
+2. High damping precedes energy release
+3. Energy builds before release (positive velocity)
+4. Regime transitions precede releases
+
+Exploration approach:
+- Test all single-feature conditions
+- Test all pairwise combinations
+- Test triple combinations with best pairs
+- R
+
+
+CLI ARGUMENTS (4):
+  • '--data', type=str, help='Path to CSV data file'
+  • '--symbol', type=str, default='BTCUSD', help='Symbol name'
+  • '--lookback', type=int, default=20, help='Physics lookback'
+  • '--top-n', type=int, default=30, help='Top N combinations to show'
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (1):
+  • TheoremResult
+
+====================================================================================================
+FILE: scripts/testing/validate_thesis.py
+====================================================================================================
+
+DESCRIPTION:
+Empirical Validation of Energy-Transfer Trading Thesis
+
+Tests each claim one at a time against actual BTCUSD data.
+Uses the actual PhysicsEngine for consistency.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/testing/verify_calculations.py
+====================================================================================================
+
+DESCRIPTION:
+Calculation Accuracy Verification
+=================================
+
+Manual step-by-step verification of all trading calculations:
+1. P&L (Profit/Loss)
+2. Spread cost
+3. Commission
+4. Swap (including triple swap)
+5. Margin requirements
+6. Pip/Point values
+
+Each calculation is done manually and compared against the system.
+
+
+FUNCTIONS (9):
+  • verify_with_tolerance(name: str, calculated: float, expected: float, tol)
+  • test_forex_eurusd()
+  • test_gold_xauusd()
+  • test_btcusd()
+  • test_swap_calculation()
+  • test_margin_calculation()
+  • test_edge_cases()
+  • test_short_position()
+  • main()
+
+====================================================================================================
+FILE: scripts/train.py
+====================================================================================================
+
+DESCRIPTION:
+Unified Training Interface
+==========================
+
+Single CLI entry point for all RL training tasks.
+
+Replaces scattered training scripts with one unified interface.
+
+Usage:
+    # Train universal PPO agent
+    python scripts/train.py --agent ppo --strategy universal --episodes 100
+
+    # Train asset-class DQN specialists  
+    python scripts/train.py --agent dqn --strategy asset_class --episodes 200
+
+    # Train on specific instruments
+    python scripts/train.py --agent ppo --instruments BT
+
+
+CLI ARGUMENTS (16):
+  • 
+        '--agent',
+        type=str,
+        required=True,
+        choices=['ppo', 'dqn'],
+        help='Agent algorithm to train'
+    
+  • 
+        '--strategy',
+        type=str,
+        default='universal',
+        choices=['universal', 'asset_class', 'timeframe', 'regime'],
+        help='Specialization strategy'
+    
+  • 
+        '--instruments',
+        nargs='+',
+        default=None,
+        help='Specific instruments to train on'
+    
+  • 
+        '--asset-classes',
+        nargs='+',
+        default=None,
+        help='Filter by asset classes (crypto, forex, metals, etc.
+  • 
+        '--data-file',
+        type=str,
+        default=None,
+        help='Path to data file (CSV with OHLCV
+  • 
+        '--episodes',
+        type=int,
+        default=100,
+        help='Number of training episodes'
+    
+  • 
+        '--learning-rate',
+        type=float,
+        default=3e-4,
+        help='Learning rate'
+    
+  • 
+        '--gamma',
+        type=float,
+        default=0.99,
+        help='Discount factor'
+    
+  • 
+        '--use-physics',
+        action='store_true',
+        default=True,
+        help='Use physics engine (default: True
+  • 
+        '--no-physics',
+        action='store_true',
+        help='Disable physics engine'
+    
+  • 
+        '--regime-filter',
+        action='store_true',
+        help='Filter trades by regime'
+    
+  • 
+        '--mode',
+        type=str,
+        default='exploration',
+        choices=['exploration', 'validation', 'production'],
+        help='Trading mode'
+    
+  • 
+        '--output-dir',
+        type=str,
+        default='results/training',
+        help='Output directory for results'
+    
+  • 
+        '--save-agent',
+        action='store_true',
+        help='Save trained agent'
+    
+  • 
+        '--seed',
+        type=int,
+        default=None,
+        help='Random seed'
+    
+  • 
+        '--verbose',
+        action='store_true',
+        help='Verbose logging'
+    
+
+FUNCTIONS (3):
+  • parse_args()
+  • train_agent(args)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/demo_continual_learning.py
+====================================================================================================
+
+DESCRIPTION:
+Demo: Continual Learning from Live Trading
+
+Shows how the agent improves continuously by learning from real trading outcomes:
+1. Live trading logs all state/actions
+2. Trades are labeled as "good" or "poor" after closing
+3. Experience analyzer finds patterns
+4. Prioritized replay buffer stores episodes
+5. Agent trains on real experiences
+
+Key insight: Agents that don't learn from real outcomes become stale.
+This creates a self-improving system.
+
+
+FUNCTIONS (3):
+  • simulate_live_trading_session()
+  • demonstrate_drift_detection()
+  • main()
+
+====================================================================================================
+FILE: scripts/training/explore_compare_agents.py
+====================================================================================================
+
+DESCRIPTION:
+Agent Comparison - Exploration Step 2
+======================================
+
+Compare 4 agent types to discover which works best where:
+1. LinearQ - Simple baseline
+2. PPO - On-policy actor-critic
+3. SAC - Off-policy with entropy
+4. TD3 - Deterministic twin critics
+
+Measure performance across:
+- Asset class (forex, crypto, indices, metals, commodities)
+- Regime (overdamped, underdamped, laminar, breakout)
+- Timeframe (M15, M30, H1, H4)
+- Volatility (low, medium, high)
+
+THE MARKET TELLS US, WE DO
+
+
+FUNCTIONS (5):
+  • print_header(text: str)
+  • compare_agents_on_dimension(results: dict, dimension: str)
+  • print_agent_comparison_table(results: dict)
+  • print_recommendations(best_agents: dict)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/explore_interactive.py
+====================================================================================================
+
+DESCRIPTION:
+Interactive Exploration Training
+=================================
+
+One unified process:
+1. Check available data
+2. Show what we have
+3. Confirm to proceed
+4. Run exploration training
+5. Show results
+
+Usage:
+    python scripts/explore_interactive.py
+
+
+FUNCTIONS (4):
+  • print_header(text)
+  • print_step(step_num, text)
+  • check_data_quality(csv_files, symbols)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/explore_specialization.py
+====================================================================================================
+
+DESCRIPTION:
+Specialization Strategy Explorer
+
+Systematically compares different agent specialization strategies:
+1. UNIVERSAL: One agent for all instruments/timeframes
+2. ASSET CLASS: Separate agents per market type (forex, crypto, metals, etc.)
+3. REGIME: Separate agents per physics regime (laminar, underdamped, overdamped)
+4. TIMEFRAME: Separate agents per timeframe (H1, H4, D1, etc.)
+
+Goal: Discover which specialization yields best generalization and edge robustness.
+
+
+CLI ARGUMENTS (5):
+  • 
+        '--data-dir',
+        type=str,
+        default='data/master',
+        help='Path to data directory (default: data/master
+  • 
+        '--episodes',
+        type=int,
+        default=50,
+        help='Episodes per agent (default: 50
+  • 
+        '--lr',
+        type=float,
+        default=0.0001,
+        help='Learning rate (default: 0.0001
+  • 
+        '--gamma',
+        type=float,
+        default=0.99,
+        help='Discount factor (default: 0.99
+  • 
+        '--output-dir',
+        type=str,
+        default='results/specialization_exploration',
+        help='Output directory (default: results/specialization_exploration
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • RegimeSpecializedRewardShaper
+  • SpecializationExplorer
+
+====================================================================================================
+FILE: scripts/training/explore_universal.py
+====================================================================================================
+
+DESCRIPTION:
+Universal Agent Baseline - Exploration Step 1
+==============================================
+
+First principles approach:
+1. Train ONE universal agent on ALL instruments
+2. Track performance by asset_class, regime, timeframe, volatility
+3. Establish baseline before exploring specialization
+
+THE MARKET TELLS US, WE DON'T ASSUME!
+
+Usage:
+    python scripts/explore_universal.py
+
+
+FUNCTIONS (2):
+  • print_header(text: str)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/explorer_standalone.py
+====================================================================================================
+
+DESCRIPTION:
+STANDALONE EXPLORER - No broken dependencies
+=============================================
+Just works. 4 agents. All your data files.
+
+python scripts/explorer_standalone.py
+
+
+CONSTANTS (5):
+  DATA_PATHS = [
+  TRAIN_EPISODES = 30
+  EVAL_EPISODES = 5
+  MAX_STEPS = 500
+  MAX_FILES = 50  # Limit for speed
+
+FUNCTIONS (6):
+  • find_data_dir()
+  • load_csv(filepath)
+  • compute_features(df, lookback=20)
+  • train_eval(agent, env, train_eps, eval_eps, max_steps)
+  • process_file(filepath)
+  • main()
+
+CLASSES (5):
+  • TradingEnv
+  • LinearQAgent
+  • PPOAgent
+  • SACAgent
+  • TD3Agent
+
+====================================================================================================
+FILE: scripts/training/monitor_training.py
+====================================================================================================
+
+DESCRIPTION:
+Terminal Dashboard for Kinetra RL Training
+
+Shows live metrics in the terminal - no browser needed.
+
+
+CONSTANTS (1):
+  METRICS_URLS = [
+
+FUNCTIONS (3):
+  • clear_screen()
+  • display_dashboard(metrics: dict, port: int)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/pathfinder_explore.py
+====================================================================================================
+
+DESCRIPTION:
+PATHFINDER EXPLORATION
+======================
+
+"We don't know what we don't know" - explore without assumptions.
+
+Uses cached data, tests multiple agents, shows results fast.
+
+
+FUNCTIONS (2):
+  • train_and_evaluate(agent, env: TradingEnv, train_episodes: int = 30, )
+  • main()
+
+CLASSES (4):
+  • LinearQAgent
+  • PPOAgent
+  • SACAgent
+  • TradingEnv
+
+====================================================================================================
+FILE: scripts/training/quick_rl_test.py
+====================================================================================================
+
+DESCRIPTION:
+QUICK RL TEST - Test RL Agents Without Breaking
+================================================
+
+Uses cached data directly - shows results fast.
+Tests LinearQ, and optionally PPO/SAC if available.
+
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • LinearQAgent
+  • TabularQAgent
+  • TradingEnv
+
+====================================================================================================
+FILE: scripts/training/run_exploration_batch.py
+====================================================================================================
+
+DESCRIPTION:
+Exploration Batch Runner - Risk-Averse Config
+Uses best discovered config: MAE_w=2.5, LR=0.05-0.08, 35 episodes
+
+
+CLI ARGUMENTS (6):
+  • "--data-dir", default="data/master"
+  • "--config", default="RiskAverse_Optimal"
+  • "--mae-w", type=float, default=2.5
+  • "--lr", type=float, default=0.05
+  • "--gamma", type=float, default=0.9
+  • "--episodes", type=int, default=35
+
+====================================================================================================
+FILE: scripts/training/train_berserker.py
+====================================================================================================
+
+DESCRIPTION:
+Berserker Entry Training - GPU Accelerated
+
+NEW ARCHITECTURE:
+- Train ONE instrument at a time
+- 4 PARALLEL timeframe streams (M15, M30, H1, H4)
+- Analyze & summarize after each instrument completes
+- Move to next instrument
+
+Features:
+- GPU acceleration (AMD ROCm / NVIDIA CUDA)
+- Parallel timeframe training per instrument
+- Atomic model saving (no corruption on interrupt)
+- Run-based data management
+- Comprehensive logging
+
+Usage:
+    python scripts/train_berserker.py --run berserker_run1
+    p
+
+
+CLI ARGUMENTS (5):
+  • "--run", type=str, help="Run name (e.g., berserker_run1
+  • "--new-run", action="store_true", help="Create new run"
+  • "--episodes", type=int, default=100, help="Episodes per timeframe"
+  • "--port", type=int, default=8001, help="Metrics port"
+  • "--parallel", type=int, default=0,
+                        help="Parallel instruments (0=auto based on VRAM
+
+CONSTANTS (1):
+  TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
+
+HARDCODED LISTS:
+  TIMEFRAMES = ['M15', 'M30', 'H1', 'H4']
+
+FUNCTIONS (3):
+  • setup_gpu_optimizations()
+  • configure_rocm_backend()
+  • main()
+
+CLASSES (3):
+  • PowerManager
+  • AtomicSaver
+  • RunLogger
+
+====================================================================================================
+FILE: scripts/training/train_fast_multi.py
+====================================================================================================
+
+DESCRIPTION:
+Fast Multi-Instrument RL Training with Prometheus Metrics
+
+Trains across multiple instruments/timeframes simultaneously.
+Physics features fed to neural network - RL discovers the patterns.
+
+
+FUNCTIONS (2):
+  • train_fast(data_paths: list, n_episodes: int = 100, metrics_p)
+  • main()
+
+====================================================================================================
+FILE: scripts/training/train_rl.py
+====================================================================================================
+
+DESCRIPTION:
+Automated RL Training Loop - Physics Only
+
+Continuous training cycle:
+1. Collect experiences via backtest (VIRTUAL mode)
+2. Train policy network on replay buffer
+3. Checkpoint periodically
+4. Evaluate and log metrics
+
+PHYSICS ONLY: No RSI, MACD, Bollinger, etc.
+Uses: Kinematics, Energy, Flow, Entropy, Field Theory
+
+Supports:
+- Real MT5 data from data/master/
+- Synthetic data (fallback for testing)
+- Atomic checkpointing for crash recovery
+
+Usage:
+    python scripts/train_rl.py --episodes 100
+   
+
+
+CLI ARGUMENTS (8):
+  • '--episodes', type=int, default=100, help='Number of episodes'
+  • '--checkpoint-dir', default='./checkpoints', help='Checkpoint directory'
+  • '--checkpoint-every', type=int, default=10, help='Checkpoint frequency'
+  • '--data-dir', default='data/master', help='Directory with MT5 CSV data'
+  • '--timeframe', default='H1', help='Timeframe to use (M15, M30, H1, H4
+  • '--synthetic', action='store_true', help='Use synthetic data (for testing
+  • '--sync', action='store_true', help='Git pull before training'
+  • '--fresh', action='store_true', help='Start fresh (ignore checkpoints
+
+CONSTANTS (1):
+  PHYSICS_STATE_DIM = 30
+
+FUNCTIONS (2):
+  • git_sync()
+  • main()
+
+CLASSES (4):
+  • ReplayBuffer
+  • SimplePolicy
+  • RealDataLoader
+  • RLTrainer
+
+====================================================================================================
+FILE: scripts/training/train_rl_gpu.py
+====================================================================================================
+
+DESCRIPTION:
+GPU-Accelerated RL Training
+
+Trains across multiple instruments/timeframes.
+Uses ROCm (AMD) or CUDA (NVIDIA) for acceleration.
+
+Let RL discover:
+- Fat candle probability
+- Continuation vs reversal
+- Optimal exit timing
+
+NO hardcoded rules - pure feature learning.
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/training/train_rl_physics.py
+====================================================================================================
+
+DESCRIPTION:
+Train RL Agent on Physics Features
+
+Cross-validation across:
+1. Multiple instruments (if available)
+2. Multiple timeframes
+3. Walk-forward out-of-sample testing
+
+Avoid curve fitting by:
+- Training on one period, testing on another
+- Training on one instrument, testing on others
+- Using only percentile features (adaptive, no fixed thresholds)
+
+
+FUNCTIONS (1):
+  • main()
+
+====================================================================================================
+FILE: scripts/training/train_sniper.py
+====================================================================================================
+
+DESCRIPTION:
+Sniper Strategy RL Training
+
+Learns to identify stable, laminar trending conditions:
+- Low Reynolds number (smooth flow)
+- Low entropy (orderly)
+- High flow consistency (sustained direction)
+- Low damping (momentum persists)
+- Strong trend detection
+
+Opposite of Berserker (which seeks turbulence/explosions).
+Sniper waits for clean setups and rides trends.
+
+Usage:
+    python3 scripts/train_sniper.py --run sniper_run1 --episodes 200
+
+
+CLI ARGUMENTS (4):
+  • "--run", type=str, help="Run name"
+  • "--new-run", action="store_true", help="Create new run"
+  • "--episodes", type=int, default=200
+  • "--port", type=int, default=8002
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (3):
+  • SniperConfig
+  • SniperFeatureComputer
+  • SniperEnv
+
+====================================================================================================
+FILE: scripts/training/train_triad.py
+====================================================================================================
+
+DESCRIPTION:
+Triad Training System
+=====================
+
+Train Incumbent (PPO), Competitor (A2C), Researcher (SAC) on real data.
+
+Core principle: Markets are about IMBALANCES
+- No magic numbers (thresholds from rolling history)
+- No linearity (only asymmetric features)
+- No assumptions (let data reveal regimes)
+
+Usage:
+    python scripts/train_triad.py
+    python scripts/train_triad.py --role trader --episodes 100
+    python scripts/train_triad.py --role risk_manager --assets crypto forex
+
+
+CLI ARGUMENTS (6):
+  • '--role', type=str, default='trader',
+                       choices=['trader', 'risk_manager', 'portfolio_manager'],
+                       help='Trading role'
+  • '--episodes', type=int, default=10,
+                       help='Episodes per file'
+  • '--max-files', type=int, default=50,
+                       help='Maximum files to process'
+  • '--assets', nargs='+', default=None,
+                       help='Asset classes to include (e.g., crypto forex
+  • '--timeframes', nargs='+', default=None,
+                       help='Timeframes to include (e.g., H1 H4
+  • '--save', action='store_true',
+                       help='Save results to JSON'
+
+CONSTANTS (1):
+  DATA_PATHS = [
+
+FUNCTIONS (1):
+  • main()
+
+CLASSES (2):
+  • TriadTradingEnv
+  • TriadTrainer
+
+====================================================================================================
+FILE: scripts/training/train_with_metrics.py
+====================================================================================================
+
+DESCRIPTION:
+RL Training with Prometheus Metrics Export
+
+Run this script and monitor at: http://localhost:8000/metrics
+
+For Grafana:
+1. Run Prometheus+Grafana: cd monitoring && docker-compose up -d
+2. Access Grafana at: http://localhost:3000 (admin/kinetra)
+3. Dashboard is auto-provisioned
+
+Or view raw metrics at: http://localhost:8000/metrics
+
+
+FUNCTIONS (2):
+  • train_with_metrics(data_path: str, n_episodes: int = 1000, metrics_po)
+  • main()
+
+====================================================================================================
+FILE: scripts/utils/secure_token_helper.py
+====================================================================================================
+
+DESCRIPTION:
+Secure Token Helper
+===================
+
+Read-only utility for accessing MetaAPI credentials from environment.
+All credential setup should be done via scripts/setup_metaapi_credentials.py
+
+Usage:
+    from scripts.utils.secure_token_helper import get_metaapi_token, require_token
+
+    # Option 1: Get token or None
+    token = get_metaapi_token()
+    if not token:
+        print("Run: python scripts/setup_metaapi_credentials.py")
+        sys.exit(1)
+
+    # Option 2: Get token or exit automatically
+ 
+
+
+====================================================================================================
+FILE: scripts/vectorization_linter.py
+====================================================================================================
+
+DESCRIPTION:
+Vectorization Linter for Kinetra Project
+
+Automatically detects Python code patterns that violate the vectorization rule:
+"Explicit Python loops are the last resort. Prefer NumPy/Pandas vectorized ops."
+
+Usage:
+    python scripts/vectorization_linter.py                    # Scan entire project
+    python scripts/vectorization_linter.py path/to/file.py    # Scan specific file
+    python scripts/vectorization_linter.py --fix              # Auto-fix simple cases
+
+
+CLI ARGUMENTS (5):
+  • 
+        "path",
+        nargs="?",
+        default=".",
+        help="File or directory to scan (default: current directory
+  • 
+        "--verbose", "-v", action="store_true", help="Show all violations with details"
+    
+  • 
+        "--severity", choices=["high", "medium", "low"], help="Filter by severity level"
+    
+  • 
+        "--summary-only", "-s", action="store_true", help="Show only summary statistics"
+    
+  • "--output", "-o", help="Write results to file"
+
+FUNCTIONS (2):
+  • print_summary(violations: List[VectorizationViolation])
+  • main()
+
+CLASSES (2):
+  • VectorizationViolation
+  • VectorizationLinter
