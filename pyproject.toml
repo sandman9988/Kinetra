@@ -72,6 +72,10 @@ dependencies = [
 
     # Reinforcement learning (for A3C, SAC, TD3 agents)
     "stable-baselines3>=2.2.0,<3.0.0",
+
+    # System monitoring and file watching
+    "psutil>=5.9.0,<6.0.0",
+    "watchdog>=3.0.0,<4.0.0",
 ]
 
 [project.optional-dependencies]
