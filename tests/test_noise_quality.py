@@ -460,23 +460,50 @@ def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dic
         report["asset_groups"][group_name] = group_results
 
     # Recommendations based on analysis
-    for group_name, results in report["asset_groups"].items():
-        if not results:
+    recommendations: List[Dict[str, Any]] = []
+    for group_name, group_results in report["asset_groups"].items():
+        if not group_results:
             continue
 
         # Find best method for this group
         method_scores: Dict[str, List[float]] = {}
-        for result in results:
-            method_name = str(result["method"])
-            score = float(result["snr"] + result["spectral"] * 10 + result["regime"] * 10)
-            method_scores[method_name] = method_scores.get(method_name, []) + [score]
+        for result in group_results:
+            if not isinstance(result, dict) or "methods" not in result:
+                continue
+            
+            for method_name, method_data in result["methods"].items():
+                if not isinstance(method_data, dict):
+                    continue
+                    
+                # Safely extract numeric values
+                snr_val = float(method_data.get("snr_db", 0))
+                spectral_val = float(method_data.get("spectral", 0))
+                regime_val = float(method_data.get("regime_preservation", 0))
+                score = snr_val + (spectral_val * 10) + (regime_val * 10)
+                
+                if method_name not in method_scores:
+                    method_scores[method_name] = []
+                method_scores[method_name].append(score)
 
-        best_method = max(method_scores.items(), key=lambda x: np.mean(x[1]))[0]
-        report["recommendations"].append({
+        if not method_scores:
+            continue
+
+        # Find method with highest average score
+        best_method_name = ""
+        best_avg_score = -float('inf')
+        for method_name, scores in method_scores.items():
+            avg_score = float(np.mean(scores))
+            if avg_score > best_avg_score:
+                best_avg_score = avg_score
+                best_method_name = method_name
+
+        recommendations.append({
             "asset_group": group_name,
-            "best_method": best_method,
-            "avg_score": np.mean(method_scores[best_method])
+            "best_method": best_method_name,
+            "avg_score": best_avg_score
         })
+
+    report["recommendations"] = recommendations
 
     return report
 
