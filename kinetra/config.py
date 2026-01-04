@@ -5,9 +5,8 @@ Kinetra Configuration
 Centralized configuration for parallelization and system settings.
 """
 
-import os
 import multiprocessing as mp
-
+import os
 
 # =============================================================================
 # PARALLELIZATION SETTINGS
@@ -51,5 +50,6 @@ USE_GPU = GPU_BACKEND in ("cuda", "rocm")
 
 # Base data directory - can be overridden via KINETRA_DATA_DIR
 from pathlib import Path
+
 _project_root = Path(__file__).parent.parent
 DATA_DIR = Path(os.environ.get("KINETRA_DATA_DIR", _project_root / "data"))

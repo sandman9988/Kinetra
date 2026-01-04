@@ -38,9 +38,9 @@ Usage:
     results = bt.run(physics_strategy, data)
 """
 
-from .core import UnifiedBacktester, BacktestResult
-from .metrics import MetricsCalculator
+from .core import BacktestResult, UnifiedBacktester
 from .costs import CostModel, DynamicCostModel, FixedCostModel
+from .metrics import MetricsCalculator
 
 __all__ = [
     'UnifiedBacktester',

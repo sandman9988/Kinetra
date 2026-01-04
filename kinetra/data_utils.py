@@ -10,8 +10,6 @@ PERFORMANCE OPTIMIZATIONS:
 - Deduplication is vectorized
 """
 
-import functools
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 

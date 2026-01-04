@@ -19,13 +19,12 @@ Designed for live trading first, backtest compatibility second.
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum, auto
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-
 
 # =============================================================================
 # HEALTH STATES AND ACTIONS
@@ -615,13 +614,13 @@ def demo_portfolio_health():
         agent_promotions=2,
     )
 
-    print(f"\n[Health Assessment]")
+    print("\n[Health Assessment]")
     print(f"  Composite Score: {health.composite_score:.1f}")
     print(f"  State: {health.state.name}")
     print(f"  Action: {health.action.message}")
     print(f"  Risk Multiplier: {health.action.risk_multiplier:.1%}")
 
-    print(f"\n[Pillar Scores]")
+    print("\n[Pillar Scores]")
     print(f"  Return & Efficiency: {health.return_efficiency.score:.1f}")
     print(f"    - CAGR: {health.return_efficiency.metrics.get('cagr', 0):.2%}")
     print(f"    - Sharpe: {health.return_efficiency.metrics.get('sharpe', 0):.2f}")
@@ -631,7 +630,7 @@ def demo_portfolio_health():
     print(f"  Behavioral Health: {health.behavioral_health.score:.1f}")
 
     if health.events:
-        print(f"\n[Events]")
+        print("\n[Events]")
         for event in health.events:
             print(f"  - {event}")
 

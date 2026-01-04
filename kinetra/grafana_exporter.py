@@ -24,10 +24,10 @@ Usage:
     exporter.record_regime_change(old, new)
 """
 
-from typing import Optional, Dict, Any, List
-from datetime import datetime
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

@@ -10,16 +10,16 @@ Generates publication-quality plots for:
 - Monte Carlo distributions
 """
 
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime
 
 # Import plotting libraries with fallback
 try:
-    import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
     from matplotlib.ticker import FuncFormatter
     MATPLOTLIB_AVAILABLE = True
 except ImportError:

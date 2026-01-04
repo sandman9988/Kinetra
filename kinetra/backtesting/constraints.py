@@ -24,7 +24,7 @@ class MT5ErrorCode(Enum):
     FREEZE_LEVEL = 132   # Market is changing (freeze zone)
     TRADE_DISABLED = 133 # Trading disabled
     NOT_ENOUGH_MONEY = 134
-    
+
 
 @dataclass
 class MT5Constraints:
@@ -37,7 +37,7 @@ class MT5Constraints:
     stops_level_pips: float = 10.0     # Minimum distance for SL/TP
     max_slippage_pips: float = 3.0     # Maximum allowed slippage
     enforce_market_hours: bool = True  # Only trade during market hours
-    
+
     def validate_stop_loss(
         self,
         market_price: float,
@@ -58,17 +58,17 @@ class MT5Constraints:
             (is_valid, error_code)
         """
         distance_pips = abs(market_price - stop_loss) / pip_value
-        
+
         # Check minimum distance
         if distance_pips < self.stops_level_pips:
             return False, MT5ErrorCode.INVALID_STOPS
-            
+
         # Check freeze zone
         if distance_pips < self.freeze_distance_pips:
             return False, MT5ErrorCode.FREEZE_LEVEL
-            
+
         return True, MT5ErrorCode.SUCCESS
-        
+
     def validate_take_profit(
         self,
         market_price: float,
@@ -79,7 +79,7 @@ class MT5Constraints:
         """Validate take profit placement."""
         # Same logic as stop loss
         return self.validate_stop_loss(market_price, take_profit, direction, pip_value)
-        
+
     def can_modify_position(
         self,
         market_price: float,
@@ -103,12 +103,12 @@ class MT5Constraints:
         """
         # Check if new SL is in freeze zone
         distance_pips = abs(market_price - new_sl) / pip_value
-        
+
         if distance_pips < self.freeze_distance_pips:
             return False, MT5ErrorCode.FREEZE_LEVEL
-            
+
         # Check if new SL meets minimum distance
         if distance_pips < self.stops_level_pips:
             return False, MT5ErrorCode.INVALID_STOPS
-            
+
         return True, MT5ErrorCode.SUCCESS

@@ -26,7 +26,7 @@ import getpass
 import sys
 import time
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+from typing import List, Optional
 
 from tqdm import tqdm
 
@@ -397,7 +397,7 @@ class MenuHighlighter:
                     f"\n  {Colors.BG_CYAN}{Colors.BLACK} [0] Back to Previous Menu {Colors.RESET} {Icons.BACK}"
                 )
             else:
-                print(f"\n  [0] Back to Previous Menu")
+                print("\n  [0] Back to Previous Menu")
 
         print()
 
@@ -427,7 +427,7 @@ class MenuHighlighter:
             # Show prompt
             prompt_text = f"{prompt}"
             if allow_quit:
-                prompt_text += f" (q=quit, 0=back)"
+                prompt_text += " (q=quit, 0=back)"
             prompt_text += ": "
 
             try:

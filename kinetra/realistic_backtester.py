@@ -11,15 +11,15 @@ Prevents sim-to-real gap by enforcing real broker constraints:
 Goal: If it works in this backtest, it WILL work in live trading.
 """
 
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
 from enum import Enum, IntEnum
+from typing import Dict, List, Optional, Tuple
 
-from .market_microstructure import SymbolSpec, AssetClass
-from .regime_filtered_env import PhysicsRegime, VolatilityRegime, MomentumRegime
+import numpy as np
+import pandas as pd
+
+from .market_microstructure import SymbolSpec
 
 
 class TradeDirection(Enum):

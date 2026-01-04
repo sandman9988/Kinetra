@@ -12,12 +12,12 @@ Exposes real-time metrics for Grafana visualization:
 - Training progress (loss, epsilon)
 """
 
-from prometheus_client import start_http_server, Gauge, Counter, Summary, Info
-import time
 import threading
-from typing import Dict, Optional, List
-from dataclasses import dataclass, field
+import time
+from dataclasses import dataclass
+from typing import Dict, Optional
 
+from prometheus_client import Counter, Gauge, Info, start_http_server
 
 # Instrument classification
 INSTRUMENT_CLASSES = {

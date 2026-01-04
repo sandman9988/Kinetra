@@ -9,11 +9,11 @@ Permanently resolve Python path and environment issues:
 - System path setup
 """
 
+import json
 import os
 import shutil
 import subprocess
 import sys
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple

@@ -39,11 +39,9 @@ import argparse
 import json
 import logging
 import sys
-import time
-from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import pandas as pd
 import psutil

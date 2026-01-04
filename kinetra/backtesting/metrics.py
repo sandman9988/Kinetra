@@ -13,10 +13,11 @@ Features:
 - Regime-based breakdown
 """
 
+from dataclasses import dataclass
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional
-from dataclasses import dataclass
 
 
 @dataclass
@@ -40,7 +41,7 @@ class MetricsCalculator:
     
     Eliminates the 5 different Sharpe ratio calculations!
     """
-    
+
     @staticmethod
     def sharpe_ratio(
         returns: pd.Series,
@@ -60,16 +61,16 @@ class MetricsCalculator:
         """
         if len(returns) < 2:
             return 0.0
-            
+
         excess_returns = returns - (risk_free_rate / periods_per_year)
-        
+
         if excess_returns.std() == 0:
             return 0.0
-            
+
         return (
             excess_returns.mean() / excess_returns.std() * np.sqrt(periods_per_year)
         )
-        
+
     @staticmethod
     def omega_ratio(returns: pd.Series, threshold: float = 0.0) -> float:
         """
@@ -84,15 +85,15 @@ class MetricsCalculator:
         """
         returns_above = returns[returns > threshold] - threshold
         returns_below = threshold - returns[returns < threshold]
-        
+
         gains = returns_above.sum()
         losses = returns_below.sum()
-        
+
         if losses == 0:
             return np.inf if gains > 0 else 0.0
-            
+
         return gains / losses
-        
+
     @staticmethod
     def z_factor(trades: List[Dict]) -> float:
         """
@@ -106,24 +107,24 @@ class MetricsCalculator:
         """
         if len(trades) < 2:
             return 0.0
-            
+
         pnls = np.array([t['pnl'] for t in trades])
-        
+
         wins = pnls[pnls > 0]
         losses = pnls[pnls < 0]
-        
+
         if len(wins) == 0 or len(losses) == 0:
             return 0.0
-            
+
         avg_win = wins.mean()
         avg_loss = abs(losses.mean())
         std_loss = losses.std()
-        
+
         if std_loss == 0:
             return 0.0
-            
+
         return (avg_win - avg_loss) / std_loss
-        
+
     @staticmethod
     def max_drawdown(equity_curve: pd.Series) -> float:
         """
@@ -138,7 +139,7 @@ class MetricsCalculator:
         running_max = equity_curve.expanding().max()
         drawdown = (equity_curve - running_max) / running_max
         return drawdown.min()
-        
+
     @staticmethod
     def calculate_all(
         trades: List[Dict],
@@ -158,21 +159,21 @@ class MetricsCalculator:
         """
         # Basic stats
         total_return = (equity_curve.iloc[-1] / equity_curve.iloc[0] - 1) if len(equity_curve) > 0 else 0.0
-        
+
         # Win rate and profit factor
         winning_trades = [t for t in trades if t['pnl'] > 0]
         losing_trades = [t for t in trades if t['pnl'] < 0]
-        
+
         win_rate = len(winning_trades) / len(trades) if trades else 0.0
-        
+
         total_wins = sum(t['pnl'] for t in winning_trades)
         total_losses = abs(sum(t['pnl'] for t in losing_trades))
         profit_factor = total_wins / total_losses if total_losses > 0 else 0.0
-        
+
         # MFE/MAE
         avg_mfe = np.mean([t.get('mfe', 0) for t in trades]) if trades else 0.0
         avg_mae = np.mean([t.get('mae', 0) for t in trades]) if trades else 0.0
-        
+
         return PerformanceMetrics(
             total_return=total_return,
             sharpe_ratio=MetricsCalculator.sharpe_ratio(returns),

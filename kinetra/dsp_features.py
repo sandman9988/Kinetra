@@ -18,7 +18,7 @@ PERFORMANCE OPTIMIZATIONS:
 - Hilbert features use efficient scipy implementations
 """
 
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -440,7 +440,6 @@ class EntropyExtractor:
 
         # Extract ordinal patterns
         import math
-        from itertools import permutations
 
         patterns = {}
         n_patterns = 0

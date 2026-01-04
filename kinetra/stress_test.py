@@ -12,14 +12,13 @@ Applies realistic cost adjustments based on historical event data.
 
 import copy
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
 from .backtest_engine import BacktestEngine, BacktestResult, Trade
-from .market_events import MARKET_EVENT_CALENDAR, EventType, MarketEvent, MarketEventCalendar
+from .market_events import MARKET_EVENT_CALENDAR, MarketEventCalendar
 from .symbol_spec import SymbolSpec
 
 
@@ -212,16 +211,16 @@ class StressTestReport:
 
         lines = [
             f"Stress Test Report: {self.symbol}",
-            f"=" * 50,
-            f"",
-            f"Baseline Performance:",
+            "=" * 50,
+            "",
+            "Baseline Performance:",
             baseline_pnl_str,
             baseline_trades_str,
-            f"",
+            "",
             f"Robustness Score: {self.robustness_score:.1f}/100",
             f"Survival Rate: {self.survival_rate:.1%}",
-            f"",
-            f"Scenario Results:",
+            "",
+            "Scenario Results:",
         ]
 
         for name, result in sorted(
@@ -235,7 +234,7 @@ class StressTestReport:
 
         lines.extend(
             [
-                f"",
+                "",
                 f"Worst Case: {self.worst_case_scenario}",
                 f"  P&L: ${self.worst_case_pnl:,.2f}",
             ]

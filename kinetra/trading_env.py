@@ -9,11 +9,12 @@ Actions: 0=hold, 1=long, 2=short, 3=close
 Reward: Physics-aligned with MFE/MAE
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, Tuple, Optional, List
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import Dict, Tuple
+
+import numpy as np
+import pandas as pd
 
 from .physics_engine import PhysicsEngine
 from .reward_shaping import AdaptiveRewardShaper

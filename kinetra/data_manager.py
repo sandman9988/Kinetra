@@ -37,10 +37,10 @@ Philosophy:
 import hashlib
 import json
 import shutil
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -409,11 +409,11 @@ class DataManager:
         # Always regenerate for consistency (unless explicitly disabled)
         if output_file.exists() and not force_refresh:
             print(f"⚠️  Using existing training data: {output_file}")
-            print(f"   Set force_refresh=True to regenerate")
+            print("   Set force_refresh=True to regenerate")
             return output_file
 
         print(f"\n{'=' * 80}")
-        print(f"PREPARING TRAINING DATA (fresh from raw)")
+        print("PREPARING TRAINING DATA (fresh from raw)")
         print(f"{'=' * 80}")
         print(f"Symbol: {symbol}")
         print(f"Timeframe: {timeframe}")
@@ -572,7 +572,7 @@ class DataManager:
         tar_path = self.cache_dir / tar_filename
 
         print(f"\n{'=' * 80}")
-        print(f"CREATING ENCRYPTED BACKUP")
+        print("CREATING ENCRYPTED BACKUP")
         print(f"{'=' * 80}")
         print(f"Broker: {broker}")
         print(f"Account: {account}")
@@ -631,8 +631,8 @@ class DataManager:
         print(f"✅ Metadata saved: {meta_path.name}")
         print(f"{'=' * 80}\n")
 
-        print(f"⚠️  IMPORTANT: Store your password securely!")
-        print(f"   Without it, the backup cannot be restored.")
+        print("⚠️  IMPORTANT: Store your password securely!")
+        print("   Without it, the backup cannot be restored.")
 
         return backup_path
 
@@ -662,7 +662,7 @@ class DataManager:
             password = getpass.getpass("Enter backup password: ")
 
         print(f"\n{'=' * 80}")
-        print(f"RESTORING FROM ENCRYPTED BACKUP")
+        print("RESTORING FROM ENCRYPTED BACKUP")
         print(f"{'=' * 80}")
         print(f"Backup: {backup_file.name}")
 
@@ -683,10 +683,10 @@ class DataManager:
 
         try:
             decrypted_data = fernet.decrypt(encrypted_data)
-            print(f"✅ Decryption successful")
+            print("✅ Decryption successful")
         except Exception as e:
             print(f"❌ Decryption failed: {e}")
-            print(f"   Check your password and try again.")
+            print("   Check your password and try again.")
             raise
 
         # Extract tar

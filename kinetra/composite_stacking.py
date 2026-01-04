@@ -22,15 +22,14 @@ NO ASSUMPTIONS about what "trending" or "mean-reverting" means.
 Let the physics state and RL discover the patterns.
 """
 
+from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Callable, Any
 from enum import Enum
+from typing import Any, Dict, List, Tuple
+
 import numpy as np
 import pandas as pd
-from collections import defaultdict
-
 from numpy import floating
-
 
 # =============================================================================
 # SIGNAL TYPES (Physics-Based, Discovered Not Assumed)

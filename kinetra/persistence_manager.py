@@ -25,7 +25,6 @@ Usage:
 
 import hashlib
 import json
-import os
 import shutil
 import tempfile
 from datetime import datetime
@@ -217,7 +216,7 @@ class PersistenceManager:
                 if restored:
                     print(f"✅ Restored from backup: {filepath}")
                 else:
-                    print(f"❌ Could not restore from backup")
+                    print("❌ Could not restore from backup")
 
             # Clean up temp file if it exists
             if temp_path.exists():
@@ -252,7 +251,7 @@ class PersistenceManager:
             if self.verify_checksums and latest_backup["checksum"]:
                 current_checksum = self._compute_checksum(backup_path)
                 if current_checksum != latest_backup["checksum"]:
-                    print(f"⚠️  Backup checksum mismatch! File may be corrupted.")
+                    print("⚠️  Backup checksum mismatch! File may be corrupted.")
                     return False
 
             # Copy backup to destination

@@ -11,12 +11,10 @@ System: AMD Ryzen 9 5950X (32 cores), 128GB RAM, AMD RX 7600 (8GB VRAM)
 
 from __future__ import annotations
 
-import gc
 import multiprocessing as mp
-import os
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd

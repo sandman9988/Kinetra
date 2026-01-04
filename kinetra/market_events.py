@@ -17,7 +17,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 
 class EventType(Enum):
@@ -631,11 +631,11 @@ class MarketEventCalendar:
             by_type[event.event_type] = by_type.get(event.event_type, 0) + 1
 
         lines = [
-            f"Market Event Calendar",
-            f"=" * 40,
+            "Market Event Calendar",
+            "=" * 40,
             f"Total Events: {len(self.events)}",
-            f"",
-            f"By Type:",
+            "",
+            "By Type:",
         ]
 
         for etype, count in sorted(by_type.items(), key=lambda x: -x[1]):
@@ -643,8 +643,8 @@ class MarketEventCalendar:
 
         lines.extend(
             [
-                f"",
-                f"Highest Severity Events:",
+                "",
+                "Highest Severity Events:",
             ]
         )
 

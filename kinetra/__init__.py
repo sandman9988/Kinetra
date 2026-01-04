@@ -22,12 +22,12 @@ from typing import TYPE_CHECKING
 
 # Initialize silent failure logger early
 from .silent_failure_logger import (
-    SilentFailureLogger,
-    log_failure,
-    log_failures,
-    get_failure_logger,
     FailureCategory,
     FailureSeverity,
+    SilentFailureLogger,
+    get_failure_logger,
+    log_failure,
+    log_failures,
 )
 
 # Type checking imports (only used by type checkers, not at runtime)

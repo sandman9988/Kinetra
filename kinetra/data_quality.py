@@ -138,12 +138,12 @@ class DataQualityReport:
     def summary(self) -> str:
         """Human-readable summary."""
         lines = [
-            f"Data Quality Report",
-            f"=" * 40,
+            "Data Quality Report",
+            "=" * 40,
             f"Bars: {self.total_bars:,} ({self.first_bar} to {self.last_bar})",
             f"Completeness: {self.completeness_pct:.1%}",
             f"Quality Score: {self.quality_score:.1f}/100",
-            f"",
+            "",
             f"Gaps: {self.gap_count} ({self.missing_bars} missing bars)",
         ]
 
@@ -152,10 +152,10 @@ class DataQualityReport:
 
         lines.extend(
             [
-                f"",
+                "",
                 f"Opening Gaps: {len(self.opening_gaps)}",
                 f"  Avg: {self.avg_opening_gap_pct:.2%}, Max: {self.max_opening_gap_pct:.2%}",
-                f"",
+                "",
                 f"OHLC Violations: {len(self.ohlc_violations)} ({self.ohlc_violation_pct:.2%})",
                 f"Duplicate Timestamps: {len(self.duplicate_timestamps)}",
                 f"Out of Order: {len(self.out_of_order)}",

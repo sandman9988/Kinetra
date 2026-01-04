@@ -17,8 +17,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
-import pandas as pd
-
 
 @dataclass
 class TradingCosts:
@@ -27,7 +25,7 @@ class TradingCosts:
     commission: float = 0.0
     slippage: float = 0.0
     swap: float = 0.0
-    
+
     @property
     def total(self) -> float:
         """Total cost."""
@@ -36,7 +34,7 @@ class TradingCosts:
 
 class CostModel(ABC):
     """Base cost model."""
-    
+
     @abstractmethod
     def calculate_entry_cost(
         self,
@@ -47,7 +45,7 @@ class CostModel(ABC):
     ) -> TradingCosts:
         """Calculate entry costs."""
         pass
-        
+
     @abstractmethod
     def calculate_exit_cost(
         self,
@@ -66,7 +64,7 @@ class FixedCostModel(CostModel):
     
     From: backtest_engine.py, physics_backtester.py
     """
-    
+
     def __init__(
         self,
         spread_pips: float = 2.0,
@@ -84,7 +82,7 @@ class FixedCostModel(CostModel):
         self.spread_pips = spread_pips
         self.commission_per_lot = commission_per_lot
         self.slippage_pips = slippage_pips
-        
+
     def calculate_entry_cost(
         self,
         symbol: str,
@@ -95,19 +93,19 @@ class FixedCostModel(CostModel):
         """Calculate entry costs."""
         # Spread cost (half spread on entry)
         spread_cost = (self.spread_pips / 2) * pip_value * volume
-        
+
         # Commission
         commission = self.commission_per_lot * volume
-        
+
         # Slippage
         slippage = self.slippage_pips * pip_value * volume
-        
+
         return TradingCosts(
             spread_cost=spread_cost,
             commission=commission,
             slippage=slippage
         )
-        
+
     def calculate_exit_cost(
         self,
         symbol: str,
@@ -128,7 +126,7 @@ class DynamicCostModel(CostModel):
     
     Uses actual spread data from OHLCV if available.
     """
-    
+
     def __init__(
         self,
         commission_per_lot: float = 0.0,
@@ -143,7 +141,7 @@ class DynamicCostModel(CostModel):
         """
         self.commission_per_lot = commission_per_lot
         self.slippage_multiplier = slippage_multiplier
-        
+
     def calculate_entry_cost(
         self,
         symbol: str,
@@ -161,22 +159,22 @@ class DynamicCostModel(CostModel):
         """
         if spread is None:
             spread = 2.0  # Default fallback
-            
+
         # Spread cost (half spread on entry)
         spread_cost = (spread / 2) * pip_value * volume
-        
+
         # Commission
         commission = self.commission_per_lot * volume
-        
+
         # Slippage (proportional to spread)
         slippage = spread * self.slippage_multiplier * pip_value * volume
-        
+
         return TradingCosts(
             spread_cost=spread_cost,
             commission=commission,
             slippage=slippage
         )
-        
+
     def calculate_exit_cost(
         self,
         symbol: str,

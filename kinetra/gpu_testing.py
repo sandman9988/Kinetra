@@ -29,7 +29,6 @@ Philosophy: Maximize throughput while maintaining statistical rigor.
 """
 
 import logging
-import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -484,7 +483,7 @@ class GPUTestAccelerator:
             "batch_size": self.batch_size,
         }
 
-        logger.info(f"✅ Benchmark complete:")
+        logger.info("✅ Benchmark complete:")
         logger.info(f"   Throughput: {throughput:.1f} tests/sec")
         logger.info(f"   Avg time/test: {avg_time_per_test * 1000:.2f} ms")
 
@@ -604,7 +603,7 @@ if __name__ == "__main__":
     print(f"Workers: {status['num_workers']}")
 
     if status["gpu_info"]["available"]:
-        print(f"\nGPU Details:")
+        print("\nGPU Details:")
         for i, device_name in enumerate(status["gpu_info"]["devices"]):
             memory = status["gpu_info"]["memory"][i] if status["gpu_info"]["memory"] else "N/A"
             print(f"  [{i}] {device_name} - {memory:.1f} GB")

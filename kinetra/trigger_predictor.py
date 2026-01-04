@@ -24,11 +24,12 @@ Physics interpretation:
 - High energy + low damping = energy about to release (reverse)
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List
+
+import numpy as np
+import pandas as pd
 
 from .physics_engine import PhysicsEngine
 
@@ -484,11 +485,11 @@ def validate_predictor(data_path: str = None):
         print(f"\n{min_conf} threshold:")
         print(f"  Signals: {results.get('signals', 0)}")
         if results.get('signals', 0) > 0:
-            print(f"  Magnitude:")
+            print("  Magnitude:")
             print(f"    Avg move: {results['avg_abs_move']:.3f}%")
             print(f"    Baseline: {results['baseline_abs_move']:.3f}%")
             print(f"    Lift: {results['magnitude_lift']:.2f}x")
-            print(f"  Direction:")
+            print("  Direction:")
             print(f"    Accuracy: {results['direction_accuracy']:.1f}%")
             print(f"    Edge: {results['direction_edge']:+.1f}%")
             if results.get('laminar_signals', 0) > 10:

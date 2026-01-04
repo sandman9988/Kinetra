@@ -5,10 +5,10 @@ Extracts complete symbol specifications from MT5 terminal.
 Captures all available contract details for accurate backtesting.
 """
 
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import json
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from .market_microstructure import AssetClass, SymbolSpec
 

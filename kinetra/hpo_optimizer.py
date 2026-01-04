@@ -30,7 +30,7 @@ import logging
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import optuna
@@ -368,7 +368,7 @@ class HPOOptimizer:
         self.best_params = self.study.best_params
         self.best_value = self.study.best_value
 
-        logger.info(f"Optimization complete!")
+        logger.info("Optimization complete!")
         logger.info(f"Best {self.metric}: {self.best_value:.4f}")
         logger.info(f"Best params: {self.best_params}")
 

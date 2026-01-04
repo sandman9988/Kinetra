@@ -16,16 +16,17 @@ This environment uses THE SAME validation logic as RealisticBacktester,
 ensuring that training results transfer directly to live trading.
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, Tuple, Optional
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import Dict, Tuple
 
-from .physics_engine import PhysicsEngine
-from .reward_shaping import AdaptiveRewardShaper
+import numpy as np
+import pandas as pd
+
 from .market_microstructure import SymbolSpec
 from .order_validator import OrderValidator
+from .physics_engine import PhysicsEngine
+from .reward_shaping import AdaptiveRewardShaper
 
 
 class Action(IntEnum):

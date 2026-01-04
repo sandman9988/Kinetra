@@ -13,15 +13,12 @@ Modes:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
-import numpy as np
 
-from .costs import CostModel, FixedCostModel, DynamicCostModel
 from .constraints import MT5Constraints
+from .costs import CostModel, DynamicCostModel, FixedCostModel
 from .metrics import MetricsCalculator, PerformanceMetrics
 
 
@@ -55,7 +52,7 @@ class UnifiedBacktester:
         bt = UnifiedBacktester(mode='physics')
         result = bt.run(physics_strategy, data)
     """
-    
+
     def __init__(
         self,
         mode: str = 'standard',
@@ -80,7 +77,7 @@ class UnifiedBacktester:
         self.parallel = parallel
         self.gpu = gpu
         self.config = kwargs
-        
+
         # Configure based on mode
         if mode == 'realistic':
             self.cost_model = cost_model or DynamicCostModel()
@@ -90,10 +87,10 @@ class UnifiedBacktester:
             self.cost_model = cost_model or FixedCostModel()
             self.constraints = constraints
             self.enable_freeze_zones = False
-            
+
         # Metrics calculator
         self.metrics_calc = MetricsCalculator()
-        
+
     def run(
         self,
         strategy: Any,
@@ -117,28 +114,28 @@ class UnifiedBacktester:
         trades = []
         equity = initial_capital
         equity_curve = [equity]
-        
+
         # Simplified simulation loop (full implementation would be more complex)
         # This is a stub showing the interface
-        
+
         for i in range(len(data)):
             # Strategy logic would go here
             # For now, just maintain equity
             equity_curve.append(equity)
-            
+
         # Create equity series
         equity_series = pd.Series(equity_curve, index=data.index[:len(equity_curve)])
-        
+
         # Calculate returns
         returns = equity_series.pct_change().dropna()
-        
+
         # Calculate metrics
         metrics = self.metrics_calc.calculate_all(
             trades=trades,
             equity_curve=equity_series,
             returns=returns
         )
-        
+
         return BacktestResult(
             trades=trades,
             equity_curve=equity_series,
@@ -146,7 +143,7 @@ class UnifiedBacktester:
             mode=self.mode,
             config=self.config
         )
-        
+
     def optimize(
         self,
         strategy_class: Any,

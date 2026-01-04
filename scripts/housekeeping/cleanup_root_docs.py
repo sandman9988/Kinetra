@@ -6,10 +6,9 @@ Consolidates scattered markdown files into organized structure.
 Version: 1.0.0
 """
 
-import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def main():
@@ -17,7 +16,7 @@ def main():
     root = Path("/home/renierdejager/Kinetra")
     archive_dir = root / "archive" / "session_reports" / f"cleanup_{datetime.now().strftime('%Y%m%d')}"
     archive_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Files to archive (session-specific status reports)
     to_archive = [
         "ACTIONS_COMPLETE_SUMMARY.txt",
@@ -69,7 +68,7 @@ def main():
         "WORKFLOW_AUDIT.md",
         "WORKFLOW_DATA_PATHS.md",
     ]
-    
+
     # Archive files
     archived_count = 0
     for filename in to_archive:
@@ -79,7 +78,7 @@ def main():
             shutil.move(str(source), str(dest))
             archived_count += 1
             print(f"✓ Archived: {filename}")
-    
+
     # Create archive manifest
     manifest = archive_dir / "MANIFEST.md"
     with open(manifest, 'w') as f:
@@ -110,7 +109,7 @@ that served their purpose and are no longer needed in the root directory.
 """)
         for filename in sorted(to_archive):
             f.write(f"- {filename}\n")
-    
+
     print(f"\n✅ Cleanup complete: {archived_count} files archived to {archive_dir.relative_to(root)}")
     print(f"📋 Manifest created: {manifest.relative_to(root)}")
 

@@ -16,12 +16,12 @@ Architecture:
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict, Optional
 
-from .order_validator import OrderValidator, OrderValidation
 from .market_microstructure import SymbolSpec
+from .order_validator import OrderValidator
 
 
 @dataclass

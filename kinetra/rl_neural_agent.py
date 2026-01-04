@@ -12,11 +12,11 @@ Input: All physics features as percentiles
 Output: Q-values for each action
 """
 
-import numpy as np
-from typing import List, Tuple, Optional, Any
-from dataclasses import dataclass
 import pickle
+from dataclasses import dataclass
+from typing import Any, List, Optional, Tuple
 
+import numpy as np
 from numpy import floating
 
 

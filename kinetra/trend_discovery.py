@@ -16,9 +16,10 @@ Example discoveries we might find:
 - Indices: flow_regime + adx + time_hour defines trend
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Set
 from collections import defaultdict
+from dataclasses import dataclass, field
+from typing import Dict, List, Set, Tuple
+
 import numpy as np
 import pandas as pd
 
@@ -301,7 +302,7 @@ class TrendDefinitionLearner:
             lines.append(f"\n{asset_class}:")
             lines.append(f"  Trades analyzed: {definition['trades_analyzed']}")
             lines.append(f"  Formula: {definition['trend_score_formula']}")
-            lines.append(f"  Top predictors:")
+            lines.append("  Top predictors:")
 
             for pred in definition['top_predictors'][:5]:
                 bar_len = int(abs(pred['correlation']) * 20)
@@ -400,7 +401,7 @@ class MeanReversionDefinitionLearner(TrendDefinitionLearner):
 
             lines.append(f"\n{asset_class}:")
             lines.append(f"  Trades analyzed: {definition['trades_analyzed']}")
-            lines.append(f"  Top MR predictors:")
+            lines.append("  Top MR predictors:")
 
             for pred in definition.get('top_predictors', [])[:5]:
                 bar_len = int(abs(pred['correlation']) * 20)
@@ -538,19 +539,19 @@ class UnifiedStrategyLearner:
 
             # Trend info
             trend = profile['trend']
-            lines.append(f"\n  TREND-FOLLOWING:")
+            lines.append("\n  TREND-FOLLOWING:")
             lines.append(f"    Trades: {trend['trades']}, Win Rate: {trend['win_rate']:.1%}, Avg PnL: {trend['avg_pnl']:.3f}%")
             if trend['definition'].get('top_predictors'):
-                lines.append(f"    Definition (top 3):")
+                lines.append("    Definition (top 3):")
                 for pred in trend['definition']['top_predictors'][:3]:
                     lines.append(f"      {pred['correlation']:+.3f} {pred['measurement']}")
 
             # MR info
             mr = profile['mean_reversion']
-            lines.append(f"\n  MEAN REVERSION:")
+            lines.append("\n  MEAN REVERSION:")
             lines.append(f"    Trades: {mr['trades']}, Win Rate: {mr['win_rate']:.1%}, Avg PnL: {mr['avg_pnl']:.3f}%")
             if mr['definition'].get('top_predictors'):
-                lines.append(f"    Definition (top 3):")
+                lines.append("    Definition (top 3):")
                 for pred in mr['definition']['top_predictors'][:3]:
                     lines.append(f"      {pred['correlation']:+.3f} {pred['measurement']}")
 

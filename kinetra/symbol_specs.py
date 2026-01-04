@@ -11,10 +11,9 @@ This feeds into the physics engine as market viscosity/friction.
 """
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Dict, Optional, List
-import numpy as np
+from typing import Dict, Optional
 
 
 @dataclass

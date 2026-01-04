@@ -39,15 +39,11 @@ CRYPTO (BTCUSD):
   - Tick value: contract_size * point
 """
 
-import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import time
 from enum import Enum, auto
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
-
-import numpy as np
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +92,7 @@ class TradingSession:
     start: time
     end: time
     name: str = ""
-    
+
     def is_open(self, current_time: time) -> bool:
         """Check if session is open."""
         if self.start <= self.end:
@@ -105,7 +101,7 @@ class TradingSession:
             return current_time >= self.start or current_time <= self.end
 
 
-@dataclass 
+@dataclass
 class SymbolInfo:
     """
     Complete symbol information with accurate specifications.
@@ -113,7 +109,7 @@ class SymbolInfo:
     Designed to match MT5 symbol_info() structure while being
     broker-agnostic and supporting multiple calculation modes.
     """
-    
+
     # ═══════════════════════════════════════════════════════════════
     # IDENTITY
     # ═══════════════════════════════════════════════════════════════
@@ -121,28 +117,28 @@ class SymbolInfo:
     name: str = ""                        # Full name
     description: str = ""                 # Description
     path: str = ""                        # Symbol path in Market Watch
-    
+
     # Asset classification
     asset_class: AssetClass = AssetClass.FOREX_MAJOR
     base_currency: str = ""               # Base currency (EUR in EURUSD)
-    quote_currency: str = ""              # Quote/profit currency (USD in EURUSD)  
+    quote_currency: str = ""              # Quote/profit currency (USD in EURUSD)
     margin_currency: str = ""             # Currency for margin calculation
-    
+
     # ═══════════════════════════════════════════════════════════════
     # PRICE PRECISION
     # ═══════════════════════════════════════════════════════════════
     digits: int = 5                       # Price decimal places
     point: float = 0.00001                # Minimum price change (1 point)
-    
+
     # For display/common usage
     pip_digits: int = 4                   # Pip decimal places (forex convention)
     pip_size: float = 0.0001              # Size of 1 pip (10 points for 5-digit)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # CONTRACT SPECIFICATIONS
     # ═══════════════════════════════════════════════════════════════
     contract_size: float = 100000.0       # Units per 1.0 lot
-    
+
     # Tick value: monetary value of 1 tick (point) movement per lot
     # CRITICAL: This varies significantly by instrument!
     #
@@ -158,18 +154,18 @@ class SymbolInfo:
     tick_value: float = 1.0               # Value of 1 tick in profit currency
     tick_value_profit: float = 1.0        # Tick value in profit currency
     tick_value_loss: float = 1.0          # Tick value for losses
-    
+
     # Calculation mode
     calc_mode: CalcMode = CalcMode.FOREX
-    
+
     # ═══════════════════════════════════════════════════════════════
-    # VOLUME CONSTRAINTS  
+    # VOLUME CONSTRAINTS
     # ═══════════════════════════════════════════════════════════════
     volume_min: float = 0.01              # Minimum lot size
     volume_max: float = 100.0             # Maximum lot size
     volume_step: float = 0.01             # Lot size increment
     volume_limit: float = 0.0             # Max total volume (0 = unlimited)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # MARGIN REQUIREMENTS
     # ═══════════════════════════════════════════════════════════════
@@ -182,19 +178,19 @@ class SymbolInfo:
     margin_stop: float = 0.0              # Stop out margin level
     margin_stop_limit: float = 0.0        # Limit stop out level
     margin_hedged: float = 0.5            # Hedged margin (50% = half margin)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # SPREAD
     # ═══════════════════════════════════════════════════════════════
     spread: int = 0                       # Current spread in points
     spread_float: bool = True             # Floating spread
     spread_balance: int = 0               # Spread balance
-    
+
     # Typical values for backtesting
     spread_typical: float = 10.0          # Typical spread in points
     spread_min: float = 5.0               # Minimum spread
     spread_max: float = 50.0              # Maximum spread (news/low liquidity)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # SWAP (OVERNIGHT INTEREST)
     # ═══════════════════════════════════════════════════════════════
@@ -203,13 +199,13 @@ class SymbolInfo:
     swap_short: float = 0.0               # Swap for short positions
     swap_rollover3days: int = 3           # Triple swap day (3=Wednesday)
     swap_time: time = time(0, 0)          # Swap charge time (server)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # STOPS & LIMITS
     # ═══════════════════════════════════════════════════════════════
     stops_level: int = 0                  # Min distance for stops (points)
     freeze_level: int = 0                 # Freeze distance (points)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # TRADING
     # ═══════════════════════════════════════════════════════════════
@@ -218,19 +214,19 @@ class SymbolInfo:
     trade_close_by_allowed: bool = True
     filling_mode: int = 1                 # Order fill mode
     expiration_mode: int = 15             # Order expiration modes allowed
-    
+
     # Trading sessions
     sessions: List[TradingSession] = field(default_factory=list)
-    
+
     # ═══════════════════════════════════════════════════════════════
     # SERVER/TIME
     # ═══════════════════════════════════════════════════════════════
     server_timezone: str = "UTC+2"        # Server timezone
-    
+
     # ═══════════════════════════════════════════════════════════════
     # COMPUTED PROPERTIES
     # ═══════════════════════════════════════════════════════════════
-    
+
     @property
     def pip_value(self) -> float:
         """
@@ -241,12 +237,12 @@ class SymbolInfo:
         """
         points_per_pip = self.pip_size / self.point
         return self.tick_value * points_per_pip
-    
+
     @property
     def point_value(self) -> float:
         """Value of 1 point per lot in profit currency."""
         return self.tick_value
-    
+
     def calculate_pip_value(self, lots: float, price: float = 0.0) -> float:
         """
         Calculate pip value for given lot size.
@@ -264,11 +260,11 @@ class SymbolInfo:
             Pip value in profit currency
         """
         return self.pip_value * lots
-    
+
     def calculate_point_value(self, lots: float) -> float:
         """Calculate point value for given lot size."""
         return self.tick_value * lots
-    
+
     def calculate_profit(
         self,
         direction: int,  # 1 = long, -1 = short
@@ -291,25 +287,25 @@ class SymbolInfo:
             Profit/loss in profit currency
         """
         price_diff = (close_price - open_price) * direction
-        
+
         if self.calc_mode in (CalcMode.FOREX, CalcMode.CFD, CalcMode.CFD_INDEX):
             # P&L = price_diff * contract_size * lots
             return price_diff * self.contract_size * lots
-            
+
         elif self.calc_mode == CalcMode.FUTURES:
             # P&L = price_diff * (tick_value / tick_size) * lots
             if self.tick_size > 0:
                 return price_diff * (self.tick_value / self.tick_size) * lots
             return 0.0
-            
+
         elif self.calc_mode == CalcMode.EXCHANGE_STOCKS:
             # P&L = price_diff * lots (contract_size = 1 share)
             return price_diff * self.contract_size * lots
-            
+
         else:
             # Default forex-style
             return price_diff * self.contract_size * lots
-    
+
     def calculate_spread_cost(self, lots: float) -> float:
         """
         Calculate spread cost for entry.
@@ -324,7 +320,7 @@ class SymbolInfo:
         """
         spread_in_price = self.spread_typical * self.point
         return spread_in_price * self.contract_size * lots
-    
+
     def calculate_margin(
         self,
         lots: float,
@@ -347,13 +343,13 @@ class SymbolInfo:
         if self.margin_initial > 0:
             # Fixed margin per lot
             return self.margin_initial * lots
-        
+
         # Calculate from leverage
         notional = lots * self.contract_size * price
         margin_rate = self.margin_long if is_long else self.margin_short
-        
+
         return (notional / leverage) * margin_rate
-    
+
     def calculate_swap(
         self,
         is_long: bool,
@@ -374,7 +370,7 @@ class SymbolInfo:
             Swap amount (positive = credit, negative = cost)
         """
         swap_rate = self.swap_long if is_long else self.swap_short
-        
+
         if self.swap_mode == 1:  # Points
             return swap_rate * self.tick_value * lots * days
         elif self.swap_mode == 2:  # Currency
@@ -382,27 +378,27 @@ class SymbolInfo:
         elif self.swap_mode == 3:  # Percentage
             notional = lots * self.contract_size * price
             return (swap_rate / 100 / 365) * notional * days
-        
+
         return 0.0
-    
+
     def normalize_volume(self, volume: float) -> float:
         """Normalize volume to valid lot size."""
         if volume < self.volume_min:
             return 0.0
         if volume > self.volume_max:
             volume = self.volume_max
-        
+
         # Round to volume_step
         steps = round(volume / self.volume_step)
         return steps * self.volume_step
-    
+
     def normalize_price(self, price: float) -> float:
         """Normalize price to tick size."""
         if self.tick_size <= 0:
             return price
         ticks = round(price / self.tick_size)
         return ticks * self.tick_size
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -428,7 +424,7 @@ class SymbolInfo:
             'swap_rollover3days': self.swap_rollover3days,
             'margin_initial': self.margin_initial,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'SymbolInfo':
         """Create from dictionary."""
@@ -437,11 +433,11 @@ class SymbolInfo:
             data['asset_class'] = AssetClass[data['asset_class']]
         if 'calc_mode' in data and isinstance(data['calc_mode'], str):
             data['calc_mode'] = CalcMode[data['calc_mode']]
-        
+
         # Filter to known fields
         known_fields = {f.name for f in cls.__dataclass_fields__.values()}
         filtered = {k: v for k, v in data.items() if k in known_fields}
-        
+
         return cls(**filtered)
 
 
@@ -462,7 +458,7 @@ def _forex_symbol(
 ) -> SymbolInfo:
     """Create forex symbol with standard specs."""
     is_jpy = quote == "JPY" or base == "JPY"
-    
+
     return SymbolInfo(
         symbol=symbol,
         name=symbol,
@@ -955,23 +951,23 @@ SYMBOL_REGISTRY: Dict[str, SymbolInfo] = {
     "USDJPY": USDJPY,
     "AUDUSD": AUDUSD,
     "GBPUSD+": GBPUSD,  # Alias
-    
+
     # Metals
     "XAUUSD": XAUUSD,
     "XAUUSD+": XAUUSD,  # Alias
     "XAGUSD": XAGUSD,
-    
+
     # Indices
     "US500": US500,
     "US30": US30,
     "NAS100": NAS100,
     "Nikkei225": NIKKEI225,
     "DJ30ft": DJ30FT,
-    
+
     # Crypto
     "BTCUSD": BTCUSD,
     "ETHUSD": ETHUSD,
-    
+
     # Commodities
     "USOIL": USOIL,
     "UKOUSD": UKOUSD,
@@ -992,19 +988,19 @@ def get_symbol_info(symbol: str) -> SymbolInfo:
     # Exact match
     if symbol in SYMBOL_REGISTRY:
         return SYMBOL_REGISTRY[symbol]
-    
+
     # Try uppercase
     upper = symbol.upper()
     if upper in SYMBOL_REGISTRY:
         return SYMBOL_REGISTRY[upper]
-    
+
     # Try removing suffix
     base = symbol.split('.')[0].split('_')[0].replace('+', '')
     if base in SYMBOL_REGISTRY:
         return SYMBOL_REGISTRY[base]
     if base.upper() in SYMBOL_REGISTRY:
         return SYMBOL_REGISTRY[base.upper()]
-    
+
     # Return default
     logger.warning(f"Symbol {symbol} not found in registry, returning default")
     return SymbolInfo(symbol=symbol)

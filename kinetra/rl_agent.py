@@ -12,7 +12,7 @@ __version__ = "1.0.0"
 __author__ = "Kinetra Project"
 
 from collections import deque
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 import numpy as np
 

@@ -13,14 +13,13 @@ Key Principles:
 - Works across any asset class/timeframe
 """
 
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional
-from dataclasses import dataclass, field
 from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-import warnings
 
 from .dsp_features import DSPFeatureEngine
 from .liquidity_features import LiquidityFeatureEngine

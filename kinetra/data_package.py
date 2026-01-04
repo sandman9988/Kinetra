@@ -7,8 +7,8 @@ Ensures consistent data format across all trading systems.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Tuple, Dict, Any
 from enum import Enum
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 
@@ -272,18 +272,18 @@ class DataPackage:
             Multi-line string summary
         """
         lines = [
-            f"DataPackage Summary",
+            "DataPackage Summary",
             f"{'='*50}",
             f"Symbol:        {self.symbol}",
             f"Timeframe:     {self.timeframe}",
             f"Market Type:   {self.market_type.value if self.market_type else 'Unknown'}",
-            f"",
+            "",
             f"Time Range:    {self.start_date} → {self.end_date}",
             f"Total Bars:    {self.total_bars:,}",
-            f"",
+            "",
             f"Data Shape:    {self.prices.shape}",
             f"Columns:       {list(self.prices.columns)}",
-            f"",
+            "",
             f"Validation:    {'✓ PASSED' if self.is_validated else '✗ FAILED'}",
         ]
 
@@ -298,17 +298,17 @@ class DataPackage:
                 lines.append(f"  - {e}")
 
         if self.physics_state is not None:
-            lines.append(f"")
+            lines.append("")
             lines.append(f"Physics State: {self.physics_state.shape}")
 
         if self.symbol_spec:
-            lines.append(f"")
-            lines.append(f"Symbol Spec:   ✓ Loaded")
+            lines.append("")
+            lines.append("Symbol Spec:   ✓ Loaded")
             lines.append(f"  Spread:      {self.symbol_spec.spread_typical} points")
             lines.append(f"  Commission:  ${self.symbol_spec.commission_per_lot}/lot")
 
         if self.preprocessing_applied:
-            lines.append(f"")
+            lines.append("")
             lines.append(f"Preprocessing: {len(self.preprocessing_applied)} steps")
             for step in self.preprocessing_applied:
                 lines.append(f"  - {step}")

@@ -8,20 +8,20 @@ Empirically tests thermodynamics/physics/kinematics trading strategies:
 - Regime-adaptive multi-physics strategies
 """
 
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Dict, Any, List, Tuple
-from concurrent.futures import ProcessPoolExecutor, as_completed
-import multiprocessing as mp
 from backtesting import Backtest, Strategy
-from backtesting.lib import crossover
 
 from .config import MAX_WORKERS
-from .physics_engine import PhysicsEngine, RegimeType
+from .physics_engine import PhysicsEngine
 
 # Try GPU physics (ROCm/CUDA)
 try:
-    from .parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    from .parallel import TORCH_AVAILABLE, GPUPhysicsEngine
     GPU_AVAILABLE = TORCH_AVAILABLE
 except ImportError:
     GPU_AVAILABLE = False

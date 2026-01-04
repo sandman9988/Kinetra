@@ -26,9 +26,9 @@ import math
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
@@ -67,18 +67,18 @@ class SafeMath:
     - Overflow/underflow prevention
     - Configurable precision
     """
-    
+
     # Numerical limits
     MAX_PRICE = 1e12      # Maximum reasonable price (1 trillion)
     MIN_PRICE = 1e-12     # Minimum non-zero price
     MAX_VOLUME = 1e9      # Maximum reasonable volume
     MAX_PNL = 1e15        # Maximum reasonable P&L
     EPSILON = 1e-15       # Machine epsilon for comparisons
-    
+
     @staticmethod
     def safe_divide(
-        numerator: float, 
-        denominator: float, 
+        numerator: float,
+        denominator: float,
         default: float = 0.0,
         allow_inf: bool = False
     ) -> float:
@@ -98,7 +98,7 @@ class SafeMath:
         if math.isnan(numerator) or math.isnan(denominator):
             warnings.warn(f"NaN in division: {numerator}/{denominator}")
             return default
-        
+
         # Handle zero denominator
         if abs(denominator) < SafeMath.EPSILON:
             if abs(numerator) < SafeMath.EPSILON:
@@ -108,16 +108,16 @@ class SafeMath:
             else:
                 warnings.warn(f"Division by zero: {numerator}/{denominator}")
                 return default
-        
+
         result = numerator / denominator
-        
+
         # Handle infinite results
         if math.isinf(result) and not allow_inf:
             warnings.warn(f"Infinite result: {numerator}/{denominator}")
             return math.copysign(SafeMath.MAX_PNL, result)
-        
+
         return result
-    
+
     @staticmethod
     def safe_multiply(a: float, b: float, max_result: float = None) -> float:
         """
@@ -133,26 +133,26 @@ class SafeMath:
         """
         if max_result is None:
             max_result = SafeMath.MAX_PNL
-        
+
         # Handle NaN
         if math.isnan(a) or math.isnan(b):
             warnings.warn(f"NaN in multiplication: {a}*{b}")
             return 0.0
-        
+
         # Handle infinity
         if math.isinf(a) or math.isinf(b):
             warnings.warn(f"Infinity in multiplication: {a}*{b}")
             return math.copysign(max_result, a * b) if a != 0 and b != 0 else 0.0
-        
+
         result = a * b
-        
+
         # Clamp result
         if abs(result) > max_result:
             warnings.warn(f"Multiplication overflow: {a}*{b}={result}, clamping to {max_result}")
             return math.copysign(max_result, result)
-        
+
         return result
-    
+
     @staticmethod
     def safe_sqrt(x: float, default: float = 0.0) -> float:
         """
@@ -171,7 +171,7 @@ class SafeMath:
             warnings.warn(f"Square root of negative: {x}")
             return default
         return math.sqrt(x)
-    
+
     @staticmethod
     def safe_log(x: float, default: float = float('-inf')) -> float:
         """
@@ -187,7 +187,7 @@ class SafeMath:
         if math.isnan(x) or x <= 0:
             return default
         return math.log(x)
-    
+
     @staticmethod
     def validate_price(price: float, symbol: str = "") -> Tuple[bool, str]:
         """
@@ -211,7 +211,7 @@ class SafeMath:
         if 0 < price < SafeMath.MIN_PRICE:
             return False, f"Price {price} below minimum for {symbol}"
         return True, ""
-    
+
     @staticmethod
     def validate_volume(volume: float, min_vol: float = 0.0, max_vol: float = None) -> Tuple[bool, str]:
         """
@@ -227,7 +227,7 @@ class SafeMath:
         """
         if max_vol is None:
             max_vol = SafeMath.MAX_VOLUME
-        
+
         if math.isnan(volume):
             return False, "Volume is NaN"
         if math.isinf(volume):
@@ -239,7 +239,7 @@ class SafeMath:
         if volume > max_vol:
             return False, f"Volume {volume} above maximum {max_vol}"
         return True, ""
-    
+
     @staticmethod
     def clamp(value: float, min_val: float, max_val: float) -> float:
         """Clamp value to range with NaN handling."""
@@ -255,7 +255,7 @@ class DigitNormalizer:
     Ensures all prices and volumes are properly rounded
     according to instrument specifications (tick size, volume step).
     """
-    
+
     @staticmethod
     def normalize_price(price: float, tick_size: float, digits: int = None) -> float:
         """
@@ -274,28 +274,28 @@ class DigitNormalizer:
         if tick_size <= 0:
             warnings.warn(f"Invalid tick_size {tick_size}, returning price as-is")
             return price
-        
+
         if math.isnan(price) or math.isinf(price):
             warnings.warn(f"Invalid price {price} for normalization")
             return price
-        
+
         try:
             # Use Decimal for precise calculation
             d_price = Decimal(str(price))
             d_tick = Decimal(str(tick_size))
-            
+
             # Round to nearest tick
             normalized = (d_price / d_tick).quantize(Decimal('1'), rounding=ROUND_HALF_UP) * d_tick
-            
+
             # Apply digits if specified
             if digits is not None and digits >= 0:
                 normalized = normalized.quantize(Decimal(10) ** -digits, rounding=ROUND_HALF_UP)
-            
+
             return float(normalized)
         except (InvalidOperation, ValueError) as e:
             warnings.warn(f"Price normalization error: {e}")
             return price
-    
+
     @staticmethod
     def normalize_volume(volume: float, volume_step: float, volume_min: float = 0.0, volume_max: float = float('inf')) -> float:
         """
@@ -313,28 +313,28 @@ class DigitNormalizer:
         if volume_step <= 0:
             warnings.warn(f"Invalid volume_step {volume_step}, using volume as-is")
             return max(volume_min, min(volume_max, volume))
-        
+
         if math.isnan(volume) or math.isinf(volume):
             warnings.warn(f"Invalid volume {volume} for normalization")
             return volume_min
-        
+
         try:
             # Use Decimal for precise calculation
             d_volume = Decimal(str(volume))
             d_step = Decimal(str(volume_step))
-            
+
             # Round down to nearest step (never round up lots)
             normalized = (d_volume / d_step).to_integral_value(rounding=decimal.ROUND_DOWN) * d_step
-            
+
             # Clamp to range
             result = float(normalized)
             result = max(volume_min, min(volume_max, result))
-            
+
             return result
         except (InvalidOperation, ValueError) as e:
             warnings.warn(f"Volume normalization error: {e}")
             return max(volume_min, min(volume_max, volume))
-    
+
     @staticmethod
     def calculate_pip_value(
         price: float,
@@ -359,7 +359,7 @@ class DigitNormalizer:
         """
         if price <= 0 or point <= 0:
             return 0.0
-        
+
         pip_size = point * 10 if point < 0.01 else point  # Standard vs JPY pairs
         return SafeMath.safe_multiply(
             SafeMath.safe_divide(pip_size, price) * contract_size,
@@ -377,7 +377,7 @@ class PnLCalculator:
     - Unrealized P&L (mark-to-market)
     - Cost breakdown (spread, commission, swap, slippage)
     """
-    
+
     @staticmethod
     def calculate_gross_pnl(
         direction: int,  # 1=long, -1=short
@@ -409,28 +409,28 @@ class PnLCalculator:
             if not is_valid:
                 warnings.warn(f"Invalid {name}: {msg}")
                 return 0.0, {"error": msg}
-        
+
         is_valid, msg = SafeMath.validate_volume(volume)
         if not is_valid:
             warnings.warn(f"Invalid volume: {msg}")
             return 0.0, {"error": msg}
-        
+
         # Calculate price difference
         price_diff = (exit_price - entry_price) * direction
-        
+
         # Calculate ticks moved
         if tick_size > 0:
             ticks_moved = price_diff / tick_size
         else:
             ticks_moved = price_diff  # Fallback
             warnings.warn(f"Invalid tick_size {tick_size}, using price diff directly")
-        
+
         # Calculate P&L
         gross_pnl = SafeMath.safe_multiply(
             ticks_moved * tick_value,
             volume
         )
-        
+
         details = {
             "direction": "long" if direction > 0 else "short",
             "entry_price": entry_price,
@@ -441,9 +441,9 @@ class PnLCalculator:
             "volume": volume,
             "gross_pnl": gross_pnl,
         }
-        
+
         return gross_pnl, details
-    
+
     @staticmethod
     def calculate_net_pnl(
         gross_pnl: float,
@@ -477,10 +477,10 @@ class PnLCalculator:
         if slippage < 0:
             warnings.warn(f"Negative slippage {slippage}, using 0")
             slippage = 0.0
-        
+
         total_costs = spread_cost + commission + abs(swap_cost) + slippage
         net_pnl = gross_pnl - total_costs
-        
+
         breakdown = {
             "gross_pnl": gross_pnl,
             "spread_cost": spread_cost,
@@ -491,9 +491,9 @@ class PnLCalculator:
             "net_pnl": net_pnl,
             "cost_percentage": SafeMath.safe_divide(total_costs, abs(gross_pnl)) * 100 if gross_pnl != 0 else 0,
         }
-        
+
         return net_pnl, breakdown
-    
+
     @staticmethod
     def calculate_mtm(
         direction: int,
@@ -535,7 +535,7 @@ class RiskMetricsCalculator:
     - VaR/CVaR (Value at Risk)
     - Calmar Ratio
     """
-    
+
     @staticmethod
     def calculate_sharpe_ratio(
         returns: np.ndarray,
@@ -557,21 +557,21 @@ class RiskMetricsCalculator:
         """
         if len(returns) < 2:
             return 0.0
-        
+
         # Remove NaN/Inf
         clean_returns = returns[~np.isnan(returns) & ~np.isinf(returns)]
         if len(clean_returns) < 2:
             return 0.0
-        
+
         excess_returns = clean_returns - risk_free_rate
         mean_excess = np.mean(excess_returns)
         std_returns = np.std(clean_returns, ddof=1)
-        
+
         if std_returns < SafeMath.EPSILON:
             return 0.0 if mean_excess <= 0 else float('inf')
-        
+
         return SafeMath.safe_divide(mean_excess, std_returns) * annualization_factor
-    
+
     @staticmethod
     def calculate_sortino_ratio(
         returns: np.ndarray,
@@ -593,26 +593,26 @@ class RiskMetricsCalculator:
         """
         if len(returns) < 2:
             return 0.0
-        
+
         # Remove NaN/Inf
         clean_returns = returns[~np.isnan(returns) & ~np.isinf(returns)]
         if len(clean_returns) < 2:
             return 0.0
-        
+
         excess_returns = clean_returns - target_return
         mean_excess = np.mean(excess_returns)
-        
+
         # Downside deviation (only negative returns)
         downside = clean_returns[clean_returns < target_return] - target_return
         if len(downside) == 0:
             return float('inf') if mean_excess > 0 else 0.0
-        
+
         downside_std = np.std(downside, ddof=1)
         if downside_std < SafeMath.EPSILON:
             return float('inf') if mean_excess > 0 else 0.0
-        
+
         return SafeMath.safe_divide(mean_excess, downside_std) * annualization_factor
-    
+
     @staticmethod
     def calculate_max_drawdown(equity_curve: np.ndarray) -> Tuple[float, float, int, int]:
         """
@@ -626,32 +626,32 @@ class RiskMetricsCalculator:
         """
         if len(equity_curve) < 2:
             return 0.0, 0.0, 0, 0
-        
+
         # Remove NaN/Inf
         clean_equity = np.array(equity_curve, dtype=float).flatten()
         clean_equity = clean_equity[~np.isnan(clean_equity) & ~np.isinf(clean_equity)]
         if len(clean_equity) < 2:
             return 0.0, 0.0, 0, 0
-        
+
         # Calculate running maximum
         running_max = np.maximum.accumulate(clean_equity)
         drawdown = running_max - clean_equity
-        
+
         # Calculate percentage drawdown element-wise
         drawdown_pct = np.zeros_like(drawdown)
         nonzero_mask = running_max > 0
         drawdown_pct[nonzero_mask] = drawdown[nonzero_mask] / running_max[nonzero_mask]
-        
+
         # Find max drawdown
         max_dd_idx = int(np.argmax(drawdown))
         max_dd = float(drawdown[max_dd_idx])
         max_dd_pct = float(drawdown_pct[max_dd_idx])
-        
+
         # Find peak (before trough)
         peak_idx = int(np.argmax(clean_equity[:max_dd_idx + 1])) if max_dd_idx > 0 else 0
-        
+
         return max_dd, max_dd_pct, peak_idx, max_dd_idx
-    
+
     @staticmethod
     def calculate_var_cvar(
         returns: np.ndarray,
@@ -669,20 +669,20 @@ class RiskMetricsCalculator:
         """
         if len(returns) < 10:
             return 0.0, 0.0
-        
+
         # Remove NaN/Inf
         clean_returns = returns[~np.isnan(returns) & ~np.isinf(returns)]
         if len(clean_returns) < 10:
             return 0.0, 0.0
-        
+
         # VaR: percentile of losses
         alpha = 1 - confidence_level
         var = -np.percentile(clean_returns, alpha * 100)
-        
+
         # CVaR: expected loss beyond VaR
         tail_returns = clean_returns[clean_returns <= -var]
         cvar = -np.mean(tail_returns) if len(tail_returns) > 0 else var
-        
+
         return max(0, var), max(0, cvar)
 
 
@@ -696,7 +696,7 @@ class AuditTrail:
     - Reconciliation checks
     - Export for regulatory reporting
     """
-    
+
     def __init__(self, session_id: str = None):
         """
         Initialize audit trail.
@@ -708,7 +708,7 @@ class AuditTrail:
         self.entries: List[Dict] = []
         self.issues: List[AuditIssue] = []
         self.checksums: List[str] = []
-    
+
     def log_entry(self, entry_type: str, data: Dict, metadata: Dict = None) -> str:
         """
         Log an audit entry with checksum.
@@ -729,24 +729,24 @@ class AuditTrail:
             "data": data,
             "metadata": metadata or {},
         }
-        
+
         # Generate checksum
         entry_json = json.dumps(entry, sort_keys=True, default=str)
         checksum = hashlib.sha256(entry_json.encode()).hexdigest()[:16]
         entry["checksum"] = checksum
-        
+
         self.entries.append(entry)
         self.checksums.append(checksum)
-        
+
         # Log to audit logger
         audit_logger.info(f"[{entry_type}] {checksum}: {data}")
-        
+
         return checksum
-    
+
     def log_issue(self, issue: AuditIssue):
         """Log an audit issue."""
         self.issues.append(issue)
-        
+
         # Log based on severity
         if issue.severity == AuditSeverity.CRITICAL:
             audit_logger.critical(f"[{issue.code}] {issue.message}")
@@ -756,7 +756,7 @@ class AuditTrail:
             audit_logger.warning(f"[{issue.code}] {issue.message}")
         else:
             audit_logger.info(f"[{issue.code}] {issue.message}")
-    
+
     def verify_chain(self) -> bool:
         """
         Verify audit trail integrity.
@@ -770,7 +770,7 @@ class AuditTrail:
             original_checksum = entry_copy.pop("checksum")
             entry_json = json.dumps(entry_copy, sort_keys=True, default=str)
             calculated_checksum = hashlib.sha256(entry_json.encode()).hexdigest()[:16]
-            
+
             if calculated_checksum != original_checksum:
                 self.log_issue(AuditIssue(
                     timestamp=datetime.now(),
@@ -781,9 +781,9 @@ class AuditTrail:
                     value=calculated_checksum,
                 ))
                 return False
-        
+
         return True
-    
+
     def reconcile_equity(
         self,
         initial_capital: float,
@@ -806,9 +806,9 @@ class AuditTrail:
         total_pnl = sum(t.get('net_pnl', 0) for t in trades)
         calculated_equity = initial_capital + total_pnl
         difference = abs(final_equity - calculated_equity)
-        
+
         is_reconciled = difference <= tolerance
-        
+
         if not is_reconciled:
             self.log_issue(AuditIssue(
                 timestamp=datetime.now(),
@@ -819,9 +819,9 @@ class AuditTrail:
                 value=final_equity,
                 context={"initial_capital": initial_capital, "total_pnl": total_pnl},
             ))
-        
+
         return is_reconciled, difference
-    
+
     def export_report(self) -> Dict:
         """
         Export audit report for regulatory compliance.

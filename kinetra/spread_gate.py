@@ -20,7 +20,7 @@ Broker-Specific Calibration:
 - Default thresholds based on Vantage International ECN profiles
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np
@@ -431,7 +431,6 @@ def analyze_spread_profile(
 
     Returns percentile-based thresholds for spread gate calibration.
     """
-    from pathlib import Path
     import glob
 
     # Find matching file
@@ -515,11 +514,11 @@ if __name__ == "__main__":
         print(f"  Median:      {analysis['median']:.1f}")
         print(f"  Std Dev:     {analysis['std']:.1f}")
 
-        print(f"\n  Percentiles:")
+        print("\n  Percentiles:")
         for pct, val in analysis['percentiles'].items():
             print(f"    {pct}: {val:.1f}")
 
-        print(f"\n  Recommended Profile:")
+        print("\n  Recommended Profile:")
         rec = analysis['recommended_profile']
         print(f"    tight_spread:   {rec['tight_spread']:.1f}")
         print(f"    normal_spread:  {rec['normal_spread']:.1f}")

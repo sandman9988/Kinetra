@@ -30,7 +30,7 @@ class AtomicFileWriter:
         with AtomicFileWriter('/path/to/file.csv') as f:
             df.to_csv(f, index=False)
     """
-    
+
     def __init__(self, target_path: Path):
         """
         Initialize atomic writer.
@@ -41,21 +41,21 @@ class AtomicFileWriter:
         self.target_path = Path(target_path)
         self.temp_path: Optional[Path] = None
         self.temp_fd = None
-        
+
     def __enter__(self):
         """Create temp file in same directory as target."""
         # Create temp file in same dir (ensures same filesystem)
         self.target_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         self.temp_fd, temp_name = tempfile.mkstemp(
             suffix='.tmp',
             prefix=f'.{self.target_path.stem}_',
             dir=self.target_path.parent
         )
         self.temp_path = Path(temp_name)
-        
+
         return self.temp_path
-        
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Move temp file to target or cleanup on error."""
         try:

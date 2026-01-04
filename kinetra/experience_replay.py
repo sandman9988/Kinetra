@@ -18,14 +18,14 @@ Architecture:
 This creates a self-improving system where real outcomes drive learning.
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, List, Tuple, Optional, NamedTuple
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from collections import deque
 import pickle
+from collections import deque
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, NamedTuple, Optional, Tuple
+
+import numpy as np
 
 
 class Experience(NamedTuple):

@@ -8,7 +8,7 @@ Ensures no look-ahead bias when using multiple timeframes:
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd

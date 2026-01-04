@@ -26,12 +26,11 @@ Usage:
 Philosophy: Make test results VISUAL and INTERACTIVE for rapid insights.
 """
 
-import json
 import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -680,7 +679,7 @@ class TestDashboard:
             "</style>",
             "</head>",
             "<body>",
-            f"<h1>Kinetra Exhaustive Test Report</h1>",
+            "<h1>Kinetra Exhaustive Test Report</h1>",
             f"<p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>",
         ]
 

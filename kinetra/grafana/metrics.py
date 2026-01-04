@@ -9,9 +9,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ..backtest_engine import BacktestResult, Trade
-from ..portfolio_backtest import InstrumentClass, PortfolioBacktestResult
-from ..reporting import PortfolioReport, ReportingEngine
+from ..portfolio_backtest import PortfolioBacktestResult
+from ..reporting import ReportingEngine
 
 
 @dataclass

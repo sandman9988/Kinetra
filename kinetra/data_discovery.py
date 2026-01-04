@@ -24,12 +24,12 @@ Usage:
     files = discovery.find(asset_class='indices', sample=3)
 """
 
-from pathlib import Path
-from typing import List, Optional, Dict, Set, Tuple
-from dataclasses import dataclass, field
-from collections import defaultdict
-import re
 import random
+import re
+from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Set
 
 
 @dataclass
@@ -131,7 +131,7 @@ class DataDiscovery:
                         discovered.append(metadata)
                         # Cache asset class info
                         self._asset_class_cache[metadata.asset_class].add(metadata.symbol)
-                except Exception as e:
+                except Exception:
                     # Skip files we can't parse
                     continue
 
@@ -564,15 +564,15 @@ def print_data_summary():
     print(f"Total Files: {stats['total_files']}")
     print(f"Total Size: {stats['total_size_mb']:.1f} MB")
 
-    print(f"\nAsset Classes:")
+    print("\nAsset Classes:")
     for asset_class, info in stats['asset_classes'].items():
         print(f"  {asset_class:12s}: {info['files']:3d} files, {info['symbols']:2d} symbols, {info['size_mb']:.1f} MB")
 
-    print(f"\nTimeframes:")
+    print("\nTimeframes:")
     for timeframe, count in stats['timeframes'].items():
         print(f"  {timeframe}: {count} files")
 
-    print(f"\nData Splits:")
+    print("\nData Splits:")
     for split, count in stats['splits'].items():
         if count > 0:
             print(f"  {split:10s}: {count} files")

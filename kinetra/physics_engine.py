@@ -51,7 +51,6 @@ class RegimeType(Enum):
     BREAKOUT = "breakout"  # High energy burst
 
 
-import numpy as np
 from hmmlearn import hmm
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler

@@ -19,8 +19,7 @@ Usage:
 """
 
 from datetime import datetime
-from typing import Optional, Dict, Any
-import sys
+from typing import Dict, Optional
 
 
 class MT5Logger:
@@ -491,7 +490,7 @@ class MT5Logger:
         self._log(f"  Total swap:          ${total_swap:,.2f}")
         if total_slippage > 0:
             self._log(f"  Total slippage:      ${total_slippage:,.2f}")
-        self._log(f"  ─────────────────────────────")
+        self._log("  ─────────────────────────────")
         self._log(f"  Total costs:         ${total_costs:,.2f}")
         if total_pnl + total_costs > 0:
             cost_pct = (total_costs / (total_pnl + total_costs)) * 100

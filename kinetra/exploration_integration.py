@@ -22,15 +22,15 @@ Physics Measurements:
 - Microstructure: spread percentile, volume surge, volume trend
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
-from dataclasses import dataclass, field
-
 # Import our measurement modules - handle both package and direct loading
 import importlib.util
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+
 
 def _load_sibling_module(name: str):
     """Load a sibling module from the same directory."""
@@ -42,16 +42,16 @@ def _load_sibling_module(name: str):
 
 try:
     from .measurements import (
-        MeasurementEngine,
-        KinematicsMeasures,
+        CorrelationExplorer,
         EnergyMeasures,
-        FlowMeasures,
-        ThermodynamicsMeasures,
         FieldMeasures,
+        FlowMeasures,
+        KinematicsMeasures,
+        MeasurementEngine,
         MicrostructureMeasures,
         PercentileNormalizer,
         PhysicsRegimeDetector,
-        CorrelationExplorer,
+        ThermodynamicsMeasures,
     )
 except ImportError:
     _meas = _load_sibling_module('measurements')
@@ -68,9 +68,9 @@ except ImportError:
 
 try:
     from .composite_stacking import (
-        ExplorationEngine,
-        CompositeStacker,
         ClassDiscoveryEngine,
+        CompositeStacker,
+        ExplorationEngine,
         InverseRelationshipTracker,
     )
 except ImportError:
@@ -82,10 +82,10 @@ except ImportError:
 
 try:
     from .multi_agent_design import (
+        INSTRUMENT_PROFILES,
         AssetClass,
         get_asset_class,
         get_instrument_profile,
-        INSTRUMENT_PROFILES,
     )
 except ImportError:
     _multi = _load_sibling_module('multi_agent_design')
@@ -233,7 +233,7 @@ class ExplorationDataLoader:
         # Search for CSV files in root and all subdirectories
         csv_files = list(self.data_dir.glob("*.csv"))
         csv_files.extend(self.data_dir.glob("**/*.csv"))
-        
+
         # Remove duplicates (in case root files were already included)
         csv_files = list(set(csv_files))
 

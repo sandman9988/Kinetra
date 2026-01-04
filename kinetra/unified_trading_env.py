@@ -19,7 +19,7 @@ Philosophy: One environment, many modes, zero assumptions.
 
 import logging
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -55,7 +55,7 @@ class UnifiedTradingEnv:
     Observation Space: OHLCV (5) + Physics (64) + Position (3) = 72-dim
     Action Space: Discrete(4) - HOLD, BUY, SELL, CLOSE
     """
-    
+
     def __init__(
         self,
         data: pd.DataFrame,
@@ -78,7 +78,7 @@ class UnifiedTradingEnv:
         self.use_physics = use_physics
         self.regime_filter = regime_filter
         self.initial_balance = initial_balance
-        
+
         # State tracking
         self.current_idx = 0
         self.position = 0  # -1 short, 0 flat, 1 long
@@ -86,21 +86,21 @@ class UnifiedTradingEnv:
         self.balance = initial_balance
         self.unrealized_pnl = 0.0
         self.trade_history = []
-        
+
         # Physics engine (lazy init if needed)
         self._physics_engine = None
         self._physics_state_cache = {}
-        
+
         # Observation/action space definitions
         self.observation_dim = 5 + (64 if use_physics else 0) + 3  # OHLCV + physics + position
         self.action_dim = 4  # HOLD, BUY, SELL, CLOSE
-        
+
         logger.info(
             f"UnifiedTradingEnv initialized: mode={mode.value}, "
             f"use_physics={use_physics}, regime_filter={regime_filter}, "
             f"obs_dim={self.observation_dim}"
         )
-    
+
     @property
     def physics_engine(self):
         """Lazy init physics engine."""
@@ -113,7 +113,7 @@ class UnifiedTradingEnv:
                 logger.warning(f"Failed to init physics engine: {e}")
                 self.use_physics = False
         return self._physics_engine
-    
+
     def reset(self) -> np.ndarray:
         """
         Reset environment to initial state.
@@ -128,9 +128,9 @@ class UnifiedTradingEnv:
         self.unrealized_pnl = 0.0
         self.trade_history = []
         self._physics_state_cache = {}
-        
+
         return self._get_observation()
-    
+
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
         """
         Execute action and return next state.
@@ -144,13 +144,13 @@ class UnifiedTradingEnv:
         # Get current market data
         current_bar = self.data.iloc[self.current_idx]
         current_price = current_bar['close']
-        
+
         # Compute physics state (if enabled)
         regime = "UNKNOWN"
         if self.use_physics and self.physics_engine:
             physics_state = self._compute_physics_state()
             regime = self._classify_regime(physics_state)
-        
+
         # Regime filter (if enabled and not in EXPLORATION mode)
         info = {'regime': regime, 'regime_blocked': False}
         if self.regime_filter and self.mode != TradingMode.EXPLORATION:
@@ -158,10 +158,10 @@ class UnifiedTradingEnv:
                 # Block trade in non-tradeable regimes
                 action = ActionType.HOLD.value
                 info['regime_blocked'] = True
-        
+
         # Execute action
         reward = 0.0
-        
+
         if action == ActionType.BUY.value:
             if self.position <= 0:  # Can buy if flat or short
                 if self.position < 0:
@@ -178,7 +178,7 @@ class UnifiedTradingEnv:
                 # Enter long
                 self.position = 1
                 self.entry_price = current_price
-        
+
         elif action == ActionType.SELL.value:
             if self.position >= 0:  # Can sell if flat or long
                 if self.position > 0:
@@ -195,7 +195,7 @@ class UnifiedTradingEnv:
                 # Enter short
                 self.position = -1
                 self.entry_price = current_price
-        
+
         elif action == ActionType.CLOSE.value:
             if self.position != 0:
                 # Close current position
@@ -205,7 +205,7 @@ class UnifiedTradingEnv:
                 else:
                     pnl = (self.entry_price - current_price) / self.entry_price
                     direction = 'short'
-                
+
                 self.balance += self.balance * pnl
                 reward += pnl * 100
                 self.trade_history.append({
@@ -216,7 +216,7 @@ class UnifiedTradingEnv:
                 })
                 self.position = 0
                 self.entry_price = 0.0
-        
+
         # Update unrealized P&L
         if self.position != 0:
             if self.position > 0:
@@ -226,14 +226,14 @@ class UnifiedTradingEnv:
             reward += self.unrealized_pnl * 0.1  # Small reward for unrealized gains
         else:
             self.unrealized_pnl = 0.0
-        
+
         # Advance time
         self.current_idx += 1
         done = self.current_idx >= len(self.data) - 1
-        
+
         # Get next observation
         next_state = self._get_observation()
-        
+
         # Add info
         info.update({
             'balance': self.balance,
@@ -241,13 +241,13 @@ class UnifiedTradingEnv:
             'unrealized_pnl': self.unrealized_pnl,
             'num_trades': len(self.trade_history)
         })
-        
+
         return next_state, reward, done, info
-    
+
     def _get_observation(self) -> np.ndarray:
         """Build observation vector."""
         current_bar = self.data.iloc[self.current_idx]
-        
+
         # OHLCV features (normalized)
         price = current_bar['close']
         ohlcv = np.array([
@@ -257,59 +257,59 @@ class UnifiedTradingEnv:
             1.0,  # close/close = 1
             current_bar['volume'] / 1e6 if 'volume' in current_bar else 0,
         ], dtype=np.float32)
-        
+
         # Physics features (64-dim) if enabled
         if self.use_physics and self.physics_engine:
             physics = self._compute_physics_state()
         else:
             physics = np.zeros(0, dtype=np.float32)  # Don't add if not used
-        
+
         # Position info
         position_info = np.array([
             self.position,  # -1, 0, or 1
             self.entry_price / price if price != 0 and self.position != 0 else 0,
             self.unrealized_pnl
         ], dtype=np.float32)
-        
+
         # Concatenate features
         if self.use_physics:
             obs = np.concatenate([ohlcv, physics, position_info])
         else:
             obs = np.concatenate([ohlcv, position_info])
-        
+
         return obs.astype(np.float32)
-    
+
     def _compute_physics_state(self) -> np.ndarray:
         """Compute physics state for current position."""
         # Check cache
         if self.current_idx in self._physics_state_cache:
             return self._physics_state_cache[self.current_idx]
-        
+
         # Compute physics state
         if self.physics_engine:
             try:
                 lookback = 100
                 start_idx = max(0, self.current_idx - lookback)
                 data_slice = self.data.iloc[start_idx:self.current_idx+1]
-                
+
                 # Use physics engine to compute state
                 state = self.physics_engine.compute_state(data_slice)
-                
+
                 # Ensure correct size (64-dim)
                 if len(state) < 64:
                     state = np.pad(state, (0, 64 - len(state)))
                 state = state[:64]
-                
+
                 # Cache result
                 self._physics_state_cache[self.current_idx] = state
                 return state
-                
+
             except Exception as e:
                 logger.warning(f"Physics state computation failed: {e}")
                 return np.zeros(64, dtype=np.float32)
-        
+
         return np.zeros(64, dtype=np.float32)
-    
+
     def _classify_regime(self, physics_state: np.ndarray) -> str:
         """
         Classify market regime from physics state.
@@ -318,10 +318,10 @@ class UnifiedTradingEnv:
         """
         if len(physics_state) < 2:
             return "UNKNOWN"
-        
+
         energy = physics_state[0] if len(physics_state) > 0 else 0
         damping = physics_state[1] if len(physics_state) > 1 else 0
-        
+
         if energy > 0.7:
             if damping < 0.3:
                 return "CHAOTIC"  # High energy, low damping
@@ -332,7 +332,7 @@ class UnifiedTradingEnv:
                 return "LAMINAR"  # Low energy, low damping
             else:
                 return "RANGING"  # Low energy, high damping
-    
+
     def _is_tradeable_regime(self, regime: str) -> bool:
         """Determine if regime is tradeable."""
         # In validation/production modes, avoid chaotic regimes
@@ -342,11 +342,11 @@ class UnifiedTradingEnv:
             return regime != "CHAOTIC"
         else:
             return True  # Exploration mode: trade all regimes
-    
+
     def get_trade_history(self) -> List[Dict]:
         """Get trade history."""
         return self.trade_history
-    
+
     def get_metrics(self) -> Dict:
         """Calculate performance metrics."""
         if not self.trade_history:
@@ -356,10 +356,10 @@ class UnifiedTradingEnv:
                 'win_rate': 0,
                 'avg_pnl': 0
             }
-        
+
         pnls = [t['pnl'] for t in self.trade_history]
         wins = [p for p in pnls if p > 0]
-        
+
         return {
             'total_pnl': sum(pnls),
             'num_trades': len(pnls),

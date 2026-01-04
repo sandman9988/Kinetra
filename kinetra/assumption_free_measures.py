@@ -25,9 +25,8 @@ PERFORMANCE OPTIMIZATIONS:
 - Caching applied to expensive computations
 """
 
-import warnings
 from collections import Counter
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd

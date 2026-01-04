@@ -8,13 +8,13 @@ Uses MT5 symbol_info for real market friction metrics:
 - Tick size (price granularity)
 """
 
-import pandas as pd
-import numpy as np
-from datetime import datetime
-from typing import Dict, Optional, List
-from dataclasses import dataclass
-import time
 import threading
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List, Optional
+
+import numpy as np
 
 try:
     import MetaTrader5 as mt5

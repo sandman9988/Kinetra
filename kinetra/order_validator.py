@@ -10,10 +10,10 @@ Architecture:
                          BacktestExecutor OR LiveExecutor
 """
 
-from typing import Tuple, Optional
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime
 from enum import IntEnum
+from typing import Optional, Tuple
 
 from .market_microstructure import SymbolSpec
 
@@ -170,21 +170,21 @@ class OrderValidator:
             return OrderValidation(
                 is_valid=False,
                 error_code=ValidationResult.SHORT_ONLY,
-                error_message=f"Short positions not allowed (LONGONLY mode)"
+                error_message="Short positions not allowed (LONGONLY mode)"
             )
 
         if trade_mode == "SHORTONLY" and action == 'open_long':
             return OrderValidation(
                 is_valid=False,
                 error_code=ValidationResult.LONG_ONLY,
-                error_message=f"Long positions not allowed (SHORTONLY mode)"
+                error_message="Long positions not allowed (SHORTONLY mode)"
             )
 
         if trade_mode == "CLOSEONLY" and action.startswith('open'):
             return OrderValidation(
                 is_valid=False,
                 error_code=ValidationResult.CLOSE_ONLY,
-                error_message=f"Only closing positions allowed (CLOSEONLY mode)"
+                error_message="Only closing positions allowed (CLOSEONLY mode)"
             )
 
         return OrderValidation(

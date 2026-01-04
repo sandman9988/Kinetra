@@ -9,12 +9,13 @@ This becomes a NATURAL GATE - when friction > expected_alpha, don't trade.
 No arbitrary thresholds - the physics decides.
 """
 
+from dataclasses import dataclass, field
+from datetime import datetime, time
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass, field
-from typing import Dict, Optional, List, Tuple
-from datetime import datetime, time, timedelta
-from enum import Enum
 
 
 class AssetClass(Enum):

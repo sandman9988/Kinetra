@@ -13,10 +13,10 @@ Features:
 """
 
 import hashlib
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List
 
 import pandas as pd
 
@@ -32,7 +32,7 @@ class DataIntegrity:
     gaps_count: int
     quality_score: float  # 0-1
     validation_date: str
-    
+
     def to_dict(self) -> dict:
         return asdict(self)
 
@@ -55,7 +55,7 @@ class IntegrityChecker:
     - Quality scoring
     - Checksum verification
     """
-    
+
     def __init__(self):
         """Initialize integrity checker."""
         # Timeframe intervals in minutes
@@ -66,17 +66,17 @@ class IntegrityChecker:
             'H4': 240,
             'D1': 1440
         }
-        
+
     def calculate_checksum(self, file_path: Path) -> str:
         """Calculate SHA256 checksum of file."""
         sha256 = hashlib.sha256()
-        
+
         with open(file_path, 'rb') as f:
             while chunk := f.read(8192):
                 sha256.update(chunk)
-                
+
         return sha256.hexdigest()
-        
+
     def detect_gaps(
         self,
         df: pd.DataFrame,
@@ -96,23 +96,23 @@ class IntegrityChecker:
         """
         if timeframe not in self.intervals:
             return []
-            
+
         expected_interval = timedelta(minutes=self.intervals[timeframe])
         threshold = expected_interval * 3  # Allow 3x for weekend gaps
-        
+
         # Ensure time column is datetime
         if not pd.api.types.is_datetime64_any_dtype(df[time_column]):
             df[time_column] = pd.to_datetime(df[time_column])
-            
+
         df = df.sort_values(time_column)
-        
+
         gaps = []
         for i in range(1, len(df)):
             prev_time = df.iloc[i - 1][time_column]
             curr_time = df.iloc[i][time_column]
-            
+
             gap = curr_time - prev_time
-            
+
             # Check if gap exceeds threshold
             if gap > threshold:
                 # Check if it's just a weekend
@@ -121,7 +121,7 @@ class IntegrityChecker:
                     curr_time.weekday() == 0 and  # Monday
                     gap <= timedelta(days=3)
                 )
-                
+
                 if not is_weekend:
                     expected_bars = int(gap / expected_interval)
                     gaps.append(DataGap(
@@ -130,9 +130,9 @@ class IntegrityChecker:
                         expected_bars=expected_bars,
                         gap_hours=gap.total_seconds() / 3600
                     ))
-                    
+
         return gaps
-        
+
     def calculate_quality_score(
         self,
         df: pd.DataFrame,
@@ -157,22 +157,22 @@ class IntegrityChecker:
         """
         if len(df) == 0:
             return 0.0
-            
+
         # Calculate missing bars
         total_missing = sum(g.expected_bars for g in gaps)
         total_bars = len(df) + total_missing
-        
+
         # Completeness score
         completeness = len(df) / total_bars if total_bars > 0 else 0.0
-        
+
         # Gap penalty (fewer gaps = better)
         gap_penalty = min(len(gaps) * 0.05, 0.3)  # Max 30% penalty
-        
+
         # Final score
         score = max(0.0, completeness - gap_penalty)
-        
+
         return score
-        
+
     def check_file(
         self,
         file_path: Path,
@@ -192,17 +192,17 @@ class IntegrityChecker:
         """
         # Calculate checksum
         checksum = self.calculate_checksum(file_path)
-        
+
         # Load data
         df = pd.read_csv(file_path)
         df[time_column] = pd.to_datetime(df[time_column])
-        
+
         # Detect gaps
         gaps = self.detect_gaps(df, timeframe, time_column)
-        
+
         # Calculate quality score
         quality_score = self.calculate_quality_score(df, timeframe, gaps)
-        
+
         return DataIntegrity(
             file_path=str(file_path),
             checksum=checksum,

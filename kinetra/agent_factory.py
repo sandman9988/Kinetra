@@ -21,7 +21,7 @@ All agents implement a unified interface for the test harness.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import numpy as np
 
@@ -635,7 +635,7 @@ if __name__ == "__main__":
             next_state = np.random.randn(state_dim).astype(np.float32)
             reward = np.random.randn() * 0.1
             agent.update(test_state, action, reward, next_state, done=False)
-            print(f"   → Update: OK")
+            print("   → Update: OK")
 
             success_count += 1
 

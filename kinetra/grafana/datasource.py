@@ -10,12 +10,11 @@ Real-time streaming via Server-Sent Events (SSE) for live backtest updates.
 import json
 import queue
 import threading
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
-from .metrics import BacktestMetrics, MetricsExporter
+from .metrics import BacktestMetrics
 
 
 @dataclass

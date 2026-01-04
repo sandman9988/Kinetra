@@ -22,13 +22,11 @@ import math
 import random
 import threading
 import time
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 from functools import wraps
-
-import numpy as np
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +72,7 @@ class ThrottleState:
     base_backoff: float = 1.0
     multiplier: float = 2.0
     jitter: float = 0.1
-    
+
     def record_failure(self):
         """Record a failure and update backoff."""
         self.failure_count += 1
@@ -87,19 +85,19 @@ class ThrottleState:
         # Add jitter to prevent thundering herd
         jitter_amount = self.backoff_seconds * self.jitter * random.random()
         self.backoff_seconds += jitter_amount
-    
+
     def record_success(self):
         """Record success and reset backoff."""
         self.failure_count = 0
         self.backoff_seconds = self.base_backoff
-    
+
     def should_retry(self) -> bool:
         """Check if operation should be retried."""
         if self.last_failure is None:
             return True
         elapsed = (datetime.now() - self.last_failure).total_seconds()
         return elapsed >= self.backoff_seconds
-    
+
     def time_until_retry(self) -> float:
         """Seconds until retry is allowed."""
         if self.last_failure is None:
@@ -121,14 +119,14 @@ class OperationMetrics:
     max_latency_ms: float = 0.0
     last_error: Optional[str] = None
     last_error_time: Optional[datetime] = None
-    
+
     @property
     def success_rate(self) -> float:
         """Success rate (0-1)."""
         if self.total_calls == 0:
             return 1.0
         return self.successful_calls / self.total_calls
-    
+
     @property
     def avg_latency_ms(self) -> float:
         """Average latency in milliseconds."""
@@ -148,7 +146,7 @@ class GracefulExecutor:
     - Metrics collection
     - Self-healing
     """
-    
+
     def __init__(
         self,
         max_retries: int = 3,
@@ -172,12 +170,12 @@ class GracefulExecutor:
         self.max_backoff = max_backoff
         self.circuit_breaker_threshold = circuit_breaker_threshold
         self.circuit_breaker_timeout = circuit_breaker_timeout
-        
+
         self._throttle_states: Dict[str, ThrottleState] = {}
         self._metrics: Dict[str, OperationMetrics] = {}
         self._circuit_open: Dict[str, datetime] = {}
         self._lock = threading.RLock()
-    
+
     def _get_throttle_state(self, operation: str) -> ThrottleState:
         """Get or create throttle state for operation."""
         if operation not in self._throttle_states:
@@ -187,13 +185,13 @@ class GracefulExecutor:
                 max_backoff=self.max_backoff,
             )
         return self._throttle_states[operation]
-    
+
     def _get_metrics(self, operation: str) -> OperationMetrics:
         """Get or create metrics for operation."""
         if operation not in self._metrics:
             self._metrics[operation] = OperationMetrics(operation=operation)
         return self._metrics[operation]
-    
+
     def _is_circuit_open(self, operation: str) -> bool:
         """Check if circuit breaker is open for operation."""
         if operation not in self._circuit_open:
@@ -205,7 +203,7 @@ class GracefulExecutor:
             del self._circuit_open[operation]
             return False
         return True
-    
+
     def execute(
         self,
         operation: str,
@@ -237,23 +235,23 @@ class GracefulExecutor:
             metrics = self._get_metrics(operation)
             throttle = self._get_throttle_state(operation)
             metrics.total_calls += 1
-        
+
         # Check circuit breaker
         if self._is_circuit_open(operation):
             return None, False, f"Circuit breaker open for {operation}"
-        
+
         # Check throttle
         if not throttle.should_retry():
             wait_time = throttle.time_until_retry()
             return None, False, f"Throttled: retry in {wait_time:.1f}s"
-        
+
         last_error = ""
         for attempt in range(self.max_retries + 1):
             try:
                 start_time = time.time()
                 result = func(*args, **kwargs)
                 latency_ms = (time.time() - start_time) * 1000
-                
+
                 # Success
                 with self._lock:
                     metrics.successful_calls += 1
@@ -261,62 +259,62 @@ class GracefulExecutor:
                     metrics.min_latency_ms = min(metrics.min_latency_ms, latency_ms)
                     metrics.max_latency_ms = max(metrics.max_latency_ms, latency_ms)
                     throttle.record_success()
-                
+
                 if on_success:
                     on_success(result)
-                
+
                 return result, True, ""
-                
+
             except Exception as e:
                 last_error = str(e)
-                
+
                 # Categorize error
                 if categorize_error:
                     category = categorize_error(e)
                 else:
                     category = self._default_categorize(e)
-                
+
                 # Log attempt
                 logger.warning(f"{operation} attempt {attempt + 1}/{self.max_retries + 1} failed: {e}")
-                
+
                 with self._lock:
                     metrics.failed_calls += 1
                     metrics.last_error = last_error
                     metrics.last_error_time = datetime.now()
                     throttle.record_failure()
-                
+
                 # Check if should retry
                 if category == ErrorCategory.PERMANENT:
                     break
-                
+
                 if attempt < self.max_retries:
                     if on_retry:
                         on_retry(attempt + 1, last_error)
-                    
+
                     metrics.retried_calls += 1
-                    
+
                     # Wait with backoff
                     if category == ErrorCategory.THROTTLING:
                         time.sleep(throttle.backoff_seconds * 2)
                     else:
                         time.sleep(throttle.backoff_seconds)
-        
+
         # Final failure
         with self._lock:
             # Check circuit breaker threshold
             if throttle.failure_count >= self.circuit_breaker_threshold:
                 self._circuit_open[operation] = datetime.now()
                 logger.error(f"Circuit breaker opened for {operation}")
-        
+
         if on_failure:
             on_failure(last_error)
-        
+
         return None, False, last_error
-    
+
     def _default_categorize(self, error: Exception) -> ErrorCategory:
         """Default error categorization."""
         error_str = str(error).lower()
-        
+
         if "timeout" in error_str or "connection" in error_str:
             return ErrorCategory.TRANSIENT
         if "rate limit" in error_str or "throttl" in error_str or "too many" in error_str:
@@ -325,9 +323,9 @@ class GracefulExecutor:
             return ErrorCategory.PERMANENT
         if "config" in error_str or "setting" in error_str:
             return ErrorCategory.CONFIGURATION
-        
+
         return ErrorCategory.TRANSIENT
-    
+
     def get_metrics(self, operation: str = None) -> Dict:
         """Get metrics for operation(s)."""
         if operation:
@@ -340,12 +338,12 @@ class GracefulExecutor:
                 "max_latency_ms": m.max_latency_ms,
                 "last_error": m.last_error,
             }
-        
+
         return {
             op: self.get_metrics(op)
             for op in self._metrics.keys()
         }
-    
+
     def reset_circuit_breaker(self, operation: str):
         """Manually reset circuit breaker."""
         if operation in self._circuit_open:
@@ -367,7 +365,7 @@ class BrokerComplianceValidator:
     - Trading hours validation
     - Self-healing suggestions
     """
-    
+
     def __init__(self, symbol_specs: Dict[str, Any] = None):
         """
         Initialize validator.
@@ -377,7 +375,7 @@ class BrokerComplianceValidator:
         """
         self.symbol_specs = symbol_specs or {}
         self._executor = GracefulExecutor()
-    
+
     def validate_order(
         self,
         symbol: str,
@@ -407,7 +405,7 @@ class BrokerComplianceValidator:
         """
         issues = []
         suggestions = {}
-        
+
         spec = self.symbol_specs.get(symbol)
         if not spec:
             issues.append(ValidationIssue(
@@ -421,17 +419,17 @@ class BrokerComplianceValidator:
             ))
             # Use defaults
             spec = self._default_spec(symbol)
-        
+
         # Validate volume
         vol_issues, vol_suggestions = self._validate_volume(volume, spec)
         issues.extend(vol_issues)
         suggestions.update(vol_suggestions)
-        
+
         # Validate price
         price_issues, price_suggestions = self._validate_price(price, spec)
         issues.extend(price_issues)
         suggestions.update(price_suggestions)
-        
+
         # Validate stops
         if sl or tp:
             stop_issues, stop_suggestions = self._validate_stops(
@@ -439,7 +437,7 @@ class BrokerComplianceValidator:
             )
             issues.extend(stop_issues)
             suggestions.update(stop_suggestions)
-        
+
         # Validate margin
         if account_equity:
             margin_issues, margin_suggestions = self._validate_margin(
@@ -447,25 +445,25 @@ class BrokerComplianceValidator:
             )
             issues.extend(margin_issues)
             suggestions.update(margin_suggestions)
-        
+
         # Determine overall result
         has_permanent = any(i.category == ErrorCategory.PERMANENT for i in issues)
         has_warning = any(i.category != ErrorCategory.PERMANENT for i in issues)
-        
+
         if has_permanent:
             result = ValidationResult.INVALID
         elif has_warning:
             result = ValidationResult.WARNING
         else:
             result = ValidationResult.VALID
-        
+
         return result, issues, suggestions
-    
+
     def _validate_volume(self, volume: float, spec) -> Tuple[List[ValidationIssue], Dict]:
         """Validate volume against spec."""
         issues = []
         suggestions = {}
-        
+
         # Check NaN/Inf
         if math.isnan(volume) or math.isinf(volume):
             issues.append(ValidationIssue(
@@ -478,7 +476,7 @@ class BrokerComplianceValidator:
                 recoverable=False,
             ))
             return issues, suggestions
-        
+
         # Check minimum
         if volume < spec.volume_min:
             issues.append(ValidationIssue(
@@ -491,7 +489,7 @@ class BrokerComplianceValidator:
                 recoverable=True,
             ))
             suggestions["volume"] = spec.volume_min
-        
+
         # Check maximum
         if volume > spec.volume_max:
             issues.append(ValidationIssue(
@@ -504,7 +502,7 @@ class BrokerComplianceValidator:
                 recoverable=True,
             ))
             suggestions["volume"] = spec.volume_max
-        
+
         # Check step
         if spec.volume_step > 0:
             remainder = volume % spec.volume_step
@@ -520,14 +518,14 @@ class BrokerComplianceValidator:
                     recoverable=True,
                 ))
                 suggestions["volume"] = normalized
-        
+
         return issues, suggestions
-    
+
     def _validate_price(self, price: float, spec) -> Tuple[List[ValidationIssue], Dict]:
         """Validate price against spec."""
         issues = []
         suggestions = {}
-        
+
         # Check NaN/Inf
         if math.isnan(price) or math.isinf(price):
             issues.append(ValidationIssue(
@@ -540,7 +538,7 @@ class BrokerComplianceValidator:
                 recoverable=False,
             ))
             return issues, suggestions
-        
+
         # Check positive
         if price <= 0:
             issues.append(ValidationIssue(
@@ -552,7 +550,7 @@ class BrokerComplianceValidator:
                 recoverable=False,
             ))
             return issues, suggestions
-        
+
         # Check tick size alignment
         if spec.tick_size > 0:
             ticks = price / spec.tick_size
@@ -568,21 +566,21 @@ class BrokerComplianceValidator:
                     recoverable=True,
                 ))
                 suggestions["price"] = normalized
-        
+
         return issues, suggestions
-    
+
     def _validate_stops(
         self, side: str, price: float, sl: float, tp: float, spec
     ) -> Tuple[List[ValidationIssue], Dict]:
         """Validate stop loss and take profit."""
         issues = []
         suggestions = {}
-        
+
         stops_level = getattr(spec, 'stops_level', 0) or getattr(spec, 'trade_stops_level', 0)
         min_distance = stops_level * spec.point if hasattr(spec, 'point') else stops_level * spec.tick_size
-        
+
         is_buy = side.lower() in ['buy', 'long']
-        
+
         # Validate SL
         if sl:
             if is_buy:
@@ -633,7 +631,7 @@ class BrokerComplianceValidator:
                         recoverable=True,
                     ))
                     suggestions["sl"] = valid_sl
-        
+
         # Validate TP
         if tp:
             if is_buy:
@@ -684,24 +682,24 @@ class BrokerComplianceValidator:
                         recoverable=True,
                     ))
                     suggestions["tp"] = valid_tp
-        
+
         return issues, suggestions
-    
+
     def _validate_margin(
         self, volume: float, price: float, equity: float, leverage: float, spec
     ) -> Tuple[List[ValidationIssue], Dict]:
         """Validate margin requirements."""
         issues = []
         suggestions = {}
-        
+
         contract_size = spec.contract_size
         margin_required = (volume * contract_size * price) / leverage
-        
+
         if margin_required > equity:
             max_volume = (equity * leverage) / (contract_size * price)
             max_volume = math.floor(max_volume / spec.volume_step) * spec.volume_step
             max_volume = max(spec.volume_min, min(max_volume, spec.volume_max))
-            
+
             issues.append(ValidationIssue(
                 category=ErrorCategory.PERMANENT,
                 code="MARGIN_INSUFFICIENT",
@@ -712,7 +710,7 @@ class BrokerComplianceValidator:
                 recoverable=True,
             ))
             suggestions["volume"] = max_volume
-        
+
         # Check margin level would be healthy (> 200%)
         remaining_equity = equity - margin_required
         if margin_required > 0:
@@ -727,16 +725,16 @@ class BrokerComplianceValidator:
                     suggestion="Consider reducing position size",
                     recoverable=True,
                 ))
-        
+
         return issues, suggestions
-    
+
     def _default_spec(self, symbol: str):
         """Create default spec for unknown symbol."""
-        from .symbol_spec import SymbolSpec, CommissionSpec, CommissionType
-        
+        from .symbol_spec import CommissionSpec, CommissionType, SymbolSpec
+
         # Detect symbol type
         symbol_upper = symbol.upper()
-        
+
         if "JPY" in symbol_upper:
             tick_size = 0.001
         elif "XAU" in symbol_upper or "GOLD" in symbol_upper:
@@ -745,7 +743,7 @@ class BrokerComplianceValidator:
             tick_size = 1.0
         else:
             tick_size = 0.00001
-        
+
         return SymbolSpec(
             symbol=symbol,
             tick_size=tick_size,
@@ -758,7 +756,7 @@ class BrokerComplianceValidator:
             commission=CommissionSpec(rate=0.0, commission_type=CommissionType.PER_LOT),
             slippage_avg=0.5,
         )
-    
+
     def auto_correct(
         self,
         symbol: str,
@@ -773,33 +771,33 @@ class BrokerComplianceValidator:
         Returns corrected parameters.
         """
         spec = self.symbol_specs.get(symbol, self._default_spec(symbol))
-        
+
         corrected = {
             "volume": volume,
             "price": price,
             "sl": sl,
             "tp": tp,
         }
-        
+
         # Correct volume
         if volume < spec.volume_min:
             corrected["volume"] = spec.volume_min
         elif volume > spec.volume_max:
             corrected["volume"] = spec.volume_max
-        
+
         if spec.volume_step > 0:
             corrected["volume"] = round(corrected["volume"] / spec.volume_step) * spec.volume_step
-        
+
         # Correct price
         if spec.tick_size > 0:
             corrected["price"] = round(price / spec.tick_size) * spec.tick_size
-        
+
         # Correct SL/TP tick alignment
         if sl and spec.tick_size > 0:
             corrected["sl"] = round(sl / spec.tick_size) * spec.tick_size
         if tp and spec.tick_size > 0:
             corrected["tp"] = round(tp / spec.tick_size) * spec.tick_size
-        
+
         return corrected
 
 
@@ -818,7 +816,7 @@ def with_graceful_failure(
     """
     if executor is None:
         executor = GracefulExecutor(max_retries=max_retries)
-    
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):

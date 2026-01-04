@@ -33,7 +33,7 @@ import os
 import sys
 import traceback
 from collections import defaultdict
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -70,37 +70,37 @@ class FailureSeverity(Enum):
 @dataclass
 class FailureRecord:
     """Record of a single silent failure."""
-    
+
     # Core information
     timestamp: str
     category: str
     severity: str
     exception_type: str
     exception_message: str
-    
+
     # Location information
     file_path: str
     function_name: str
     line_number: int
-    
+
     # Context
     context: Dict[str, Any] = field(default_factory=dict)
     stack_trace: str = ""
-    
+
     # Metadata
     failure_id: str = ""
     module: str = ""
     tags: List[str] = field(default_factory=list)
-    
+
     # Analysis fields
     count: int = 1
     first_seen: Optional[str] = None
     last_seen: Optional[str] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return asdict(self)
-    
+
     def to_json(self) -> str:
         """Convert to JSON string."""
         # Use compact JSON suitable for JSONL (one record per line).
@@ -114,10 +114,10 @@ class SilentFailureLogger:
     Singleton pattern ensures single instance across the application.
     Thread-safe for concurrent logging.
     """
-    
+
     _instance = None
     _lock = Lock()
-    
+
     def __init__(
         self,
         log_dir: Optional[Path] = None,
@@ -144,25 +144,25 @@ class SilentFailureLogger:
         self.enable_console = enable_console
         self.enable_file = enable_file
         self.enable_aggregation = enable_aggregation
-        
+
         # Create log directory
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # In-memory storage
         self.failures: List[FailureRecord] = []
         self.failure_counts: Dict[str, int] = defaultdict(int)
         self.failure_signatures: Dict[str, FailureRecord] = {}
-        
+
         # Lock for thread safety
         self._write_lock = Lock()
-        
+
         # Initialize logging
         self._setup_logging()
-        
+
         # Session info
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.session_start = datetime.now()
-        
+
     @classmethod
     def get_instance(cls) -> "SilentFailureLogger":
         """Get singleton instance."""
@@ -171,18 +171,18 @@ class SilentFailureLogger:
                 if cls._instance is None:
                     cls._instance = cls()
         return cls._instance
-    
+
     @classmethod
     def reset_instance(cls):
         """Reset singleton instance (mainly for testing)."""
         with cls._lock:
             cls._instance = None
-    
+
     def _setup_logging(self):
         """Set up Python logging integration."""
         self.logger = logging.getLogger("kinetra.silent_failures")
         self.logger.setLevel(logging.WARNING)
-        
+
         # Avoid duplicate handlers
         if not self.logger.handlers:
             if self.enable_console:
@@ -193,11 +193,11 @@ class SilentFailureLogger:
                 )
                 console_handler.setFormatter(formatter)
                 self.logger.addHandler(console_handler)
-    
+
     def _categorize_exception(self, exc: Exception) -> FailureCategory:
         """Automatically categorize an exception."""
         exc_type = type(exc).__name__
-        
+
         category_map = {
             "ImportError": FailureCategory.IMPORT_ERROR,
             "ModuleNotFoundError": FailureCategory.IMPORT_ERROR,
@@ -217,9 +217,9 @@ class SilentFailureLogger:
             "ZeroDivisionError": FailureCategory.CALCULATION_ERROR,
             "FloatingPointError": FailureCategory.CALCULATION_ERROR,
         }
-        
+
         return category_map.get(exc_type, FailureCategory.UNKNOWN)
-    
+
     def _determine_severity(
         self,
         exc: Exception,
@@ -230,7 +230,7 @@ class SilentFailureLogger:
         # High: Import errors, permission errors
         if category in (FailureCategory.IMPORT_ERROR, FailureCategory.PERMISSION_ERROR):
             return FailureSeverity.HIGH
-        
+
         # Medium: Type errors, attribute errors
         if category in (
             FailureCategory.TYPE_ERROR,
@@ -238,17 +238,17 @@ class SilentFailureLogger:
             FailureCategory.CALCULATION_ERROR
         ):
             return FailureSeverity.MEDIUM
-        
+
         # Check context for severity hints
         if context.get("severity"):
             try:
                 return FailureSeverity(context["severity"])
             except (ValueError, KeyError):
                 pass
-        
+
         # Default to low
         return FailureSeverity.LOW
-    
+
     def _get_caller_info(self, skip_frames: int = 2) -> Dict[str, Any]:
         """
         Get information about the caller.
@@ -274,7 +274,7 @@ class SilentFailureLogger:
                 "line_number": 0,
                 "module": "unknown",
             }
-    
+
     def _generate_failure_signature(self, record: FailureRecord) -> str:
         """
         Generate a unique signature for a failure for deduplication.
@@ -282,7 +282,7 @@ class SilentFailureLogger:
         Uses exception type, file, function, and line number.
         """
         return f"{record.exception_type}:{record.file_path}:{record.function_name}:{record.line_number}"
-    
+
     def log(
         self,
         exception: Exception,
@@ -308,13 +308,13 @@ class SilentFailureLogger:
         """
         # Get caller information
         caller_info = self._get_caller_info(skip_frames=skip_frames)
-        
+
         # Categorize and determine severity
         auto_category = category or self._categorize_exception(exception)
         auto_severity = severity or self._determine_severity(
             exception, auto_category, context or {}
         )
-        
+
         # Create failure record
         timestamp = datetime.now().isoformat()
         record = FailureRecord(
@@ -333,11 +333,11 @@ class SilentFailureLogger:
             first_seen=timestamp,
             last_seen=timestamp,
         )
-        
+
         # Generate signature
         signature = self._generate_failure_signature(record)
         record.failure_id = signature
-        
+
         # Handle aggregation
         with self._write_lock:
             if self.enable_aggregation and signature in self.failure_signatures:
@@ -351,7 +351,7 @@ class SilentFailureLogger:
                 self.failure_signatures[signature] = record
                 self.failures.append(record)
                 self.failure_counts[signature] = 1
-                
+
                 # Enforce max records
                 if len(self.failures) > self.max_records:
                     removed = self.failures.pop(0)
@@ -360,11 +360,11 @@ class SilentFailureLogger:
                         del self.failure_signatures[removed_sig]
                     if removed_sig in self.failure_counts:
                         del self.failure_counts[removed_sig]
-            
+
             # Write to file
             if self.enable_file:
                 self._write_to_file(record)
-            
+
             # Log to console if enabled
             if self.enable_console:
                 self.logger.warning(
@@ -372,9 +372,9 @@ class SilentFailureLogger:
                     f"{record.function_name} ({record.file_path}:{record.line_number}): "
                     f"{record.exception_message}"
                 )
-        
+
         return record
-    
+
     def _write_to_file(self, record: FailureRecord):
         """Write failure record to JSON file."""
         # Daily log file
@@ -392,7 +392,7 @@ class SilentFailureLogger:
                 f"Original failure: {record.exception_type} - {record.exception_message}",
                 file=sys.stderr
             )
-    
+
     def get_failures(
         self,
         category: Optional[str] = None,
@@ -415,7 +415,7 @@ class SilentFailureLogger:
             List of matching FailureRecords
         """
         results = self.failures.copy()
-        
+
         # Apply filters
         if category:
             results = [r for r in results if r.category == category]
@@ -425,34 +425,34 @@ class SilentFailureLogger:
             results = [r for r in results if r.module == module]
         if tags:
             results = [r for r in results if any(t in r.tags for t in tags)]
-        
+
         # Apply limit
         if limit:
             results = results[-limit:]
-        
+
         return results
-    
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get statistics about logged failures."""
         total = len(self.failures)
-        
+
         # Count by category
         by_category = defaultdict(int)
         by_severity = defaultdict(int)
         by_module = defaultdict(int)
-        
+
         for record in self.failures:
             by_category[record.category] += record.count
             by_severity[record.severity] += record.count
             by_module[record.module] += record.count
-        
+
         # Top failures
         top_failures = sorted(
             self.failure_counts.items(),
             key=lambda x: x[1],
             reverse=True
         )[:10]
-        
+
         return {
             "total_unique_failures": total,
             "total_failure_count": sum(self.failure_counts.values()),
@@ -472,7 +472,7 @@ class SilentFailureLogger:
                 if sig in self.failure_signatures
             ],
         }
-    
+
     def export_report(self, output_file: Optional[Path] = None) -> Path:
         """
         Export a comprehensive failure report.
@@ -486,7 +486,7 @@ class SilentFailureLogger:
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_file = self.log_dir / f"failure_report_{timestamp}.json"
-        
+
         report = {
             "metadata": {
                 "generated_at": datetime.now().isoformat(),
@@ -496,12 +496,12 @@ class SilentFailureLogger:
             "statistics": self.get_statistics(),
             "failures": [r.to_dict() for r in self.failures],
         }
-        
+
         with open(output_file, 'w') as f:
             json.dump(report, f, indent=2, default=str)
-        
+
         return output_file
-    
+
     def clear(self):
         """Clear all logged failures."""
         with self._write_lock:
@@ -577,7 +577,7 @@ def log_failures(
                     "args_count": len(args),
                     "kwargs_keys": list(kwargs.keys()),
                 })
-                
+
                 # Log the failure
                 log_failure(
                     e,
@@ -586,11 +586,11 @@ def log_failures(
                     severity=severity,
                     tags=tags,
                 )
-                
+
                 # Re-raise if requested
                 if reraise:
                     raise
-        
+
         return wrapper
     return decorator
 

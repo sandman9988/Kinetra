@@ -12,11 +12,9 @@ Features:
 - Thread-safe operations
 """
 
-import hashlib
 import json
 import threading
-from collections import defaultdict
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -32,7 +30,7 @@ class CacheEntry:
     last_accessed: str
     size_bytes: int
     hit_count: int = 0
-    
+
     def to_dict(self) -> dict:
         return asdict(self)
 
@@ -47,7 +45,7 @@ class CacheManager:
     - Cache statistics
     - Thread-safe
     """
-    
+
     def __init__(self, cache_dir: Path):
         """
         Initialize cache manager.
@@ -57,14 +55,14 @@ class CacheManager:
         """
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.index_file = self.cache_dir / 'cache_index.json'
         self.lock = threading.Lock()
-        
+
         # Load existing index
         self.index: Dict[str, CacheEntry] = {}
         self._load_index()
-        
+
     def _load_index(self):
         """Load cache index from disk."""
         if self.index_file.exists():
@@ -77,7 +75,7 @@ class CacheManager:
             except Exception:
                 # Corrupted index - start fresh
                 self.index = {}
-                
+
     def _save_index(self):
         """Save cache index to disk."""
         with open(self.index_file, 'w') as f:
@@ -86,7 +84,7 @@ class CacheManager:
                 f,
                 indent=2
             )
-            
+
     def get(self, key: str) -> Optional[Path]:
         """
         Get cached value path.
@@ -103,13 +101,13 @@ class CacheManager:
                 entry.hit_count += 1
                 entry.last_accessed = datetime.now().isoformat()
                 self._save_index()
-                
+
                 path = Path(entry.value_path)
                 if path.exists():
                     return path
-                    
+
         return None
-        
+
     def put(self, key: str, value_path: Path, checksum: str) -> None:
         """
         Add entry to cache.
@@ -131,7 +129,7 @@ class CacheManager:
             )
             self.index[key] = entry
             self._save_index()
-            
+
     def invalidate(self, key: str) -> None:
         """Remove entry from cache."""
         with self.lock:
@@ -144,7 +142,7 @@ class CacheManager:
                 # Remove from index
                 del self.index[key]
                 self._save_index()
-                
+
     def clear(self) -> None:
         """Clear entire cache."""
         with self.lock:
@@ -156,13 +154,13 @@ class CacheManager:
             # Clear index
             self.index = {}
             self._save_index()
-            
+
     def stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
         with self.lock:
             total_size = sum(e.size_bytes for e in self.index.values())
             total_hits = sum(e.hit_count for e in self.index.values())
-            
+
             return {
                 'entries': len(self.index),
                 'total_size_bytes': total_size,

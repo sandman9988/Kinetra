@@ -8,11 +8,11 @@ NO FIXED THRESHOLDS - All values are normalized relative to
 rolling distributions.
 """
 
+from dataclasses import dataclass
+from typing import Any, Dict, List
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass
-
 from numpy import floating
 
 

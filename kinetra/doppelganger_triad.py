@@ -24,8 +24,6 @@ from enum import Enum, auto
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import pandas as pd
-
 
 # =============================================================================
 # SHADOW AGENT ARCHITECTURE
@@ -493,11 +491,11 @@ def demo_doppelganger_triad():
     state = np.random.randn(64)
     action = triad.select_action(state, epsilon=0.1)
 
-    print(f"\n[2] Action selection test:")
+    print("\n[2] Action selection test:")
     print(f"    Action: {action}")
 
     # Simulate 50 trades
-    print(f"\n[3] Simulating 50 trades...")
+    print("\n[3] Simulating 50 trades...")
     for i in range(50):
         state = np.random.randn(64)
         next_state = np.random.randn(64)
@@ -516,7 +514,7 @@ def demo_doppelganger_triad():
 
     # Check drift
     is_drifted, drift, msg = triad.check_drift()
-    print(f"\n[4] Drift check:")
+    print("\n[4] Drift check:")
     print(f"    Is drifted: {is_drifted}")
     print(f"    Drift amount: {drift*100:.1f}%")
     if msg:
@@ -524,13 +522,13 @@ def demo_doppelganger_triad():
 
     # Check promotion
     should_promote, msg = triad.check_promotion()
-    print(f"\n[5] Promotion check:")
+    print("\n[5] Promotion check:")
     print(f"    Should promote: {should_promote}")
     if msg:
         print(f"    Message: {msg}")
 
     # Show system summary
-    print(f"\n[6] System Summary:")
+    print("\n[6] System Summary:")
     summary = triad.get_system_summary()
     print(f"    Live agent trades: {summary['agents']['live']['trades']}")
     print(f"    Live agent total reward: {summary['agents']['live']['total_reward']:.2f}")

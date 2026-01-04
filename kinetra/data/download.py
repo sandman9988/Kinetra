@@ -54,7 +54,7 @@ class DownloadManager:
     - Progress tracking
     - Automatic retry
     """
-    
+
     def __init__(self, output_dir: Path):
         """
         Initialize download manager.
@@ -64,14 +64,14 @@ class DownloadManager:
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.jobs: List[DownloadJob] = []
         self.sources: Dict[str, DataSource] = {}
-        
+
     def register_source(self, source: DataSource) -> None:
         """Register a data source."""
         self.sources[source.name] = source
-        
+
     def download_symbols(
         self,
         symbols: List[str],
@@ -104,16 +104,16 @@ class DownloadManager:
                     output_path=self.output_dir / f"{symbol}_{timeframe}.csv"
                 )
                 jobs.append(job)
-                
+
         self.jobs.extend(jobs)
         return jobs
-        
+
     def get_progress(self) -> Dict:
         """Get download progress."""
         total = len(self.jobs)
         completed = sum(1 for j in self.jobs if j.status == 'completed')
         failed = sum(1 for j in self.jobs if j.status == 'failed')
-        
+
         return {
             'total': total,
             'completed': completed,

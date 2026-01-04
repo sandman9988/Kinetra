@@ -7,20 +7,18 @@ and energy-weighted dynamic exits.
 
 import numpy as np
 import pandas as pd
-from backtesting import Backtest, Strategy
+from backtesting import Strategy
 
 from .physics_v7 import (
-    compute_body_ratio_indicator,
-    compute_energy_v7,
-    compute_damping_v7,
-    compute_entropy_v7,
     compute_agent_signal,
-    compute_vpin_proxy,
+    compute_body_ratio_indicator,
+    compute_damping_v7,
+    compute_energy_v7,
+    compute_entropy_v7,
     compute_fractal_dimension_katz,
     compute_symc_ratio,
-    EnergyWeightedExitManager,
+    compute_vpin_proxy,
 )
-
 
 # =============================================================================
 # HELPER INDICATORS

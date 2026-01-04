@@ -13,12 +13,12 @@ import os
 import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
-from .backtest_engine import BacktestResult, Trade, TradeDirection
+from .backtest_engine import BacktestResult
 
 
 class ResultsManager:
@@ -393,7 +393,7 @@ def format_run_summary(result: Dict) -> str:
     """Format a run result for console output."""
     lines = [
         "=" * 60,
-        f"BACKTEST SUMMARY",
+        "BACKTEST SUMMARY",
         "=" * 60,
         "",
         f"Trades: {result.get('total_trades', 0)} "

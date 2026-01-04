@@ -9,14 +9,10 @@ Complete instrument cost modeling for accurate backtesting:
 - Contract specifications (lot size, tick value, margin)
 """
 
-import json
 from dataclasses import dataclass, field
 from datetime import datetime, time
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
-
-import numpy as np
-import pandas as pd
 
 
 class SwapType(Enum):
@@ -624,7 +620,7 @@ if __name__ == "__main__":
         lots=0.1, entry_price=95000, exit_price=96000, position_type="long", holding_days=3
     )
 
-    print(f"\nRound-trip costs (0.1 lot, 3 days):")
+    print("\nRound-trip costs (0.1 lot, 3 days):")
     for k, v in costs.items():
         print(f"  {k}: ${v:.2f}")
 

@@ -26,10 +26,10 @@ Usage:
     downloader.download_symbols(['GBPUSD'], timeframes=['H1', 'H4'])
 """
 
-from .manager import DataManager
+from .cache import CacheManager
 from .download import DownloadManager
 from .integrity import IntegrityChecker
-from .cache import CacheManager
+from .manager import DataManager
 from .test_isolation import TestRunManager
 
 __all__ = [
