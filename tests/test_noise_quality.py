@@ -470,17 +470,17 @@ def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dic
         for result in group_results:
             if not isinstance(result, dict) or "methods" not in result:
                 continue
-            
+
             for method_name, method_data in result["methods"].items():
                 if not isinstance(method_data, dict):
                     continue
-                    
+
                 # Safely extract numeric values
                 snr_val = float(method_data.get("snr_db", 0))
                 spectral_val = float(method_data.get("spectral", 0))
                 regime_val = float(method_data.get("regime_preservation", 0))
                 score = snr_val + (spectral_val * 10) + (regime_val * 10)
-                
+
                 if method_name not in method_scores:
                     method_scores[method_name] = []
                 method_scores[method_name].append(score)
