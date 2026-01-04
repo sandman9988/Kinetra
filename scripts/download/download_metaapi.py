@@ -87,7 +87,14 @@ class MetaAPIDownloader:
         try:
             symbols = await self.connection.get_symbols()
             # Filter for forex, metals, indices, crypto
-            tradeable = [s['symbol'] for s in symbols if s.get('tradeMode') != 'DISABLED']
+            # Handle both string symbols and dict symbols
+            tradeable = []
+            for s in symbols:
+                if isinstance(s, str):
+                    tradeable.append(s)
+                elif isinstance(s, dict):
+                    if s.get('tradeMode') != 'DISABLED':
+                        tradeable.append(s.get('symbol', ''))
             print(f"Found {len(tradeable)} tradeable symbols")
             return sorted(tradeable)
         except Exception as e:

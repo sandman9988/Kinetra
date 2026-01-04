@@ -2,6 +2,39 @@
 
 Backtesting, validation, and testing framework scripts.
 
+## 🚀 RECOMMENDED: Comprehensive E2E Test (NEW)
+
+**`comprehensive_e2e_test.py`** - **ALL-IN-ONE** menu, data, and workflow testing with auto-fix
+
+```bash
+# Quick validation with auto-fix (RECOMMENDED)
+python scripts/testing/comprehensive_e2e_test.py --quick --fix
+
+# Full test suite
+python scripts/testing/comprehensive_e2e_test.py
+
+# Menu tests only
+python scripts/testing/comprehensive_e2e_test.py --menu-only
+
+# With detailed report
+python scripts/testing/comprehensive_e2e_test.py --quick --fix --report
+```
+
+**Features:**
+- ✅ Tests ALL menu options (25 tests)
+- ✅ Data integrity validation
+- ✅ E2E workflow testing
+- 🔧 **AUTO-FIXES** known issues:
+  - Custom download symbol parsing
+  - Missing script arguments
+  - Menu configuration errors
+- 📊 Generates detailed report: `TEST_RESULTS_AND_FIXES.md`
+- 🎯 Success rate: 73%+ after auto-fix
+
+**Results:** See `test_results_comprehensive.json` and `TEST_RESULTS_AND_FIXES.md`
+
+---
+
 ## Main Testing Framework
 
 - **`unified_test_framework.py`** - Main entry point for unified testing
@@ -70,6 +103,9 @@ Backtesting, validation, and testing framework scripts.
 ## Quick Start
 
 ```bash
+# ⭐ RECOMMENDED: Run comprehensive E2E test with auto-fix
+python scripts/testing/comprehensive_e2e_test.py --quick --fix
+
 # Run unified test framework
 python scripts/testing/unified_test_framework.py --quick
 
@@ -82,3 +118,13 @@ python scripts/testing/run_full_backtest.py data/master/forex/EURUSD_H1_*.csv
 # Validate theorems
 python scripts/testing/validate_theorems.py
 ```
+
+## Test Coverage Summary
+
+After running comprehensive E2E tests:
+- **Menu System:** 20/25 passing (80%)
+- **Data Integrity:** 2/3 passing (67%)
+- **E2E Workflows:** Investigation needed (physics module)
+- **Overall:** 22/30 passing (73%)
+
+See `TEST_RESULTS_AND_FIXES.md` for details.
