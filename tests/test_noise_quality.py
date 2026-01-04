@@ -471,7 +471,11 @@ def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dic
             if not isinstance(result, dict) or "methods" not in result:
                 continue
 
-            for method_name, method_data in result["methods"].items():
+            methods_obj = result["methods"]
+            if not isinstance(methods_obj, dict):
+                continue
+
+            for method_name, method_data in methods_obj.items():
                 if not isinstance(method_data, dict):
                     continue
 
