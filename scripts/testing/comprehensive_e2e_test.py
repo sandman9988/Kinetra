@@ -557,7 +557,7 @@ if __name__ == "__main__":
                 print("   💡 Menu should pass --dry-run or --copy by default")
 
                 # Check if menu passes arguments
-                menu_script = PROJECT_ROOT / "kinetra_production_menu.py"
+                menu_script = PROJECT_ROOT / "kinetra_menu.py"
                 if menu_script.exists():
                     menu_content = menu_script.read_text()
                     if "consolidate_data.py" in menu_content and "--dry-run" not in menu_content:
