@@ -38,10 +38,13 @@ __version__ = "1.0.0"
 import argparse
 import hashlib
 import json
+import multiprocessing as mp
 import shutil
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from functools import partial
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -59,6 +62,13 @@ try:
 except ImportError:
     print("⚠️  Warning: PersistenceManager not available, using basic file ops")
     get_persistence_manager = None
+
+try:
+    from kinetra.cpu_utils import get_optimal_workers
+except ImportError:
+    # Fallback if cpu_utils not available
+    def get_optimal_workers(workload_type: str = "balanced") -> int:
+        return max(2, (mp.cpu_count() or 4) // 2)
 
 
 # ============================================================================
@@ -324,6 +334,91 @@ class GapAnalyzer:
 
 
 # ============================================================================
+# Parallel Worker Function (Module Level for Pickling)
+# ============================================================================
+
+
+def _prepare_single_worker(args: tuple) -> bool:
+    """Worker function for parallel data preparation.
+
+    Must be at module level for multiprocessing pickling.
+
+    Args:
+        args: Tuple of (filepath_str, output_dir_str, validate)
+
+    Returns:
+        True if preparation succeeded
+    """
+    filepath_str, output_dir_str, validate = args
+    filepath = Path(filepath_str)
+    output_dir = Path(output_dir_str)
+
+    try:
+        # Create validator and gap analyzer in worker process
+        validator = DataValidator()
+        gap_analyzer = GapAnalyzer()
+
+        # Read file
+        df = pd.read_csv(filepath, sep=None, engine="python")
+
+        # Validate master data
+        if validate:
+            valid, errors = validator.validate_master(df, filepath)
+            if not valid:
+                return False
+
+        # Standardize column names
+        df = DataPreparator._standardize_columns(df)
+
+        # Validate prepared data
+        if validate:
+            valid, errors, quality = validator.validate_prepared(df)
+            if not valid:
+                return False
+        else:
+            quality = DataQuality()
+
+        # Detect gaps
+        timeframe = DataPreparator._detect_timeframe(filepath.stem)
+        interval_minutes = DataPreparator._timeframe_to_minutes(timeframe)
+        gaps = gap_analyzer.detect_gaps(df, interval_minutes)
+
+        # Calculate fingerprint
+        fingerprint = validator.calculate_fingerprint(df)
+
+        # Save prepared data
+        output_name = filepath.stem.replace("_raw", "") + ".csv"
+        output_path = output_dir / output_name
+        df.to_csv(output_path, index=False)
+
+        # Save metadata
+        metadata = {
+            "source_file": str(filepath),
+            "preparation_timestamp": datetime.now(timezone.utc).isoformat(),
+            "preparation_version": "1.0.0",
+            "statistics": asdict(fingerprint),
+            "data_quality": asdict(quality),
+            "gaps": [asdict(g) for g in gaps],
+            "holidays": [],
+            "transformations_applied": [
+                "standardize_column_names",
+                "validate_ohlc_logic",
+                "detect_gaps",
+            ],
+        }
+
+        meta_path = output_path.with_suffix(".meta.json")
+        with open(meta_path, "w") as f:
+            json.dump(metadata, f, indent=2)
+
+        return True
+
+    except Exception as e:
+        print(f"❌ Worker failed for {filepath.name}: {e}")
+        return False
+
+
+# ============================================================================
 # Data Preparator
 # ============================================================================
 
@@ -337,8 +432,16 @@ class DataPreparator:
         self.validator = DataValidator()
         self.gap_analyzer = GapAnalyzer()
 
-    def prepare_all(self, validate: bool = True) -> Dict[str, bool]:
-        """Prepare all files in source directory."""
+    def prepare_all(self, validate: bool = True, parallel: bool = True) -> Dict[str, bool]:
+        """Prepare all files in source directory.
+
+        Args:
+            validate: Whether to validate data at each stage
+            parallel: Use multiprocessing for parallel preparation (default: True)
+
+        Returns:
+            Dict mapping filename to success status
+        """
         results = {}
 
         csv_files = list(self.source_dir.glob("*_raw.csv"))
@@ -346,15 +449,40 @@ class DataPreparator:
             # Fallback: any CSV file
             csv_files = list(self.source_dir.glob("*.csv"))
 
-        print(f"\n📊 Preparing {len(csv_files)} file(s) from {self.source_dir.name}")
+        n_files = len(csv_files)
+        print(f"\n📊 Preparing {n_files} file(s) from {self.source_dir.name}")
 
-        for filepath in tqdm(csv_files, desc="Preparing"):
-            try:
-                success = self.prepare_single(filepath, validate=validate)
-                results[filepath.name] = success
-            except Exception as e:
-                print(f"❌ Failed to prepare {filepath.name}: {e}")
-                results[filepath.name] = False
+        # Use parallel processing for multiple files
+        if parallel and n_files > 1:
+            workers = min(get_optimal_workers("balanced"), n_files)
+            print(f"🚀 Using {workers} parallel workers")
+
+            # Prepare arguments for parallel execution
+            prepare_args = [(str(fp), str(self.output_dir), validate) for fp in csv_files]
+
+            with ProcessPoolExecutor(max_workers=workers) as executor:
+                futures = {
+                    executor.submit(_prepare_single_worker, args): args[0] for args in prepare_args
+                }
+
+                for future in tqdm(as_completed(futures), total=n_files, desc="Preparing"):
+                    filepath_str = futures[future]
+                    filename = Path(filepath_str).name
+                    try:
+                        success = future.result()
+                        results[filename] = success
+                    except Exception as e:
+                        print(f"❌ Failed to prepare {filename}: {e}")
+                        results[filename] = False
+        else:
+            # Sequential processing for single file or when parallel disabled
+            for filepath in tqdm(csv_files, desc="Preparing"):
+                try:
+                    success = self.prepare_single(filepath, validate=validate)
+                    results[filepath.name] = success
+                except Exception as e:
+                    print(f"❌ Failed to prepare {filepath.name}: {e}")
+                    results[filepath.name] = False
 
         # Summary
         success_count = sum(results.values())
@@ -362,8 +490,20 @@ class DataPreparator:
 
         return results
 
-    def prepare_single(self, filepath: Path, validate: bool = True) -> bool:
-        """Prepare single file: standardize, validate, detect gaps."""
+    def prepare_single(
+        self, filepath: Path, validate: bool = True, output_dir: Path = None
+    ) -> bool:
+        """Prepare single file: standardize, validate, detect gaps.
+
+        Args:
+            filepath: Path to source file
+            validate: Whether to validate data
+            output_dir: Override output directory (used by parallel worker)
+
+        Returns:
+            True if preparation succeeded
+        """
+        output_dir = output_dir or self.output_dir
         # Read file
         df = pd.read_csv(filepath, sep=None, engine="python")
 

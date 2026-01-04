@@ -3,7 +3,13 @@ Reinforcement Learning Agent
 
 PPO-based agent that learns adaptive trigger conditions for berserker mode.
 No fixed thresholds - learns from physics state percentiles.
+
+Version History:
+    1.0.0 (2025-01-04): Initial versioned release, consolidated RL agent
 """
+
+__version__ = "1.0.0"
+__author__ = "Kinetra Project"
 
 from collections import deque
 from typing import Any, Dict, List, Optional, Tuple

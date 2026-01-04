@@ -678,3 +678,77 @@ From `docs/ACTION_PLAN.md`, Phase 3 is complete when:
 - **dqn**: 25 valid combinations
 - **incumbent**: 25 valid combinations
 - **ppo**: 25 valid combinations
+
+
+## Exhaustive Run: integration (20260104_0048)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 4500 (100.0%)
+
+### Agent Performance Summary:
+- **a3c**: 500 valid combinations
+- **competitor**: 500 valid combinations
+- **dqn**: 500 valid combinations
+- **incumbent**: 500 valid combinations
+- **linear_q**: 500 valid combinations
+- **ppo**: 500 valid combinations
+- **researcher**: 500 valid combinations
+- **sac**: 500 valid combinations
+- **td3**: 500 valid combinations
+
+
+## Exhaustive Run: monte_carlo (20260104_0345)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 0 (0.0%)
+
+
+## Exhaustive Run: walk_forward (20260104_0723)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 4473 (99.4%)
+
+### Agent Performance Summary:
+- **a3c**: 497 valid combinations
+- **competitor**: 497 valid combinations
+- **dqn**: 497 valid combinations
+- **incumbent**: 497 valid combinations
+- **linear_q**: 497 valid combinations
+- **ppo**: 497 valid combinations
+- **researcher**: 497 valid combinations
+- **sac**: 497 valid combinations
+- **td3**: 497 valid combinations
+
+
+## Exhaustive Run: unit (20260104_1437)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 2632 (58.5%)
+
+### Agent Performance Summary:
+- **a3c**: 292 valid combinations
+- **competitor**: 291 valid combinations
+- **dqn**: 294 valid combinations
+- **incumbent**: 290 valid combinations
+- **linear_q**: 293 valid combinations
+- **ppo**: 294 valid combinations
+- **researcher**: 292 valid combinations
+- **sac**: 293 valid combinations
+- **td3**: 293 valid combinations
+
+
+## Exhaustive Run: unit (20260104_1505)
+
+- **Total combinations tested**: 4500
+- **Valid combinations**: 2744 (61.0%)
+
+### Agent Performance Summary:
+- **a3c**: 304 valid combinations
+- **competitor**: 305 valid combinations
+- **dqn**: 307 valid combinations
+- **incumbent**: 304 valid combinations
+- **linear_q**: 305 valid combinations
+- **ppo**: 303 valid combinations
+- **researcher**: 303 valid combinations
+- **sac**: 304 valid combinations
+- **td3**: 309 valid combinations

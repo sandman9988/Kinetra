@@ -73,13 +73,14 @@ def get_api_token() -> Optional[str]:
 
     # Prompt user
     print("\n⚠️  METAAPI_TOKEN not found in environment or .env file")
-    print("   Get your token from: https://app.metaapi.cloud/token")
+    print("   Get your API Access Token from: https://app.metaapi.cloud/api-access/generate-token")
+    print("   (Note: Use API Access Token, not Account Access Token)")
     print()
 
     try:
         import getpass
 
-        token = getpass.getpass("Enter your MetaAPI token (input hidden): ").strip()
+        token = getpass.getpass("Enter your MetaAPI API Access Token (input hidden): ").strip()
         if token:
             # Offer to save
             save = input("\nSave token to .env file for future use? (y/N): ").strip().lower()
@@ -124,7 +125,34 @@ async def list_and_select_account(api_token: str) -> Optional[dict]:
     try:
         accounts = await api.metatrader_account_api.get_accounts_with_infinite_scroll_pagination()
     except Exception as e:
+        error_msg = str(e)
         print(f"❌ Failed to fetch accounts: {e}")
+
+        # Check if this is an account token vs API token issue
+        if "account access token" in error_msg.lower() or "api access token" in error_msg.lower():
+            print("\n" + "─" * 80)
+            print("⚠️  WRONG TOKEN TYPE DETECTED")
+            print("─" * 80)
+            print("""
+There are TWO types of MetaAPI tokens:
+
+1. 🔑 API Access Token (Required for this tool)
+   - Can list/manage all accounts
+   - Get from: https://app.metaapi.cloud/api-access/generate-token
+
+2. 🔐 Account Access Token
+   - Limited to ONE specific account
+   - Get from individual account settings
+
+You provided an Account Access Token, but this tool needs an API Access Token.
+
+💡 Get your API Access Token here:
+   https://app.metaapi.cloud/api-access/generate-token
+
+Then update your .env file or METAAPI_TOKEN environment variable.
+""")
+            print("─" * 80)
+
         return None
 
     if not accounts or len(accounts) == 0:
@@ -225,7 +253,10 @@ async def main():
     if not api_token:
         print("❌ ERROR: No API token available")
         print("   Set METAAPI_TOKEN environment variable or add to .env file")
-        print("   Get your token from: https://app.metaapi.cloud/token")
+        print(
+            "   Get your API Access Token from: https://app.metaapi.cloud/api-access/generate-token"
+        )
+        print("   (Note: Use API Access Token, not Account Access Token)")
         return
 
     # Select account

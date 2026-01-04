@@ -9,25 +9,26 @@ GPU-accelerated physics + 32-thread parallel processing for:
 Uses GPU for physics, ThreadPoolExecutor for I/O.
 """
 
-import sys
-from pathlib import Path
-from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import multiprocessing as mp
+import sys
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from datetime import datetime
+from pathlib import Path
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from kinetra.config import MAX_WORKERS
-from kinetra.physics_engine import PhysicsEngine
 from kinetra.market_calendar import get_calendar_for_symbol
+from kinetra.physics_engine import PhysicsEngine
 
 # Try to import GPU physics
 try:
-    from kinetra.parallel import GPUPhysicsEngine, compute_physics_parallel, TORCH_AVAILABLE
+    from kinetra.parallel import TORCH_AVAILABLE, GPUPhysicsEngine, compute_physics_parallel
+
     GPU_AVAILABLE = TORCH_AVAILABLE
 except ImportError:
     GPU_AVAILABLE = False
@@ -44,6 +45,7 @@ class PrepProgress:
         self.failed = 0
         self.start_time = datetime.now()
         import threading
+
         self._lock = threading.Lock()
 
     def complete(self, success: bool = True):
@@ -57,17 +59,19 @@ class PrepProgress:
         elapsed = (datetime.now() - self.start_time).total_seconds()
         rate = self.completed / elapsed if elapsed > 0 else 0
         pct = (self.completed / self.total * 100) if self.total > 0 else 0
-        return f"[{self.completed}/{self.total}] {pct:.0f}% | {rate:.1f} files/sec | ❌{self.failed}"
+        return (
+            f"[{self.completed}/{self.total}] {pct:.0f}% | {rate:.1f} files/sec | ❌{self.failed}"
+        )
 
 
 def load_csv(filepath: Path) -> pd.DataFrame:
     """Load MetaTrader CSV format."""
-    df = pd.read_csv(filepath, sep='\t')
+    df = pd.read_csv(filepath, sep="\t")
     # Normalize column names
-    df.columns = [c.lower().replace('<', '').replace('>', '') for c in df.columns]
+    df.columns = [c.lower().replace("<", "").replace(">", "") for c in df.columns]
     # Create datetime index
-    df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
-    df = df.set_index('datetime').sort_index()
+    df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"])
+    df = df.set_index("datetime").sort_index()
     return df
 
 
@@ -76,16 +80,16 @@ def add_holiday_tags(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
     calendar = get_calendar_for_symbol(symbol)
 
     # Is holiday
-    df['is_holiday'] = df.index.map(lambda dt: calendar.is_holiday(dt)).astype(int)
+    df["is_holiday"] = df.index.map(lambda dt: calendar.is_holiday(dt)).astype(int)
 
     # Is trading time (expected to be open)
-    df['is_trading_time'] = df.index.map(lambda dt: calendar.is_trading_time(dt)).astype(int)
+    df["is_trading_time"] = df.index.map(lambda dt: calendar.is_trading_time(dt)).astype(int)
 
     # Day of week (0=Mon, 6=Sun)
-    df['day_of_week'] = df.index.dayofweek
+    df["day_of_week"] = df.index.dayofweek
 
     # Hour of day
-    df['hour'] = df.index.hour
+    df["hour"] = df.index.hour
 
     # Session tags (Asian/European/US)
     def get_session(hour: int) -> int:
@@ -95,16 +99,17 @@ def add_holiday_tags(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
             return 1  # European
         else:
             return 2  # US
-    df['session'] = df['hour'].map(get_session)
+
+    df["session"] = df["hour"].map(get_session)
 
     # Weekend flag
-    df['is_weekend'] = (df['day_of_week'] >= 5).astype(int)
+    df["is_weekend"] = (df["day_of_week"] >= 5).astype(int)
 
     # Month
-    df['month'] = df.index.month
+    df["month"] = df.index.month
 
     # Quarter
-    df['quarter'] = df.index.quarter
+    df["quarter"] = df.index.quarter
 
     return df
 
@@ -116,7 +121,7 @@ def compute_physics_features(df: pd.DataFrame, use_gpu: bool = True) -> pd.DataF
     if use_gpu and GPU_AVAILABLE:
         try:
             gpu_engine = GPUPhysicsEngine(device="auto")
-            close_prices = df['close'].values.reshape(1, -1)  # Shape: (1, n_bars)
+            close_prices = df["close"].values.reshape(1, -1)  # Shape: (1, n_bars)
             physics_batch = gpu_engine.compute_physics_batch(close_prices, lookback=64)
 
             # Flatten batch results back to series
@@ -141,11 +146,11 @@ def compute_physics_features(df: pd.DataFrame, use_gpu: bool = True) -> pd.DataF
 
     # Compute physics state
     physics_df = engine.compute_physics_state(
-        prices=df['close'],
-        volume=df.get('tickvol'),
-        high=df.get('high'),
-        low=df.get('low'),
-        open_price=df.get('open'),
+        prices=df["close"],
+        volume=df.get("tickvol"),
+        high=df.get("high"),
+        low=df.get("low"),
+        open_price=df.get("open"),
         include_percentiles=True,
         include_kinematics=True,
         include_flow=True,
@@ -162,48 +167,57 @@ def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add derived/engineered features."""
 
     # Price-based
-    df['range'] = df['high'] - df['low']
-    df['body'] = abs(df['close'] - df['open'])
-    df['body_pct'] = df['body'] / df['range'].replace(0, np.nan)
-    df['upper_wick'] = df['high'] - df[['open', 'close']].max(axis=1)
-    df['lower_wick'] = df[['open', 'close']].min(axis=1) - df['low']
+    df["range"] = df["high"] - df["low"]
+    df["body"] = abs(df["close"] - df["open"])
+    df["body_pct"] = df["body"] / df["range"].replace(0, np.nan)
+    df["upper_wick"] = df["high"] - df[["open", "close"]].max(axis=1)
+    df["lower_wick"] = df[["open", "close"]].min(axis=1) - df["low"]
 
     # Direction
-    df['direction'] = np.sign(df['close'] - df['open'])
+    df["direction"] = np.sign(df["close"] - df["open"])
 
     # Gap from previous close
-    df['gap'] = df['open'] - df['close'].shift(1)
-    df['gap_pct'] = df['gap'] / df['close'].shift(1)
+    df["gap"] = df["open"] - df["close"].shift(1)
+    df["gap_pct"] = df["gap"] / df["close"].shift(1)
 
     # Rolling stats (multiple windows)
     for window in [6, 12, 24, 48]:
-        df[f'vol_ma_{window}'] = df['tickvol'].rolling(window).mean()
-        df[f'range_ma_{window}'] = df['range'].rolling(window).mean()
-        df[f'close_ma_{window}'] = df['close'].rolling(window).mean()
-        df[f'close_std_{window}'] = df['close'].rolling(window).std()
+        df[f"vol_ma_{window}"] = df["tickvol"].rolling(window).mean()
+        df[f"range_ma_{window}"] = df["range"].rolling(window).mean()
+        df[f"close_ma_{window}"] = df["close"].rolling(window).mean()
+        df[f"close_std_{window}"] = df["close"].rolling(window).std()
 
         # Price vs MA
-        df[f'close_vs_ma_{window}'] = (df['close'] - df[f'close_ma_{window}']) / df[f'close_std_{window}'].replace(0, np.nan)
+        df[f"close_vs_ma_{window}"] = (df["close"] - df[f"close_ma_{window}"]) / df[
+            f"close_std_{window}"
+        ].replace(0, np.nan)
 
     # ATR-like volatility
-    tr = pd.concat([
-        df['high'] - df['low'],
-        abs(df['high'] - df['close'].shift(1)),
-        abs(df['low'] - df['close'].shift(1))
-    ], axis=1).max(axis=1)
-    df['tr'] = tr
-    df['atr_14'] = tr.rolling(14).mean()
-    df['atr_pct'] = df['atr_14'] / df['close']
+    tr = pd.concat(
+        [
+            df["high"] - df["low"],
+            abs(df["high"] - df["close"].shift(1)),
+            abs(df["low"] - df["close"].shift(1)),
+        ],
+        axis=1,
+    ).max(axis=1)
+    df["tr"] = tr
+    df["atr_14"] = tr.rolling(14).mean()
+    df["atr_pct"] = df["atr_14"] / df["close"]
 
     # Consecutive direction
-    df['consec_up'] = (df['direction'] == 1).astype(int).groupby((df['direction'] != 1).cumsum()).cumsum()
-    df['consec_down'] = (df['direction'] == -1).astype(int).groupby((df['direction'] != -1).cumsum()).cumsum()
+    df["consec_up"] = (
+        (df["direction"] == 1).astype(int).groupby((df["direction"] != 1).cumsum()).cumsum()
+    )
+    df["consec_down"] = (
+        (df["direction"] == -1).astype(int).groupby((df["direction"] != -1).cumsum()).cumsum()
+    )
 
     # Volume spikes
-    df['vol_spike'] = (df['tickvol'] > df['tickvol'].rolling(24).mean() * 2).astype(int)
+    df["vol_spike"] = (df["tickvol"] > df["tickvol"].rolling(24).mean() * 2).astype(int)
 
     # Big move detection
-    df['big_move'] = (df['range'] > df['atr_14'] * 1.5).astype(int)
+    df["big_move"] = (df["range"] > df["atr_14"] * 1.5).astype(int)
 
     return df
 
@@ -215,20 +229,20 @@ def process_single_file(args) -> dict:
     try:
         # Parse filename for metadata
         stem = filepath.stem
-        parts = stem.split('_')
+        parts = stem.split("_")
         symbol = parts[0]
-        timeframe = parts[1] if len(parts) > 1 else 'H1'
+        timeframe = parts[1] if len(parts) > 1 else "H1"
 
         # Load data
         df = load_csv(filepath)
 
         if len(df) < 100:
-            return {'status': 'skipped', 'file': str(filepath), 'reason': 'too few bars'}
+            return {"status": "skipped", "file": str(filepath), "reason": "too few bars"}
 
         # Add metadata columns
-        df['symbol'] = symbol
-        df['timeframe'] = timeframe
-        df['asset_class'] = asset_class
+        df["symbol"] = symbol
+        df["timeframe"] = timeframe
+        df["asset_class"] = asset_class
 
         # Add holiday tags
         df = add_holiday_tags(df, symbol)
@@ -244,20 +258,26 @@ def process_single_file(args) -> dict:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write parquet (columnar, compressed)
-        df.to_parquet(output_path, compression='zstd')
+        df.to_parquet(output_path, compression="zstd")
 
-        feature_count = len([c for c in df.columns if c not in ['symbol', 'timeframe', 'asset_class', 'date', 'time']])
+        feature_count = len(
+            [
+                c
+                for c in df.columns
+                if c not in ["symbol", "timeframe", "asset_class", "date", "time"]
+            ]
+        )
 
         return {
-            'status': 'success',
-            'file': str(filepath),
-            'output': str(output_path),
-            'bars': len(df),
-            'features': feature_count,
+            "status": "success",
+            "file": str(filepath),
+            "output": str(output_path),
+            "bars": len(df),
+            "features": feature_count,
         }
 
     except Exception as e:
-        return {'status': 'failed', 'file': str(filepath), 'error': str(e)}
+        return {"status": "failed", "file": str(filepath), "error": str(e)}
 
 
 def prep_all_data(data_dir: Path = None, output_dir: Path = None):
@@ -268,14 +288,15 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
     if output_dir is None:
         output_dir = project_root / "data" / "prepared"
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("DATA PREPARATION (GPU + 32 threads)")
-    print("="*70)
+    print("=" * 70)
 
     # GPU status
     if GPU_AVAILABLE:
         try:
             import torch
+
             gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Unknown"
             print(f"  🎮 GPU: {gpu_name} (ROCm/CUDA)")
         except:
@@ -286,7 +307,7 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
     # Find all CSV files
     all_files = []
     for asset_dir in data_dir.iterdir():
-        if asset_dir.is_dir() and asset_dir.name not in ['.', '..']:
+        if asset_dir.is_dir() and asset_dir.name not in [".", ".."]:
             asset_class = asset_dir.name
             for csv_file in asset_dir.glob("*.csv"):
                 all_files.append((csv_file, output_dir, asset_class))
@@ -313,7 +334,7 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
         for future in as_completed(futures):
             result = future.result()
             results.append(result)
-            progress.complete(result['status'] == 'success')
+            progress.complete(result["status"] == "success")
 
             # Heartbeat
             print(f"\r  💓 {progress.status()}", end="", flush=True)
@@ -321,21 +342,21 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
     print()
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PREPARATION SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
-    success = [r for r in results if r['status'] == 'success']
-    failed = [r for r in results if r['status'] == 'failed']
-    skipped = [r for r in results if r['status'] == 'skipped']
+    success = [r for r in results if r["status"] == "success"]
+    failed = [r for r in results if r["status"] == "failed"]
+    skipped = [r for r in results if r["status"] == "skipped"]
 
     print(f"  ✅ Success: {len(success)}")
     print(f"  ❌ Failed: {len(failed)}")
     print(f"  ⏭️  Skipped: {len(skipped)}")
 
     if success:
-        total_bars = sum(r['bars'] for r in success)
-        avg_features = sum(r['features'] for r in success) / len(success)
+        total_bars = sum(r["bars"] for r in success)
+        avg_features = sum(r["features"] for r in success) / len(success)
         print(f"  📊 Total bars: {total_bars:,}")
         print(f"  📐 Avg features per file: {avg_features:.0f}")
 
@@ -348,18 +369,19 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
 
     # Write manifest
     manifest = {
-        'prepared_at': datetime.now().isoformat(),
-        'total_files': len(results),
-        'success': len(success),
-        'failed': len(failed),
-        'skipped': len(skipped),
-        'files': success,
+        "prepared_at": datetime.now().isoformat(),
+        "total_files": len(results),
+        "success": len(success),
+        "failed": len(failed),
+        "skipped": len(skipped),
+        "files": success,
     }
 
     import json
+
     manifest_path = output_dir / "prep_manifest.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(manifest_path, 'w') as f:
+    with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
 
     print(f"\n  📄 Manifest: {manifest_path}")
@@ -369,9 +391,10 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Parallel data preparation")
-    parser.add_argument('--data-dir', type=Path, default=None)
-    parser.add_argument('--output-dir', type=Path, default=None)
+    parser.add_argument("--data-dir", type=Path, default=None)
+    parser.add_argument("--output-dir", type=Path, default=None)
     args = parser.parse_args()
 
     prep_all_data(args.data_dir, args.output_dir)

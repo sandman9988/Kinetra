@@ -1,0 +1,4 @@
+# file: /home/renierdejager/Kinetra/kinetra/physics_engine.py
+# hypothesis_version: 6.148.9
+
+[0.0, 1e-12, 1e-10, 1e-09, 0.25, 0.33, 0.5, 0.66, 0.75, 0.8, 0.9999, 1.0, 2.0, 1000000.0, 500, '1.0.0', 'BP', 'Hs_pct', 'KE_pct', 'Kinetra Project', 'PE_pct', 'Re_m_pct', 'UNKNOWN', 'acceleration', 'breakout', 'close', 'cluster', 'critical', 'damping', 'damping_pct', 'energy', 'energy_pct', 'entropy', 'entropy_pct', 'eta', 'eta_pct', 'full', 'high', 'hmm_state', 'jerk', 'jerk_pct', 'laminar', 'liquidity', 'log_price', 'low', 'open', 'overdamped', 'pe', 'potential', 'rbf', 'regime', 'regime_age_frac', 'reynolds', 'underdamped', 'velocity', 'velocity_pct', 'viscosity', 'volume', 'zeta_pct']

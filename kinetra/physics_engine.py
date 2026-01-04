@@ -16,9 +16,15 @@ Models markets as kinetic energy systems with:
 Layer-1 Sensor Set:
 - Base physics + normalized percentiles
 - GMM regime clustering with cluster, regime, regime_age_frac
+
+Version History:
+    1.0.0 (2025-01-04): Initial versioned release, consolidated physics calculations
 """
 
 from __future__ import annotations
+
+__version__ = "1.0.0"
+__author__ = "Kinetra Project"
 
 from enum import Enum
 from typing import Optional
@@ -543,6 +549,8 @@ class PhysicsEngine:
     def _simple_cluster(self, df: pd.DataFrame) -> pd.Series:
         """
         Fallback threshold-based clustering when GMM unavailable.
+
+        Vectorized implementation using NumPy boolean indexing.
         """
         clusters = np.ones(len(df), dtype=int)  # Default to CRITICAL (1)
 
@@ -553,17 +561,21 @@ class PhysicsEngine:
         zeta_pct = df["zeta_pct"].values
         jerk_pct = df.get("jerk_pct", pd.Series(np.zeros(len(df)))).values
 
-        for i in range(len(df)):
-            if np.isnan(ke_pct[i]) or np.isnan(zeta_pct[i]):
-                clusters[i] = 1  # CRITICAL
-            elif ke_pct[i] > 0.75 and zeta_pct[i] < 0.25:
-                clusters[i] = 0  # UNDERDAMPED
-            elif zeta_pct[i] > 0.75 and ke_pct[i] < 0.25:
-                clusters[i] = 2  # OVERDAMPED
-            elif ke_pct[i] > 0.8 and jerk_pct[i] > 0.8:
-                clusters[i] = 3  # BREAKOUT
-            else:
-                clusters[i] = 1  # CRITICAL
+        # Vectorized classification using boolean indexing (no Python loops)
+        # NaN handling - already defaulted to CRITICAL (1)
+        valid_mask = ~(np.isnan(ke_pct) | np.isnan(zeta_pct))
+
+        # UNDERDAMPED (0): high energy, low friction
+        underdamped_mask = valid_mask & (ke_pct > 0.75) & (zeta_pct < 0.25)
+        clusters[underdamped_mask] = 0
+
+        # OVERDAMPED (2): low energy, high friction
+        overdamped_mask = valid_mask & (zeta_pct > 0.75) & (ke_pct < 0.25)
+        clusters[overdamped_mask] = 2
+
+        # BREAKOUT (3): extreme energy and jerk (overrides underdamped)
+        breakout_mask = valid_mask & (ke_pct > 0.8) & (jerk_pct > 0.8)
+        clusters[breakout_mask] = 3
 
         return pd.Series(clusters, index=df.index)
 
@@ -663,19 +675,33 @@ class PhysicsEngine:
         Normalised age in current cluster/regime: 0 at switch, →1 as streak length grows.
 
         Works even when cluster = -1 initially.
+
+        Vectorized implementation using NumPy diff and cumsum for run-length encoding.
         """
         clusters = cluster_series.values
-        age = np.zeros(len(clusters), dtype=float)
-        current_cluster = None
-        run_length = 0
+        n = len(clusters)
 
-        for i, c in enumerate(clusters):
-            if c == current_cluster:
-                run_length += 1
-            else:
-                current_cluster = c
-                run_length = 1
-            age[i] = run_length
+        if n == 0:
+            return pd.Series([], index=cluster_series.index, dtype=float)
+
+        # Vectorized run-length encoding using diff and cumsum
+        # Detect regime changes: where cluster differs from previous
+        regime_change = np.concatenate([[True], clusters[1:] != clusters[:-1]])
+
+        # Create group IDs for each run using cumsum of changes
+        group_ids = np.cumsum(regime_change)
+
+        # Calculate run lengths within each group using broadcasting
+        # For each position, count = position_in_group + 1
+        group_starts = np.concatenate([[0], np.where(regime_change)[0]])
+        group_lengths = np.diff(np.concatenate([group_starts, [n]]))
+
+        # Expand run lengths to match original array length
+        age = np.zeros(n, dtype=float)
+        pos = 0
+        for length in group_lengths:
+            age[pos : pos + length] = np.arange(1, length + 1)
+            pos += length
 
         # Normalise by rolling max age to [0,1]
         age_series = pd.Series(age, index=cluster_series.index)

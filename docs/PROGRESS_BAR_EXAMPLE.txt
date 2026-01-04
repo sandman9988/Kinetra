@@ -1,0 +1,152 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                 DOWNLOAD PROGRESS - NEW FORMAT                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+BEFORE (Heartbeat - Hard to Read):
+────────────────────────────────────────────────────────────────────────────
+  💓 [27/60] 45% | 🔄32 parallel | 125,432 bars @ 389/sec | BTCUSD H1 chunk 5
+  ⚠️ ADAJPY H4: only 0 bars
+  💓 [28/60] 47% | 🔄31 parallel | 125,432 bars @ 390/sec | EURUSD H4 chunk 3
+  ⚠️ BCHJPY H1: only 0 bars
+  💓 [29/60] 48% | 🔄30 parallel | 140,567 bars @ 395/sec | XAUUSD H1 chunk 8
+
+
+AFTER (Progress Bars - Clean & Professional):
+────────────────────────────────────────────────────────────────────────────
+📊 Downloads: 45%|████████████          | 27/60 [05:23<06:12, 11.29s/file]
+📈 Bars: 125,432 bars @ 388.5bar/s
+
+  ⚠️ ADAJPY H4: No data available from broker
+  ⚠️ BCHJPY H1: No data available from broker
+  ✅ BTCUSD H1: 15,234 bars saved
+  ✅ EURUSD H4: 8,456 bars saved
+
+
+FEATURES OF NEW FORMAT:
+────────────────────────────────────────────────────────────────────────────
+✅ Real-time ETA (estimated time remaining)
+✅ Accurate progress percentage
+✅ Clean visual progress bar
+✅ No flickering symbols
+✅ Rate calculation (bars/second)
+✅ Better status messages
+✅ Categorized results (success/skipped/up-to-date/failed)
+
+
+EXAMPLE COMPLETE OUTPUT:
+────────────────────────────────────────────────────────────────────────────
+[3] Downloading (2024-01-05 to 2026-01-04)...
+    Launching 60 downloads with dynamic throttling...
+
+📊 Downloads: 100%|██████████████████████| 60/60 [12:34<00:00,  4.76s/file]
+📈 Bars: 1,250,000 bars @ 1,656.8bar/s
+
+  ✅ BTCUSD H1: 15,234 bars saved
+  ✅ BTCUSD H4: 3,809 bars saved
+  ✅ EURUSD H1: 17,520 bars saved
+  ✅ EURUSD H4: 4,380 bars saved
+  ⚠️ ADAJPY H1: No data available from broker
+  ⚠️ ADAJPY H4: No data available from broker
+  ⚠️ BCHJPY H1: No data available from broker
+  ⚠️ BCHJPY H4: No data available from broker
+  ⚠️ CHINAH H1: Symbol not found on broker
+  ⚠️ CHINAH H4: Symbol not found on broker
+
+======================================================================
+  DOWNLOAD SUMMARY
+======================================================================
+
+  ✅ Downloaded: 45 files
+  ⏭️  Up to date: 0 files
+  ⚠️  Skipped (no data): 12 files
+  ❌ Failed: 3 files
+
+  Skipped (no broker data available):
+    • No data available from broker:
+      - ADAJPY H1
+      - ADAJPY H4
+      - BCHJPY H1
+      ... and 4 more
+    • Symbol not found on broker:
+      - CHINAH H1
+      - CHINAH H4
+
+  📊 Total bars: 1,250,000
+
+  By asset class:
+    crypto: 5 H1 + 5 H4 = 180,000 bars
+    forex: 12 H1 + 12 H4 = 600,000 bars
+    indices: 8 H1 + 8 H4 = 320,000 bars
+    metals: 5 H1 + 5 H4 = 120,000 bars
+    energy: 3 H1 + 3 H4 = 30,000 bars
+
+  📄 Manifest: data/master/download_manifest.json
+
+======================================================================
+
+
+STATUS CATEGORIES EXPLAINED:
+────────────────────────────────────────────────────────────────────────────
+
+✅ DOWNLOADED
+   - Successfully downloaded ≥100 bars
+   - Data saved to file
+   - Ready for training
+
+⏭️ UP TO DATE
+   - Existing file is current (within 24h)
+   - No download needed
+   - Skip to save API quota
+
+⚠️ SKIPPED (No Data)
+   - 0 bars available from broker
+   - Symbol may not exist on this broker
+   - OR insufficient history (< 100 bars)
+   - Soft-block: other downloads continue
+
+❌ FAILED (Error)
+   - Network error, timeout, or exception
+   - After all retries exhausted
+   - Check logs for details
+
+
+RETRY BEHAVIOR:
+────────────────────────────────────────────────────────────────────────────
+
+Symbol-Level: Up to 3 attempts
+  Attempt 1 → 0 bars → Wait 2s
+  Attempt 2 → 0 bars → Wait 2s  
+  Attempt 3 → 0 bars → SKIP
+
+Chunk-Level: Up to 5 attempts per chunk
+  Rate limit → Exponential backoff: 1s, 2s, 4s, 8s, 16s
+  Network error → Retry with backoff
+  Success → Continue
+
+Empty Chunk Detection:
+  3 consecutive empty chunks → STOP (end of data)
+
+
+WHAT "0 BARS" MEANS:
+────────────────────────────────────────────────────────────────────────────
+
+Scenario 1: Symbol not offered by broker
+  Example: BCHJPY on Vantage
+  Result: SKIPPED
+  Reason: "No data available from broker"
+
+Scenario 2: Already up to date
+  Example: Downloaded yesterday
+  Result: UP_TO_DATE
+  Reason: "No new data (existing: 5000 bars)"
+
+Scenario 3: Temporary broker issue
+  Result: RETRY up to 3 times
+  If still 0 → SKIPPED
+
+Scenario 4: Symbol name mismatch
+  Example: BTCUSD vs BTCUSD+ vs BTCUSD.m
+  Result: Auto-discover correct suffix
+  If not found → SKIPPED
+
+

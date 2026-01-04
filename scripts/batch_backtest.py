@@ -9,15 +9,25 @@ asym risk (Omega/RoR), replay stub (entropy log). CLI menu-like.
 Usage: python scripts/batch_backtest.py --symbols EURUSD --timeframe H1 --years 2023 2024 --split 70 30 --agent superpot --mc-runs 50 --dry-run
 
 Integrates existing: physics_engine, rl_agent, risk_management.
+
+Version History:
+    1.1.0 (2025-01-04): Added parallel processing with multiprocessing
+    1.0.0 (2025-01-04): Initial versioned release, consolidated batch backtest
 """
+
+__version__ = "1.1.0"
+__author__ = "Kinetra Project"
 
 import argparse
 import asyncio
 import logging
+import multiprocessing as mp
 import os
 import warnings
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
-from typing import Dict, List, Tuple
+from functools import partial
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -46,6 +56,15 @@ logging.basicConfig(
 )
 
 load_dotenv()
+
+# Import CPU utilities for adaptive worker count
+try:
+    from kinetra.cpu_utils import get_optimal_workers
+except ImportError:
+
+    def get_optimal_workers(workload_type: str = "balanced") -> int:
+        return max(2, (mp.cpu_count() or 4) // 2)
+
 
 # Defaults
 NUM_MC_RUNS = 50
@@ -363,6 +382,50 @@ def apply_risk(df: pd.DataFrame, symbol: str) -> float:
     return chs
 
 
+def _process_single_backtest(args: tuple) -> Optional[Dict]:
+    """Worker function for parallel backtest processing.
+
+    Must be at module level for multiprocessing pickling.
+
+    Args:
+        args: Tuple of (symbol, year, tf, split, train_pct)
+
+    Returns:
+        Dict with results or None if failed/filtered
+    """
+    symbol, year, tf, split, train_pct = args
+    try:
+        df_train, df_oos = load_data(symbol, tf, year, split, train_pct)
+
+        # SuperPot RL
+        rl_res = run_superpot_rl(df_train, df_oos, symbol)
+        if not rl_res["survives"]:
+            return None
+
+        # Triggers
+        trigger = compute_triggers(df_train, symbol)
+
+        # Harvesters
+        mfe = compute_harvesters(df_train, trigger, symbol)
+
+        # Risk
+        chs = apply_risk(df_train, symbol)
+
+        return {
+            "symbol": symbol,
+            "year": year,
+            "omega_train": rl_res["omega_train"],
+            "win_train": rl_res["win_train"],
+            "trigger": trigger,
+            "mfe": mfe,
+            "chs": chs,
+            "entropy": rl_res["entropy"],
+        }
+    except Exception as e:
+        logging.error(f"Failed to process {symbol} {year}: {e}")
+        return None
+
+
 def main(
     symbols: List[str],
     tf: str,
@@ -371,38 +434,66 @@ def main(
     train_pct: int,
     mc_runs: int,
     dry_run: bool,
+    parallel: bool = True,
 ):
+    """Main batch backtest function with optional parallel processing.
+
+    Args:
+        symbols: List of symbols to backtest
+        tf: Timeframe (e.g., 'H1')
+        years: List of years to process
+        split: Whether to split data into train/test
+        train_pct: Percentage for training data
+        mc_runs: Number of Monte Carlo runs
+        dry_run: If True, only fetch/prep data without training
+        parallel: Use multiprocessing for parallel backtests (default: True)
+    """
     results = []
-    for symbol in symbols:
-        for year in years:
+
+    # Build list of all (symbol, year) combinations
+    tasks = [(symbol, year, tf, split, train_pct) for symbol in symbols for year in years]
+    n_tasks = len(tasks)
+
+    if dry_run:
+        # Dry run: sequential, just log
+        for symbol, year, *_ in tasks:
             df_train, df_oos = load_data(symbol, tf, year, split, train_pct)
-            if dry_run:
-                logging.info(f"Dry-run {symbol} {year}: Train {len(df_train)} bars")
-                continue
-            # SuperPot RL
-            rl_res = run_superpot_rl(df_train, df_oos, symbol)
-            if not rl_res["survives"]:
-                continue
-            # Triggers
-            trigger = compute_triggers(df_train, symbol)
-            # Harvesters
-            mfe = compute_harvesters(df_train, trigger, symbol)
-            # Risk
-            chs = apply_risk(df_train, symbol)
-            results.append(
-                {
-                    "symbol": symbol,
-                    "year": year,
-                    "omega_train": rl_res["omega_train"],
-                    "win_train": rl_res["win_train"],
-                    "trigger": trigger,
-                    "mfe": mfe,
-                    "chs": chs,
-                    "entropy": rl_res["entropy"],
-                }
-            )
-    pd.DataFrame(results).to_csv("data/batch_backtest_results.csv", index=False)
-    logging.info("Batch backtest complete: Results in data/batch_backtest_results.csv")
+            logging.info(f"Dry-run {symbol} {year}: Train {len(df_train)} bars")
+        return
+
+    # Use parallel processing for multiple tasks
+    if parallel and n_tasks > 1:
+        workers = min(get_optimal_workers("heavy"), n_tasks)
+        logging.info(f"🚀 Using {workers} parallel workers for {n_tasks} backtest tasks")
+
+        with ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = {executor.submit(_process_single_backtest, task): task for task in tasks}
+
+            for future in as_completed(futures):
+                task = futures[future]
+                symbol, year = task[0], task[1]
+                try:
+                    result = future.result()
+                    if result is not None:
+                        results.append(result)
+                        logging.info(f"✅ Completed {symbol} {year}")
+                except Exception as e:
+                    logging.error(f"❌ Failed {symbol} {year}: {e}")
+    else:
+        # Sequential processing
+        for task in tasks:
+            result = _process_single_backtest(task)
+            if result is not None:
+                results.append(result)
+
+    # Save results
+    if results:
+        pd.DataFrame(results).to_csv("data/batch_backtest_results.csv", index=False)
+        logging.info(
+            f"Batch backtest complete: {len(results)} results in data/batch_backtest_results.csv"
+        )
+    else:
+        logging.warning("No results survived filtering criteria")
 
 
 if __name__ == "__main__":
@@ -414,5 +505,15 @@ if __name__ == "__main__":
     parser.add_argument("--train-pct", type=int, default=70)
     parser.add_argument("--mc-runs", type=int, default=NUM_MC_RUNS)
     parser.add_argument("--dry-run", action="store_true", help="No RL/train, just fetch/prep")
+    parser.add_argument("--no-parallel", action="store_true", help="Disable parallel processing")
     args = parser.parse_args()
-    main(args.symbols, args.tf, args.years, args.split, args.train_pct, args.mc_runs, args.dry_run)
+    main(
+        args.symbols,
+        args.tf,
+        args.years,
+        args.split,
+        args.train_pct,
+        args.mc_runs,
+        args.dry_run,
+        parallel=not args.no_parallel,
+    )

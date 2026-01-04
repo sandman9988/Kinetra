@@ -1,6 +1,6 @@
 # KINETRA AGENT RULES - MASTER REFERENCE
-**Version:** 2.0  
-**Last Updated:** 2024-01-09  
+**Version:** 3.0  
+**Last Updated:** 2025-01-04  
 **Status:** Canonical - Single Source of Truth
 
 ---
@@ -24,6 +24,8 @@
 15. [Physics-First Approach](#15-physics-first-approach)
 16. [Testing Requirements](#16-testing-requirements)
 17. [Deliverables & Validation](#17-deliverables--validation)
+18. [Consolidation & Versioning](#18-consolidation--versioning) ⭐ NEW
+19. [Parallelization & Performance](#19-parallelization--performance) ⭐ NEW
 
 ---
 
@@ -1821,8 +1823,223 @@ git commit -m "update code"
 
 ---
 
+## 18. CONSOLIDATION & VERSIONING
+
+### 18.1 Consolidation Rules
+
+**NEVER create duplicate files. ALWAYS enhance existing canonical files.**
+
+**CANONICAL FILES (Single Source of Truth):**
+
+| Category | Canonical File | Version |
+|----------|----------------|---------|
+| **Menu** | `kinetra_menu.py` | v2.0.0 |
+| **E2E Testing** | `scripts/testing/comprehensive_e2e_test.py` | v2.1.0 |
+| **Data Management** | `scripts/data_manager.py` | v1.0.0 |
+| **Batch Backtest** | `scripts/batch_backtest.py` | v1.1.0 |
+| **Physics Engine** | `kinetra/physics_engine.py` | v1.0.0 |
+| **Backtest Engine** | `kinetra/backtest_engine.py` | v1.0.0 |
+| **RL Agent** | `kinetra/rl_agent.py` | v1.0.0 |
+
+**When Adding New Functionality:**
+1. ✅ Check if canonical file exists for that category
+2. ✅ Enhance existing file (add features, fix bugs)
+3. ✅ Increment version appropriately (MAJOR.MINOR.PATCH)
+4. ✅ Update VERSION.md manifest
+5. ❌ NEVER create new file if canonical exists
+6. ❌ NEVER fork/copy existing files
+
+**When Removing Old/Duplicate Files:**
+1. ✅ Move to `archive/` directory (never delete)
+2. ✅ Create README.md in archive explaining what was archived
+3. ✅ Update references in codebase
+4. ✅ Document in ARCHIVAL_MANIFEST.md
+
+### 18.2 Versioning Rules
+
+**All modules MUST have version constants:**
+
+```python
+__version__ = "1.0.0"
+__author__ = "Kinetra Project"
+
+"""
+Module docstring with Version History:
+    1.1.0 (2025-01-04): Added feature X
+    1.0.0 (2025-01-03): Initial versioned release
+"""
+```
+
+**Semantic Versioning (MAJOR.MINOR.PATCH):**
+- **MAJOR**: Breaking changes, incompatible API changes
+- **MINOR**: New features, backward-compatible additions
+- **PATCH**: Bug fixes, backward-compatible fixes
+
+**Version Increment Checklist:**
+- [ ] Updated `__version__` in module
+- [ ] Updated Version History in docstring
+- [ ] Updated VERSION.md manifest
+- [ ] Tests pass with new version
+- [ ] CHANGELOG entry added (if significant)
+
+### 18.3 Archive Policy
+
+**Archive Structure:**
+```
+archive/
+├── testing_frameworks/
+│   ├── legacy/           # Old test files
+│   └── ARCHIVAL_MANIFEST.md
+├── menus/                # Old menu implementations
+├── scripts/              # Old utility scripts
+└── README.md             # Archive overview
+```
+
+**Restoration Policy:**
+1. ❌ NEVER restore archived files directly
+2. ✅ Extract needed functionality into canonical file
+3. ✅ Follow versioning rules for the enhancement
+4. ✅ Document the migration
+
+---
+
+## 19. PARALLELIZATION & PERFORMANCE
+
+### 19.1 Parallelization Strategy
+
+**Use the right tool for the task:**
+
+| Task Type | Tool | Example |
+|-----------|------|---------|
+| **CPU-bound** | `multiprocessing` / `ProcessPoolExecutor` | Data prep, feature extraction, backtests |
+| **I/O-bound** | `asyncio` / `ThreadPoolExecutor` | Downloads, API calls, file reads |
+| **GPU-accelerated** | PyTorch / CuPy | Neural networks, large matrix ops |
+
+### 19.2 CPU-Adaptive Worker Selection
+
+**ALWAYS use adaptive worker counts:**
+
+```python
+from kinetra.cpu_utils import get_optimal_workers, get_optimal_concurrency
+
+# CPU-intensive tasks (data prep, backtests)
+workers = get_optimal_workers("balanced")  # ~75% of logical cores
+
+# I/O-intensive tasks (downloads, API calls)
+concurrency = get_optimal_concurrency("network")  # ~2x logical cores
+```
+
+**Worker Count Guidelines:**
+- `"light"`: 50% of cores (leave headroom for UI/system)
+- `"balanced"`: 75% of cores (default, good balance)
+- `"heavy"`: 95% of cores (max performance, batch jobs)
+
+### 19.3 Parallel Processing Patterns
+
+**ProcessPoolExecutor for CPU-bound:**
+
+```python
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from kinetra.cpu_utils import get_optimal_workers
+
+def process_parallel(tasks):
+    workers = get_optimal_workers("balanced")
+    results = []
+    
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(process_single, task): task for task in tasks}
+        
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as e:
+                logging.error(f"Task failed: {e}")
+    
+    return results
+```
+
+**Asyncio for I/O-bound:**
+
+```python
+import asyncio
+from kinetra.cpu_utils import get_optimal_concurrency
+
+async def download_parallel(urls):
+    concurrency = get_optimal_concurrency("network")
+    semaphore = asyncio.Semaphore(concurrency)
+    
+    async def download_with_limit(url):
+        async with semaphore:
+            return await download(url)
+    
+    return await asyncio.gather(*[download_with_limit(url) for url in urls])
+```
+
+### 19.4 Vectorization Requirements
+
+**Python loops are LAST RESORT. Prefer:**
+
+1. **NumPy vectorized ops** (fastest)
+2. **Pandas column operations** (fast, readable)
+3. **Broadcasting** (efficient for array ops)
+4. **np.select / np.where** (conditional assignment)
+
+**Vectorization Patterns:**
+
+```python
+# ❌ SLOW: Python loop
+for i in range(len(arr)):
+    if condition[i]:
+        result[i] = value
+
+# ✅ FAST: NumPy boolean indexing
+result[condition] = value
+
+# ❌ SLOW: Python loop for cumulative
+total = 0
+for x in arr:
+    total += x
+    result.append(total)
+
+# ✅ FAST: NumPy cumsum
+result = np.cumsum(arr)
+
+# ❌ SLOW: Multiple if/elif in loop
+for i in range(len(arr)):
+    if cond1[i]:
+        result[i] = val1
+    elif cond2[i]:
+        result[i] = val2
+
+# ✅ FAST: np.select
+result = np.select([cond1, cond2], [val1, val2], default=default_val)
+```
+
+### 19.5 Performance Benchmarking
+
+**Before optimizing, MEASURE:**
+
+```python
+import time
+
+start = time.perf_counter()
+# ... code to benchmark ...
+elapsed = time.perf_counter() - start
+print(f"Elapsed: {elapsed:.3f}s")
+```
+
+**Document speedups:**
+```python
+# Vectorized version: ~50x faster than loop
+# Before: 500ms for 100k elements
+# After: 10ms for 100k elements
+```
+
+---
+
 **This is the canonical rulebook. All rules consolidated. Single source of truth.** 🚀
 
-**Version:** 2.0  
-**Status:** ACTIVE - Read before every task  
-**Last Updated:** 2024-01-09
+**Version:** 3.0
+**Status:** ACTIVE - Read before every task
+**Last Updated:** 2025-01-04

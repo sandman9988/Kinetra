@@ -18,6 +18,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from kinetra.market_microstructure import AssetClass, SymbolSpec
+from kinetra.canonical_asset_classification import get_asset_class_with_fallback
 
 
 async def fetch_symbol_spec_from_metaapi(

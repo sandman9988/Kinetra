@@ -70,13 +70,13 @@ from kinetra.triad_system import (
 
 # Import MenuConfig for configuration
 try:
-    from kinetra_menu import MenuConfig
+    from kinetra_menu import MenuContext
 except ImportError:
     # Fallback if menu module not in path
     import sys
 
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from kinetra_menu import MenuConfig
+    from kinetra_menu import MenuContext
 
 # Configure logging
 os.makedirs("logs", exist_ok=True)

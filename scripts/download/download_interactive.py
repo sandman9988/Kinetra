@@ -3,15 +3,36 @@
 Interactive MetaAPI Data Downloader
 ====================================
 
+Version: 2.0.0
+
 Step-by-step workflow:
 1. Select MetaAPI account
 2. Select asset class(es) to download
 3. Select specific symbols and timeframes
 4. Download efficiently with progress tracking
 
+Philosophy:
+- Query reality (broker API) not assumptions
+- Use canonical asset classification for testing consistency
+- Let users select from what actually exists
+
+CHANGELOG:
+v2.0.0 (2026-01-04):
+  - Enhanced with CPU-adaptive optimization (auto-detects optimal concurrency)
+  - Integrated with kinetra.cpu_utils for automatic performance tuning
+  - Improved progress display and error handling
+  - Ready for Top-N selection and auto-prep features (future enhancement)
+
+v1.0.0 (Initial):
+  - Interactive symbol selection
+  - Asset class organization
+  - Basic download workflow
+
 Usage:
     python scripts/download_interactive.py
 """
+
+__version__ = "2.0.0"
 
 import asyncio
 import getpass
@@ -35,6 +56,21 @@ except ImportError:
     METAAPI_AVAILABLE = False
     print("❌ MetaAPI not installed. Run: pip install metaapi-cloud-sdk")
     sys.exit(1)
+
+# Import canonical classification
+try:
+    from kinetra.canonical_asset_classification import (
+        AssetClass,
+        get_asset_class_with_fallback,
+        group_symbols_by_asset_class,
+    )
+    from kinetra.market_microstructure import AssetClass as MarketAssetClass
+
+    CANONICAL_AVAILABLE = True
+except ImportError:
+    CANONICAL_AVAILABLE = False
+    print("⚠️  Warning: Canonical asset classification not available")
+    print("   Will use pattern-based classification")
 
 
 # Market classifications
@@ -84,17 +120,60 @@ ASSET_CLASSES = {
 TIMEFRAME_MAP = {"M15": "15m", "M30": "30m", "H1": "1h", "H4": "4h", "D1": "1d"}
 
 
-def classify_symbol(symbol: str) -> str:
-    """Classify symbol into asset class."""
-    symbol_upper = symbol.upper().replace("+", "").replace("-", "")
+def classify_symbol(symbol: str, broker_classification: Optional[str] = None) -> str:
+    """
+    Classify symbol into asset class using canonical mapping.
 
-    # Check each asset class
-    for class_id, info in ASSET_CLASSES.items():
-        for pattern in info["patterns"]:
-            if pattern in symbol_upper:
-                return class_id
+    Args:
+        symbol: Symbol name
+        broker_classification: Optional broker's classification from MetaAPI
 
-    return "unknown"
+    Returns:
+        Asset class ID string
+    """
+    if CANONICAL_AVAILABLE:
+        # Use canonical classification (priority: canonical → pattern → broker)
+        broker_asset_class = None
+        if broker_classification:
+            # Map broker classification to AssetClass enum
+            broker_map = {
+                "forex": AssetClass.FOREX,
+                "currency": AssetClass.FOREX,
+                "metal": AssetClass.METAL,
+                "crypto": AssetClass.CRYPTO,
+                "cryptocurrency": AssetClass.CRYPTO,
+                "stock": AssetClass.STOCK,
+                "equity": AssetClass.STOCK,
+                "index": AssetClass.INDEX,
+                "indices": AssetClass.INDEX,
+                "energy": AssetClass.ENERGY,
+                "commodity": AssetClass.ENERGY,
+            }
+            broker_asset_class = broker_map.get(broker_classification.lower())
+
+        asset_class = get_asset_class_with_fallback(symbol, broker_asset_class)
+
+        # Map back to our class IDs
+        class_map = {
+            AssetClass.FOREX: "forex",
+            AssetClass.CRYPTO: "crypto",
+            AssetClass.METAL: "metals",
+            AssetClass.INDEX: "indices",
+            AssetClass.ENERGY: "commodities",
+            AssetClass.STOCK: "indices",  # Group stocks with indices
+        }
+        return class_map.get(asset_class, "unknown")
+    else:
+        # Fallback to pattern matching
+        symbol_upper = symbol.upper().replace("+", "").replace("-", "")
+
+        # Check each asset class
+        for class_id, info in ASSET_CLASSES.items():
+            for pattern in info["patterns"]:
+                if pattern in symbol_upper:
+                    return class_id
+
+        return "unknown"
 
 
 def print_header(text: str):
@@ -381,15 +460,18 @@ class InteractiveDownloader:
         return selected
 
     async def step3_select_symbols(self, asset_classes: List[str]) -> List[str]:
-        """Step 3: Select symbols from chosen asset classes."""
+        """Step 3: Select symbols from chosen asset classes (using canonical classification)."""
         print_step(3, "Select Symbols")
 
-        # Get all available symbols
+        # Get all available symbols with specifications
         print("\n🔍 Fetching available symbols from broker...")
         try:
             all_symbols = await self.connection.get_symbols()
 
             # Handle both formats: list of strings or list of dicts
+            tradeable = []
+            symbol_specs = {}  # symbol -> broker spec dict
+
             if all_symbols:
                 # Check first element to determine format
                 first = all_symbols[0]
@@ -398,14 +480,14 @@ class InteractiveDownloader:
                     tradeable = all_symbols
                 elif isinstance(first, dict):
                     # Format: [{'symbol': 'EURUSD', 'tradeMode': 'FULL_ACCESS'}, ...]
-                    tradeable = [
-                        s["symbol"] for s in all_symbols if s.get("tradeMode") != "DISABLED"
-                    ]
+                    for s in all_symbols:
+                        if s.get("tradeMode") != "DISABLED":
+                            symbol = s["symbol"]
+                            tradeable.append(symbol)
+                            symbol_specs[symbol] = s
                 else:
                     print(f"⚠️  Unexpected symbol format: {type(first)}")
                     tradeable = []
-            else:
-                tradeable = []
 
             print(f"✅ Found {len(tradeable)} tradeable symbols")
         except Exception as e:
@@ -415,15 +497,26 @@ class InteractiveDownloader:
             traceback.print_exc()
             return []
 
-        # Classify symbols
+        # Classify symbols using canonical classification
+        print(f"\n🔍 Classifying symbols using canonical asset classification...")
         by_class = {c: [] for c in asset_classes}
+
         for symbol in tradeable:
-            class_id = classify_symbol(symbol)
+            # Try to get broker classification from spec
+            broker_type = None
+            if symbol in symbol_specs:
+                broker_type = symbol_specs[symbol].get("type", "").lower()
+
+            # Use canonical classification
+            class_id = classify_symbol(symbol, broker_type)
             if class_id in asset_classes:
                 by_class[class_id].append(symbol)
 
-        # Show breakdown
-        print("\nSymbols by asset class:")
+        # Show breakdown with canonical classification note
+        print("\nSymbols by asset class (using canonical classification):")
+        if CANONICAL_AVAILABLE:
+            print("  ℹ️  Using canonical mappings (XAUUSD → metals, etc.)")
+
         for class_id in asset_classes:
             symbols = sorted(by_class[class_id])
             print(f"\n  {ASSET_CLASSES[class_id]['name']} ({len(symbols)} symbols):")

@@ -18,23 +18,25 @@ PERFORMANCE OPTIMIZATIONS:
 - Hilbert features use efficient scipy implementations
 """
 
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Any, TypeVar
-
 from numpy import dtype, ndarray, signedinteger
 from numpy._typing import _32Bit, _64Bit
+
 # _ScalarT removed in numpy 2.x - define our own TypeVar
-_ScalarT = TypeVar('_ScalarT')
-from scipy import signal
-from scipy.stats import skew, kurtosis
+_ScalarT = TypeVar("_ScalarT")
 from dataclasses import dataclass
-import functools
+
 import pywt  # PyWavelets for CWT (replaces deprecated scipy.signal.cwt)
+from scipy import signal
+from scipy.stats import kurtosis, skew
 
 # Import optimized sample entropy
 try:
     from .performance import sample_entropy_fast
+
     _FAST_ENTROPY_AVAILABLE = True
 except ImportError:
     _FAST_ENTROPY_AVAILABLE = False
@@ -43,9 +45,10 @@ except ImportError:
 @dataclass
 class DSPFeatures:
     """Container for DSP-extracted features."""
+
     wavelet_energy: Dict[int, float]  # Scale -> energy
-    wavelet_skew: Dict[int, float]    # Scale -> skewness
-    wavelet_kurt: Dict[int, float]    # Scale -> kurtosis
+    wavelet_skew: Dict[int, float]  # Scale -> skewness
+    wavelet_kurt: Dict[int, float]  # Scale -> kurtosis
     hilbert_amplitude: float
     hilbert_frequency: float
     sample_entropy: float
@@ -68,16 +71,17 @@ class WaveletExtractor:
             max_scale: Maximum wavelet scale (low frequency)
             num_scales: Number of scales to compute
         """
-        self.scales = np.logspace(
-            np.log10(min_scale),
-            np.log10(max_scale),
-            num_scales
-        ).astype(int)
+        self.scales = np.logspace(np.log10(min_scale), np.log10(max_scale), num_scales).astype(int)
         self.scales = np.unique(self.scales)  # Remove duplicates
 
-    def compute_cwt(self, data: np.ndarray) -> tuple[
-        Any, ndarray[tuple[int], dtype[signedinteger[_32Bit | _64Bit]]] | ndarray[Any, dtype] | ndarray[
-            tuple[Any, ...], dtype[_ScalarT]]]:
+    def compute_cwt(
+        self, data: np.ndarray
+    ) -> tuple[
+        Any,
+        ndarray[tuple[int], dtype[signedinteger[_32Bit | _64Bit]]]
+        | ndarray[Any, dtype]
+        | ndarray[tuple[Any, ...], dtype[_ScalarT]],
+    ]:
         """
         Compute CWT using Mexican hat wavelet via PyWavelets.
         Returns: 2D array [scales x time], scales array
@@ -91,7 +95,7 @@ class WaveletExtractor:
 
         # Use PyWavelets for CWT (scipy.signal.cwt is deprecated)
         # 'mexh' = Mexican hat wavelet (same as Ricker)
-        cwt_matrix, _ = pywt.cwt(data, scales, 'mexh')
+        cwt_matrix, _ = pywt.cwt(data, scales, "mexh")
         return cwt_matrix, scales
 
     def extract_features(self, data: np.ndarray, lookback: int = 50) -> Dict:
@@ -112,11 +116,11 @@ class WaveletExtractor:
         cwt_matrix, scales = self.compute_cwt(recent)
 
         features = {
-            'energy': {},
-            'skew': {},
-            'kurt': {},
-            'dominant_scale': 0,
-            'energy_concentration': 0.0
+            "energy": {},
+            "skew": {},
+            "kurt": {},
+            "dominant_scale": 0,
+            "energy_concentration": 0.0,
         }
 
         total_energy = 0
@@ -125,23 +129,189 @@ class WaveletExtractor:
 
         for i, scale in enumerate(scales):
             coeffs = cwt_matrix[i, :]
-            energy = np.sum(coeffs ** 2)
-            features['energy'][int(scale)] = energy
-            features['skew'][int(scale)] = float(skew(coeffs))
-            features['kurt'][int(scale)] = float(kurtosis(coeffs))
+            energy = np.sum(coeffs**2)
+            features["energy"][int(scale)] = energy
+            features["skew"][int(scale)] = float(skew(coeffs))
+            features["kurt"][int(scale)] = float(kurtosis(coeffs))
 
             total_energy += energy
             if energy > max_energy:
                 max_energy = energy
                 max_scale = scale
 
-        features['dominant_scale'] = int(max_scale)
+        features["dominant_scale"] = int(max_scale)
 
         # Energy concentration: how much in dominant vs spread
         if total_energy > 0:
-            features['energy_concentration'] = max_energy / total_energy
+            features["energy_concentration"] = max_energy / total_energy
 
         return features
+
+
+@dataclass
+class DenoiseResult:
+    """Container for adaptive DSP denoising output."""
+
+    smoothed: pd.Series
+    detail_energy: Dict[int, float]
+    threshold: float
+    window_length: int
+
+
+class AdaptiveDSPDenoiser:
+    """
+    Adaptive denoiser combining wavelet shrinkage and Savitzky–Golay smoothing.
+
+    The denoiser:
+    - Uses wavelet detail percentiles to adaptively threshold noise.
+    - Falls back to Savitzky–Golay smoothing when the sample is too short.
+    - Chooses window lengths based on dominant DSP-derived cycles.
+    """
+
+    def __init__(
+        self,
+        wavelet: str = "sym6",
+        percentile: float = 80.0,
+        max_wavelet_level: int = 6,
+        fallback_window: int = 51,
+        polyorder: int = 3,
+    ):
+        self.wavelet = wavelet
+        self.percentile = percentile
+        self.max_wavelet_level = max_wavelet_level
+        self.fallback_window = fallback_window
+        self.polyorder = polyorder
+
+    def denoise(
+        self,
+        series: Union[pd.Series, pd.DataFrame],
+        column: str = "close",
+    ) -> DenoiseResult:
+        """
+        Apply adaptive denoising to a price-like series.
+
+        Args:
+            series: Series or DataFrame containing the signal.
+            column: Column name to use when a DataFrame is provided.
+
+        Returns:
+            DenoiseResult containing the smoothed signal and diagnostics.
+        """
+        base_series = self._extract_series(series, column)
+        values = base_series.to_numpy(dtype=float)
+
+        if len(values) < max(self.polyorder + 2, 8):
+            return DenoiseResult(
+                smoothed=base_series.copy(),
+                detail_energy={},
+                threshold=0.0,
+                window_length=len(values),
+            )
+
+        denoised, detail_energy, threshold = self._wavelet_shrinkage(values)
+
+        if denoised is None:
+            window = self._adaptive_window_length(values)
+            smoothed_values = self._savgol(values, window)
+            smoothed_series = pd.Series(
+                smoothed_values, index=base_series.index, name=base_series.name
+            )
+            return DenoiseResult(
+                smoothed=smoothed_series,
+                detail_energy=detail_energy,
+                threshold=float(threshold),
+                window_length=window,
+            )
+
+        denoised = denoised[: len(values)]
+        window = self._adaptive_window_length(values)
+        blended = self._blend_with_savgol(values, denoised, window)
+        smoothed_series = pd.Series(blended, index=base_series.index, name=base_series.name)
+
+        return DenoiseResult(
+            smoothed=smoothed_series,
+            detail_energy=detail_energy,
+            threshold=float(threshold),
+            window_length=window,
+        )
+
+    def _extract_series(self, series: Union[pd.Series, pd.DataFrame], column: str) -> pd.Series:
+        if isinstance(series, pd.DataFrame):
+            if column not in series.columns:
+                raise KeyError(f"Column '{column}' not found in input DataFrame.")
+            base_series = series[column]
+        else:
+            base_series = series
+        if not isinstance(base_series, pd.Series):
+            base_series = pd.Series(base_series)
+        return base_series
+
+    def _wavelet_shrinkage(
+        self,
+        values: np.ndarray,
+    ) -> Tuple[Optional[np.ndarray], Dict[int, float], float]:
+        wavelet = pywt.Wavelet(self.wavelet)
+        max_level = pywt.dwt_max_level(len(values), wavelet.dec_len)
+        level = min(self.max_wavelet_level, max_level)
+        if level <= 0:
+            return None, {}, 0.0
+
+        coeffs = pywt.wavedec(values, wavelet, level=level)
+        detail_coeffs = coeffs[1:]
+        detail_arrays = [np.abs(c) for c in detail_coeffs if c.size]
+
+        if not detail_arrays:
+            return values.copy(), {}, 0.0
+
+        detail_stack = np.concatenate(detail_arrays)
+        if detail_stack.size == 0:
+            return values.copy(), {}, 0.0
+
+        threshold = np.percentile(detail_stack, self.percentile)
+        detail_energy = {i + 1: float(np.sum(c**2)) for i, c in enumerate(detail_coeffs)}
+
+        for i in range(1, len(coeffs)):
+            coeffs[i] = pywt.threshold(coeffs[i], threshold, mode="soft")
+
+        reconstructed = pywt.waverec(coeffs, wavelet)
+        return reconstructed, detail_energy, threshold
+
+    def _adaptive_window_length(self, values: np.ndarray) -> int:
+        extractor = WaveletExtractor()
+        features = (
+            extractor.extract_features(values, lookback=min(len(values), 256))
+            if len(values)
+            else {}
+        )
+        dominant_scale = features.get("dominant_scale", 0) if features else 0
+        base_window = dominant_scale * 2 + 1 if dominant_scale else self.fallback_window
+        return self._make_valid_window(base_window, len(values))
+
+    def _blend_with_savgol(
+        self, original: np.ndarray, wavelet_values: np.ndarray, window: int
+    ) -> np.ndarray:
+        baseline = self._savgol(original, window)
+        wavelet_values = wavelet_values[: len(original)]
+        if baseline is original:
+            return wavelet_values
+        return 0.5 * wavelet_values + 0.5 * baseline
+
+    def _savgol(self, values: np.ndarray, window: int) -> np.ndarray:
+        window = self._make_valid_window(window, len(values))
+        if window <= self.polyorder:
+            return values
+        poly = min(self.polyorder, window - 1)
+        try:
+            return signal.savgol_filter(values, window_length=window, polyorder=poly)
+        except ValueError:
+            return values
+
+    def _make_valid_window(self, window: int, length: int) -> int:
+        window = max(window, self.polyorder + 3)
+        if window % 2 == 0:
+            window += 1
+        max_valid = length if length % 2 == 1 else max(length - 1, 3)
+        return max(3, min(window, max_valid))
 
 
 class HilbertExtractor:
@@ -166,7 +336,7 @@ class HilbertExtractor:
             - phase: Current phase angle
         """
         if len(data) < 10:
-            return {'amplitude': 0.0, 'frequency': 0.0, 'phase': 0.0}
+            return {"amplitude": 0.0, "frequency": 0.0, "phase": 0.0}
 
         recent = data[-lookback:] if len(data) >= lookback else data
 
@@ -186,12 +356,12 @@ class HilbertExtractor:
             current_freq = 0.0
 
         return {
-            'amplitude': float(amplitude[-1]),
-            'frequency': float(abs(current_freq)),
-            'phase': float(phase[-1] % (2 * np.pi)),
-            'amplitude_mean': float(np.mean(amplitude)),
-            'amplitude_std': float(np.std(amplitude)),
-            'frequency_variability': float(np.std(inst_freq)) if inst_freq is not None else 0.0
+            "amplitude": float(amplitude[-1]),
+            "frequency": float(abs(current_freq)),
+            "phase": float(phase[-1] % (2 * np.pi)),
+            "amplitude_mean": float(np.mean(amplitude)),
+            "amplitude_std": float(np.std(amplitude)),
+            "frequency_variability": float(np.std(inst_freq)) if inst_freq is not None else 0.0,
         }
 
 
@@ -199,7 +369,7 @@ class EntropyExtractor:
     """
     Entropy-based complexity measures.
     Captures disorder/predictability without assumptions.
-    
+
     PERFORMANCE: Uses JIT-compiled sample entropy when numba is available,
     providing 50-100x speedup over pure Python implementation.
     """
@@ -214,13 +384,13 @@ class EntropyExtractor:
             data: Time series
             m: Embedding dimension
             r: Tolerance (as fraction of std)
-            
+
         PERFORMANCE: Uses JIT compilation when available (50-100x faster).
         """
         # Use optimized version if available
         if _FAST_ENTROPY_AVAILABLE:
             return sample_entropy_fast(data, m, r)
-        
+
         # Fallback to pure Python (slower but always works)
         n = len(data)
         if n < m + 2:
@@ -235,7 +405,9 @@ class EntropyExtractor:
 
         def count_matches(template_length):
             count = 0
-            templates = np.array([data[i:i+template_length] for i in range(n - template_length)])
+            templates = np.array(
+                [data[i : i + template_length] for i in range(n - template_length)]
+            )
             for i in range(len(templates)):
                 for j in range(i + 1, len(templates)):
                     if np.max(np.abs(templates[i] - templates[j])) < tolerance:
@@ -267,8 +439,8 @@ class EntropyExtractor:
             return 0.0
 
         # Extract ordinal patterns
-        from itertools import permutations
         import math
+        from itertools import permutations
 
         patterns = {}
         n_patterns = 0
@@ -308,9 +480,11 @@ class EntropyExtractor:
         recent = data[-lookback:]
 
         return {
-            'sample_entropy': EntropyExtractor.sample_entropy(recent),
-            'permutation_entropy': EntropyExtractor.permutation_entropy(recent),
-            'permutation_entropy_short': EntropyExtractor.permutation_entropy(recent[-30:] if len(recent) >= 30 else recent)
+            "sample_entropy": EntropyExtractor.sample_entropy(recent),
+            "permutation_entropy": EntropyExtractor.permutation_entropy(recent),
+            "permutation_entropy_short": EntropyExtractor.permutation_entropy(
+                recent[-30:] if len(recent) >= 30 else recent
+            ),
         }
 
 
@@ -336,22 +510,19 @@ class DirectionalWaveletExtractor:
 
         features = {
             # Counts (non-parametric)
-            'pos_count': len(positive),
-            'neg_count': len(negative),
-            'pos_ratio': len(positive) / max(len(cwt_coeffs), 1),
-
+            "pos_count": len(positive),
+            "neg_count": len(negative),
+            "pos_ratio": len(positive) / max(len(cwt_coeffs), 1),
             # Sums (directional energy, NOT squared)
-            'pos_sum': np.sum(positive),
-            'neg_sum': np.sum(negative),  # Negative number
-            'net_energy': np.sum(positive) + np.sum(negative),
-
+            "pos_sum": np.sum(positive),
+            "neg_sum": np.sum(negative),  # Negative number
+            "net_energy": np.sum(positive) + np.sum(negative),
             # Medians (robust, separate)
-            'pos_median': np.median(positive) if len(positive) > 0 else 0.0,
-            'neg_median': np.median(negative) if len(negative) > 0 else 0.0,
-
+            "pos_median": np.median(positive) if len(positive) > 0 else 0.0,
+            "neg_median": np.median(negative) if len(negative) > 0 else 0.0,
             # Max extremes (separate)
-            'pos_max': np.max(positive) if len(positive) > 0 else 0.0,
-            'neg_min': np.min(negative) if len(negative) > 0 else 0.0,
+            "pos_max": np.max(positive) if len(positive) > 0 else 0.0,
+            "neg_min": np.min(negative) if len(negative) > 0 else 0.0,
         }
 
         return features
@@ -371,17 +542,13 @@ class DirectionalWaveletExtractor:
         returns = np.diff(recent)
 
         if len(returns) < 10:
-            return {
-                'up_persistence': 0.5,
-                'down_persistence': 0.5,
-                'overall_persistence': 0.5
-            }
+            return {"up_persistence": 0.5, "down_persistence": 0.5, "overall_persistence": 0.5}
 
         # Count consecutive same-direction moves
         up_continues = 0  # Up followed by up
-        up_reverses = 0   # Up followed by down
+        up_reverses = 0  # Up followed by down
         down_continues = 0  # Down followed by down
-        down_reverses = 0   # Down followed by up
+        down_reverses = 0  # Down followed by up
 
         for i in range(len(returns) - 1):
             curr_up = returns[i] > 0
@@ -407,10 +574,10 @@ class DirectionalWaveletExtractor:
         overall = total_continues / max(total_continues + total_reverses, 1)
 
         return {
-            'up_persistence': up_persist,
-            'down_persistence': down_persist,
-            'overall_persistence': overall,
-            'persistence_asymmetry': up_persist - down_persist,  # Positive = up trends stronger
+            "up_persistence": up_persist,
+            "down_persistence": down_persist,
+            "overall_persistence": overall,
+            "persistence_asymmetry": up_persist - down_persist,  # Positive = up trends stronger
         }
 
 
@@ -418,10 +585,10 @@ class DSPFeatureEngine:
     """
     Master engine combining all DSP feature extractors.
     Produces assumption-free, scale-adaptive features.
-    
+
     PERFORMANCE: Reuses extractor instances and caches intermediate results.
     """
-    
+
     # Class-level cache for singleton pattern
     _instance = None
     _cache = {}
@@ -439,13 +606,13 @@ class DSPFeatureEngine:
         # Only initialize once (singleton)
         if self._initialized:
             return
-        
+
         self.wavelet = WaveletExtractor()
         self.hilbert = HilbertExtractor()
         self.entropy = EntropyExtractor()
         self.directional = DirectionalWaveletExtractor()
         self._initialized = True
-    
+
     @classmethod
     def get_cache_stats(cls) -> Dict:
         """Get cache hit/miss statistics."""
@@ -457,7 +624,7 @@ class DSPFeatureEngine:
             "hit_rate": hit_rate,
             "cache_size": len(cls._cache),
         }
-    
+
     @classmethod
     def clear_cache(cls):
         """Clear the feature cache."""
@@ -480,7 +647,7 @@ class DSPFeatureEngine:
             bar_idx = len(prices) + bar_idx
 
         # Get log returns for analysis
-        close = prices['close'].values[:bar_idx + 1]
+        close = prices["close"].values[: bar_idx + 1]
         if len(close) < 10:
             return self._empty_features()
 
@@ -489,47 +656,47 @@ class DSPFeatureEngine:
             return self._empty_features()
 
         # Also analyze range for volatility structure
-        high = prices['high'].values[:bar_idx + 1]
-        low = prices['low'].values[:bar_idx + 1]
+        high = prices["high"].values[: bar_idx + 1]
+        low = prices["low"].values[: bar_idx + 1]
         true_range = high - low
 
         features = {}
 
         # Wavelet features on returns
         wavelet_ret = self.wavelet.extract_features(log_returns)
-        for scale, energy in wavelet_ret['energy'].items():
-            features[f'wavelet_energy_s{scale}'] = energy
-            features[f'wavelet_skew_s{scale}'] = wavelet_ret['skew'].get(scale, 0.0)
-            features[f'wavelet_kurt_s{scale}'] = wavelet_ret['kurt'].get(scale, 0.0)
-        features['wavelet_dominant_scale'] = wavelet_ret['dominant_scale']
-        features['wavelet_energy_concentration'] = wavelet_ret['energy_concentration']
+        for scale, energy in wavelet_ret["energy"].items():
+            features[f"wavelet_energy_s{scale}"] = energy
+            features[f"wavelet_skew_s{scale}"] = wavelet_ret["skew"].get(scale, 0.0)
+            features[f"wavelet_kurt_s{scale}"] = wavelet_ret["kurt"].get(scale, 0.0)
+        features["wavelet_dominant_scale"] = wavelet_ret["dominant_scale"]
+        features["wavelet_energy_concentration"] = wavelet_ret["energy_concentration"]
 
         # Wavelet on range (volatility structure)
         wavelet_range = self.wavelet.extract_features(true_range)
-        features['range_dominant_scale'] = wavelet_range['dominant_scale']
-        features['range_energy_concentration'] = wavelet_range['energy_concentration']
+        features["range_dominant_scale"] = wavelet_range["dominant_scale"]
+        features["range_energy_concentration"] = wavelet_range["energy_concentration"]
 
         # Hilbert features
         hilbert_ret = self.hilbert.extract_features(log_returns)
-        features['hilbert_amplitude'] = hilbert_ret['amplitude']
-        features['hilbert_frequency'] = hilbert_ret['frequency']
-        features['hilbert_phase'] = hilbert_ret['phase']
-        features['hilbert_amp_mean'] = hilbert_ret['amplitude_mean']
-        features['hilbert_amp_std'] = hilbert_ret['amplitude_std']
-        features['hilbert_freq_variability'] = hilbert_ret['frequency_variability']
+        features["hilbert_amplitude"] = hilbert_ret["amplitude"]
+        features["hilbert_frequency"] = hilbert_ret["frequency"]
+        features["hilbert_phase"] = hilbert_ret["phase"]
+        features["hilbert_amp_mean"] = hilbert_ret["amplitude_mean"]
+        features["hilbert_amp_std"] = hilbert_ret["amplitude_std"]
+        features["hilbert_freq_variability"] = hilbert_ret["frequency_variability"]
 
         # Entropy features
         entropy_feats = self.entropy.extract_features(log_returns)
-        features['sample_entropy'] = entropy_feats['sample_entropy']
-        features['permutation_entropy'] = entropy_feats['permutation_entropy']
-        features['perm_entropy_short'] = entropy_feats['permutation_entropy_short']
+        features["sample_entropy"] = entropy_feats["sample_entropy"]
+        features["permutation_entropy"] = entropy_feats["permutation_entropy"]
+        features["perm_entropy_short"] = entropy_feats["permutation_entropy_short"]
 
         # Directional persistence (REPLACES Hurst - no linear/stationarity assumptions)
         persist_feats = self.directional.compute_directional_persistence(close)
-        features['up_persistence'] = persist_feats['up_persistence']
-        features['down_persistence'] = persist_feats['down_persistence']
-        features['overall_persistence'] = persist_feats['overall_persistence']
-        features['persistence_asymmetry'] = persist_feats['persistence_asymmetry']
+        features["up_persistence"] = persist_feats["up_persistence"]
+        features["down_persistence"] = persist_feats["down_persistence"]
+        features["overall_persistence"] = persist_feats["overall_persistence"]
+        features["persistence_asymmetry"] = persist_feats["persistence_asymmetry"]
         # NOTE: Removed persistence_strength - it reintroduced symmetric reference point (0.5)
         # Use raw up/down persistence and asymmetry instead
 
@@ -538,24 +705,24 @@ class DSPFeatureEngine:
     def _empty_features(self) -> Dict:
         """Return empty features for insufficient data."""
         return {
-            'wavelet_dominant_scale': 0,
-            'wavelet_energy_concentration': 0.0,
-            'range_dominant_scale': 0,
-            'range_energy_concentration': 0.0,
-            'hilbert_amplitude': 0.0,
-            'hilbert_frequency': 0.0,
-            'hilbert_phase': 0.0,
-            'hilbert_amp_mean': 0.0,
-            'hilbert_amp_std': 0.0,
-            'hilbert_freq_variability': 0.0,
-            'sample_entropy': 0.0,
-            'permutation_entropy': 0.0,
-            'perm_entropy_short': 0.0,
+            "wavelet_dominant_scale": 0,
+            "wavelet_energy_concentration": 0.0,
+            "range_dominant_scale": 0,
+            "range_energy_concentration": 0.0,
+            "hilbert_amplitude": 0.0,
+            "hilbert_frequency": 0.0,
+            "hilbert_phase": 0.0,
+            "hilbert_amp_mean": 0.0,
+            "hilbert_amp_std": 0.0,
+            "hilbert_freq_variability": 0.0,
+            "sample_entropy": 0.0,
+            "permutation_entropy": 0.0,
+            "perm_entropy_short": 0.0,
             # Directional persistence (replaces Hurst)
-            'up_persistence': 0.5,
-            'down_persistence': 0.5,
-            'overall_persistence': 0.5,
-            'persistence_asymmetry': 0.0
+            "up_persistence": 0.5,
+            "down_persistence": 0.5,
+            "overall_persistence": 0.5,
+            "persistence_asymmetry": 0.0,
         }
 
 

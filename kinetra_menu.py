@@ -41,16 +41,15 @@ import os
 import signal
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from kinetra.context_aware_menu import MenuContext, check_context
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # ============================================================================
 # SYSTEM STATUS & CONTEXT
@@ -69,8 +68,8 @@ class SystemStatus:
     models_trained: bool = False
     gpu_available: bool = False
 
-    available_symbols: List[str] = None
-    available_timeframes: List[str] = None
+    available_symbols: Optional[List[str]] = field(default=None)
+    available_timeframes: Optional[List[str]] = field(default=None)
     usable_combinations: int = 0
 
     last_discovery: Optional[datetime] = None
@@ -144,15 +143,14 @@ def check_system_status() -> SystemStatus:
 
             load_dotenv()
             status.metaapi_available = bool(os.getenv("METAAPI_TOKEN"))
-        except:
+        except Exception:
             pass
 
     # Check MT5
     try:
-        import MetaTrader5
-
-        status.mt5_available = True
-    except ImportError:
+        import importlib.util
+        status.mt5_available = importlib.util.find_spec("MetaTrader5") is not None  # type: ignore[import-not-found]
+    except Exception:
         status.mt5_available = False
 
     # Check GPU
@@ -160,7 +158,7 @@ def check_system_status() -> SystemStatus:
         import torch
 
         status.gpu_available = torch.cuda.is_available() or torch.backends.mps.is_available()
-    except ImportError:
+    except Exception:
         pass
 
     # Check data discovery
@@ -174,7 +172,7 @@ def check_system_status() -> SystemStatus:
                 status.available_timeframes = sorted(set(item["timeframe"] for item in data))
                 status.usable_combinations = len([item for item in data if item["bars"] >= 1000])
                 status.last_discovery = datetime.fromtimestamp(discovery_file.stat().st_mtime)
-        except:
+        except Exception:
             pass
 
     # Check if data is ready (standardized files exist)
@@ -226,7 +224,7 @@ def print_submenu_header(text: str, status: SystemStatus):
     print()
 
 
-def get_input(prompt: str, valid_choices: List[str] = None) -> str:
+def get_input(prompt: str, valid_choices: Optional[List[str]] = None) -> str:
     """Get user input with validation."""
     while True:
         try:
@@ -245,7 +243,7 @@ def confirm_action(message: str) -> bool:
     return response.lower() == "y"
 
 
-def run_script(script_path: str, args: List[str] = None, dry_run: bool = False) -> bool:
+def run_script(script_path: str, args: Optional[List[str]] = None, dry_run: bool = False) -> bool:
     """
     Run a script with error handling.
 
@@ -402,7 +400,7 @@ def test_mt5_connection():
     print_header("Test MT5 Connection")
 
     try:
-        import MetaTrader5 as mt5
+        import MetaTrader5 as mt5  # type: ignore[import-not-found]
 
         if not mt5.initialize():
             print("❌ Failed to connect to MT5 terminal")
@@ -462,9 +460,10 @@ def menu_data_management(status: SystemStatus):
         print("4. Check Data Integrity")
         print("5. View Data Coverage")
         print("6. Consolidate & Clean Data")
+        print("7. Denoise Data (Non-Linear Filters)")
         print("0. Back to Main Menu")
 
-        choice = get_input("Select option", ["0", "1", "2", "3", "4", "5", "6"])
+        choice = get_input("Select option", ["0", "1", "2", "3", "4", "5", "6", "7"])
 
         if choice == "0":
             break
@@ -480,6 +479,8 @@ def menu_data_management(status: SystemStatus):
             view_data_coverage()
         elif choice == "6":
             consolidate_data()
+        elif choice == "7":
+            denoise_data()
 
         input("\n📌 Press Enter to continue...")
 
@@ -566,6 +567,55 @@ This will:
         run_script("scripts/consolidate_data.py", "--dry-run")
 
 
+def denoise_data():
+    """Denoise data using non-linear filters."""
+    print_header("Denoise Data (Non-Linear Filters)")
+
+    print("""
+🔬 Non-Linear Denoising for Financial Data
+
+Removes high-frequency noise while preserving:
+- Sharp trends and regime changes
+- Non-linear dynamics
+- Critical market moves
+
+Available Methods:
+  1. Savitzky-Golay (Recommended) - Polynomial smoothing, preserves peaks
+  2. Median Filter - Robust to outliers and flash crashes
+  3. LOWESS - Adaptive local regression
+  4. Wavelet Thresholding - Multi-resolution analysis
+
+NO linear filters (MA/EMA) - they destroy non-linear features.
+""")
+
+    print("\nSelect denoising method:")
+    print("1. Savitzky-Golay (Default, best for trends)")
+    print("2. Median Filter (Best for outliers)")
+    print("3. LOWESS (Adaptive)")
+    print("4. Wavelet (Multi-scale)")
+    print("0. Cancel")
+
+    method_choice = get_input("Select method", ["0", "1", "2", "3", "4"])
+
+    if method_choice == "0":
+        return
+
+    method_map = {
+        "1": "savgol",
+        "2": "median",
+        "3": "lowess",
+        "4": "wavelet"
+    }
+
+    method = method_map.get(method_choice, "savgol")
+
+    print(f"\n✅ Selected method: {method.upper()}")
+    print("\nThis will create *_denoised.csv files in data/prepared/")
+
+    if confirm_action("Start denoising?"):
+        run_script("scripts/denoise_data.py", f"--method={method}")
+
+
 # ============================================================================
 # MENU 3: EXPLORATION & TRAINING
 # ============================================================================
@@ -618,8 +668,8 @@ def quick_rl_training(status: SystemStatus):
 
     print(f"""
 Configuration:
-- Symbols: {", ".join(status.available_symbols[:3])} (first 3)
-- Timeframes: {", ".join(status.available_timeframes[:2])} (first 2)
+- Symbols: {", ".join((status.available_symbols or [])[:3])} (first 3)
+- Timeframes: {", ".join((status.available_timeframes or [])[:2])} (first 2)
 - Agent: PPO (physics-only features)
 - Episodes: 100
 - GPU: {"Enabled" if status.gpu_available else "Disabled (CPU)"}
@@ -820,14 +870,14 @@ def quick_backtest(status: SystemStatus):
         print("❌ No data available")
         return
 
-    print(f"Available symbols: {', '.join(status.available_symbols)}")
-    print(f"Available timeframes: {', '.join(status.available_timeframes)}")
+    print(f"Available symbols: {', '.join(status.available_symbols or [])}")
+    print(f"Available timeframes: {', '.join(status.available_timeframes or [])}")
 
-    symbol = get_input(f"Symbol (default: {status.available_symbols[0]})", None)
+    symbol = get_input(f"Symbol (default: {(status.available_symbols or ['BTCUSD'])[0]})")
     if not symbol:
-        symbol = status.available_symbols[0]
+        symbol = (status.available_symbols or ['BTCUSD'])[0]
 
-    timeframe = get_input(f"Timeframe (default: H1)", None)
+    timeframe = get_input("Timeframe (default: H1)")
     if not timeframe:
         timeframe = "H1"
 
@@ -855,7 +905,7 @@ Batch backtest configuration:
 """)
 
     if confirm_action("Start batch backtest?"):
-        symbols = status.available_symbols[:5]  # Limit to 5 for time
+        symbols = (status.available_symbols or [])[:5]  # Limit to 5 for time
         run_script(
             "scripts/batch_backtest.py", ["--symbols", *symbols, "--tf", "H1", "--mc-runs", "50"]
         )
@@ -880,7 +930,7 @@ Monte Carlo Validation:
     if confirm_action("Start Monte Carlo validation (may take hours)?"):
         run_script(
             "scripts/batch_backtest.py",
-            ["--symbols", *status.available_symbols[:3], "--mc-runs", "100"],
+            ["--symbols", *((status.available_symbols or [])[:3]), "--mc-runs", "100"],
         )
 
 
@@ -909,14 +959,14 @@ def view_backtest_results():
         print("Run a backtest first (Menu 4.1 or 4.2)")
         return
 
-    import pandas as pd
+    import pandas as pd  # type: ignore[import-untyped]
 
     df = pd.read_csv(results_file)
 
     print(f"\n📊 Results from {results_file.name}:\n")
     print(df.to_string(index=False))
 
-    print(f"\n\n📈 Summary Statistics:")
+    print("\n\n📈 Summary Statistics:")
     print(f"  Total combinations: {len(df)}")
     print(f"  Average Omega: {df['omega_train'].mean():.2f}")
     print(f"  Average Win Rate: {df['win_train'].mean():.1f}%")
@@ -995,8 +1045,8 @@ def system_diagnostics(status: SystemStatus):
     print("\n📊 Data:")
     print(f"  Discovery done: {'✅' if status.data_discovered else '❌'}")
     print(f"  Data ready: {'✅' if status.data_ready else '❌'}")
-    print(f"  Symbols: {len(status.available_symbols)}")
-    print(f"  Timeframes: {len(status.available_timeframes)}")
+    print(f"  Symbols: {len(status.available_symbols or [])}")
+    print(f"  Timeframes: {len(status.available_timeframes or [])}")
     print(f"  Usable combinations: {status.usable_combinations}")
 
     print("\n🤖 Models:")

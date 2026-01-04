@@ -1,0 +1,4 @@
+# file: /home/renierdejager/Kinetra/kinetra/drl_dueling_dqn.py
+# hypothesis_version: 6.148.9
+
+[0.0, 1e-08, 0.0001, 0.0005, 0.01, 0.99, 1.0, 100, 128, 1000, 5000, 10000, 100000, 'cpu', 'cuda', 'optimizer', 'policy_net', 'steps_done', 'target_net']

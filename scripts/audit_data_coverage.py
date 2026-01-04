@@ -7,7 +7,10 @@ Analyzes available data coverage across instruments and timeframes.
 Identifies gaps and generates actionable reports.
 
 Usage:
-    # Basic audit
+    # Discover mode - scan filesystem for what actually exists
+    python scripts/audit_data_coverage.py --discover
+
+    # Basic audit (uses hardcoded defaults)
     python scripts/audit_data_coverage.py
 
     # With detailed report
@@ -20,6 +23,7 @@ Usage:
     python scripts/audit_data_coverage.py --min-bars 1000
 
 Philosophy:
+- Query reality, not assumptions (use --discover)
 - Identify data gaps before they cause test failures
 - Prioritize high-value instrument/timeframe combinations
 - Guide data acquisition efforts
@@ -48,6 +52,17 @@ try:
 except ImportError:
     MT5_AVAILABLE = False
     print("Warning: MT5Connector not available")
+
+try:
+    from kinetra.canonical_asset_classification import (
+        get_asset_class_with_fallback,
+        group_symbols_by_asset_class,
+    )
+
+    CANONICAL_AVAILABLE = True
+except ImportError:
+    CANONICAL_AVAILABLE = False
+    print("Warning: Canonical asset classification not available")
 
 
 # =============================================================================
@@ -191,6 +206,37 @@ def check_mt5_data(instrument: str, timeframe: str) -> Tuple[bool, int, Dict]:
 
 
 # =============================================================================
+# DISCOVERY FUNCTIONS
+# =============================================================================
+
+
+def discover_instruments_and_timeframes(data_dir: Path) -> Tuple[List[str], List[str]]:
+    """
+    Discover all instruments and timeframes from filesystem.
+
+    Returns:
+        (instruments, timeframes) - both sorted and deduplicated
+    """
+    import re
+
+    if not data_dir.exists():
+        return [], []
+
+    instruments_set = set()
+    timeframes_set = set()
+
+    # Scan all CSV files
+    for csv_file in data_dir.glob("*.csv"):
+        # Parse filename: SYMBOL_TIMEFRAME.csv
+        match = re.match(r"([A-Z0-9]+)_([A-Z0-9]+)(?:_.*)?\.csv$", csv_file.name)
+        if match:
+            instruments_set.add(match.group(1))
+            timeframes_set.add(match.group(2))
+
+    return sorted(instruments_set), sorted(timeframes_set)
+
+
+# =============================================================================
 # COVERAGE ANALYZER
 # =============================================================================
 
@@ -204,27 +250,45 @@ class CoverageAnalyzer:
         timeframes: Optional[List[str]] = None,
         min_bars: int = MIN_BARS_REQUIRED,
         data_dir: Optional[Path] = None,
+        discover: bool = False,
     ):
         """
         Initialize analyzer.
 
         Args:
-            instruments: List of instruments to check (default: all)
-            timeframes: List of timeframes to check (default: all)
+            instruments: List of instruments to check (default: all from hardcoded list)
+            timeframes: List of timeframes to check (default: all from hardcoded list)
             min_bars: Minimum bars for "good" coverage
             data_dir: Data directory (default: data/master_standardized)
+            discover: If True, discover instruments/timeframes from filesystem
         """
-        # Flatten instrument dict if using defaults
-        if instruments is None:
-            instruments = []
-            for asset_class, inst_list in INSTRUMENTS.items():
-                instruments.extend(inst_list)
-
-        self.instruments = instruments
-        self.timeframes = timeframes or TIMEFRAMES
-        self.min_bars = min_bars
         self.data_dir = data_dir or (PROJECT_ROOT / "data" / "master_standardized")
 
+        # Discovery mode - scan filesystem for reality
+        if discover:
+            discovered_instruments, discovered_timeframes = discover_instruments_and_timeframes(
+                self.data_dir
+            )
+
+            # Use discovered values (override any provided args)
+            self.instruments = instruments or discovered_instruments
+            self.timeframes = timeframes or discovered_timeframes
+
+            print_success(
+                f"Discovery mode: Found {len(self.instruments)} instruments, "
+                f"{len(self.timeframes)} timeframes"
+            )
+        else:
+            # Hardcoded defaults mode
+            if instruments is None:
+                instruments = []
+                for asset_class, inst_list in INSTRUMENTS.items():
+                    instruments.extend(inst_list)
+
+            self.instruments = instruments
+            self.timeframes = timeframes or TIMEFRAMES
+
+        self.min_bars = min_bars
         self.results = {}
 
     def analyze(self) -> Dict:
@@ -420,17 +484,33 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Audit data coverage for Kinetra",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Discover what actually exists (recommended)
+  python scripts/audit_data_coverage.py --discover
+
+  # Check specific instruments in discovery mode
+  python scripts/audit_data_coverage.py --discover --instruments BTCUSD EURUSD
+
+  # Export discovered coverage to JSON
+  python scripts/audit_data_coverage.py --discover --json data/coverage_report.json
+        """,
     )
 
     parser.add_argument(
+        "--discover",
+        action="store_true",
+        help="Discover instruments/timeframes from filesystem (recommended over hardcoded lists)",
+    )
+    parser.add_argument(
         "--instruments",
         nargs="+",
-        help="Specific instruments to check (default: all)",
+        help="Specific instruments to check (default: all from discovery or hardcoded list)",
     )
     parser.add_argument(
         "--timeframes",
         nargs="+",
-        help="Specific timeframes to check (default: all)",
+        help="Specific timeframes to check (default: all from discovery or hardcoded list)",
     )
     parser.add_argument(
         "--min-bars",
@@ -461,12 +541,20 @@ def main() -> int:
 
     args = parser.parse_args()
 
+    # Warn if not using discovery mode
+    if not args.discover:
+        print_warning(
+            "Using hardcoded instrument/timeframe lists. "
+            "Consider --discover to query actual available data."
+        )
+
     # Create analyzer
     analyzer = CoverageAnalyzer(
         instruments=args.instruments,
         timeframes=args.timeframes,
         min_bars=args.min_bars,
         data_dir=args.data_dir,
+        discover=args.discover,
     )
 
     # Run analysis
