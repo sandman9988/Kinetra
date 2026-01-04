@@ -12,12 +12,12 @@ Version: 1.0.0
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 import numpy as np
-import pandas as pd
-import seaborn as sns
+import pandas as pd  # type: ignore[import-untyped]
+import seaborn as sns  # type: ignore[import-untyped]
 
 from kinetra.denoise_filters import DenoiseMethod, denoise_ohlc
 
@@ -65,7 +65,7 @@ def calculate_regime_preservation(original: np.ndarray, denoised: np.ndarray) ->
 def analyze_instrument(
     filepath: Path,
     methods: List[DenoiseMethod]
-) -> Dict[str, any]:
+) -> Optional[Dict[str, Any]]:
     """Analyze denoising performance for one instrument."""
     try:
         df = pd.read_csv(filepath, parse_dates=["timestamp"])
@@ -75,7 +75,7 @@ def analyze_instrument(
         instrument = filepath.stem.split('_')[0]
         timeframe = filepath.stem.split('_')[1] if '_' in filepath.stem else "UNK"
 
-        results = {
+        results: Dict[str, Any] = {
             "instrument": instrument,
             "timeframe": timeframe,
             "bars": len(df),
@@ -112,7 +112,7 @@ def analyze_instrument(
         return None
 
 
-def generate_report(data_dir: Path = Path("data/prepared")) -> Dict[str, any]:
+def generate_report(data_dir: Path = Path("data/prepared")) -> Dict[str, Any]:
     """Generate comprehensive noise quality report."""
     logger.info("=" * 80)
     logger.info("NOISE QUALITY ANALYSIS REPORT")
@@ -168,16 +168,17 @@ def generate_report(data_dir: Path = Path("data/prepared")) -> Dict[str, any]:
         if not group_results:
             continue
 
-        group_summary = {"instruments": []}
+        group_summary: Dict[str, Any] = {"instruments": []}
 
         for method in methods:
             method_name = method.value
-            snr_values = []
-            regime_values = []
+            snr_values: List[float] = []
+            regime_values: List[float] = []
 
             for result in group_results:
-                if method_name in result["methods"]:
-                    m = result["methods"][method_name]
+                methods_dict = result.get("methods", {})
+                if isinstance(methods_dict, dict) and method_name in methods_dict:
+                    m = methods_dict[method_name]
                     snr_values.append(m["snr_db"])
                     regime_values.append(m["regime_preservation"])
 
@@ -327,8 +328,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("NOISE QUALITY ANALYSIS COMPLETE")
     print("=" * 80)
-    print(f"Report: noise_quality_report.json")
-    print(f"Plots: noise_quality_comparison.png")
+    print("Report: noise_quality_report.json")
+    print("Plots: noise_quality_comparison.png")
     print("\nNext steps:")
     print("1. Review recommendations by asset group")
     print("2. Test with actual backtests to validate improvements")

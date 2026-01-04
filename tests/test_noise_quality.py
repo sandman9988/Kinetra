@@ -17,13 +17,12 @@ Version: 1.0.0
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
-import pandas as pd
+import pandas as pd  # type: ignore[import-untyped]
 import pytest
-from scipy import stats
-from scipy.signal import welch
+from scipy.signal import welch  # type: ignore[import-untyped]
 
 from kinetra.denoise_filters import DenoiseMethod, denoise_ohlc
 
@@ -152,7 +151,7 @@ class TestNoiseQuality:
             data_dir = Path("data/master")
         return data_dir
 
-    def load_instrument_data(self, instrument: str, data_dir: Path) -> pd.DataFrame | None:
+    def load_instrument_data(self, instrument: str, data_dir: Path) -> Optional[pd.DataFrame]:
         """Load instrument data if available."""
         # Try H1 first, then D1
         for timeframe in ["H1", "D1"]:
@@ -204,7 +203,7 @@ class TestNoiseQuality:
         # Compare groups
         if len(results) > 1:
             logger.info("\n=== SNR Comparison Across Asset Groups ===")
-            for group in sorted(results.keys(), key=lambda g: np.mean(results[g]), reverse=True):
+            for group in sorted(results.keys(), key=lambda g: float(np.mean(results[g])), reverse=True):
                 logger.info(f"{group:15s}: {np.mean(results[group]):6.2f} dB (±{np.std(results[group]):5.2f})")
 
     def test_method_comparison(self, sample_data_dir: Path) -> None:
@@ -393,7 +392,7 @@ class TestNoiseQuality:
             logger.info("\n=== Noisiest Asset Groups (by jerk) ===")
             sorted_groups = sorted(
                 noise_stats.items(),
-                key=lambda x: np.mean([s["jerk_std"] for s in x[1]]),
+                key=lambda x: float(np.mean([s["jerk_std"] for s in x[1]])),
                 reverse=True
             )
             for group_name, stats_list in sorted_groups:
@@ -401,14 +400,14 @@ class TestNoiseQuality:
                 logger.info(f"{group_name:15s}: {avg_jerk:.6f}")
 
 
-def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dict[str, any]:
+def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dict[str, Any]:
     """
     Generate comprehensive noise quality report.
 
     Returns:
         Dictionary with all metrics across instruments and methods
     """
-    report: Dict[str, any] = {
+    report: Dict[str, Any] = {
         "asset_groups": {},
         "method_comparison": {},
         "recommendations": []
@@ -466,11 +465,11 @@ def generate_noise_quality_report(data_dir: Path = Path("data/prepared")) -> Dic
             continue
 
         # Find best method for this group
-        method_scores = {}
+        method_scores: Dict[str, List[float]] = {}
         for result in results:
-            method = result["method"]
-            score = result["snr"] + result["spectral"] * 10 + result["regime"] * 10
-            method_scores[method] = method_scores.get(method, []) + [score]
+            method_name = str(result["method"])
+            score = float(result["snr"] + result["spectral"] * 10 + result["regime"] * 10)
+            method_scores[method_name] = method_scores.get(method_name, []) + [score]
 
         best_method = max(method_scores.items(), key=lambda x: np.mean(x[1]))[0]
         report["recommendations"].append({
