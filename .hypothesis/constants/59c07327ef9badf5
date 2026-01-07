@@ -1,4 +1,0 @@
-# file: /home/renierdejager/Kinetra/kinetra/denoise_filters.py
-# hypothesis_version: 6.148.9
-
-[0.05, 0.5, 0.6745, 0.7, 100, 200, 'close', 'db4', 'emd', 'high', 'low', 'lowess', 'median', 'method', 'nearest', 'open', 'preserve_edges', 'savitzky_golay', 'soft', 'vmd', 'wavelet', 'window_adaptive']
