@@ -95,7 +95,7 @@ dev = [
 visualization = [
     # Additional visualization tools for advanced reporting
     "kaleido>=0.2.1",  # Static image export for plotly
-    "pillow>=10.0.0,<11.0.0",  # Image processing
+    "pillow>=10.0.0,<13.0.0",  # Image processing
 ]
 
 hpo = [
