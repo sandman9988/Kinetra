@@ -134,14 +134,9 @@ See [Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md) for complete docume
 Progressive pathway from virtual testing to live trading:
 
 ```bash
-# Virtual/paper trading (no connection required)
-python scripts/testing/run_live_test.py --mode virtual
-
-# Demo account testing (requires MT5)
-python scripts/testing/run_live_test.py --mode demo
-
-# Connection test
-python scripts/testing/run_live_test.py --test-connection
+# Launch interactive menu and select Live Testing
+python kinetra_menu.py
+# Select: 4 (Live Testing) > mode (virtual / demo / live)
 ```
 
 Features:
@@ -183,9 +178,9 @@ make setup          # Full Python dev environment
 make setup-mt5      # Install MetaTrader 5 via Wine
 
 # Option 2: Run scripts directly
-chmod +x scripts/setup_dev_env.sh scripts/setup_mt5_wine.sh
-./scripts/setup_dev_env.sh    # Python + dependencies
-./scripts/setup_mt5_wine.sh   # MT5 via Wine
+chmod +x scripts/setup/setup_dev_env.sh scripts/setup/setup_mt5_wine.sh
+./scripts/setup/setup_dev_env.sh    # Python + dependencies
+./scripts/setup/setup_mt5_wine.sh   # MT5 via Wine
 ```
 
 After setup:
@@ -224,7 +219,7 @@ python scripts/batch_backtest.py --runs 100
 
 ```bash
 # Build and run
-docker-compose up -d
+cd monitoring && docker-compose up -d
 
 # Access monitoring
 # Grafana: http://localhost:3000
@@ -280,8 +275,13 @@ Kinetra/
 │   └── branch_manager.py   # Git branch management
 ├── configs/                 # Configuration files
 │   └── example_test_config.yaml  # Example test config
+├── monitoring/              # Prometheus/Grafana monitoring stack
+│   ├── docker-compose.yml  # Spin up Prometheus + Grafana
+│   ├── prometheus.yml      # Prometheus scrape config
+│   └── grafana/            # Grafana dashboards and provisioning
 ├── archive/                 # Archived legacy scripts and tests
 ├── data/                    # Market data (gitignored)
+├── kinetra_menu.py         # Interactive menu entry point
 ├── Dockerfile              # Production container
 └── Makefile                # Dev commands
 ```

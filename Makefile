@@ -13,12 +13,12 @@ help:
 	@echo "  make branch-sync   - Sync current branch with remote"
 
 setup:
-	chmod +x scripts/setup_dev_env.sh
-	./scripts/setup_dev_env.sh
+	chmod +x scripts/setup/setup_dev_env.sh
+	./scripts/setup/setup_dev_env.sh
 
 setup-mt5:
-	chmod +x scripts/setup_mt5_wine.sh
-	./scripts/setup_mt5_wine.sh
+	chmod +x scripts/setup/setup_mt5_wine.sh
+	./scripts/setup/setup_mt5_wine.sh
 
 install:
 	pip install -r requirements.txt
@@ -34,7 +34,8 @@ format:
 	black kinetra/ tests/
 
 mt5:
-	./scripts/run_mt5.sh
+	chmod +x scripts/setup/run_mt5.sh
+	./scripts/setup/run_mt5.sh
 
 branch-status:
 	python scripts/branch_manager.py --status
