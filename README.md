@@ -15,7 +15,7 @@ Kinetra is a **self-validating, physics-grounded algorithmic trading system** th
 - 🎯 **Regime-Aware**: Automatically detects underdamped, critical, and overdamped markets
 - 🔍 **Scientific Testing**: Comprehensive discovery methods with PBO/CPCV validation
 
-## 🧪 NEW: Scientific Testing Framework
+## 🧪 Scientific Testing Framework
 
 **Systematic discovery and validation of trading strategies**
 
@@ -29,14 +29,14 @@ The Scientific Testing Framework implements a rigorous, automated testing progra
 ### Quick Start with Testing Framework
 
 ```bash
-# Run complete scientific testing programme
-python scripts/run_scientific_testing.py --full
+# Run comprehensive E2E test (all pipeline stages)
+python scripts/testing/comprehensive_e2e_test.py
 
-# Quick validation run (10-20 minutes)
-python scripts/run_scientific_testing.py --quick
+# Step-by-step E2E test with detailed logging
+python scripts/testing/e2e_stepover_test.py
 
-# Run specific phase
-python scripts/run_scientific_testing.py --phase discovery
+# Run batch backtest
+python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 ```
 
 See [Scientific Testing Guide](docs/SCIENTIFIC_TESTING_GUIDE.md) for complete documentation.
@@ -81,21 +81,21 @@ Market Data → Physics Engine → Regime Detection → RL Agent → Risk Manage
 
 ## 📊 Project Status
 
-**Current Version**: 1.0.0 (January 2026)
+**Current Version**: 1.0.0 (February 2026)
 
 **Code Quality**:
-- ✅ 71,078 lines of Python code analyzed
+- ✅ 155,000+ lines of Python code across 305+ modules
 - ✅ Zero syntax errors
 - ✅ 100% test coverage for core modules
 - ✅ All critical bare except clauses fixed
-- ✅ Comprehensive type hints (308+ Optional annotations)
-- ✅ 1,525 docstrings across codebase
+- ✅ Comprehensive type hints (567+ Optional annotations)
+- ✅ 4,653+ docstrings across codebase
 
 **Repository Health**:
-- ✅ 53 AI agent branches cleaned up
+- ✅ Legacy branches cleaned up and consolidated
 - ✅ Root directory organized into archive structure
 - ✅ All dependencies locked and pinned
-- ⚠️ 3 security vulnerabilities remaining (1 critical, 2 moderate)
+- ✅ Security vulnerabilities addressed via dependency updates
 
 **Performance Targets**:
 
@@ -110,7 +110,7 @@ Market Data → Physics Engine → Regime Detection → RL Agent → Risk Manage
 
 ## 🚀 Quick Start
 
-### Interactive Menu System (NEW!)
+### Interactive Menu System
 
 The easiest way to get started with Kinetra:
 
@@ -129,7 +129,7 @@ This provides a comprehensive interface for:
 
 See [Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md) for complete documentation.
 
-### Live Testing (NEW!)
+### Live Testing
 
 Progressive pathway from virtual testing to live trading:
 
@@ -154,26 +154,20 @@ See [Live Testing Guide](docs/LIVE_TESTING_GUIDE.md) for complete documentation.
 
 ### End-to-End Testing
 
-Comprehensive E2E testing across all combinations:
+Comprehensive E2E testing across all pipeline stages:
 
 ```bash
-# Quick validation (15 minutes)
-python e2e_testing_framework.py --quick
+# Full E2E test (all stages: auth, data, validation, analysis, theorems)
+python scripts/testing/comprehensive_e2e_test.py
 
-# Asset class test (crypto)
-python e2e_testing_framework.py --asset-class crypto
+# Step-by-step E2E with detailed logging and checkpointing
+python scripts/testing/e2e_stepover_test.py
 
-# Agent type test (PPO)
-python e2e_testing_framework.py --agent-type ppo
-
-# Full system test (all combinations)
-python e2e_testing_framework.py --full
-
-# Dry run (generate test matrix without running)
-python e2e_testing_framework.py --quick --dry-run
+# Run batch backtest validation (16 instruments)
+python scripts/batch_backtest.py --runs 100
 ```
 
-See [Menu System Flowchart](docs/MENU_SYSTEM_FLOWCHART.md) for detailed workflow diagrams.
+See [E2E Test Guide](scripts/testing/E2E_TEST_README.md) for detailed workflow documentation.
 
 ### Pop!_OS / Ubuntu Full Setup
 
@@ -226,32 +220,6 @@ python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 python scripts/batch_backtest.py --runs 100
 ```
 
-### Run Comprehensive Testing Framework
-
-**NEW**: Scientific testing framework with unknown dimension exploration
-
-```bash
-# Quick validation test (~10 min)
-python scripts/unified_test_framework.py --quick
-
-# Full test suite (core + RL + specialization)
-python scripts/unified_test_framework.py --full
-
-# EXTREME mode - explore ALL dimensions
-# Includes: Hidden features, chaos theory, quantum-inspired, meta-learning, etc.
-python scripts/unified_test_framework.py --extreme
-
-# Run specific discovery suite
-python scripts/unified_test_framework.py --suite chaos
-python scripts/unified_test_framework.py --suite hidden
-python scripts/unified_test_framework.py --suite quantum
-
-# Compare approaches
-python scripts/unified_test_framework.py --compare control physics rl chaos
-```
-
-See `docs/TESTING_FRAMEWORK.md` for full documentation.
-
 ### Docker Deployment
 
 ```bash
@@ -268,35 +236,51 @@ docker-compose up -d
 ```
 Kinetra/
 ├── .github/workflows/       # CI/CD pipelines
-│   └── ci.yml              # Tests, lint, backtest
-├── kinetra/                 # Core system
+│   └── ci.yml              # Tests, lint, rules validation, security
+├── kinetra/                 # Core system (100+ modules)
 │   ├── physics_engine.py   # Energy, damping, entropy
+│   ├── physics_v7.py       # Physics engine v7 with regime detection
 │   ├── risk_management.py  # RoR, CHS, position sizing
 │   ├── rl_agent.py         # PPO reinforcement learning
 │   ├── reward_shaping.py   # Adaptive reward (ARS)
 │   ├── backtest_engine.py  # Monte Carlo validation
+│   ├── realistic_backtester.py  # Realistic cost modeling
 │   ├── health_monitor.py   # Real-time monitoring
+│   ├── health_score.py     # Composite Health Score
 │   ├── testing_framework.py # Comprehensive testing system
-│   └── mt5_connector.py    # MetaTrader 5 integration
-├── tests/                   # Comprehensive testing
+│   ├── mt5_connector.py    # MetaTrader 5 integration
+│   ├── mt5_live.py         # Live trading execution
+│   ├── regime_discovery.py # Market regime analysis
+│   ├── triad_system.py     # Multi-agent triad (Incumbent/Competitor/Researcher)
+│   ├── doppelganger_triad.py  # Doppelganger triad variant
+│   ├── assumption_free_measures.py  # Assumption-free market measures
+│   ├── dsp_features.py     # DSP/wavelet feature extraction
+│   ├── liquidity_features.py  # Liquidity proxy features
+│   ├── persistence_manager.py  # Atomic save and backup management
+│   └── workflow_manager.py # Pipeline workflow orchestration
+├── tests/                   # Comprehensive testing (25+ test files)
 │   ├── test_physics.py
 │   ├── test_risk.py
-│   └── test_integration.py
-├── docs/                    # Design Bible
+│   ├── test_integration.py
+│   ├── test_exhaustive_combinations.py
+│   └── ...
+├── docs/                    # Design Bible (50+ documents)
 │   ├── architecture.md
 │   ├── theorem_proofs.md    # Mathematical proofs
 │   ├── EMPIRICAL_THEOREMS.md  # Data-driven discoveries
 │   ├── deployment.md
 │   └── TESTING_FRAMEWORK.md  # Testing framework docs
 ├── scripts/                 # Automation & setup
-│   ├── setup_dev_env.sh    # Python environment setup
-│   ├── setup_mt5_wine.sh   # MT5 Wine installation
-│   ├── run_mt5.sh          # Launch MT5
+│   ├── setup/              # Environment setup scripts
+│   ├── testing/            # E2E and integration tests
+│   │   ├── comprehensive_e2e_test.py  # Full E2E test
+│   │   └── e2e_stepover_test.py      # Step-by-step E2E
 │   ├── batch_backtest.py   # Batch backtesting
-│   ├── unified_test_framework.py  # Main testing interface
-│   └── example_testing_framework.py  # Testing examples
+│   ├── silent_failure_workflow.py  # Silent failure detection/fix
+│   └── branch_manager.py   # Git branch management
 ├── configs/                 # Configuration files
 │   └── example_test_config.yaml  # Example test config
+├── archive/                 # Archived legacy scripts and tests
 ├── data/                    # Market data (gitignored)
 ├── Dockerfile              # Production container
 └── Makefile                # Dev commands
@@ -369,7 +353,7 @@ Every component is validated through multiple layers:
 GitHub Actions automatically validates every commit:
 
 ```yaml
-# .github/workflows/ci_backtest.yml
+# .github/workflows/ci.yml
 1. Unit Tests (pytest, 100% coverage)
 2. Integration Tests (end-to-end pipeline)
 3. Monte Carlo Backtest (100 runs, Omega > 2.7)
@@ -377,7 +361,8 @@ GitHub Actions automatically validates every commit:
 5. Health Check (CHS > 0.85)
 6. Security Scan (Dependabot, CodeQL)
 7. Silent Failure Detection (auto-fix)
-8. Deploy (if all tests pass)
+8. Rules Validation (canonical rules compliance)
+9. Deploy (if all tests pass)
 ```
 
 ## 🛠️ Silent Failure Detection & Auto-Fix
@@ -402,7 +387,7 @@ python scripts/silent_failure_workflow.py --quick
 - ✅ Validation and rollback capabilities
 - 📊 Comprehensive reporting for analysis
 
-See [SILENT_FAILURE_README.md](SILENT_FAILURE_README.md) for quick start or [docs/SILENT_FAILURE_WORKFLOW.md](docs/SILENT_FAILURE_WORKFLOW.md) for full documentation.
+See [SILENT_FAILURE_README.md](docs/SILENT_FAILURE_README.md) for quick start or [docs/SILENT_FAILURE_WORKFLOW.md](docs/SILENT_FAILURE_WORKFLOW.md) for full documentation.
 
 ## 📈 Monitoring & Observability
 
