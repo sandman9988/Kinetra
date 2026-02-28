@@ -3,42 +3,95 @@ Kinetra Configuration
 =====================
 
 Centralized configuration for parallelization and system settings.
+
+Worker / concurrency philosophy
+--------------------------------
+Three completely separate buckets — never mix them:
+
+  CPU / Disk workers  (ProcessPoolExecutor, ThreadPoolExecutor for CSV reads)
+  ──────────────────
+  Default = 50 % of logical threads.  On an AMD 5950X (16 cores / 32 threads)
+  that is 16 workers — exactly the physical core count, giving full throughput
+  without SMT contention or OS starvation.
+
+  Override globally : KINETRA_CPU_FRACTION=0.75   (fraction, 0.05–1.0)
+  Override absolute : KINETRA_MAX_WORKERS=20       (takes priority)
+
+  Network / broker concurrency  (asyncio semaphores for MetaAPI streams)
+  ─────────────────────────────
+  This is a RATE LIMIT, not a CPU limit.  The MetaAPI broker back-end
+  serialises or throttles more than ~3–5 simultaneous historical-candle
+  requests from the same account regardless of how many CPU cores you have.
+  Empirically tested: 4+ streams caused multi-minute delays on
+  VantageInternational-Demo.
+
+  Default  : 3   (safe for all known MetaAPI brokers)
+  Override : KINETRA_DL_CONCURRENCY=4   (use with caution; test your broker)
+  Hard cap : 5   (absolute ceiling; raise only if your broker explicitly
+                  supports higher throughput on historical data endpoints)
 """
 
 import multiprocessing as mp
 import os
+from pathlib import Path
 
 # =============================================================================
-# PARALLELIZATION SETTINGS
+# CPU / DISK PARALLELIZATION
 # =============================================================================
 
-# Default max workers - can be overridden via KINETRA_MAX_WORKERS env var
-# Defaults to min(cpu_count, 32) for high-core systems like AMD 5950
-_default_max_workers = min(mp.cpu_count(), 32)
-MAX_WORKERS = int(os.environ.get("KINETRA_MAX_WORKERS", _default_max_workers))
+# Fraction of logical threads to use for CPU-bound and disk-bound work.
+# 0.5 == physical core count on SMT systems (AMD 5950X: 0.5 × 32 = 16).
+# Override via KINETRA_CPU_FRACTION (e.g. 0.75 for overnight batch jobs).
+_cpu_fraction: float = float(os.environ.get("KINETRA_CPU_FRACTION", "0.5"))
+_cpu_fraction = max(0.05, min(1.0, _cpu_fraction))  # clamp to [0.05, 1.0]
 
-# Network I/O workers (for downloads, API calls)
-# Can be higher than CPU workers since network I/O is not CPU-bound
-MAX_NETWORK_WORKERS = int(os.environ.get("KINETRA_MAX_NETWORK_WORKERS", MAX_WORKERS))
+_logical_threads: int = mp.cpu_count() or 4
+_default_cpu_workers: int = max(1, int(_logical_threads * _cpu_fraction))
+
+# Absolute override takes priority over the fraction.
+MAX_WORKERS: int = int(os.environ.get("KINETRA_MAX_WORKERS", _default_cpu_workers))
+
+# =============================================================================
+# NETWORK / BROKER CONCURRENCY  — rate-limit controlled, NOT CPU-derived
+# =============================================================================
+
+# Safe default for MetaAPI historical-candle streams (empirically validated).
+_METAAPI_RATE_SAFE: int = 3
+# Hard ceiling — even permissive brokers rarely support more than 5 concurrent
+# historical streams without queuing / rate-limit errors.
+_METAAPI_RATE_MAX: int = 5
+
+MAX_NETWORK_WORKERS: int = min(
+    _METAAPI_RATE_MAX,
+    int(
+        os.environ.get(
+            "KINETRA_DL_CONCURRENCY",
+            os.environ.get("KINETRA_MAX_NETWORK_WORKERS", _METAAPI_RATE_SAFE),
+        )
+    ),
+)
 
 
 # =============================================================================
 # GPU SETTINGS
 # =============================================================================
 
+
 # Auto-detect GPU availability (ROCm for AMD, CUDA for NVIDIA)
 def detect_gpu():
     """Detect available GPU backend."""
     try:
         import torch
+
         if torch.cuda.is_available():
             # Check if this is ROCm (AMD) or CUDA (NVIDIA)
-            if hasattr(torch.version, 'hip') and torch.version.hip is not None:
+            if hasattr(torch.version, "hip") and torch.version.hip is not None:
                 return "rocm"
             return "cuda"
     except ImportError:
         pass
     return "cpu"
+
 
 GPU_BACKEND = os.environ.get("KINETRA_GPU_BACKEND", detect_gpu())
 USE_GPU = GPU_BACKEND in ("cuda", "rocm")
@@ -48,8 +101,16 @@ USE_GPU = GPU_BACKEND in ("cuda", "rocm")
 # DATA PATHS
 # =============================================================================
 
-# Base data directory - can be overridden via KINETRA_DATA_DIR
-from pathlib import Path
-
 _project_root = Path(__file__).parent.parent
+
+# Public export — import PROJECT_ROOT from kinetra.config instead of
+# recomputing Path(__file__).parent.parent in every script (DRY-14).
+PROJECT_ROOT: Path = _project_root
+
 DATA_DIR = Path(os.environ.get("KINETRA_DATA_DIR", _project_root / "data"))
+
+
+def resolve_project_path(path: str | Path) -> Path:
+    """Resolve *path* relative to PROJECT_ROOT unless already absolute."""
+    p = Path(path)
+    return p if p.is_absolute() else (PROJECT_ROOT / p)

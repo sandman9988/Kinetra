@@ -13,15 +13,20 @@ Returns standardized DataPackage ready for any backtest engine.
 """
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 import pandas as pd
 
+from kinetra.config import PROJECT_ROOT, resolve_project_path
+
 from .data_package import DataPackage
 from .data_utils import load_mt5_csv
 from .market_microstructure import AssetClass, SymbolSpec, get_symbol_spec
+
+logger = logging.getLogger(__name__)
 
 
 class UnifiedDataLoader:
@@ -42,7 +47,7 @@ class UnifiedDataLoader:
         validate: bool = True,
         compute_physics: bool = False,  # Disabled by default (requires numpy/heavy deps)
         verbose: bool = False,
-        specs_file: Optional[str] = None
+        specs_file: Optional[str] = None,
     ):
         """
         Initialize data loader.
@@ -66,7 +71,7 @@ class UnifiedDataLoader:
         symbol: Optional[str] = None,
         timeframe: Optional[str] = None,
         market_type: Optional[AssetClass] = None,
-        symbol_spec: Optional[SymbolSpec] = None
+        symbol_spec: Optional[SymbolSpec] = None,
     ) -> DataPackage:
         """
         Load data from CSV file and return standardized DataPackage.
@@ -99,13 +104,13 @@ class UnifiedDataLoader:
             timeframe = timeframe or detected_timeframe
 
         if self.verbose:
-            print(f"Loading {symbol} {timeframe} from {filepath.name}")
+            logger.debug("Loading %s %s from %s", symbol, timeframe, filepath.name)
 
         # Load CSV data
         prices = load_mt5_csv(str(filepath))
 
         if self.verbose:
-            print(f"  Loaded {len(prices):,} bars")
+            logger.debug("  Loaded %d bars", len(prices))
 
         # Auto-detect market type if not provided
         if market_type is None:
@@ -116,15 +121,13 @@ class UnifiedDataLoader:
             symbol_spec = self._load_symbol_spec(symbol, market_type)
 
         if self.verbose:
-            print(f"  Market type: {market_type.value}")
+            logger.debug("  Market type: %s", market_type.value)
 
         # Apply market-type-specific preprocessing
-        prices, preprocessing_steps = self._preprocess(
-            prices, symbol, market_type, symbol_spec
-        )
+        prices, preprocessing_steps = self._preprocess(prices, symbol, market_type, symbol_spec)
 
         if self.verbose:
-            print(f"  After preprocessing: {len(prices):,} bars")
+            logger.debug("  After preprocessing: %d bars", len(prices))
 
         # Create DataPackage
         pkg = DataPackage(
@@ -134,25 +137,25 @@ class UnifiedDataLoader:
             market_type=market_type,
             symbol_spec=symbol_spec,
             source_file=str(filepath),
-            preprocessing_applied=preprocessing_steps
+            preprocessing_applied=preprocessing_steps,
         )
 
         # Validate if requested
         if self.validate:
             is_valid = pkg.validate()
             if self.verbose:
-                status = "✓ PASSED" if is_valid else "✗ FAILED"
-                print(f"  Validation: {status}")
+                status = "PASSED" if is_valid else "FAILED"
+                logger.debug("  Validation: %s", status)
                 if pkg.validation_warnings:
-                    print(f"    Warnings: {len(pkg.validation_warnings)}")
+                    logger.debug("    Warnings: %d", len(pkg.validation_warnings))
                 if pkg.validation_errors:
-                    print(f"    Errors: {len(pkg.validation_errors)}")
+                    logger.warning("    Errors: %d", len(pkg.validation_errors))
 
         # Compute physics state if requested
         if self.compute_physics:
             pkg.physics_state = self._compute_physics_state(prices, symbol_spec)
             if self.verbose:
-                print(f"  Physics state: {pkg.physics_state.shape}")
+                logger.debug("  Physics state: %s", pkg.physics_state.shape)
 
         return pkg
 
@@ -162,7 +165,7 @@ class UnifiedDataLoader:
 
         Standard format (preferred):
         - BTCUSD_H1_202401010000_202412312359.csv
-        
+
         Legacy formats (deprecated, will warn):
         - EURUSD_M30.csv
         - XAUUSD_D1_data.csv
@@ -171,18 +174,18 @@ class UnifiedDataLoader:
             (symbol, timeframe) tuple
         """
         # Remove extension
-        name = filename.replace('.csv', '').replace('.txt', '')
+        name = filename.replace(".csv", "").replace(".txt", "")
 
         # Pattern: SYMBOL_TIMEFRAME_...
         # Timeframe: H1, M5, M15, M30, D1, W1, etc.
-        pattern = r'^([A-Z0-9\-]+)_([MHDW]\d+)'
+        pattern = r"^([A-Z0-9\-]+)_([MHDW]\d+)"
         match = re.match(pattern, name)
 
         if match:
             return match.group(1), match.group(2)
 
         # Fallback: try to split on underscore
-        parts = name.split('_')
+        parts = name.split("_")
         if len(parts) >= 2:
             return parts[0], parts[1]
 
@@ -202,23 +205,23 @@ class UnifiedDataLoader:
         symbol_upper = symbol.upper()
 
         # Crypto detection
-        if any(x in symbol_upper for x in ['BTC', 'ETH', 'CRYPTO']):
+        if any(x in symbol_upper for x in ["BTC", "ETH", "CRYPTO"]):
             return AssetClass.CRYPTO
 
         # Indices detection
-        if any(x in symbol_upper for x in ['US500', 'NAS100', 'DJ30', 'SPX', 'NDX']):
+        if any(x in symbol_upper for x in ["US500", "NAS100", "DJ30", "SPX", "NDX"]):
             return AssetClass.INDICES
 
         # Metals detection
-        if any(x in symbol_upper for x in ['XAU', 'XAG', 'XPT', 'XPD', 'GOLD', 'SILVER']):
+        if any(x in symbol_upper for x in ["XAU", "XAG", "XPT", "XPD", "GOLD", "SILVER"]):
             return AssetClass.METALS
 
         # Energy detection
-        if any(x in symbol_upper for x in ['WTI', 'BRENT', 'OIL', 'NGAS', 'XBRUSD', 'XTIUSD']):
+        if any(x in symbol_upper for x in ["WTI", "BRENT", "OIL", "NGAS", "XBRUSD", "XTIUSD"]):
             return AssetClass.ENERGY
 
         # ETF detection
-        if any(x in symbol_upper for x in ['ETF', 'SPY', 'QQQ', 'IWM']):
+        if any(x in symbol_upper for x in ["ETF", "SPY", "QQQ", "IWM"]):
             return AssetClass.ETFS
 
         # Shares detection (single stock symbols)
@@ -243,7 +246,9 @@ class UnifiedDataLoader:
         if specs_file is None:
             # Try common locations
             possible_paths = [
-                Path("data/master/instrument_specs.json"),
+                PROJECT_ROOT / "data" / "master" / "instrument_specs.json",
+                PROJECT_ROOT / "data" / "master_standardized" / "instrument_specs.json",
+                resolve_project_path("data/master/instrument_specs.json"),
                 Path("../data/master/instrument_specs.json"),
                 Path("../../data/master/instrument_specs.json"),
             ]
@@ -254,12 +259,12 @@ class UnifiedDataLoader:
 
         if specs_file is None or not Path(specs_file).exists():
             if self.verbose:
-                print("  No instrument_specs.json found, using hardcoded specs")
+                logger.debug("  No instrument_specs.json found, using hardcoded specs")
             return {}
 
         # Load JSON
         try:
-            with open(specs_file, 'r') as f:
+            with open(specs_file, "r") as f:
                 specs_data = json.load(f)
 
             # Convert to SymbolSpec objects
@@ -268,13 +273,13 @@ class UnifiedDataLoader:
                 specs[symbol] = self._dict_to_spec(data)
 
             if self.verbose:
-                print(f"  Loaded {len(specs)} specs from {specs_file}")
+                logger.debug("  Loaded %d specs from %s", len(specs), specs_file)
 
             return specs
 
         except Exception as e:
             if self.verbose:
-                print(f"  Warning: Failed to load specs from {specs_file}: {e}")
+                logger.warning("  Failed to load specs from %s: %s", specs_file, e)
             return {}
 
     def _dict_to_spec(self, data: Dict[str, Any]) -> SymbolSpec:
@@ -282,42 +287,44 @@ class UnifiedDataLoader:
         from datetime import datetime
 
         return SymbolSpec(
-            symbol=data['symbol'],
-            asset_class=AssetClass(data['asset_class']),
-            digits=data['digits'],
-            point=data.get('point'),
-            contract_size=data.get('contract_size', 100000),
-            volume_min=data.get('volume_min', 0.01),
-            volume_max=data.get('volume_max', 100.0),
-            volume_step=data.get('volume_step', 0.01),
-            margin_initial_rate_buy=data.get('margin_initial_rate_buy', 0.01),
-            margin_initial_rate_sell=data.get('margin_initial_rate_sell', 0.01),
-            margin_maintenance_rate_buy=data.get('margin_maintenance_rate_buy', 0.005),
-            margin_maintenance_rate_sell=data.get('margin_maintenance_rate_sell', 0.005),
-            margin_hedge=data.get('margin_hedge', 0.0),
-            margin_currency=data.get('margin_currency', 'USD'),
-            margin_mode=data.get('margin_mode', 'FOREX'),
-            spread_typical=data.get('spread_typical', 0.0),
-            spread_min=data.get('spread_min', 0.0),
-            spread_max=data.get('spread_max', 0.0),
-            commission_per_lot=data.get('commission_per_lot', 0.0),
-            swap_long=data.get('swap_long', 0.0),
-            swap_short=data.get('swap_short', 0.0),
-            swap_type=data.get('swap_type', 'points'),
-            swap_triple_day=data.get('swap_triple_day', 'wednesday'),
-            profit_calc_mode=data.get('profit_calc_mode', 'FOREX'),
-            trading_hours=data.get('trading_hours'),
+            symbol=data["symbol"],
+            asset_class=AssetClass(data["asset_class"]),
+            digits=data["digits"],
+            point=data.get("point"),
+            contract_size=data.get("contract_size", 100000),
+            volume_min=data.get("volume_min", 0.01),
+            volume_max=data.get("volume_max", 100.0),
+            volume_step=data.get("volume_step", 0.01),
+            margin_initial_rate_buy=data.get("margin_initial_rate_buy", 0.01),
+            margin_initial_rate_sell=data.get("margin_initial_rate_sell", 0.01),
+            margin_maintenance_rate_buy=data.get("margin_maintenance_rate_buy", 0.005),
+            margin_maintenance_rate_sell=data.get("margin_maintenance_rate_sell", 0.005),
+            margin_hedge=data.get("margin_hedge", 0.0),
+            margin_currency=data.get("margin_currency", "USD"),
+            margin_mode=data.get("margin_mode", "FOREX"),
+            spread_typical=data.get("spread_typical", 0.0),
+            spread_min=data.get("spread_min", 0.0),
+            spread_max=data.get("spread_max", 0.0),
+            commission_per_lot=data.get("commission_per_lot", 0.0),
+            swap_long=data.get("swap_long", 0.0),
+            swap_short=data.get("swap_short", 0.0),
+            swap_type=data.get("swap_type", "points"),
+            swap_triple_day=data.get("swap_triple_day", "wednesday"),
+            profit_calc_mode=data.get("profit_calc_mode", "FOREX"),
+            trading_hours=data.get("trading_hours"),
             # Stop placement & freeze zones
-            trade_stops_level=data.get('trade_stops_level', 0),
-            trade_freeze_level=data.get('trade_freeze_level', 0),
+            trade_stops_level=data.get("trade_stops_level", 0),
+            trade_freeze_level=data.get("trade_freeze_level", 0),
             # Order execution modes
-            trade_mode=data.get('trade_mode', 'FULL'),
-            filling_mode=data.get('filling_mode', 'IOC'),
-            order_mode=data.get('order_mode', 'MARKET_LIMIT'),
-            order_gtc_mode=data.get('order_gtc_mode', 'GTC'),
+            trade_mode=data.get("trade_mode", "FULL"),
+            filling_mode=data.get("filling_mode", "IOC"),
+            order_mode=data.get("order_mode", "MARKET_LIMIT"),
+            order_gtc_mode=data.get("order_gtc_mode", "GTC"),
             # Metadata
-            last_updated=datetime.fromisoformat(data['last_updated']) if data.get('last_updated') else None,
-            source=data.get('source', 'json')
+            last_updated=datetime.fromisoformat(data["last_updated"])
+            if data.get("last_updated")
+            else None,
+            source=data.get("source", "json"),
         )
 
     def _load_symbol_spec(self, symbol: str, market_type: AssetClass) -> SymbolSpec:
@@ -348,7 +355,7 @@ class UnifiedDataLoader:
         df: pd.DataFrame,
         symbol: str,
         market_type: AssetClass,
-        symbol_spec: Optional[SymbolSpec]
+        symbol_spec: Optional[SymbolSpec],
     ) -> tuple[pd.DataFrame, list[str]]:
         """
         Apply market-type-specific preprocessing.
@@ -371,7 +378,7 @@ class UnifiedDataLoader:
         # Remove duplicate timestamps as defensive measure (keep first)
         if isinstance(df.index, pd.DatetimeIndex):
             initial_len = len(df)
-            df = df[~df.index.duplicated(keep='first')]
+            df = df[~df.index.duplicated(keep="first")]
             if len(df) < initial_len:
                 removed = initial_len - len(df)
                 steps.append(f"Removed {removed} duplicate timestamps")
@@ -500,9 +507,7 @@ class UnifiedDataLoader:
         return df, steps
 
     def _compute_physics_state(
-        self,
-        prices: pd.DataFrame,
-        symbol_spec: Optional[SymbolSpec]
+        self, prices: pd.DataFrame, symbol_spec: Optional[SymbolSpec]
     ) -> Optional[pd.DataFrame]:
         """
         Compute physics state features.
@@ -528,11 +533,11 @@ class UnifiedDataLoader:
         except ImportError:
             # PhysicsEngine not available (missing dependencies)
             if self.verbose:
-                print("  Warning: PhysicsEngine not available")
+                logger.warning("PhysicsEngine not available")
             return None
 
         except Exception as e:
             # Computation failed
             if self.verbose:
-                print(f"  Warning: Physics state computation failed: {e}")
+                logger.warning("Physics state computation failed: %s", e)
             return None

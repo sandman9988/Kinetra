@@ -30,6 +30,8 @@ from typing import List, Optional
 
 from tqdm import tqdm
 
+from kinetra.config import resolve_project_path
+
 # =============================================================================
 # VISUAL CONSTANTS & THEMES
 # =============================================================================
@@ -755,7 +757,7 @@ if __name__ == "__main__":
     show_token_saved(
         token="eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.EXAMPLE_TOKEN_PLACEHOLDER",
         account_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        save_location=Path(".env"),
+        save_location=resolve_project_path(".env"),
     )
 
     # Example 4: Menu with highlighting

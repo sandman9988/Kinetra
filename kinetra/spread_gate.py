@@ -20,24 +20,30 @@ Broker-Specific Calibration:
 - Default thresholds based on Vantage International ECN profiles
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
+from kinetra.config import resolve_project_path
+
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class SpreadProfile:
     """Broker/symbol-specific spread characteristics."""
+
     symbol: str
     broker: str = "generic"
 
     # Typical spread ranges (in points/pips)
-    tight_spread: float = 3.0      # Normal low-volatility spread
-    normal_spread: float = 8.0     # Average spread
-    wide_spread: float = 20.0      # High volatility / news events
-    max_acceptable: float = 50.0   # Never trade above this
+    tight_spread: float = 3.0  # Normal low-volatility spread
+    normal_spread: float = 8.0  # Average spread
+    wide_spread: float = 20.0  # High volatility / news events
+    max_acceptable: float = 50.0  # Never trade above this
 
     # DSP-aligned window (bars) for rolling calculations
     # H1: 500 bars ≈ 3 weeks of trading
@@ -58,11 +64,11 @@ VANTAGE_PROFILES = {
     "XAUUSD": SpreadProfile(
         symbol="XAUUSD",
         broker="Vantage",
-        tight_spread=2.0,     # 0.2 USD (20 cents)
-        normal_spread=5.0,    # 0.5 USD
-        wide_spread=15.0,     # 1.5 USD (news events)
+        tight_spread=2.0,  # 0.2 USD (20 cents)
+        normal_spread=5.0,  # 0.5 USD
+        wide_spread=15.0,  # 1.5 USD (news events)
         max_acceptable=50.0,  # 5.0 USD (extreme)
-        rolling_window=500,   # H1 bars
+        rolling_window=500,  # H1 bars
         k_multiplier=1.2,
     ),
     "XAUUSD+": SpreadProfile(
@@ -108,12 +114,12 @@ VANTAGE_PROFILES = {
     "BTCUSD": SpreadProfile(
         symbol="BTCUSD",
         broker="Vantage",
-        tight_spread=50.0,    # 50 points = $50
+        tight_spread=50.0,  # 50 points = $50
         normal_spread=150.0,
         wide_spread=500.0,
         max_acceptable=1000.0,
-        rolling_window=168,   # 1 week for 24/7 crypto
-        k_multiplier=1.3,     # More tolerance for crypto volatility
+        rolling_window=168,  # 1 week for 24/7 crypto
+        k_multiplier=1.3,  # More tolerance for crypto volatility
     ),
     "BTCJPY": SpreadProfile(
         symbol="BTCJPY",
@@ -180,16 +186,19 @@ class SpreadGate:
                 self.profile = SpreadProfile(
                     symbol=symbol,
                     broker=broker,
-                    **{k: v for k, v in DEFAULT_PROFILE.__dict__.items()
-                       if k not in ['symbol', 'broker']}
+                    **{
+                        k: v
+                        for k, v in DEFAULT_PROFILE.__dict__.items()
+                        if k not in ["symbol", "broker"]
+                    },
                 )
         else:
             self.profile = DEFAULT_PROFILE
 
         # State tracking
         self.spread_history: list = []
-        self.rolling_min: float = float('inf')
-        self.current_threshold: float = float('inf')
+        self.rolling_min: float = float("inf")
+        self.current_threshold: float = float("inf")
         self.bars_processed: int = 0
 
         # Rolling distribution stats (for exploration mode)
@@ -254,8 +263,9 @@ class SpreadGate:
 
         # Calculate percentile rank of current spread
         if len(self.spread_history) >= min_periods:
-            percentile_rank = (np.sum(np.array(self.spread_history) <= current_spread) /
-                              len(self.spread_history)) * 100
+            percentile_rank = (
+                np.sum(np.array(self.spread_history) <= current_spread) / len(self.spread_history)
+            ) * 100
         else:
             percentile_rank = 50.0  # Neutral when insufficient data
 
@@ -263,12 +273,12 @@ class SpreadGate:
         if self.mode == "exploration":
             # NO HARD GATES in exploration - let agent learn
             allow_trade = True
-            self.current_threshold = float('inf')  # No threshold in exploration
+            self.current_threshold = float("inf")  # No threshold in exploration
         else:
             # Live mode: apply percentile-based threshold
             threshold_value = self.rolling_percentiles.get(
                 f"p{int(self.percentile_threshold)}",
-                self.rolling_min * 1.5  # Fallback
+                self.rolling_min * 1.5,  # Fallback
             )
             self.current_threshold = threshold_value
             allow_trade = current_spread <= threshold_value
@@ -334,8 +344,8 @@ class SpreadGate:
     def reset(self):
         """Reset state for new episode."""
         self.spread_history = []
-        self.rolling_min = float('inf')
-        self.current_threshold = float('inf')
+        self.rolling_min = float("inf")
+        self.current_threshold = float("inf")
         self.bars_processed = 0
         self.trades_allowed = 0
         self.trades_blocked = 0
@@ -370,7 +380,7 @@ def add_spread_gate_to_dataframe(
     # Handle column name variations
     if spread_col not in df.columns:
         # Try common variations
-        for col in ['spread', 'SPREAD', '<SPREAD>', 'Spread']:
+        for col in ["spread", "SPREAD", "<SPREAD>", "Spread"]:
             if col in df.columns:
                 spread_col = col
                 break
@@ -378,29 +388,28 @@ def add_spread_gate_to_dataframe(
             raise ValueError(f"Spread column not found. Available: {df.columns.tolist()}")
 
     # Calculate rolling minimum (backward-looking only)
-    df['rolling_min_spread'] = df[spread_col].rolling(
-        window=window,
-        min_periods=min(100, window // 5)
-    ).min()
+    df["rolling_min_spread"] = (
+        df[spread_col].rolling(window=window, min_periods=min(100, window // 5)).min()
+    )
 
     # Fill initial NaN with first available min
-    first_valid_idx = df['rolling_min_spread'].first_valid_index()
+    first_valid_idx = df["rolling_min_spread"].first_valid_index()
     if first_valid_idx is not None:
-        first_min = df.loc[first_valid_idx, 'rolling_min_spread']
-        df['rolling_min_spread'] = df['rolling_min_spread'].fillna(first_min)
+        first_min = df.loc[first_valid_idx, "rolling_min_spread"]
+        df["rolling_min_spread"] = df["rolling_min_spread"].fillna(first_min)
 
     # Calculate threshold
-    df['spread_threshold'] = k * df['rolling_min_spread']
+    df["spread_threshold"] = k * df["rolling_min_spread"]
 
     # Apply hard cap if specified
     if max_acceptable is not None:
-        df['spread_threshold'] = df['spread_threshold'].clip(upper=max_acceptable)
+        df["spread_threshold"] = df["spread_threshold"].clip(upper=max_acceptable)
 
     # Trading allowed flag
-    df['allow_trade'] = df[spread_col] <= df['spread_threshold']
+    df["allow_trade"] = df[spread_col] <= df["spread_threshold"]
 
     if max_acceptable is not None:
-        df['allow_trade'] = df['allow_trade'] & (df[spread_col] <= max_acceptable)
+        df["allow_trade"] = df["allow_trade"] & (df[spread_col] <= max_acceptable)
 
     # Classify spread regime
     def classify(spread, threshold):
@@ -413,9 +422,8 @@ def add_spread_gate_to_dataframe(
         else:
             return "EXTREME"
 
-    df['spread_regime'] = df.apply(
-        lambda row: classify(row[spread_col], row['spread_threshold']),
-        axis=1
+    df["spread_regime"] = df.apply(
+        lambda row: classify(row[spread_col], row["spread_threshold"]), axis=1
     )
 
     return df
@@ -441,11 +449,11 @@ def analyze_spread_profile(
         raise FileNotFoundError(f"No files matching: {pattern}")
 
     # Load and analyze
-    df = pd.read_csv(files[0], sep='\t')
+    df = pd.read_csv(files[0], sep="\t")
 
     # Handle spread column
     spread_col = None
-    for col in ['<SPREAD>', 'spread', 'SPREAD']:
+    for col in ["<SPREAD>", "spread", "SPREAD"]:
         if col in df.columns:
             spread_col = col
             break
@@ -479,7 +487,7 @@ def analyze_spread_profile(
             "normal_spread": float(spreads.quantile(0.50)),
             "wide_spread": float(spreads.quantile(0.90)),
             "max_acceptable": float(spreads.quantile(0.99)),
-        }
+        },
     }
 
     return analysis
@@ -489,13 +497,17 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Analyze spread profiles")
-    parser.add_argument("--data-dir", default="data/master", help="Data directory")
+    parser.add_argument(
+        "--data-dir",
+        default=str(resolve_project_path("data/master_standardized")),
+        help="Data directory",
+    )
     parser.add_argument("--symbol", default="XAUUSD+", help="Symbol to analyze")
     parser.add_argument("--timeframe", default="H1", help="Timeframe")
 
     args = parser.parse_args()
 
-    print(f"\nAnalyzing spread profile for {args.symbol} ({args.timeframe})...")
+    logger.info("Analyzing spread profile for %s (%s)...", args.symbol, args.timeframe)
 
     try:
         analysis = analyze_spread_profile(
@@ -504,26 +516,26 @@ if __name__ == "__main__":
             args.timeframe,
         )
 
-        print(f"\n{'='*60}")
-        print(f"  SPREAD ANALYSIS: {analysis['symbol']} ({analysis['timeframe']})")
-        print(f"{'='*60}")
-        print(f"  Data points: {analysis['data_points']:,}")
-        print(f"  Min:         {analysis['min']:.1f}")
-        print(f"  Max:         {analysis['max']:.1f}")
-        print(f"  Mean:        {analysis['mean']:.1f}")
-        print(f"  Median:      {analysis['median']:.1f}")
-        print(f"  Std Dev:     {analysis['std']:.1f}")
-
-        print("\n  Percentiles:")
-        for pct, val in analysis['percentiles'].items():
-            print(f"    {pct}: {val:.1f}")
-
-        print("\n  Recommended Profile:")
-        rec = analysis['recommended_profile']
-        print(f"    tight_spread:   {rec['tight_spread']:.1f}")
-        print(f"    normal_spread:  {rec['normal_spread']:.1f}")
-        print(f"    wide_spread:    {rec['wide_spread']:.1f}")
-        print(f"    max_acceptable: {rec['max_acceptable']:.1f}")
+        pct_str = "  ".join(f"{p}:{v:.1f}" for p, v in analysis["percentiles"].items())
+        rec = analysis["recommended_profile"]
+        logger.info(
+            "Spread analysis: %s (%s) | data_points=%d min=%.1f max=%.1f "
+            "mean=%.1f median=%.1f std=%.1f | percentiles=[%s] | "
+            "profile(tight=%.1f normal=%.1f wide=%.1f max_acceptable=%.1f)",
+            analysis["symbol"],
+            analysis["timeframe"],
+            analysis["data_points"],
+            analysis["min"],
+            analysis["max"],
+            analysis["mean"],
+            analysis["median"],
+            analysis["std"],
+            pct_str,
+            rec["tight_spread"],
+            rec["normal_spread"],
+            rec["wide_spread"],
+            rec["max_acceptable"],
+        )
 
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error("Spread analysis failed: %s", e)
