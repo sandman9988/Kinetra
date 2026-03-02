@@ -30,6 +30,8 @@ Usage:
 import json
 import logging
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
@@ -113,80 +115,6 @@ def load_m1_data(symbol: str) -> Optional[pd.Series]:
 def get_data_path(symbol: str) -> Path:
     """Get canonical data directory for symbol."""
     return KR / "data" / "master_standardized" / "ctrader" / "pepperstone" / "metals" / symbol
-
-
-def _build_engine_config(
-    symbol: str,
-    dsp: dict,
-    sizing_mode: str = "compounding",
-    lot_ceiling: float = 999.0,
-) -> tuple:
-    """Build a canonical EngineConfig from a DSP profile dict.
-
-    Returns:
-        (EngineConfig, InstrumentSpec) tuple
-
-    Calibrates against InstrumentSpec (contract_spec.json) for:
-    - tick_size, usd_per_tick (from broker)
-    - spread_ticks (median from CSV or spec)
-    - commission_per_lot (ECN rate)
-
-    Converts vr_peak_scale (in M30 bars from DSP) to brick-based filter window
-    by building sample bricks and measuring empirical frequency.
-    """
-    from kinetra.friction_cost import load_spec
-
-    # Load instrument spec from contract_spec.json (broker calibration)
-    spec = load_spec(symbol)
-
-    LOG.info(
-        "Loaded %s spec: tick_size=%.5f, contract_size=%.0f, spread=%.1f ticks, commission=$%.2f/lot",
-        symbol,
-        spec.tick_size,
-        spec.contract_size,
-        spec.spread_points,
-        spec.commission_per_lot,
-    )
-
-    stop_bricks = 1.0 if symbol.upper() == "XAUUSD" else 0.5
-    brick_size = float(dsp.get("brick_size", 1.0))
-
-    # Load M1 data to estimate brick frequency
-    closes = load_m1_data(symbol)
-    if closes is not None and len(closes) > 1000:
-        # Build sample bricks to measure frequency
-        bricks = build_renko(closes.tail(min(10000, len(closes))), brick_size)
-        if len(bricks) > 10:
-            bpd = bricks_per_day(bricks)
-            # vr_peak_scale is in M30 bars (from M30_VR_SCALES in dsp.py)
-            # M30: 48 bars per trading day (2 bars/hour × 24 hours)
-            vr_peak_scale_m30 = int(dsp.get("vr_peak_scale", 50))
-            m30_bars_per_day = 2 * 24  # M30: 48 bars/day
-            days_in_peak = vr_peak_scale_m30 / m30_bars_per_day
-            window = max(10, int(bpd * days_in_peak))
-        else:
-            window = 50  # Fallback
-    else:
-        window = 50  # Fallback
-
-    return (
-        EngineConfig(
-            symbol=symbol,
-            brick_size=brick_size,
-            usd_per_tick=spec.tick_value_usd,  # From spec (calculated: tick_size × contract_size)
-            tick_size=spec.tick_size,  # From spec (broker)
-            stop_bricks=stop_bricks,
-            fliprate_window=window,
-            markov_window=window,
-            fliprate_threshold=0.35,
-            markov_threshold=0.55,
-            spread_ticks=spec.spread_points,  # From spec (median of CSV or broker snapshot)
-            commission_per_lot=spec.commission_per_lot,  # From spec ($7.00 ECN standard)
-            sizing_mode=sizing_mode,
-            gate_lot_ceiling=lot_ceiling,
-        ),
-        spec,
-    )
 
 
 def _format_number(value: float) -> str:
@@ -440,7 +368,7 @@ def _stats_panel(
     )
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    border = "green" if mode.startswith("live") else "cyan"
+    border = "green" if mode.startswith("live") or mode == "paper" else "cyan"
     return Panel(t, title=f"[bold]{symbol}[/]  [{mode.upper()}]  {ts}", border_style=border)
 
 
@@ -459,8 +387,233 @@ def _print_stats(summary: dict, symbol: str, mode: str, trades: list = None) -> 
     )
 
 
+def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
+    """Print complete trading system specification before performance analysis."""
+    console.print()
+
+    # Header
+    spec_table = Table(box=box.ROUNDED, title="[bold cyan]TRADING SYSTEM SPECIFICATION[/]")
+    spec_table.add_column("Parameter", style="cyan", width=30)
+    spec_table.add_column("Value", justify="right", width=25)
+    spec_table.add_column("Notes", style="dim", width=40)
+
+    # Instrument & Broker
+    spec_table.add_row("Symbol", cfg.symbol, "cTrader Pepperstone ECN")
+    spec_table.add_row("Contract Size", f"{spec.contract_size:.0f} oz", "Standard gold lot")
+    spec_table.add_row(
+        "Tick Size", f"${spec.tick_size:.2f}", f"Value per tick: ${spec.tick_value_usd:.2f}"
+    )
+
+    # Brick & Filters
+    spec_table.add_row("Brick Size", f"${cfg.brick_size:.2f}", "Price movement threshold")
+    brick_window = cfg.fliprate_window
+    spec_table.add_row(
+        "Brick Window",
+        f"{brick_window} bricks",
+        f"Filter lookback period (~{brick_window / 50:.1f} days)",
+    )
+
+    # Entry & Exit
+    spec_table.add_row("Entry Signal", "Colour flip + filters", "2-brick direction change required")
+    spec_table.add_row(
+        "FlipRate Gate", f"< {cfg.fliprate_threshold:.0%}", "Reject choppy markets (% flips)"
+    )
+    spec_table.add_row(
+        "Markov Gate", f"> {cfg.markov_threshold:.0%}", "Require direction persistence"
+    )
+    spec_table.add_row(
+        "Stop Loss (SL)",
+        f"{cfg.stop_bricks:.1f} brick",
+        f"${cfg.stop_bricks * cfg.brick_size:.2f} fixed distance",
+    )
+    spec_table.add_row("Exit Signal", "Colour change (opposite)", "Exit on first reversal brick")
+    spec_table.add_row("Trailing Stop", "Off", "Standard 1-brick fixed stop used")
+
+    # Friction Costs
+    spec_table.add_row(
+        "Spread",
+        f"{cfg.spread_ticks:.1f} ticks",
+        f"${cfg.spread_ticks * cfg.usd_per_tick:.2f} per round-trip",
+    )
+    spec_table.add_row(
+        "Commission", f"${cfg.commission_per_lot:.2f}/lot", "ECN round-trip per standard lot"
+    )
+
+    # Swap rates (from spec if available)
+    if hasattr(spec, "swap_long") and spec.swap_long:
+        spec_table.add_row(
+            "Swap Long", f"${spec.swap_long:.3f}/day", "Cost to hold long positions overnight"
+        )
+        spec_table.add_row(
+            "Swap Short", f"${spec.swap_short:+.3f}/day", "Earn on short positions (positive carry)"
+        )
+        if hasattr(spec, "triple_swap_day"):
+            spec_table.add_row(
+                "Triple Swap", f"{spec.triple_swap_day}", "3× swap charged on Wednesdays"
+            )
+
+    # Position Sizing
+    spec_table.add_row("Initial Equity", f"${cfg.initial_equity:,.2f}", "Starting account balance")
+    spec_table.add_row(
+        "Risk per Trade", f"${cfg.target_risk_usd:.2f}", "Target USD at risk per position"
+    )
+    spec_table.add_row(
+        "Lot Ceiling", f"{cfg.gate_lot_ceiling:.2f} lots", "Maximum position size cap"
+    )
+    sizing_note = (
+        "Dual scenario (static + compound)" if cfg.symbol.upper() == "XAUUSD" else cfg.sizing_mode
+    )
+    spec_table.add_row(
+        "Sizing Mode (Backtest)",
+        sizing_note,
+        "Static (0.01) + Compounding (max 10.0)" if cfg.symbol.upper() == "XAUUSD" else "",
+    )
+
+    # Trading Hours
+    spec_table.add_row("Trading Hours", "24/5 (Mon-Fri)", "No weekend trading (forex session)")
+    spec_table.add_row("Week Start", "Monday 00:00 UTC", "New trading week begins")
+    spec_table.add_row("Week Close", "Friday 24:00 UTC", "End of week, swap settlement")
+
+    # DSP-derived
+    vr_peak = dsp.get("vr_peak_scale", "N/A")
+    regime = dsp.get("regime", "UNKNOWN")
+    spec_table.add_row("VR Peak Scale", f"{vr_peak} M30 bars", "Trend persistence peak from DSP")
+    spec_table.add_row("Regime", str(regime), "Market classification from DSP")
+
+    # Validation gates
+    spec_table.add_row("Min Omega", "≥ 1.5", "Statistical significance gate")
+    spec_table.add_row("Min Trades", "≥ 30", "Sample size sufficiency")
+    spec_table.add_row("Target Win Rate", "> 50%", "More winners than losers")
+    spec_table.add_row("Target MFE/MAE", "> 1.5", "Execution quality (capture favorable moves)")
+
+    console.print(spec_table)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
-# STAGE 2: BACKTEST
+# STAGE 2: DSP ANALYSIS
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def stage_dsp(symbol: str) -> bool:
+    """Run DSP analysis to find optimal brick size."""
+    click.echo(f"\n{'=' * 60}")
+    click.secho("STAGE 2: DSP ANALYSIS", fg="cyan", bold=True)
+    click.echo(f"{'=' * 60}")
+
+    # Load M1 data
+    closes = load_m1_data(symbol)
+    if closes is None:
+        click.secho(f"❌ No M1 data found for {symbol}", fg="red")
+        return False
+
+    click.echo(f"Loaded {len(closes):,} M1 bars")
+
+    # Run DSP analysis
+    from kinetra.renko.dsp import run_dsp
+
+    click.echo("Running DSP analysis...")
+    result = run_dsp(closes, symbol=symbol)
+
+    if "error" in result:
+        click.secho(f"❌ DSP analysis failed: {result['error']}", fg="red")
+        return False
+
+    # Save DSP profile
+    dsp_dir = KR / "outputs" / "dsp"
+    dsp_dir.mkdir(parents=True, exist_ok=True)
+    dsp_file = dsp_dir / f"{symbol}_dsp.json"
+
+    with open(dsp_file, "w") as f:
+        json.dump(result, f, indent=2, default=str)
+
+    click.secho(f"✅ DSP profile saved to {dsp_file}", fg="green")
+
+    # Print summary
+    click.echo()
+    click.echo(f"Brick Size: ${result.get('brick_size', 0):.2f}")
+    click.echo(f"VR Peak Scale: {result.get('vr_peak_scale', 0)} M30 bars")
+    click.echo(f"Regime: {result.get('regime', 'UNKNOWN')}")
+    click.echo(f"Bricks/Day: {result.get('bricks_per_day', 0):.1f}")
+
+    return True
+
+
+def _build_engine_config(
+    symbol: str,
+    dsp: dict,
+    sizing_mode: str = "compounding",
+    lot_ceiling: float = 999.0,
+) -> tuple:
+    """Build a canonical EngineConfig from a DSP profile dict.
+
+    Returns:
+        (EngineConfig, InstrumentSpec) tuple
+
+    Calibrates against InstrumentSpec (contract_spec.json) for:
+    - tick_size, usd_per_tick (from broker)
+    - spread_ticks (median from CSV or spec)
+    - commission_per_lot (ECN rate)
+
+    Converts vr_peak_scale (in M30 bars from DSP) to brick-based filter window
+    by building sample bricks and measuring empirical frequency.
+    """
+    from kinetra.friction_cost import load_spec
+
+    # Load instrument spec from contract_spec.json (broker calibration)
+    spec = load_spec(symbol)
+
+    LOG.info(
+        "Loaded %s spec: tick_size=%.5f, contract_size=%.0f, spread=%.1f ticks, commission=$%.2f/lot",
+        symbol,
+        spec.tick_size,
+        spec.contract_size,
+        spec.spread_points,
+        spec.commission_per_lot,
+    )
+
+    stop_bricks = 1.0 if symbol.upper() == "XAUUSD" else 0.5
+    brick_size = float(dsp.get("brick_size", 1.0))
+
+    # Load M1 data to estimate brick frequency
+    closes = load_m1_data(symbol)
+    if closes is not None and len(closes) > 1000:
+        # Build sample bricks to measure frequency
+        bricks = build_renko(closes.tail(min(10000, len(closes))), brick_size)
+        if len(bricks) > 10:
+            bpd = bricks_per_day(bricks)
+            # vr_peak_scale is in M30 bars (from M30_VR_SCALES in dsp.py)
+            # M30: 48 bars per trading day (2 bars/hour × 24 hours)
+            vr_peak_scale_m30 = int(dsp.get("vr_peak_scale", 50))
+            m30_bars_per_day = 2 * 24  # M30: 48 bars/day
+            days_in_peak = vr_peak_scale_m30 / m30_bars_per_day
+            window = max(10, int(bpd * days_in_peak))
+        else:
+            window = 50  # Fallback
+    else:
+        window = 50  # Fallback
+
+    return (
+        EngineConfig(
+            symbol=symbol,
+            brick_size=brick_size,
+            usd_per_tick=spec.tick_value_usd,  # From spec (calculated: tick_size × contract_size)
+            tick_size=spec.tick_size,  # From spec (broker)
+            stop_bricks=stop_bricks,
+            fliprate_window=window,
+            markov_window=window,
+            fliprate_threshold=0.35,
+            markov_threshold=0.55,
+            spread_ticks=spec.spread_points,  # From spec (median of CSV or broker snapshot)
+            commission_per_lot=spec.commission_per_lot,  # From spec ($7.00 ECN standard)
+            sizing_mode=sizing_mode,
+            gate_lot_ceiling=lot_ceiling,
+        ),
+        spec,
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STAGE 3: BACKTEST
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -550,155 +703,157 @@ def stage_backtest(
     return all_pass
 
 
-def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
-    """Print complete trading system specification before performance analysis."""
-    console.print()
-
-    # Header
-    spec_table = Table(box=box.ROUNDED, title="[bold cyan]TRADING SYSTEM SPECIFICATION[/]")
-    spec_table.add_column("Parameter", style="cyan", width=30)
-    spec_table.add_column("Value", justify="right", width=25)
-    spec_table.add_column("Notes", style="dim", width=40)
-
-    # Instrument & Broker
-    spec_table.add_row("Symbol", cfg.symbol, "cTrader Pepperstone ECN")
-    spec_table.add_row("Contract Size", f"{spec.contract_size:.0f} oz", "Standard gold lot")
-    spec_table.add_row(
-        "Tick Size", f"${spec.tick_size:.2f}", f"Value per tick: ${spec.tick_value_usd:.2f}"
-    )
-
-    # Brick & Filters
-    spec_table.add_row("Brick Size", f"${cfg.brick_size:.2f}", "Price movement threshold")
-    brick_window = cfg.fliprate_window
-    spec_table.add_row(
-        "Brick Window",
-        f"{brick_window} bricks",
-        f"Filter lookback period (~{brick_window / 50:.1f} days)",
-    )
-
-    # Entry & Exit
-    spec_table.add_row("Entry Signal", "Colour flip + filters", "2-brick direction change required")
-    spec_table.add_row(
-        "FlipRate Gate", f"< {cfg.fliprate_threshold:.0%}", "Reject choppy markets (% flips)"
-    )
-    spec_table.add_row(
-        "Markov Gate", f"> {cfg.markov_threshold:.0%}", "Require direction persistence"
-    )
-    spec_table.add_row(
-        "Stop Loss (SL)",
-        f"{cfg.stop_bricks:.1f} brick",
-        f"${cfg.brick_size * cfg.stop_bricks:.2f} fixed distance",
-    )
-    spec_table.add_row("Exit Signal", "Colour change (opposite)", "Exit on first reversal brick")
-    spec_table.add_row("Trailing Stop", "Off", "Standard 1-brick fixed stop used")
-
-    # Friction Costs
-    spec_table.add_row(
-        "Spread",
-        f"{cfg.spread_ticks:.1f} ticks",
-        f"${cfg.spread_ticks * cfg.usd_per_tick:.2f} per round-trip",
-    )
-    spec_table.add_row(
-        "Commission", f"${cfg.commission_per_lot:.2f}/lot", "ECN round-trip per standard lot"
-    )
-
-    # Swap rates (from spec if available)
-    if hasattr(spec, "swap_long") and spec.swap_long:
-        spec_table.add_row(
-            "Swap Long", f"${spec.swap_long:.3f}/day", "Cost to hold long positions overnight"
-        )
-        spec_table.add_row(
-            "Swap Short", f"${spec.swap_short:+.3f}/day", "Earn on short positions (positive carry)"
-        )
-        if hasattr(spec, "triple_swap_day"):
-            spec_table.add_row(
-                "Triple Swap", f"{spec.triple_swap_day}", "3× swap charged on Wednesdays"
-            )
-
-    # Position Sizing
-    spec_table.add_row("Initial Equity", f"${cfg.initial_equity:,.2f}", "Starting account balance")
-    spec_table.add_row(
-        "Risk per Trade", f"${cfg.target_risk_usd:.2f}", "Target USD at risk per position"
-    )
-    spec_table.add_row(
-        "Lot Ceiling", f"{cfg.gate_lot_ceiling:.2f} lots", "Maximum position size cap"
-    )
-    sizing_note = (
-        "Dual scenario (static + compound)" if cfg.symbol.upper() == "XAUUSD" else cfg.sizing_mode
-    )
-    spec_table.add_row(
-        "Sizing Mode (Backtest)",
-        sizing_note,
-        "Static (0.01) + Compounding (max 10.0)" if cfg.symbol.upper() == "XAUUSD" else "",
-    )
-
-    # Trading Hours
-    spec_table.add_row("Trading Hours", "24/5 (Mon-Fri)", "No weekend trading (forex session)")
-    spec_table.add_row("Week Start", "Monday 00:00 UTC", "New trading week begins")
-    spec_table.add_row("Week Close", "Friday 24:00 UTC", "End of week, swap settlement")
-
-    # DSP-derived
-    vr_peak = dsp.get("vr_peak_scale", "N/A")
-    regime = dsp.get("regime", "UNKNOWN")
-    spec_table.add_row("VR Peak Scale", f"{vr_peak} M30 bars", "Trend persistence peak from DSP")
-    spec_table.add_row("Regime", str(regime), "Market classification from DSP")
-
-    # Validation gates
-    spec_table.add_row("Min Omega", "≥ 1.5", "Statistical significance gate")
-    spec_table.add_row("Min Trades", "≥ 30", "Sample size sufficiency")
-    spec_table.add_row("Target Win Rate", "> 50%", "More winners than losers")
-    spec_table.add_row("Target MFE/MAE", "> 1.5", "Execution quality (capture favorable moves)")
-
-    console.print(spec_table)
-
-
 # ──────────────────────────────────────────────────────────────────────────────
-# STAGE 1: DSP ANALYSIS
+# STAGE 4: PAPER TRADING (Live Broker Data, No Real Orders)
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def stage_dsp(symbol: str) -> bool:
-    """Run DSP analysis to find optimal brick size."""
+def stage_paper(
+    symbol: str,
+    months: int = 3,
+    min_omega: float = 1.5,
+    min_trades: int = 30,
+) -> bool:
+    """Paper trading with live broker data - NO REAL ORDERS.
+
+    Connects to cTrader Open API to stream live M1 bars, runs the same
+    RenkoEngine strategy logic as backtesting, and displays real-time stats.
+    Uses PaperDispatcher to simulate fills without placing real orders.
+    """
     click.echo(f"\n{'=' * 60}")
-    click.secho("STAGE 2: DSP ANALYSIS", fg="cyan", bold=True)
+    click.secho("STAGE 4: PAPER TRADING (Live Data)", fg="cyan", bold=True)
     click.echo(f"{'=' * 60}")
+    click.secho("⚠️  Paper trading - NO REAL ORDERS will be placed", fg="yellow")
 
-    # Load M1 data
-    closes = load_m1_data(symbol)
-    if closes is None:
-        click.secho(f"❌ No M1 data found for {symbol}", fg="red")
+    # Try to import cTrader connector
+    try:
+        from kinetra.connectors.ctrader_connector import build_connector
+        from kinetra.renko.ctrader_dispatcher import CTraderBarProvider
+        from kinetra.renko.live_trader import PaperDispatcher
+    except ImportError as e:
+        click.secho(f"❌ cTrader connector not available: {e}", fg="red")
+        click.echo("Install with: pip install ctrader-open-api")
         return False
 
-    click.echo(f"Loaded {len(closes):,} M1 bars")
-
-    # Run DSP analysis
-    from kinetra.renko.dsp import run_dsp
-
-    click.echo("Running DSP analysis...")
-    result = run_dsp(closes, symbol=symbol)
-
-    if "error" in result:
-        click.secho(f"❌ DSP analysis failed: {result['error']}", fg="red")
+    # Load DSP profile
+    dsp_dir = get_data_path(symbol)
+    dsp_file = dsp_dir / "dsp_profile.json"
+    if not dsp_file.exists():
+        click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
+        click.echo("Run --stage dsp first")
         return False
 
-    # Save DSP profile
-    dsp_dir = KR / "outputs" / "dsp"
-    dsp_dir.mkdir(parents=True, exist_ok=True)
-    dsp_file = dsp_dir / f"{symbol}_dsp.json"
+    with open(dsp_file) as f:
+        dsp = json.load(f)
 
-    with open(dsp_file, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+    # Build engine config (use static sizing for paper trading)
+    cfg, spec = _build_engine_config(symbol, dsp, sizing_mode="static", lot_ceiling=0.01)
 
-    click.secho(f"✅ DSP profile saved to {dsp_file}", fg="green")
-
-    # Print summary
+    # Print system specification
     click.echo()
-    click.echo(f"Brick Size: ${result.get('brick_size', 0):.2f}")
-    click.echo(f"VR Peak Scale: {result.get('vr_peak_scale', 0)} M30 bars")
-    click.echo(f"Regime: {result.get('regime', 'UNKNOWN')}")
-    click.echo(f"Bricks/Day: {result.get('bricks_per_day', 0):.1f}")
+    _print_system_spec(cfg, spec, dsp)
 
-    return True
+    click.echo()
+    click.secho("Connecting to cTrader...", fg="yellow")
+
+    # Connect to cTrader
+    try:
+        connector = build_connector(timeout_s=30.0)
+        click.secho("✅ Connected to cTrader", fg="green")
+    except Exception as e:
+        click.secho(f"❌ Failed to connect to cTrader: {e}", fg="red")
+        click.echo("Check your .env.openapi credentials")
+        return False
+
+    # Create bar provider and paper dispatcher
+    bar_provider = CTraderBarProvider(connector)
+    paper_dispatcher = PaperDispatcher(spread_pts={symbol: cfg.spread_ticks})
+
+    # Create engine
+    engine = RenkoEngine(cfg)
+
+    # Stats tracking
+    stats_lock = threading.Lock()
+    last_stats_time = [time.time()]
+    stats_interval = 60.0  # Print stats every 60 seconds
+    trade_count = [0]
+    stop_event = threading.Event()
+
+    def print_periodic_stats():
+        """Print stats periodically."""
+        while not stop_event.is_set():
+            time.sleep(stats_interval)
+            with stats_lock:
+                results = engine._make_results()
+                summary = results.get("summary", {})
+                trades = results.get("trades", [])
+                n_trades = len(trades)
+                if n_trades > trade_count[0]:
+                    trade_count[0] = n_trades
+                    console.print()
+                    _print_stats(summary, symbol, "paper", trades=trades)
+                    last_stats_time[0] = time.time()
+
+    # Start periodic stats thread
+    stats_thread = threading.Thread(target=print_periodic_stats, daemon=True)
+    stats_thread.start()
+
+    click.echo()
+    click.secho("Starting paper trading loop...", fg="cyan")
+    click.echo("Streaming live M1 bars from cTrader")
+    click.echo("Press Ctrl+C to stop and see final results")
+    click.echo()
+
+    try:
+        # Run the engine with paper dispatcher
+        results = engine.run(
+            bar_provider=bar_provider,
+            dispatcher=paper_dispatcher,
+            stop_event=stop_event,
+        )
+
+    except KeyboardInterrupt:
+        click.echo()
+        click.secho("Stopping paper trading...", fg="yellow")
+        stop_event.set()
+
+        # Get final results
+        results = engine._make_results()
+
+    finally:
+        # Cleanup
+        stop_event.set()
+        try:
+            bar_provider.stop()
+        except Exception:
+            pass
+        try:
+            connector.stop()
+        except Exception:
+            pass
+
+        # Print final stats
+        summary = results.get("summary", {})
+        trades = results.get("trades", [])
+
+        click.echo()
+        click.secho("=" * 60, fg="cyan")
+        click.secho("PAPER TRADING RESULTS", fg="cyan", bold=True)
+        click.secho("=" * 60, fg="cyan")
+        _print_stats(summary, symbol, "paper", trades=trades)
+
+        # Summary
+        n_trades = summary.get("n_trades", 0)
+        omega = summary.get("omega", 0.0)
+        if n_trades >= min_trades and omega >= min_omega:
+            click.secho(f"\n✅ PASS - {n_trades} trades, Omega={omega:.3f}", fg="green")
+            return True
+        else:
+            click.secho(
+                f"\n⚠️  Insufficient trades or Omega - {n_trades} trades (need {min_trades}), Omega={omega:.3f} (need {min_omega})",
+                fg="yellow",
+            )
+            return False
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -748,110 +903,6 @@ def main(symbol: str, stage: str, months: int, min_omega: float, min_trades: int
         raise SystemExit(1)
 
     click.secho("✅ All stages passed!", fg="green")
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# STAGE 4: PAPER TRADING (Live Broker Data)
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-def stage_paper(
-    symbol: str,
-    months: int = 3,
-    min_omega: float = 1.5,
-    min_trades: int = 30,
-) -> bool:
-    """Paper trading with live broker data.
-
-    Uses cTrader Open API to stream live M1 bars and runs the same
-    strategy logic as backtest. No real orders are placed.
-    """
-    click.echo(f"\n{'=' * 60}")
-    click.secho("STAGE 4: PAPER TRADING (Live Data)", fg="cyan", bold=True)
-    click.echo(f"{'=' * 60}")
-
-    # Try to import cTrader connector
-    try:
-        from kinetra.renko.ctrader_dispatcher import build_ctrader_session
-        from kinetra.renko.live_trader import LiveTraderConfig, PERGate, RenkoLiveTrader
-    except ImportError as e:
-        click.secho(f"❌ cTrader connector not available: {e}", fg="red")
-        click.echo("Install with: pip install ctrader-open-api")
-        return False
-
-    # Load DSP profile
-    dsp_dir = get_data_path(symbol)
-    dsp_file = dsp_dir / "dsp_profile.json"
-    if not dsp_file.exists():
-        click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
-        click.echo("Run --stage dsp first")
-        return False
-
-    with open(dsp_file) as f:
-        dsp = json.load(f)
-
-    # Build engine config
-    cfg, spec = _build_engine_config(symbol, dsp, sizing_mode="compounding", lot_ceiling=0.01)
-
-    # Print system specification
-    click.echo()
-    _print_system_spec(cfg, spec, dsp)
-
-    click.echo()
-    click.secho("Connecting to cTrader...", fg="yellow")
-
-    try:
-        # Build cTrader session
-        dispatcher, bar_provider = build_ctrader_session()
-        click.secho("✅ Connected to cTrader", fg="green")
-    except Exception as e:
-        click.secho(f"❌ Failed to connect to cTrader: {e}", fg="red")
-        click.echo("Check your .env.openapi credentials")
-        return False
-
-    # Configure live trader
-    live_config = LiveTraderConfig(
-        symbols=[symbol],
-        gate=PERGate.SIMULATED,  # Paper trading - no real orders
-        target_risk_usd=cfg.target_risk_usd,
-        stop_bricks=cfg.stop_bricks,
-        broker_source="ctrader",
-        initial_equity_usd=cfg.initial_equity,
-        paper_lots=0.01,
-        allow_short=cfg.allow_short,
-    )
-
-    click.echo()
-    click.secho("Starting paper trading loop...", fg="cyan")
-    click.echo("Press Ctrl+C to stop")
-    click.echo()
-
-    try:
-        trader = RenkoLiveTrader(live_config, bar_provider=bar_provider, dispatcher=dispatcher)
-        trader.start()
-    except KeyboardInterrupt:
-        click.echo()
-        click.secho("Stopping paper trading...", fg="yellow")
-        trader.stop()
-
-        # Get final results
-        results = trader._make_results()
-        _print_stats(results.get("summary", {}), symbol, "paper", trades=results.get("trades", []))
-
-        # Cleanup
-        if dispatcher:
-            dispatcher.stop()
-        if bar_provider:
-            bar_provider.stop()
-    except Exception as e:
-        click.secho(f"❌ Paper trading error: {e}", fg="red")
-        if dispatcher:
-            dispatcher.stop()
-        if bar_provider:
-            bar_provider.stop()
-        return False
-
-    return True
 
 
 if __name__ == "__main__":
