@@ -30,7 +30,7 @@ Usage:
 import json
 import logging
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -737,11 +737,121 @@ def main(symbol: str, stage: str, months: int, min_omega: float, min_trades: int
             click.secho("❌ Backtest stage failed", fg="red")
             raise SystemExit(1)
 
-    if stage in ("paper", "live"):
-        click.secho(f"⚠️  {stage.upper()} stage not yet implemented", fg="yellow")
+    if stage in ("paper", "all"):
+        if not stage_paper(symbol, months=months, min_omega=min_omega, min_trades=min_trades):
+            click.secho("❌ Paper stage failed", fg="red")
+            raise SystemExit(1)
+
+    if stage == "live":
+        click.secho("⚠️  LIVE stage requires broker connection", fg="yellow")
+        click.echo("Use --stage paper for simulation mode")
         raise SystemExit(1)
 
     click.secho("✅ All stages passed!", fg="green")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STAGE 4: PAPER TRADING (Live Broker Data)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def stage_paper(
+    symbol: str,
+    months: int = 3,
+    min_omega: float = 1.5,
+    min_trades: int = 30,
+) -> bool:
+    """Paper trading with live broker data.
+
+    Uses cTrader Open API to stream live M1 bars and runs the same
+    strategy logic as backtest. No real orders are placed.
+    """
+    click.echo(f"\n{'=' * 60}")
+    click.secho("STAGE 4: PAPER TRADING (Live Data)", fg="cyan", bold=True)
+    click.echo(f"{'=' * 60}")
+
+    # Try to import cTrader connector
+    try:
+        from kinetra.renko.ctrader_dispatcher import build_ctrader_session
+        from kinetra.renko.live_trader import LiveTraderConfig, PERGate, RenkoLiveTrader
+    except ImportError as e:
+        click.secho(f"❌ cTrader connector not available: {e}", fg="red")
+        click.echo("Install with: pip install ctrader-open-api")
+        return False
+
+    # Load DSP profile
+    dsp_dir = get_data_path(symbol)
+    dsp_file = dsp_dir / "dsp_profile.json"
+    if not dsp_file.exists():
+        click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
+        click.echo("Run --stage dsp first")
+        return False
+
+    with open(dsp_file) as f:
+        dsp = json.load(f)
+
+    # Build engine config
+    cfg, spec = _build_engine_config(symbol, dsp, sizing_mode="compounding", lot_ceiling=0.01)
+
+    # Print system specification
+    click.echo()
+    _print_system_spec(cfg, spec, dsp)
+
+    click.echo()
+    click.secho("Connecting to cTrader...", fg="yellow")
+
+    try:
+        # Build cTrader session
+        dispatcher, bar_provider = build_ctrader_session()
+        click.secho("✅ Connected to cTrader", fg="green")
+    except Exception as e:
+        click.secho(f"❌ Failed to connect to cTrader: {e}", fg="red")
+        click.echo("Check your .env.openapi credentials")
+        return False
+
+    # Configure live trader
+    live_config = LiveTraderConfig(
+        symbols=[symbol],
+        gate=PERGate.SIMULATED,  # Paper trading - no real orders
+        target_risk_usd=cfg.target_risk_usd,
+        stop_bricks=cfg.stop_bricks,
+        broker_source="ctrader",
+        initial_equity_usd=cfg.initial_equity,
+        paper_lots=0.01,
+        allow_short=cfg.allow_short,
+    )
+
+    click.echo()
+    click.secho("Starting paper trading loop...", fg="cyan")
+    click.echo("Press Ctrl+C to stop")
+    click.echo()
+
+    try:
+        trader = RenkoLiveTrader(live_config, bar_provider=bar_provider, dispatcher=dispatcher)
+        trader.start()
+    except KeyboardInterrupt:
+        click.echo()
+        click.secho("Stopping paper trading...", fg="yellow")
+        trader.stop()
+
+        # Get final results
+        results = trader._make_results()
+        _print_stats(results.get("summary", {}), symbol, "paper", trades=results.get("trades", []))
+
+        # Cleanup
+        if dispatcher:
+            dispatcher.stop()
+        if bar_provider:
+            bar_provider.stop()
+    except Exception as e:
+        click.secho(f"❌ Paper trading error: {e}", fg="red")
+        if dispatcher:
+            dispatcher.stop()
+        if bar_provider:
+            bar_provider.stop()
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
