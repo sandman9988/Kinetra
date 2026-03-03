@@ -1,0 +1,3 @@
+# Backup marker - file was corrupted, restoring from git recommended
+# Use: git checkout scripts/renko_engine.py
+# Then reapply the ONE fix needed for vr_peak_scale conversion

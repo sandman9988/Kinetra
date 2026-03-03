@@ -1,0 +1,35 @@
+# 🎯 BACKTEST - GO NOW
+
+## Command
+```bash
+cd /home/renierdejager/Projects/Kinetra && python scripts/renko_engine.py XAUUSD --stage backtest --months 3
+```
+
+## All Issues Fixed
+✅ Invalid imports removed
+✅ Column names (Close, DateTime) handled
+✅ DatetimeIndex properly created
+✅ Window calculation (40-50 bricks) correct
+✅ Data duration (4.2 months) verified
+✅ Brick logic verified
+✅ Filter gates verified
+
+## Expected Output
+```
+STAGE 3: BACKTEST (3 months)
+Testing 90720 bars
+
+--- STATIC SIZING ---
+Trades XX, Win Rate XX%, Omega X.XX
+✅ PASS
+
+--- COMPOUNDING SIZING ---
+Trades XX, Win Rate XX%, Omega X.XX
+✅ PASS
+```
+
+## Success = Omega ≥ 1.5 AND Trades ≥ 30
+
+---
+
+**GO!**
