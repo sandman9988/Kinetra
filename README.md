@@ -3,6 +3,12 @@
 
 **Kinetra** (Kinetic + Entropy + Alpha) is an institutional-grade, physics-first adaptive trading system that uses reinforcement learning to extract returns from market regimes. Built on first principles with no static assumptions, Kinetra validates every decision through rigorous statistical testing and continuous backtesting.
 
+## Current Operational Docs (Renko)
+
+- [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md) — canonical live/paper/backtest runtime state
+- [`QUICK_START.md`](QUICK_START.md) — current launch flow and direct CLI examples
+- [`LIVE_TRADING_CONFIG.md`](LIVE_TRADING_CONFIG.md) — launch-time live configuration quick reference
+
 ## 🎯 What is Kinetra?
 
 Kinetra is a **self-validating, physics-grounded algorithmic trading system** that:
