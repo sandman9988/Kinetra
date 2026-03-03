@@ -67,7 +67,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-from kinetra.aggregation import aggregate_ohlcv
 from kinetra.config import resolve_project_path
 from kinetra.renko.backtest import (
     InstrumentBacktestResult,
@@ -442,7 +441,7 @@ def run_full_pipeline(
     portfolio_min_z : float
         Minimum portfolio Z-factor for ``deployment_ready`` flag.
     keep_closes_for_mc : bool, default True
-        If True and ``run_mc=True``, derive M30 close series from the
+        If True and ``run_mc=True``, derive close series from the
         in-memory ``m1_data`` and pass them to
         :func:`_run_per_instrument_mc_with_closes` so Monte Carlo
         actually runs.  Set to False to skip MC even when ``run_mc=True``
@@ -546,8 +545,8 @@ def run_full_pipeline(
     # ── Stage 4: Monte Carlo (per-instrument, optional) ───────────────────────
     if run_mc and n_qualified > 0:
         if keep_closes_for_mc:
-            # Derive M30 closes from in-memory M1 data for each qualified instrument
-            instrument_closes: Dict[str, pd.Series] = _derive_m30_closes(
+            # Derive close series from in-memory M1 data for each qualified instrument.
+            instrument_closes: Dict[str, pd.Series] = _extract_m1_closes_by_symbol(
                 m1_data=m1_data,
                 symbols=[r.symbol for r in instrument_results if r.qualified],
                 errors=errors,
@@ -565,7 +564,7 @@ def run_full_pipeline(
             else:
                 # No closes could be derived — fall back to no-op stub
                 logger.warning(
-                    "[%s] MC requested but no M30 closes could be derived; skipping Monte Carlo.",
+                    "[%s] MC requested but no close series could be derived; skipping Monte Carlo.",
                     run_id,
                 )
                 instrument_results = _run_per_instrument_mc(
@@ -718,18 +717,14 @@ def load_pipeline_result(results_dir: Optional[Path] = None) -> Optional[Portfol
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def _derive_m30_closes(
+def _extract_m1_closes_by_symbol(
     m1_data: Dict[str, pd.DataFrame],
     symbols: List[str],
     errors: List[str],
     run_id: str,
 ) -> Dict[str, "pd.Series"]:
     """
-    Derive M30 close series from in-memory M1 DataFrames.
-
-    Aggregates each symbol's M1 data to M30 using
-    :func:`kinetra.aggregation.aggregate_ohlcv`, then extracts the
-    ``close`` column as a UTC-indexed :class:`pd.Series`.
+    Extract M1 close series from in-memory M1 DataFrames.
 
     Parameters
     ----------
@@ -745,8 +740,7 @@ def _derive_m30_closes(
     Returns
     -------
     dict[str, pd.Series]
-        M30 close series keyed by symbol.  Symbols for which aggregation
-        failed are omitted.
+        UTC-indexed M1 close series keyed by symbol.
     """
     closes: Dict[str, pd.Series] = {}
     for symbol in symbols:
@@ -754,53 +748,40 @@ def _derive_m30_closes(
         if m1_df is None or m1_df.empty:
             continue
         try:
-            # Ensure a datetime index before aggregation
+            # Ensure a UTC datetime index before extracting closes.
             df = m1_df.copy()
             time_col = next(
                 (c for c in df.columns if c.lower() in ("time", "datetime", "date", "timestamp")),
                 None,
             )
-            if time_col and not isinstance(df.index, pd.DatetimeIndex):
+            if time_col:
                 df.index = pd.to_datetime(df[time_col], utc=True, errors="coerce")
-
-            m30_df = aggregate_ohlcv(df, "M30")
-            if m30_df is None:
-                logger.debug("[%s] %s: aggregate_ohlcv returned None", run_id, symbol)
-                continue
-
-            close_col = next((c for c in m30_df.columns if c.lower() == "close"), None)
-            if close_col is None:
-                logger.debug("[%s] %s: no 'close' column after M30 aggregation", run_id, symbol)
-                continue
-
-            # Build a DatetimeIndex-backed series from the 'time' column that
-            # aggregate_ohlcv always resets into the DataFrame after resampling.
-            time_col_out = next(
-                (c for c in m30_df.columns if c.lower() in ("time", "datetime")),
-                None,
-            )
-            if time_col_out is not None:
-                idx = pd.to_datetime(m30_df[time_col_out], utc=True, errors="coerce")
-                series = pd.Series(m30_df[close_col].values, index=idx, dtype=float).dropna()
-            elif isinstance(m30_df.index, pd.DatetimeIndex):
-                series = m30_df[close_col].dropna()
+            elif isinstance(df.index, pd.DatetimeIndex):
+                if df.index.tz is None:
+                    df.index = df.index.tz_localize("UTC")
             else:
-                logger.debug(
-                    "[%s] %s: cannot construct DatetimeIndex for M30 series", run_id, symbol
-                )
+                logger.debug("[%s] %s: no time column/DatetimeIndex for closes", run_id, symbol)
                 continue
+
+            close_col = next((c for c in df.columns if c.lower() == "close"), None)
+            if close_col is None:
+                logger.debug("[%s] %s: no 'close' column in input data", run_id, symbol)
+                continue
+
+            series = pd.to_numeric(df[close_col], errors="coerce").dropna()
+            series = series[~series.index.duplicated(keep="last")]
 
             if len(series) >= 50:
                 closes[symbol] = series
             else:
                 logger.debug(
-                    "[%s] %s: only %d M30 bars after aggregation — skipping MC",
+                    "[%s] %s: only %d bars available — skipping MC",
                     run_id,
                     symbol,
                     len(series),
                 )
         except Exception as exc:
-            msg = f"{symbol}: M1→M30 aggregation for MC failed: {exc}"
+            msg = f"{symbol}: M1 close extraction for MC failed: {exc}"
             logger.warning("[%s] %s", run_id, msg)
             errors.append(msg)
 
@@ -1085,7 +1066,7 @@ def _run_per_instrument_mc(
             continue
         try:
             # monte_carlo_instrument needs a closes pd.Series, not an equity curve.
-            # Without in-memory M1/M30 data available here we skip gracefully.
+            # Without in-memory close data available here we skip gracefully.
             # Callers that want per-instrument MC should pass closes via a
             # separate instrument_closes dict (future Sprint 6 enhancement).
             logger.debug(
@@ -1116,7 +1097,7 @@ def _run_per_instrument_mc_with_closes(
     Run Monte Carlo for each qualified instrument when closes are available.
 
     This is the full implementation used when the caller provides in-memory
-    M30 close series (e.g. during a full pipeline run that keeps closes in
+    close series (e.g. during a full pipeline run that keeps closes in
     memory).  The simpler ``_run_per_instrument_mc`` skips MC when closes
     are not available.
 
@@ -1124,7 +1105,7 @@ def _run_per_instrument_mc_with_closes(
     ----------
     instrument_results : list[InstrumentPipelineResult]
     instrument_closes : dict[str, pd.Series]
-        M30 close series keyed by symbol.
+        Close series keyed by symbol.
     n_runs, seed, errors, run_id : see ``_run_per_instrument_mc``.
     """
     updated: List[InstrumentPipelineResult] = []

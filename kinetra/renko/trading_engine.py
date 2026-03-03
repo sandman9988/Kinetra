@@ -49,6 +49,7 @@ Usage::
 from __future__ import annotations
 
 import logging
+import queue
 import threading
 from collections import deque
 from dataclasses import dataclass
@@ -93,6 +94,8 @@ class EngineConfig:
 
     # Strategy params
     stop_bricks: float = 0.5
+    min_warmup_bricks: int = 2
+    startup_skip_flips: int = 2
     fliprate_window: int = 50
     markov_window: int = 50
     fliprate_threshold: float = 0.35
@@ -111,6 +114,52 @@ class EngineConfig:
     # Friction
     spread_ticks: float = 89.0  # ~8.9 pips for XAUUSD
     commission_per_lot: float = 7.0  # round-trip
+
+    # Swap (overnight carry)
+    # swap_long/short_usd_per_day: USD per lot per effective swap day.
+    # For mode 0 (pips): pre-computed as swap_points × tick_value_usd.
+    # For mode 1 (% p.a.): pre-computed at build time using the spec's poll-time price.
+    # triple_swap_day: weekday that carries 3× the daily rate (1=Mon … 7=Sun).
+    swap_long_usd_per_day: float = 0.0
+    swap_short_usd_per_day: float = 0.0
+    triple_swap_day: int = 3  # Wednesday default (metals/forex)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Swap helpers
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _count_effective_swap_days(
+    entry_time: "pd.Timestamp",
+    exit_time: "pd.Timestamp",
+    triple_swap_day: int,
+) -> float:
+    """Count effective swap days between entry and exit.
+
+    Rules (matching the Pepperstone cTrader screenshots):
+    - A swap is charged for each midnight UTC the position spans.
+    - Saturday and Sunday midnights are skipped (Weekend swaps: Disabled).
+    - The triple_swap_day midnight charges 3× instead of 1×.
+      triple_swap_day uses 1=Mon … 7=Sun convention (matching spec).
+
+    Returns the total effective day-count (a float to support the 3× multiplier).
+    """
+    if entry_time is None or exit_time is None or entry_time >= exit_time:
+        return 0.0
+
+    # First midnight strictly after entry
+    first_midnight = entry_time.floor("D") + pd.Timedelta(days=1)
+    total = 0.0
+    current = first_midnight
+    while current <= exit_time:
+        # pandas weekday: 0=Mon … 6=Sun; spec convention: 1=Mon … 7=Sun
+        wd_pandas = current.weekday()
+        if wd_pandas < 5:  # Mon–Fri only (skip Sat=5, Sun=6)
+            wd_spec = wd_pandas + 1  # convert to 1-based
+            total += 3.0 if wd_spec == triple_swap_day else 1.0
+        current += pd.Timedelta(days=1)
+    return total
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -275,18 +324,51 @@ class RenkoEngine:
         self._reset_state()
         self._active_dispatcher = dispatcher
 
+        # ── Worker-thread queue ───────────────────────────────────────────────
+        # Bar callbacks fire on the Twisted reactor thread.  Calling
+        # process_bar (and therefore open_position / send_and_wait) directly
+        # from the reactor thread deadlocks the connector: send_and_wait
+        # schedules work onto the reactor then blocks waiting for a response
+        # that can never arrive because the reactor itself is blocked.
+        #
+        # Solution: the reactor-thread callback enqueues the bar and returns
+        # immediately.  A dedicated worker thread dequeues and calls
+        # process_bar, where blocking send_and_wait is safe.
+        _bar_queue: "queue.Queue[Optional[tuple]]" = queue.Queue(maxsize=128)
         last_bar_ts: Optional[pd.Timestamp] = None
 
-        # Accept extra kwargs from CTraderBarProvider (open_, high, low, volume…)
+        # Sentinel pushed onto queue to signal the worker to exit.
+        _STOP = None
+
         def _on_bar(symbol: str, close: float, timestamp: datetime, **_: Any) -> None:
+            """Reactor-thread callback — must not block."""
+            try:
+                _bar_queue.put_nowait((close, timestamp))
+            except queue.Full:
+                LOG.warning("[engine] Bar queue full — dropping bar for %s at %s", symbol, timestamp)
+
+        def _worker() -> None:
+            """Worker thread — processes bars and places orders."""
             nonlocal last_bar_ts
-            ts = _ensure_utc(pd.Timestamp(timestamp))
-            self._stream_bars_seen += 1
-            if last_bar_ts is not None and ts <= last_bar_ts:
-                self._stream_duplicate_bars_dropped += 1
-                return
-            last_bar_ts = ts
-            self.process_bar(close, timestamp)
+            while True:
+                item = _bar_queue.get()
+                if item is _STOP:
+                    break
+                close, timestamp = item
+                ts = _ensure_utc(pd.Timestamp(timestamp))
+                self._stream_bars_seen += 1
+                if last_bar_ts is not None and ts <= last_bar_ts:
+                    self._stream_duplicate_bars_dropped += 1
+                    continue
+                last_bar_ts = ts
+                self.process_bar(close, timestamp)
+
+        worker_thread = threading.Thread(
+            target=_worker,
+            name=f"renko_engine_worker_{self.cfg.symbol}",
+            daemon=True,
+        )
+        worker_thread.start()
 
         bar_provider.subscribe(self.cfg.symbol, _on_bar)
         bar_provider.start()
@@ -303,6 +385,9 @@ class RenkoEngine:
             pass
         finally:
             bar_provider.stop()
+            # Signal worker to drain the queue and exit
+            _bar_queue.put(_STOP)
+            worker_thread.join(timeout=5.0)
             self._active_dispatcher = None
 
         return self._make_results()
@@ -323,6 +408,7 @@ class RenkoEngine:
         self._stream_bars_seen = 0
         self._stream_duplicate_bars_dropped = 0
         self._flip_count = 0
+        self._startup_flips_seen = 0
         self._filter_ready_count = 0
         self._last_brick_time: Optional[pd.Timestamp] = None
         self._in_pos = False
@@ -331,20 +417,25 @@ class RenkoEngine:
         self._entry_time: Optional[pd.Timestamp] = None
         self._entry_lots = 0.0
         self._open_order_id: Optional[str] = None  # broker order_id for the current position
+        self._open_signal_id: Optional[str] = None
         self._prev_dir: Optional[int] = None
         self._cumulative_pnl = 0.0
         self._live_equity = self.cfg.initial_equity
         self._completed: List[LiveTrade] = []
+        self._signal_counter: int = 0
+        self._signal_events: List[Dict[str, Any]] = []
         self._active_dispatcher: Optional[OrderDispatcher] = None
         self._last_eval: Dict[str, Any] = {
             "direction": "NA",
+            "signal_id": "",
             "is_flip": False,
             "fr": float("nan"),
             "markov": float("nan"),
             "entry_ok": False,
             "lots": 0.0,
             "warmup_ready": False,
-            "warmup_remaining": max(self.cfg.fliprate_window, self.cfg.markov_window) + 1,
+            "warmup_remaining": max(int(self.cfg.min_warmup_bricks), 1),
+            "startup_skip_remaining": max(int(self.cfg.startup_skip_flips), 0),
             "reason": "awaiting_bricks",
         }
 
@@ -404,23 +495,36 @@ class RenkoEngine:
         exit_price: float,
         lots: float,
         direction: int,
+        entry_time: Optional["pd.Timestamp"] = None,
+        exit_time: Optional["pd.Timestamp"] = None,
     ) -> Tuple[float, float, float, float, float]:
         """Return (gross_usd, spread_usd, commission_usd, swap_usd, net_usd).
 
         Friction costs are broken out separately:
-        - spread_usd: bid-ask spread cost
-        - commission_usd: broker commission per lot
-        - swap_usd: overnight swap/rollover (estimated, 0 in backtest)
+        - spread_usd: bid-ask spread cost (full round-trip)
+        - commission_usd: broker commission (round-trip)
+        - swap_usd: overnight carry cost, based on midnights spanned
         """
         gross_usd = (exit_price - entry) * direction * self._usd_per_point * lots
         spread_usd = self.cfg.spread_ticks * self.cfg.usd_per_tick * lots
         commission_usd = self.cfg.commission_per_lot * lots
-        # TODO: Model swap accurately for overnight positions
-        # - Backtest: estimate from hold duration using spec.swap_long_usd_per_lot_per_eff_day
-        # - Live: use actual swap charged by broker from dispatcher
-        # - Triple swap day (Wednesday) charges 3× normal rate
-        # - Current: $0 (understates friction for positions held >1 day)
-        swap_usd = 0.0
+
+        # Swap: charged per midnight spanned; triple-swap day counts as 3×.
+        # Live trades carry actual broker-applied swap so only apply here in
+        # backtest / paper mode (when times are available).
+        eff_days = _count_effective_swap_days(
+            entry_time, exit_time, self.cfg.triple_swap_day
+        )
+        if eff_days > 0:
+            daily_rate = (
+                self.cfg.swap_long_usd_per_day
+                if direction == 1
+                else self.cfg.swap_short_usd_per_day
+            )
+            swap_usd = daily_rate * lots * eff_days
+        else:
+            swap_usd = 0.0
+
         total_friction = spread_usd + commission_usd + swap_usd
         return gross_usd, spread_usd, commission_usd, swap_usd, gross_usd - total_friction
 
@@ -470,11 +574,12 @@ class RenkoEngine:
         self._brick_count += 1
         self._last_brick_time = bar_time
         stop_dist = self.cfg.stop_bricks * self.cfg.brick_size
-        warmup_needed = max(self.cfg.fliprate_window, self.cfg.markov_window) + 1
+        warmup_needed = max(int(self.cfg.min_warmup_bricks), 1)
         warmup_remaining = max(0, warmup_needed - self._brick_count)
         warmup_ready = warmup_remaining == 0
         self._last_eval = {
             "direction": "BUY" if direction == 1 else "SELL",
+            "signal_id": "",
             "is_flip": bool(self._prev_dir is not None and direction != self._prev_dir),
             "fr": fr_val,
             "markov": pUU_val if direction == 1 else pDD_val,
@@ -482,6 +587,9 @@ class RenkoEngine:
             "lots": 0.0,
             "warmup_ready": warmup_ready,
             "warmup_remaining": warmup_remaining,
+            "startup_skip_remaining": max(
+                0, int(self.cfg.startup_skip_flips) - int(self._startup_flips_seen)
+            ),
             "reason": "in_position" if self._in_pos else "no_flip_or_filters_not_ready",
         }
         if bool(self._last_eval.get("is_flip", False)):
@@ -518,7 +626,8 @@ class RenkoEngine:
             if stop_hit or colour_change:
                 reason = "stop" if stop_hit else "colour_change"
                 gross_usd, spread_usd, commission_usd, swap_usd, net_usd = self._simulate_pnl(
-                    self._entry_price, b_close, self._entry_lots, self._pos_dir
+                    self._entry_price, b_close, self._entry_lots, self._pos_dir,
+                    entry_time=self._entry_time, exit_time=bar_time,
                 )
                 # Use broker order_id when available — ties record to execution log
                 trade_id = self._open_order_id or f"T-{len(self._completed) + 1:06d}"
@@ -532,6 +641,8 @@ class RenkoEngine:
                     lots=self._entry_lots,
                     target_risk_usd=self.cfg.target_risk_usd,
                     gate=PERGate.SIMULATED,
+                    signal_id=self._open_signal_id or "",
+                    broker_ticket=self._open_order_id or "",
                 )
                 trade.close(
                     exit_price=b_close,
@@ -578,15 +689,25 @@ class RenkoEngine:
                     )
                 self._in_pos = False
                 self._open_order_id = None
+                self._open_signal_id = None
 
         # ── Entries ──────────────────────────────────────────────────────────
         if not self._in_pos:
             is_flip = self._prev_dir is not None and direction != self._prev_dir
             if not is_flip:
                 self._last_eval["reason"] = "no_flip"
-            if is_flip and not warmup_ready:
+            if is_flip and self._startup_flips_seen < int(self.cfg.startup_skip_flips):
+                self._startup_flips_seen += 1
+                self._last_eval["startup_skip_remaining"] = max(
+                    0, int(self.cfg.startup_skip_flips) - int(self._startup_flips_seen)
+                )
+                self._last_eval["reason"] = "startup_skip"
+            elif is_flip and not warmup_ready:
                 self._last_eval["reason"] = "warmup"
             elif is_flip and np.isfinite(fr_val) and np.isfinite(pUU_val) and np.isfinite(pDD_val):
+                self._signal_counter += 1
+                signal_id = f"S-{self._brick_count:08d}-{self._signal_counter:06d}"
+                self._last_eval["signal_id"] = signal_id
                 entry_ok = evaluate_entry(
                     direction=direction,
                     flip_rate_val=fr_val,
@@ -609,10 +730,32 @@ class RenkoEngine:
                 )
                 self._last_eval["entry_ok"] = bool(entry_ok)
                 self._last_eval["reason"] = "entry_pass" if entry_ok else "gate_reject"
+                signal_event: Dict[str, Any] = {
+                    "signal_id": signal_id,
+                    "symbol": self.cfg.symbol,
+                    "time": bar_time.isoformat(),
+                    "brick_index": int(self._brick_count),
+                    "direction": int(direction),
+                    "price": float(b_close),
+                    "flip_rate": float(fr_val) if np.isfinite(fr_val) else None,
+                    "markov": (
+                        float(pUU_val if direction == 1 else pDD_val)
+                        if np.isfinite(pUU_val if direction == 1 else pDD_val)
+                        else None
+                    ),
+                    "entry_ok": bool(entry_ok),
+                    "reason": str(self._last_eval["reason"]),
+                    "requested_lots": 0.0,
+                    "order_success": False,
+                    "order_id": None,
+                    "order_error": None,
+                    "order_raw": None,
+                }
 
                 if entry_ok and (direction == 1 or self.cfg.allow_short):
                     lots = self._compute_lots()
                     self._last_eval["lots"] = float(lots)
+                    signal_event["requested_lots"] = float(lots)
                     if lots > 0:
                         self._in_pos = True
                         self._pos_dir = direction
@@ -641,9 +784,27 @@ class RenkoEngine:
                             # Store broker order_id for close call + audit trail
                             if result and result.success:
                                 self._open_order_id = result.order_id
+                                self._open_signal_id = signal_id
                                 self._last_eval["reason"] = "entered"
+                                signal_event["order_success"] = True
+                                signal_event["order_id"] = result.order_id
+                                signal_event["order_raw"] = getattr(result, "raw", None)
+                            else:
+                                signal_event["order_error"] = (
+                                    getattr(result, "error", None) if result else "no_result"
+                                )
+                                signal_event["order_raw"] = (
+                                    getattr(result, "raw", None) if result else None
+                                )
+                        else:
+                            self._open_signal_id = signal_id
+                            signal_event["order_success"] = True
+                            signal_event["order_id"] = "BACKTEST"
+                            signal_event["order_raw"] = {"mode": "backtest"}
                     else:
                         self._last_eval["reason"] = "sizing_zero"
+                        signal_event["reason"] = "sizing_zero"
+                self._signal_events.append(signal_event)
             elif is_flip:
                 self._last_eval["reason"] = "filters_not_ready"
 
@@ -652,7 +813,8 @@ class RenkoEngine:
     def _force_close(self, price: float, time: pd.Timestamp) -> None:
         """Close the open position at end-of-data."""
         gross_usd, spread_usd, commission_usd, swap_usd, net_usd = self._simulate_pnl(
-            self._entry_price, price, self._entry_lots, self._pos_dir
+            self._entry_price, price, self._entry_lots, self._pos_dir,
+            entry_time=self._entry_time, exit_time=time,
         )
         trade = LiveTrade(
             trade_id=self._open_order_id or f"T-{len(self._completed) + 1:06d}",
@@ -664,6 +826,8 @@ class RenkoEngine:
             lots=self._entry_lots,
             target_risk_usd=self.cfg.target_risk_usd,
             gate=PERGate.SIMULATED,
+            signal_id=self._open_signal_id or "",
+            broker_ticket=self._open_order_id or "",
         )
         trade.close(
             exit_price=price,
@@ -679,12 +843,15 @@ class RenkoEngine:
         self._cumulative_pnl += trade.net_usd
         self._live_equity = self.cfg.initial_equity + self._cumulative_pnl
         self._in_pos = False
+        self._open_order_id = None
+        self._open_signal_id = None
 
     def _make_results(self) -> Dict[str, Any]:
         """Build the standard results dict from completed trades."""
         analytics = analyze_trades(self._completed, initial_equity=self.cfg.initial_equity)
         return {
             "trades": [t.to_dict() for t in self._completed],
+            "signals": list(self._signal_events),
             "summary": {
                 # Trade counts
                 "n_trades": analytics.n_trades,

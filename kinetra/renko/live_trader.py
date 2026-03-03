@@ -312,6 +312,8 @@ class LiveTrade:
     lots: float
     target_risk_usd: float
     gate: PERGate
+    signal_id: str = ""
+    broker_ticket: str = ""
     layer2_weight: float = 1.0  # allocation agent weight [0, 1]
     layer3_exposure: float = 1.0  # risk agent scalar [0, 1]
     exit_price: Optional[float] = None
@@ -363,6 +365,8 @@ class LiveTrade:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "trade_id": self.trade_id,
+            "signal_id": self.signal_id,
+            "broker_ticket": self.broker_ticket,
             "symbol": self.symbol,
             "direction": self.direction.value,
             "entry_price": self.entry_price,

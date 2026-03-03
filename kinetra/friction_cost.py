@@ -338,9 +338,12 @@ class InstrumentSpec:
     slippage_points: float = 1.0  # Expected slippage per side in POINTS
 
     # Swap (overnight carry) — loaded from broker
-    swap_long_points: float = -5.0  # Points per day, long position
-    swap_short_points: float = -5.0  # Points per day, short position
+    swap_long_points: float = -5.0  # Points per day (mode 0) or annual % rate (mode 1)
+    swap_short_points: float = -5.0  # Points per day (mode 0) or annual % rate (mode 1)
     triple_swap_day: int = 3  # Day when 3× swap is charged (1=Mon…7=Sun)
+    # swap_mode: 0 = pips/points per day, 1 = % per year (annual rate applied to notional).
+    # Indices (GER40, NAS100, JPN225) use mode 1; metals/forex/commodities use mode 0.
+    swap_mode: int = 0
 
     # Authoritative USD swap values polled directly from the broker.
     #
@@ -629,12 +632,15 @@ class InstrumentSpec:
           1. ``swap_long_usd_per_lot_per_eff_day`` — polled USD value stored
              directly by poll_symbol_specs.py.  This is authoritative because
              the broker already expressed the rate in USD; no conversion needed.
-          2. ``swap_long_points * tick_value_usd`` — fallback for legacy spec
-             files that pre-date the USD field.  May be inaccurate for non-FX
-             instruments where tick_value_usd ≠ 1 "broker point" of P&L.
+          2. Mode 0 (pips): ``swap_long_points * tick_value_usd`` — fallback for
+             legacy spec files that pre-date the USD field.
+          3. Mode 1 (% p.a.): cannot convert to USD without a current price;
+             returns ``float("nan")`` so callers know the value is unavailable.
         """
         if self.swap_long_usd_per_lot_per_eff_day is not None:
             return self.swap_long_usd_per_lot_per_eff_day
+        if self.swap_mode == 1:
+            return float("nan")  # % p.a. — needs price to convert; use swap_long_points
         return self.swap_long_points * self.tick_value_usd
 
     @property
@@ -643,10 +649,13 @@ class InstrumentSpec:
 
         Priority:
           1. ``swap_short_usd_per_lot_per_eff_day`` — polled USD value (authoritative).
-          2. ``swap_short_points * tick_value_usd`` — legacy fallback.
+          2. Mode 0 (pips): ``swap_short_points * tick_value_usd`` — legacy fallback.
+          3. Mode 1 (% p.a.): returns ``float("nan")``.
         """
         if self.swap_short_usd_per_lot_per_eff_day is not None:
             return self.swap_short_usd_per_lot_per_eff_day
+        if self.swap_mode == 1:
+            return float("nan")
         return self.swap_short_points * self.tick_value_usd
 
     def notional_usd(self, price: float, lots: float) -> float:
@@ -759,7 +768,12 @@ class InstrumentSpec:
             swap_short_points=float(raw.get("swap_short_points", -5.0)),
             swap_long_usd_per_lot_per_eff_day=swap_long_usd_override,
             swap_short_usd_per_lot_per_eff_day=swap_short_usd_override,
-            triple_swap_day=int(raw.get("triple_swap_day_our_conv", 3)),
+            triple_swap_day=int(
+                raw.get("swap_triple_day")          # canonical key (new)
+                or raw.get("triple_swap_day_our_conv")  # legacy key (fallback)
+                or 3
+            ),
+            swap_mode=int(raw.get("swap_mode", 0)),
             margin_initial=float(raw.get("margin_initial", 0.01)),
             volume_min=float(raw.get("volume_min", 0.01)),
             volume_max=float(raw.get("volume_max", 500.0)),

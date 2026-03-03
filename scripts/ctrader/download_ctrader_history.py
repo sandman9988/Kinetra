@@ -472,6 +472,11 @@ def _build_contract_spec(
 
     return {
         "symbol": meta.symbol_name.upper(),
+        "symbol_id": int(meta.symbol_id),
+        "base_asset_id": int(meta.base_asset_id or 0),
+        "quote_asset_id": int(meta.quote_asset_id or 0),
+        "base_asset": assets_by_id.get(meta.base_asset_id or -1, ""),
+        "quote_asset": quote_asset,
         "broker_symbol": meta.symbol_name,
         "broker_source": "ctrader",
         "spread_typical_pts": float(spread_typical_pts),

@@ -182,7 +182,7 @@ class QualificationResult:
     vr_peak : float
         Peak variance ratio from DSP analysis.
     vr_scale_bars : int
-        Number of M30 bars at the VR peak scale.
+        Number of bars at the VR peak scale.
     friction_ratio : float
         spread_p50_price / brick_size at qualification time.
     omega : float
@@ -264,14 +264,14 @@ class QualificationResult:
     drift_reason: Optional[str] = None
     pipeline_version: str = "5B"
     # ── Sprint 6A additions (all default-safe for loading old JSON files) ────
-    engine: str = "fixed"                  # "fixed" | "adaptive"
-    bars_m1: int = 0                       # M1 bar count used in qualification
-    coverage_ratio: float = 0.0           # non-NaN bars / expected bars
-    spike_count: int = 0                   # artefactual spikes removed before backtest
-    session_break_minutes: float = 30.0   # from SessionProfile
-    gate_bar_fraction: float = 0.0        # adaptive: fraction of bars gate was OPEN
-    gate_trade_fraction: float = 0.0      # adaptive: fraction of trades passing gate
-    drift_last_checked_at: str = ""       # ISO timestamp of last drift check
+    engine: str = "fixed"  # "fixed" | "adaptive"
+    bars_m1: int = 0  # M1 bar count used in qualification
+    coverage_ratio: float = 0.0  # non-NaN bars / expected bars
+    spike_count: int = 0  # artefactual spikes removed before backtest
+    session_break_minutes: float = 30.0  # from SessionProfile
+    gate_bar_fraction: float = 0.0  # adaptive: fraction of bars gate was OPEN
+    gate_trade_fraction: float = 0.0  # adaptive: fraction of trades passing gate
+    drift_last_checked_at: str = ""  # ISO timestamp of last drift check
 
     # ── Persistence ──────────────────────────────────────────────────────────
 
@@ -330,7 +330,7 @@ def qualify_instrument(
     Steps
     -----
     1. ``detect_session_break()`` — broker fingerprint, session gap detection.
-    2. ``run_dsp()`` — VR analysis on M30-aggregated closes.
+    2. ``run_dsp()`` — VR analysis on M1 close series.
     3. Gate: VR peak must exceed ``QUALIFY_MIN_VR``.
     4. ``scaled_filter_params()`` — derive adaptive :class:`FilterParams`.
     5. Gate: friction ratio must not exceed ``QUALIFY_MAX_FRICTION_RATIO``.
@@ -483,25 +483,25 @@ def qualify_instrument(
             )
             m1_clean = m1_df
 
-    # ── Step 2: Aggregate M1 → M30 for DSP ──────────────────────────────────
-    logger.info("%s: step 2/6 — DSP analysis (VR on M30)", symbol)
+    # ── Step 2: Extract M1 closes for DSP ───────────────────────────────────
+    logger.info("%s: step 2/6 — DSP analysis (VR on M1)", symbol)
     try:
-        m30_closes = _aggregate_m1_to_m30(m1_clean)
+        m1_closes = _extract_m1_closes(m1_clean)
     except Exception as exc:
-        return _fail(f"M1→M30 aggregation failed: {exc}", data_start=data_start, data_end=data_end)
+        return _fail(f"M1 close extraction failed: {exc}", data_start=data_start, data_end=data_end)
 
-    if len(m30_closes) < 60:
+    if len(m1_closes) < 300:
         return _fail(
-            f"insufficient M30 bars for DSP ({len(m30_closes)} < 60)",
+            f"insufficient M1 bars for DSP ({len(m1_closes)} < 300)",
             data_start=data_start,
             data_end=data_end,
         )
 
     try:
         dsp_result = run_dsp(
-            m30_closes.values,
+            m1_closes.values,
             symbol=symbol,
-            bars_per_hour=2.0,  # M30 = 2 bars/hour
+            bars_per_hour=60.0,  # M1 = 60 bars/hour
         )
     except Exception as exc:
         return _fail(f"DSP analysis failed: {exc}", data_start=data_start, data_end=data_end)
@@ -609,9 +609,9 @@ def qualify_instrument(
 
     logger.info("%s: step 3/6 — scaled filter params + brick sweep", symbol)
     try:
-        m30_closes.index if hasattr(m30_closes, "index") else None
+        m1_closes.index if hasattr(m1_closes, "index") else None
         temp_bricks = build_renko(
-            m30_closes,
+            m1_closes,
             brick_size=brick_size,
             session_break_minutes=session_break_minutes,
         )
@@ -633,7 +633,7 @@ def qualify_instrument(
     try:
         sweep_result = sweep_brick_sizes(
             symbol=symbol,
-            closes=m30_closes,
+            closes=m1_closes,
             dsp_brick_size=brick_size,
             spread_price=spread_price,
             friction_floor=friction_floor_result.floor_price,
@@ -651,7 +651,7 @@ def qualify_instrument(
     try:
         bt_result: InstrumentBacktestResult = backtest_instrument(
             symbol=symbol,
-            closes=m30_closes,
+            closes=m1_closes,
             brick_size=brick_size,
             filter_params=filter_params,
             stop_params=stop_params,
@@ -744,7 +744,7 @@ def qualify_instrument(
     try:
         wf_result = walk_forward_instrument(
             symbol=symbol,
-            closes=m30_closes,
+            closes=m1_closes,
             brick_size=brick_size,
             filter_params=filter_params,
             stop_params=stop_params,
@@ -990,7 +990,7 @@ def recalibrate_instrument(
 
     1. Re-detect the session break window (via
        :func:`~kinetra.renko.session.detect_session_break`).
-    2. Re-run DSP on fresh M30 data (via :func:`~kinetra.renko.dsp.run_dsp`).
+    2. Re-run DSP on fresh M1 data (via :func:`~kinetra.renko.dsp.run_dsp`).
     3. Derive new :class:`~kinetra.renko.backtest.FilterParams` (via
        :func:`~kinetra.renko.dsp.scaled_filter_params`).
     4. (Optional) Rebuild the brick sequence and update all derived arrays in
@@ -1087,9 +1087,9 @@ def recalibrate_instrument(
         logger.warning("%s: recalibrate session detect failed: %s — using 30.0 min", symbol, exc)
         session_break_minutes = 30.0
 
-    # ── Step 2: Aggregate M1 → M30, re-run DSP ───────────────────────────────
+    # ── Step 2: Extract M1 closes, re-run DSP ───────────────────────────────
     try:
-        m30_closes = _aggregate_m1_to_m30(recent_m1_df)
+        m1_closes = _extract_m1_closes(recent_m1_df)
     except Exception as exc:
         return RecalibrationResult(
             symbol=symbol,
@@ -1101,12 +1101,12 @@ def recalibrate_instrument(
             old_omega=existing.omega,
             new_omega=existing.omega,
             session_break_minutes=session_break_minutes,
-            reason=f"M1→M30 aggregation failed: {exc}",
+            reason=f"M1 close extraction failed: {exc}",
             recalibrated_at=now_utc,
         )
 
     try:
-        new_dsp = run_dsp(m30_closes.values, symbol=symbol, bars_per_hour=2.0)
+        new_dsp = run_dsp(m1_closes.values, symbol=symbol, bars_per_hour=60.0)
     except Exception as exc:
         return RecalibrationResult(
             symbol=symbol,
@@ -1131,13 +1131,13 @@ def recalibrate_instrument(
         from kinetra.renko.brick_engine import build_renko
 
         _tmp_bricks = build_renko(
-            m30_closes,
+            m1_closes,
             brick_size=new_dsp.dsp_brick_size,
             session_break_minutes=session_break_minutes,
         )
         bpd = bricks_per_day(_tmp_bricks)
     except Exception:
-        bpd = 48.0  # sensible fallback for M30-derived bricks
+        bpd = 48.0  # conservative fallback if brick build fails
 
     try:
         new_filter_params = scaled_filter_params(new_dsp, bricks_per_day=bpd)
@@ -1150,7 +1150,7 @@ def recalibrate_instrument(
     try:
         quick_bt = backtest_instrument(
             symbol=symbol,
-            closes=m30_closes,
+            closes=m1_closes,
             brick_size=new_dsp.dsp_brick_size,
             filter_params=new_filter_params,
             session_break_minutes=session_break_minutes,
@@ -1164,7 +1164,7 @@ def recalibrate_instrument(
     if instrument_context is not None:
         try:
             instrument_context.recalibrate(
-                new_closes=m30_closes,
+                new_closes=m1_closes,
                 new_dsp_result=new_dsp,
                 new_filter_params=new_filter_params,
                 session_break_minutes=session_break_minutes,
@@ -1248,11 +1248,11 @@ def recalibrate_instrument(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def _aggregate_m1_to_m30(m1_df: pd.DataFrame) -> pd.Series:
-    """Aggregate M1 OHLCV DataFrame to M30 close-price Series.
+def _extract_m1_closes(m1_df: pd.DataFrame) -> pd.Series:
+    """Extract M1 close-price Series from an M1 OHLCV DataFrame.
 
     Returns a pandas Series indexed by UTC datetime with the close price
-    of each 30-minute bar.
+    with duplicate timestamps removed.
     """
     df = m1_df.copy()
     # Normalise time column → DatetimeIndex
@@ -1274,8 +1274,9 @@ def _aggregate_m1_to_m30(m1_df: pd.DataFrame) -> pd.Series:
     if close_col is None:
         raise ValueError("m1_df must have a 'close' column")
 
-    m30 = df[close_col].resample("30min").last().dropna()
-    return m30
+    closes = pd.to_numeric(df[close_col], errors="coerce").dropna()
+    closes = closes[~closes.index.duplicated(keep="last")]
+    return closes
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1712,9 +1713,9 @@ class CalibrationDriftDetector:
                 checked_at=now_utc,
             )
 
-        # Aggregate M1 → M30 for DSP
+        # Extract M1 closes for DSP
         try:
-            m30_closes = _aggregate_m1_to_m30(recent_m1_df)
+            m1_closes = _extract_m1_closes(recent_m1_df)
         except Exception as exc:
             return DriftCheckResult(
                 symbol=symbol,
@@ -1727,9 +1728,9 @@ class CalibrationDriftDetector:
                 checked_at=now_utc,
             )
 
-        # Re-run DSP
+        # Re-run DSP on M1 closes
         try:
-            new_dsp = run_dsp(m30_closes.values, symbol=symbol, bars_per_hour=2.0)
+            new_dsp = run_dsp(m1_closes.values, symbol=symbol, bars_per_hour=60.0)
         except Exception as exc:
             return DriftCheckResult(
                 symbol=symbol,
@@ -1752,7 +1753,7 @@ class CalibrationDriftDetector:
             filter_params = FilterParams(**fp_dict_filtered) if fp_dict_filtered else FilterParams()
             quick_bt = backtest_instrument(
                 symbol=symbol,
-                closes=m30_closes,
+                closes=m1_closes,
                 brick_size=existing.brick_size,
                 filter_params=filter_params,
             )
