@@ -3,7 +3,7 @@
 Last updated: 2026-03-03
 
 For current live/paper/backtest runtime semantics, read:
-- [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md)
+- [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md)
 
 ## 1) Launch Interactive Menu
 
@@ -54,4 +54,4 @@ python scripts/renko_engine.py XAUUSD --stage live --live-size micro \
 
 - Auth/connect failures: verify `.env.openapi` credentials.
 - If launcher exits on prompt: run in an interactive shell (it needs input).
-- For latest live snapshot semantics: use `docs/RENKO_LIVE_STATE.md`.
+- For latest live snapshot semantics: use `archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`.

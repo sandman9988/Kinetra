@@ -23,11 +23,10 @@ Usage:
     python scripts/master_workflow.py
 """
 
-import os
-import sys
-import subprocess
 import getpass
-import time
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 from cryptography.fernet import Fernet
@@ -133,10 +132,10 @@ def save_credentials_to_env(token: str, account_id: str = None, wf_manager: Work
     if wf_manager:
         success = wf_manager.atomic_write(env_file, content)
         if success:
-            wf_manager.logger.info(f"✅ Credentials saved securely with backup and checksum")
+            wf_manager.logger.info("✅ Credentials saved securely with backup and checksum")
             wf_manager.logger.info(f"   Saved {len(env_lines)} credentials")
         else:
-            wf_manager.logger.error(f"❌ Failed to save credentials")
+            wf_manager.logger.error("❌ Failed to save credentials")
             raise RuntimeError("Failed to save credentials")
     else:
         # Fallback to direct write (less safe)
@@ -179,7 +178,7 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
         True if credentials are available
     """
     logger = wf_manager.logger if wf_manager else None
-    
+
     # Check for placeholder values
     placeholder_patterns = ['your-token-here', 'your-account-id-here', 'placeholder', 'example']
 
@@ -197,7 +196,7 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
         if wf_manager:
             if not wf_manager.verify_file_integrity(env_file):
                 logger.warning("⚠️  .env file integrity check failed - may have been tampered with")
-                
+
                 if auto_restore:
                     # Automatically restore without prompting
                     if wf_manager.restore_from_backup(env_file):
@@ -211,18 +210,18 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
                         if restore in ['1', '2']:
                             break
                         print("⚠️  Invalid input. Please enter 1 or 2.")
-                    
+
                     if restore == '1':
                         if wf_manager.restore_from_backup(env_file):
                             logger.info("✅ Restored .env from backup")
                         else:
                             logger.warning("⚠️  No backup available, will prompt for credentials")
-        
+
         if logger:
             logger.info(f"✅ Found .env file ({env_file.stat().st_size} bytes)")
         else:
             print(f"✅ Found .env file ({env_file.stat().st_size} bytes)")
-        
+
         try:
             with open(env_file, 'r') as f:
                 for line in f:
@@ -232,15 +231,15 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
                         if key == 'METAAPI_TOKEN' and key not in os.environ:
                             os.environ[key] = value
                             if logger:
-                                logger.info(f"   Loaded METAAPI_TOKEN")
+                                logger.info("   Loaded METAAPI_TOKEN")
                             else:
-                                print(f"   Loaded METAAPI_TOKEN")
+                                print("   Loaded METAAPI_TOKEN")
                         elif key == 'METAAPI_ACCOUNT_ID' and key not in os.environ:
                             os.environ[key] = value
                             if logger:
-                                logger.info(f"   Loaded METAAPI_ACCOUNT_ID")
+                                logger.info("   Loaded METAAPI_ACCOUNT_ID")
                             else:
-                                print(f"   Loaded METAAPI_ACCOUNT_ID")
+                                print("   Loaded METAAPI_ACCOUNT_ID")
         except Exception as e:
             if logger:
                 logger.error(f"⚠️  Could not read .env file: {e}")
@@ -248,9 +247,9 @@ def check_credentials(wf_manager: WorkflowManager = None, auto_restore: bool = F
                 print(f"⚠️  Could not read .env file: {e}")
     else:
         if logger:
-            logger.info(f"ℹ️  No .env file found (will prompt for credentials)")
+            logger.info("ℹ️  No .env file found (will prompt for credentials)")
         else:
-            print(f"ℹ️  No .env file found (will prompt for credentials)")
+            print("ℹ️  No .env file found (will prompt for credentials)")
 
     token = os.environ.get('METAAPI_TOKEN')
     account_id = os.environ.get('METAAPI_ACCOUNT_ID')
@@ -387,9 +386,9 @@ def run_step(
 
         if result.returncode != 0:
             raise RuntimeError(f"Script exited with code {result.returncode}")
-        
+
         return True
-    
+
     # Execute step with retry logic
     success, result = wf_manager.execute_step(
         step_name,
@@ -397,10 +396,10 @@ def run_step(
         critical=required,
         max_retries=3 if required else 1
     )
-    
+
     if not success:
         return False
-    
+
     # Exit offramp
     if allow_exit:
         print("\nOptions:")
@@ -413,7 +412,7 @@ def run_step(
             if choice in ['1', '2', '3']:
                 break
             print("⚠️  Invalid input. Please enter 1, 2, or 3.")
-        
+
         if choice == '2':
             wf_manager.logger.info("👋 User chose to exit workflow")
             return False
@@ -421,7 +420,7 @@ def run_step(
             wf_manager.logger.info("💾 Saving progress and exiting")
             wf_manager.complete_workflow(status="paused")
             return False
-    
+
     return True
 
 
@@ -435,7 +434,7 @@ def main():
         enable_checksums=True,
         max_retries=3
     )
-    
+
     # Start workflow
     wf_manager.start_workflow(
         "master_workflow",
@@ -450,7 +449,7 @@ def main():
             ]
         }
     )
-    
+
     try:
         print_header("KINETRA MASTER WORKFLOW")
 
@@ -480,13 +479,13 @@ THE MARKET TELLS US, WE DON'T ASSUME!
             if not check_credentials(wf_manager):
                 raise RuntimeError("Authentication failed")
             return True
-        
+
         success, _ = wf_manager.execute_step(
             "Authentication & Credential Verification",
             auth_step,
             critical=True
         )
-        
+
         if not success:
             wf_manager.complete_workflow(status="failed")
             return
@@ -569,7 +568,7 @@ Which steps do you want to run?
                 if result.returncode != 0:
                     raise RuntimeError(f"Conversion failed with code {result.returncode}")
                 return True
-            
+
             wf_manager.execute_step(
                 "MT5 Format Conversion",
                 convert_step,
@@ -688,7 +687,7 @@ THE MARKET HAS TOLD US - NOW WE KNOW!
 
         # Complete workflow
         wf_manager.complete_workflow(status="completed")
-        
+
     except KeyboardInterrupt:
         wf_manager.logger.warning("\n⚠️  Workflow interrupted by user")
         wf_manager.complete_workflow(status="interrupted")

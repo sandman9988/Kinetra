@@ -1,7 +1,7 @@
 # Preflight Checks — Live Trading Safety
 
 > Canonical runtime status and current behavior are tracked in
-> [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md).
+> [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md).
 
 ## Overview
 

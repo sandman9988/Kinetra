@@ -9,14 +9,11 @@ Usage:
     python scripts/dashboard.py
 """
 
-import sys
 import json
-import urllib.request
 import threading
+import urllib.request
 import webbrowser
-from pathlib import Path
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 # Configuration
 METRICS_PORT = 8001

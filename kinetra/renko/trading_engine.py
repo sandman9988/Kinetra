@@ -48,11 +48,12 @@ Usage::
 
 from __future__ import annotations
 
+import logging
 import threading
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -67,6 +68,11 @@ from kinetra.renko.live_trader import (
     TradeDirection,
 )
 from kinetra.renko.trade_analytics import analyze_trades
+
+if TYPE_CHECKING:
+    from kinetra.friction_cost import InstrumentSpec
+
+LOG = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Configuration
@@ -100,7 +106,7 @@ class EngineConfig:
     compounding_per_k: float = 0.01  # compounding: lots per $1 000 equity
     lot_step: float = 0.01
     min_lots: float = 0.01
-    gate_lot_ceiling: float = 10.0  # hard cap; set 0.01 for micro-live
+    gate_lot_ceiling: Optional[float] = None  # None = use broker volume_max from spec
 
     # Friction
     spread_ticks: float = 89.0  # ~8.9 pips for XAUUSD
@@ -130,8 +136,37 @@ class RenkoEngine:
     +--------------+---------------------+------------------------+
     """
 
-    def __init__(self, config: EngineConfig) -> None:
+    def __init__(
+        self,
+        config: EngineConfig,
+        spec: Optional["InstrumentSpec"] = None,
+        quiet_mode: bool = False,
+    ) -> None:
+        """Initialize the Renko engine.
+
+        Parameters
+        ----------
+        quiet_mode : bool
+            If True, suppress brick-by-brick logs (for live trading)
+
+
+        Parameters
+        ----------
+        config : EngineConfig
+            Trading configuration
+        spec : InstrumentSpec, optional
+            Broker instrument spec. If provided and gate_lot_ceiling is None,
+            uses spec.volume_max as the lot ceiling.
+        """
         self.cfg = config
+        self._spec = spec
+        self._quiet_mode = quiet_mode
+        # Resolve gate_lot_ceiling: use broker volume_max if not explicitly set
+        self._lot_ceiling = (
+            config.gate_lot_ceiling
+            if config.gate_lot_ceiling is not None
+            else (getattr(spec, "volume_max", 10.0) if spec is not None else 10.0)
+        )
         self._usd_per_point = config.usd_per_tick / config.tick_size
         self._reset_state()
 
@@ -240,8 +275,17 @@ class RenkoEngine:
         self._reset_state()
         self._active_dispatcher = dispatcher
 
+        last_bar_ts: Optional[pd.Timestamp] = None
+
         # Accept extra kwargs from CTraderBarProvider (open_, high, low, volume…)
         def _on_bar(symbol: str, close: float, timestamp: datetime, **_: Any) -> None:
+            nonlocal last_bar_ts
+            ts = _ensure_utc(pd.Timestamp(timestamp))
+            self._stream_bars_seen += 1
+            if last_bar_ts is not None and ts <= last_bar_ts:
+                self._stream_duplicate_bars_dropped += 1
+                return
+            last_bar_ts = ts
             self.process_bar(close, timestamp)
 
         bar_provider.subscribe(self.cfg.symbol, _on_bar)
@@ -275,6 +319,12 @@ class RenkoEngine:
         max_w = max(self.cfg.fliprate_window, self.cfg.markov_window) + 2
         self._builder = IncrementalRenkoBuilder(self.cfg.brick_size)
         self._dir_deque: deque = deque(maxlen=max_w)
+        self._brick_count = 0
+        self._stream_bars_seen = 0
+        self._stream_duplicate_bars_dropped = 0
+        self._flip_count = 0
+        self._filter_ready_count = 0
+        self._last_brick_time: Optional[pd.Timestamp] = None
         self._in_pos = False
         self._pos_dir = 0
         self._entry_price = 0.0
@@ -286,6 +336,47 @@ class RenkoEngine:
         self._live_equity = self.cfg.initial_equity
         self._completed: List[LiveTrade] = []
         self._active_dispatcher: Optional[OrderDispatcher] = None
+        self._last_eval: Dict[str, Any] = {
+            "direction": "NA",
+            "is_flip": False,
+            "fr": float("nan"),
+            "markov": float("nan"),
+            "entry_ok": False,
+            "lots": 0.0,
+            "warmup_ready": False,
+            "warmup_remaining": max(self.cfg.fliprate_window, self.cfg.markov_window) + 1,
+            "reason": "awaiting_bricks",
+        }
+
+    @property
+    def bricks_processed(self) -> int:
+        """Total number of Renko bricks processed since last reset."""
+        return int(self._brick_count)
+
+    @property
+    def duplicate_bars_dropped(self) -> int:
+        """Number of out-of-order/duplicate bars dropped in streaming mode."""
+        return int(self._stream_duplicate_bars_dropped)
+
+    @property
+    def stream_bars_seen(self) -> int:
+        """Total streaming bars delivered to the engine callback."""
+        return int(self._stream_bars_seen)
+
+    @property
+    def flips_seen(self) -> int:
+        """Total Renko colour flips seen in this run."""
+        return int(self._flip_count)
+
+    @property
+    def filter_ready_bricks(self) -> int:
+        """Bricks where both FR and Markov values were finite."""
+        return int(self._filter_ready_count)
+
+    @property
+    def last_brick_time(self) -> Optional[pd.Timestamp]:
+        """UTC timestamp for the most recently processed Renko brick."""
+        return self._last_brick_time
 
     # ── Sizing ────────────────────────────────────────────────────────────────
 
@@ -303,7 +394,7 @@ class RenkoEngine:
             raw = cfg.target_risk_usd / value_per_lot
 
         stepped = round(raw / cfg.lot_step) * cfg.lot_step
-        return float(max(cfg.min_lots, min(stepped, cfg.gate_lot_ceiling)))
+        return float(max(cfg.min_lots, min(stepped, self._lot_ceiling)))
 
     # ── P&L ───────────────────────────────────────────────────────────────────
 
@@ -313,14 +404,25 @@ class RenkoEngine:
         exit_price: float,
         lots: float,
         direction: int,
-    ) -> Tuple[float, float, float]:
-        """Return (gross_usd, friction_usd, net_usd)."""
+    ) -> Tuple[float, float, float, float, float]:
+        """Return (gross_usd, spread_usd, commission_usd, swap_usd, net_usd).
+
+        Friction costs are broken out separately:
+        - spread_usd: bid-ask spread cost
+        - commission_usd: broker commission per lot
+        - swap_usd: overnight swap/rollover (estimated, 0 in backtest)
+        """
         gross_usd = (exit_price - entry) * direction * self._usd_per_point * lots
-        friction_usd = (
-            self.cfg.spread_ticks * self.cfg.usd_per_tick * lots
-            + self.cfg.commission_per_lot * lots
-        )
-        return gross_usd, friction_usd, gross_usd - friction_usd
+        spread_usd = self.cfg.spread_ticks * self.cfg.usd_per_tick * lots
+        commission_usd = self.cfg.commission_per_lot * lots
+        # TODO: Model swap accurately for overnight positions
+        # - Backtest: estimate from hold duration using spec.swap_long_usd_per_lot_per_eff_day
+        # - Live: use actual swap charged by broker from dispatcher
+        # - Triple swap day (Wednesday) charges 3× normal rate
+        # - Current: $0 (understates friction for positions held >1 day)
+        swap_usd = 0.0
+        total_friction = spread_usd + commission_usd + swap_usd
+        return gross_usd, spread_usd, commission_usd, swap_usd, gross_usd - total_friction
 
     # ── Filters (streaming path) ──────────────────────────────────────────────
 
@@ -365,7 +467,46 @@ class RenkoEngine:
         dispatcher: Optional[OrderDispatcher] = None,
     ) -> None:
         """Core strategy logic for one brick. Mutates engine state."""
+        self._brick_count += 1
+        self._last_brick_time = bar_time
         stop_dist = self.cfg.stop_bricks * self.cfg.brick_size
+        warmup_needed = max(self.cfg.fliprate_window, self.cfg.markov_window) + 1
+        warmup_remaining = max(0, warmup_needed - self._brick_count)
+        warmup_ready = warmup_remaining == 0
+        self._last_eval = {
+            "direction": "BUY" if direction == 1 else "SELL",
+            "is_flip": bool(self._prev_dir is not None and direction != self._prev_dir),
+            "fr": fr_val,
+            "markov": pUU_val if direction == 1 else pDD_val,
+            "entry_ok": False,
+            "lots": 0.0,
+            "warmup_ready": warmup_ready,
+            "warmup_remaining": warmup_remaining,
+            "reason": "in_position" if self._in_pos else "no_flip_or_filters_not_ready",
+        }
+        if bool(self._last_eval.get("is_flip", False)):
+            self._flip_count += 1
+        if np.isfinite(fr_val) and np.isfinite(pUU_val) and np.isfinite(pDD_val):
+            self._filter_ready_count += 1
+
+        # ── Brick logging ─────────────────────────────────────────────────────
+        dir_str = "UP" if direction == 1 else "DN"
+        pos_str = (
+            f" [IN {('LONG' if self._pos_dir == 1 else 'SHORT') if self._in_pos else 'FLAT'}]"
+            if self._in_pos
+            else ""
+        )
+        if not self._quiet_mode:
+            LOG.info(
+                "Brick: %s %s @ %.2f | FR=%.3f pUU=%.3f pDD=%.3f%s",
+                bar_time.strftime("%H:%M:%S"),
+                dir_str,
+                b_close,
+                fr_val if np.isfinite(fr_val) else float("nan"),
+                pUU_val if np.isfinite(pUU_val) else float("nan"),
+                pDD_val if np.isfinite(pDD_val) else float("nan"),
+                pos_str,
+            )
 
         # ── Exits ────────────────────────────────────────────────────────────
         if self._in_pos:
@@ -376,7 +517,7 @@ class RenkoEngine:
 
             if stop_hit or colour_change:
                 reason = "stop" if stop_hit else "colour_change"
-                gross_usd, friction_usd, net_usd = self._simulate_pnl(
+                gross_usd, spread_usd, commission_usd, swap_usd, net_usd = self._simulate_pnl(
                     self._entry_price, b_close, self._entry_lots, self._pos_dir
                 )
                 # Use broker order_id when available — ties record to execution log
@@ -396,12 +537,29 @@ class RenkoEngine:
                     exit_price=b_close,
                     exit_time=bar_time,
                     exit_reason=reason,
-                    friction_usd=float(friction_usd),
+                    friction_usd=float(spread_usd + commission_usd + swap_usd),
                     usd_per_point=self._usd_per_point,
+                    spread_usd=float(spread_usd),
+                    commission_usd=float(commission_usd),
+                    swap_usd=float(swap_usd),
                 )
                 self._completed.append(trade)
                 self._cumulative_pnl += trade.net_usd
                 self._live_equity = self.cfg.initial_equity + self._cumulative_pnl
+
+                # Log position close
+                close_dir = "LONG" if self._pos_dir == 1 else "SHORT"
+                LOG.info(
+                    "Close: %s @ %.2f | %s | gross=$%.2f spread=$%.2f comm=$%.2f net=$%.2f | equity=$%.2f",
+                    close_dir,
+                    b_close,
+                    reason,
+                    gross_usd,
+                    spread_usd,
+                    commission_usd,
+                    net_usd,
+                    self._live_equity,
+                )
 
                 # Sync to real broker equity when available (live mode).
                 # PaperDispatcher.get_equity() returns None — keeps simulated value.
@@ -424,7 +582,11 @@ class RenkoEngine:
         # ── Entries ──────────────────────────────────────────────────────────
         if not self._in_pos:
             is_flip = self._prev_dir is not None and direction != self._prev_dir
-            if is_flip and np.isfinite(fr_val) and np.isfinite(pUU_val) and np.isfinite(pDD_val):
+            if not is_flip:
+                self._last_eval["reason"] = "no_flip"
+            if is_flip and not warmup_ready:
+                self._last_eval["reason"] = "warmup"
+            elif is_flip and np.isfinite(fr_val) and np.isfinite(pUU_val) and np.isfinite(pDD_val):
                 entry_ok = evaluate_entry(
                     direction=direction,
                     flip_rate_val=fr_val,
@@ -434,30 +596,37 @@ class RenkoEngine:
                     markov_threshold=self.cfg.markov_threshold,
                 )
 
-                # Live feedback: show entry evaluation
-                import logging
-
-                LOG = logging.getLogger("kinetra.renko")
-                dir_str = "BUY" if direction == 1 else "SELL"
+                # Entry evaluation logging
+                entry_dir = "BUY" if direction == 1 else "SELL"
                 status = "✓ PASS" if entry_ok else "✗ FAIL"
                 LOG.info(
                     "Entry eval [%s]: FR=%.3f M=%.3f → %s  (price=%.2f)",
-                    dir_str,
+                    entry_dir,
                     fr_val,
                     pUU_val if direction == 1 else pDD_val,
                     status,
                     b_close,
                 )
+                self._last_eval["entry_ok"] = bool(entry_ok)
+                self._last_eval["reason"] = "entry_pass" if entry_ok else "gate_reject"
 
                 if entry_ok and (direction == 1 or self.cfg.allow_short):
                     lots = self._compute_lots()
+                    self._last_eval["lots"] = float(lots)
                     if lots > 0:
                         self._in_pos = True
                         self._pos_dir = direction
                         self._entry_price = b_close
                         self._entry_time = bar_time
                         self._entry_lots = lots
-                        LOG.info("  → Opening %s %.3f lots @ %.2f", dir_str, lots, b_close)
+                        LOG.warning(
+                            "[ENTRY] %s %s %.3f lots @ $%.2f (SL: $%.2f)",
+                            entry_dir,
+                            self.cfg.symbol,
+                            lots,
+                            b_close,
+                            b_close - stop_dist,
+                        )
                         if dispatcher is not None:
                             stop_price = (
                                 b_close - stop_dist if direction == 1 else b_close + stop_dist
@@ -472,12 +641,17 @@ class RenkoEngine:
                             # Store broker order_id for close call + audit trail
                             if result and result.success:
                                 self._open_order_id = result.order_id
+                                self._last_eval["reason"] = "entered"
+                    else:
+                        self._last_eval["reason"] = "sizing_zero"
+            elif is_flip:
+                self._last_eval["reason"] = "filters_not_ready"
 
         self._prev_dir = direction
 
     def _force_close(self, price: float, time: pd.Timestamp) -> None:
         """Close the open position at end-of-data."""
-        gross_usd, friction_usd, net_usd = self._simulate_pnl(
+        gross_usd, spread_usd, commission_usd, swap_usd, net_usd = self._simulate_pnl(
             self._entry_price, price, self._entry_lots, self._pos_dir
         )
         trade = LiveTrade(
@@ -495,8 +669,11 @@ class RenkoEngine:
             exit_price=price,
             exit_time=time,
             exit_reason="end_of_data",
-            friction_usd=float(friction_usd),
+            friction_usd=float(spread_usd + commission_usd + swap_usd),
             usd_per_point=self._usd_per_point,
+            spread_usd=float(spread_usd),
+            commission_usd=float(commission_usd),
+            swap_usd=float(swap_usd),
         )
         self._completed.append(trade)
         self._cumulative_pnl += trade.net_usd
@@ -521,6 +698,15 @@ class RenkoEngine:
                 "avg_trade": analytics.avg_trade,
                 "avg_winner": analytics.avg_winner,
                 "avg_loser": analytics.avg_loser,
+                # Friction cost breakdown
+                "total_spread_usd": analytics.total_spread_usd,
+                "total_commission_usd": analytics.total_commission_usd,
+                "total_swap_usd": analytics.total_swap_usd,
+                "total_friction_usd": analytics.total_friction_usd,
+                "avg_spread_per_trade": analytics.avg_spread_per_trade,
+                "avg_commission_per_trade": analytics.avg_commission_per_trade,
+                "avg_swap_per_trade": analytics.avg_swap_per_trade,
+                "friction_pct_of_gross": analytics.friction_pct_of_gross,
                 # Risk-adjusted metrics
                 "profit_factor": analytics.profit_factor,
                 "omega": analytics.omega,

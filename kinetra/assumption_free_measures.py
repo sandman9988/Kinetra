@@ -38,7 +38,6 @@ try:
         determinism_fast,
         extract_recurrence_features_fast,
         recurrence_matrix_fast,
-        sample_entropy_fast,
     )
 
     _OPTIMIZED_AVAILABLE = True
@@ -317,7 +316,7 @@ class DirectionalOrderFlow:
         subset = prices.iloc[start : bar_idx + 1]
 
         # Vectorized: Extract arrays once
-        opens = subset["open"].values
+
         highs = subset["high"].values
         lows = subset["low"].values
         closes = subset["close"].values

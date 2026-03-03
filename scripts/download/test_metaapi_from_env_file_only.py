@@ -236,7 +236,7 @@ def main():
         sys.exit(1)
 
     # Display what we're testing
-    print(f"\n✅ Found credentials in .env file:")
+    print("\n✅ Found credentials in .env file:")
     print(f"   Token:      {token[:10]}...{token[-10:] if len(token) > 20 else ''}")
     print(f"   Account ID: {account_id}")
 

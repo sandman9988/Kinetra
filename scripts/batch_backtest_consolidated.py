@@ -30,12 +30,11 @@ import argparse
 import json
 import multiprocessing as mp
 import sys
-import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -48,7 +47,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from kinetra.physics import compute_physics_measurements
 
 from kinetra.backtest_engine import BacktestEngine
-from kinetra.risk_management import RiskManager
 
 
 @dataclass
@@ -427,7 +425,7 @@ class ConsolidatedBacktester:
         """
         results = []
 
-        print(f"\n🚀 Starting batch backtest")
+        print("\n🚀 Starting batch backtest")
         print(f"   Configurations: {len(configs)}")
         print(f"   Parallel: {parallel} (workers: {self.max_workers if parallel else 1})")
         print(f"   Resume: {self.resume}")

@@ -12,12 +12,12 @@ Usage:
 import argparse
 import sys
 from pathlib import Path
+
 import pandas as pd
-import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from kinetra import PhysicsEngine, load_csv_data, TriggerPredictor
+from kinetra import PhysicsEngine, TriggerPredictor, load_csv_data
 
 
 def main():

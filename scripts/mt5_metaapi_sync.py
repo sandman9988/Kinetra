@@ -33,21 +33,19 @@ Automation (cron):
     0 2 * * * cd /path/to/Kinetra && python3 scripts/mt5_metaapi_sync.py --sync-all
 """
 
-import os
-import sys
+import argparse
 import asyncio
 import json
-import time
-from pathlib import Path
+import os
+import sys
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-import argparse
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
-import numpy as np
 
 try:
     from metaapi_cloud_sdk import MetaApi
@@ -331,7 +329,7 @@ class MetaAPIDataManager:
         last_time = df.index[-1].to_pydatetime()
         self.save_metadata(symbol, timeframe, last_time, len(df))
 
-        print(f"\n✅ Initial download complete!")
+        print("\n✅ Initial download complete!")
         print(f"   Bars: {len(df)}")
         print(f"   Period: {df.index[0].date()} to {df.index[-1].date()}")
 
@@ -350,13 +348,13 @@ class MetaAPIDataManager:
         # Load existing data
         data_path = self.get_data_path(symbol, timeframe)
         if not data_path.exists():
-            print(f"❌ No existing data found. Run --init first.")
+            print("❌ No existing data found. Run --init first.")
             return False
 
         # Load metadata
         metadata = self.load_metadata(symbol, timeframe)
         if not metadata:
-            print(f"⚠️  No metadata found. Using data file timestamp.")
+            print("⚠️  No metadata found. Using data file timestamp.")
             df_existing = pd.read_csv(data_path, index_col='time', parse_dates=True)
             last_time = df_existing.index[-1].to_pydatetime()
         else:
@@ -372,7 +370,7 @@ class MetaAPIDataManager:
         end_time = datetime.utcnow()
 
         if end_time <= safe_start:
-            print(f"⏭️  No new data to sync yet.")
+            print("⏭️  No new data to sync yet.")
             return True
 
         # Download new candles
@@ -381,7 +379,7 @@ class MetaAPIDataManager:
         )
 
         if not candles:
-            print(f"⚠️  No new candles received")
+            print("⚠️  No new candles received")
             return False
 
         # Convert to DataFrame
@@ -408,7 +406,7 @@ class MetaAPIDataManager:
         last_time_new = df_combined.index[-1].to_pydatetime()
         self.save_metadata(symbol, timeframe, last_time_new, len(df_combined))
 
-        print(f"\n✅ Sync complete!")
+        print("\n✅ Sync complete!")
         print(f"   Period: {df_combined.index[0].date()} to {df_combined.index[-1].date()}")
 
         return True

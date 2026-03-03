@@ -12,19 +12,18 @@ Usage:
     python scripts/prepare_exploration_data.py
 """
 
+import json
 import sys
 from pathlib import Path
-import pandas as pd
+
 import numpy as np
-from typing import List, Dict
-import json
+import pandas as pd
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from kinetra.physics_engine import PhysicsEngine
-from kinetra.data_manager import DataManager
 
 
 def detect_asset_class(symbol: str) -> str:
@@ -149,13 +148,13 @@ def prepare_all_data():
         })
 
     # Display summary
-    print(f"\nAssets by class:")
+    print("\nAssets by class:")
     for asset_class, assets in assets_by_class.items():
         symbols = set(a['symbol'] for a in assets)
         print(f"  {asset_class:12s}: {len(symbols)} symbols, {len(assets)} files")
 
     # Prepare training data
-    print(f"\n" + "="*80)
+    print("\n" + "="*80)
     print("GENERATING PHYSICS FEATURES")
     print("="*80)
 
@@ -214,7 +213,7 @@ def prepare_all_data():
                 continue
 
     # Save global manifest
-    print(f"\n" + "="*80)
+    print("\n" + "="*80)
     print("SAVING MANIFEST")
     print("="*80)
 
@@ -233,19 +232,19 @@ def prepare_all_data():
         json.dump(manifest, f, indent=2)
 
     print(f"\n✅ Manifest saved: {manifest_file}")
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Total datasets prepared: {len(prepared_data)}")
     for asset_class, count in manifest['asset_classes'].items():
         print(f"  {asset_class:12s}: {count} datasets")
 
-    print(f"\n" + "="*80)
+    print("\n" + "="*80)
     print("✅ DATA PREPARATION COMPLETE")
     print("="*80)
 
-    print(f"\nNext steps:")
-    print(f"  1. Review prepared data in: data/prepared/")
-    print(f"  2. Run exploration training: python scripts/run_exploration_batch.py")
-    print(f"  3. Monitor results in: results/")
+    print("\nNext steps:")
+    print("  1. Review prepared data in: data/prepared/")
+    print("  2. Run exploration training: python scripts/run_exploration_batch.py")
+    print("  3. Monitor results in: results/")
 
 
 if __name__ == '__main__':

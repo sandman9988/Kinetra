@@ -43,7 +43,7 @@ from .symbol_spec import SymbolSpec
 
 # Import financial audit utilities
 try:
-    from .financial_audit import DigitNormalizer, SafeMath
+    from .financial_audit import SafeMath
 
     AUDIT_AVAILABLE = True
 except ImportError:
@@ -680,7 +680,6 @@ class BacktestEngine:
         if bar_index >= len(physics_state["energy"]):
             return 0
 
-        energy = physics_state["energy"].iloc[bar_index]
         regime = physics_state["regime"].iloc[bar_index]
 
         # Simple momentum + regime filter

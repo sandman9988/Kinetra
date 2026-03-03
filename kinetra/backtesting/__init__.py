@@ -24,29 +24,38 @@ Unified Package:
 
 Usage:
     from kinetra.backtesting import UnifiedBacktester
-    
+
     # Standard backtesting
     bt = UnifiedBacktester(mode='standard')
     results = bt.run(strategy, data)
-    
+
     # MT5-realistic backtesting
     bt = UnifiedBacktester(mode='realistic', enable_freeze_zones=True)
     results = bt.run(strategy, data)
-    
+
     # Physics-based backtesting
     bt = UnifiedBacktester(mode='physics')
     results = bt.run(physics_strategy, data)
 """
 
 from .core import BacktestResult, UnifiedBacktester
-from .costs import CostModel, DynamicCostModel, FixedCostModel
-from .metrics import MetricsCalculator
+from .costs import CanonicalCostModel, CostModel, DynamicCostModel, FixedCostModel, TradingCosts
+from .metrics import MetricsCalculator, calculate_z_factor, omega_ratio
+from .types import Trade, TradeDirection
 
 __all__ = [
-    'UnifiedBacktester',
-    'BacktestResult',
-    'MetricsCalculator',
-    'CostModel',
-    'DynamicCostModel',
-    'FixedCostModel',
+    "UnifiedBacktester",
+    "BacktestResult",
+    "MetricsCalculator",
+    # Module-level metric helpers (DRY-08, DRY-13) — import these instead of local copies
+    "omega_ratio",
+    "calculate_z_factor",
+    "CostModel",
+    "CanonicalCostModel",
+    "DynamicCostModel",
+    "FixedCostModel",
+    "TradingCosts",
+    # Canonical trade types (DRY-11 Phase B) — moved from backtest_engine.py
+    "Trade",
+    "TradeDirection",
 ]

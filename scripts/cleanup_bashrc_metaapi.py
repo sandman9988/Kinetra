@@ -164,7 +164,7 @@ def main():
     print_header("Cleanup Complete!")
 
     print("✅ Successfully removed METAAPI environment variables from .bashrc")
-    print(f"\n📋 Summary:")
+    print("\n📋 Summary:")
     print(f"   Lines removed: {num_removed}")
     print(f"   Backup location: {backup_path}")
 

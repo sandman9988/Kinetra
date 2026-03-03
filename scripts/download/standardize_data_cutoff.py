@@ -14,13 +14,12 @@ Usage:
 """
 
 import argparse
-import os
 import re
 import shutil
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import pandas as pd
 
@@ -341,7 +340,6 @@ def analyze_gaps(data_dir: str, timeframe: str = "H1") -> Dict:
     Uses pandas_market_calendars for accurate holiday detection.
     Returns dict with gap statistics and flagged anomalies.
     """
-    from datetime import timedelta
 
     data_path = Path(data_dir)
 

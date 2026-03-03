@@ -17,6 +17,79 @@ dim()   { printf '\033[2m%s\033[0m' "$*"; }
 
 hr() { printf '%0.s─' {1..60}; echo; }
 
+# ── data availability check ──────────────────────────────────────────────────
+
+check_data_availability() {
+  # Returns the number of months of M1 data available for a symbol
+  # Output: "months|start_date|end_date" or "0||" if no data
+  local sym="$1"
+  local data_dir="$ROOT/$DATA_ROOT/metals/$sym"
+
+  if [[ ! -d "$data_dir" ]]; then
+    # Try alternate paths
+    for alt_dir in "$ROOT/data/master_standardized/ctrader/pepperstone/metals/$sym" \
+                   "$ROOT/data/master_standardized/ctrader/pepperstone_demo"*/"metals/$sym"; do
+      if [[ -d "$alt_dir" ]]; then
+        data_dir="$alt_dir"
+        break
+      fi
+    done
+  fi
+
+  # Find M1 file
+  local m1_file
+  m1_file=$(find "$data_dir" -name "*_M1_*.csv" 2>/dev/null | head -1)
+
+  if [[ -z "$m1_file" || ! -f "$m1_file" ]]; then
+    echo "0||"
+    return
+  fi
+
+  # Get date range from CSV (first and last timestamp)
+  # Assumes format: time,open,high,low,close,volume,spread
+  local first_date last_date
+  first_date=$(head -2 "$m1_file" | tail -1 | cut -d',' -f1)
+  last_date=$(tail -1 "$m1_file" | cut -d',' -f1)
+
+  # Calculate months (approximate)
+  local start_epoch end_epoch days months
+  if command -v date &>/dev/null; then
+    # Try to parse dates (handle ISO format with or without timezone)
+    start_epoch=$(date -d "${first_date%%+*}" +%s 2>/dev/null || date -d "${first_date%%T*}" +%s 2>/dev/null || echo "0")
+    end_epoch=$(date -d "${last_date%%+*}" +%s 2>/dev/null || date -d "${last_date%%T*}" +%s 2>/dev/null || echo "0")
+
+    if [[ "$start_epoch" != "0" && "$end_epoch" != "0" ]]; then
+      days=$(( (end_epoch - start_epoch) / 86400 ))
+      months=$(( days / 30 ))
+      echo "${months}|${first_date%%T*}|${last_date%%T*}"
+      return
+    fi
+  fi
+
+  # Fallback: count lines and estimate (rough approximation)
+  local lines
+  lines=$(wc -l < "$m1_file")
+  months=$(( lines / 43200 ))  # ~43200 M1 bars per month (30 days * 1440 min)
+  echo "${months}|${first_date%%T*}|${last_date%%T*}"
+}
+
+prompt_auto_download() {
+  # Ask user if they want to auto-download missing data
+  local sym="$1"
+  local requested_months="$2"
+  local available_months="$3"
+  local missing_months=$(( requested_months - available_months ))
+
+  echo
+  yellow "  ⚠️  Data insufficient: ${available_months} months available, ${requested_months} requested"
+  echo
+  printf "  Auto-download %s additional months? [Y/n] " "$missing_months"
+  local ans
+  read -r ans
+  ans="${ans:-y}"
+  [[ "$ans" =~ ^[Yy]$ ]]
+}
+
 # ── discover symbols ──────────────────────────────────────────────────────────
 
 discover_symbols() {
@@ -74,9 +147,9 @@ pick_mode() {
     case "$REPLY" in
       1) MODE="backtest"; MONTHS=3;  break ;;
       2) MODE="full";     MONTHS=24; break ;;
-      3) MODE="paper";    break ;;
-      4) MODE="dry_run";  break ;;
-      5) MODE="live";     break ;;
+      3) MODE="paper";    MONTHS=3;  break ;;
+      4) MODE="dry_run";  MONTHS=3;  break ;;
+      5) MODE="live";     MONTHS=3;  break ;;
       *) echo "  Enter 1-5." ;;
     esac
   done
@@ -208,21 +281,43 @@ confirm() {
 # ── launch ───────────────────────────────────────────────────────────────────
 
 do_launch() {
-  local mode="$1" sym="$2" gate="${3:-micro}" months="${4:-3}"
+  local mode="$1" sym="$2" gate="${3:-micro}" months="${4:-3}" auto_dl="${5:-}"
 
   # Resolve absolute path to renko_engine.py regardless of cwd
   local engine
   engine="$(cd "$(dirname "$0")/../.." && pwd)/scripts/renko_engine.py"
 
+  # Build live trading options
+  local live_opts=""
+  live_opts="--live-size $gate"
+
+  # Add sizing mode (default static for live)
+
+  # Add stop bricks from defaults
+  local stop_bricks
+  stop_bricks=$(get_default STOP_LIVE "$sym")
+  live_opts="$live_opts --stop-bricks $stop_bricks"
+
+  # Add trading hours from defaults
+  local monday friday
+  monday=$(get_default MONDAY "$sym")
+  friday=$(get_default FRIDAY "$sym")
+  live_opts="$live_opts --monday-start $monday --friday-end $friday"
+
+  # Add target risk from defaults
+  local target_risk
+  target_risk=$(get_default TARGET_RISK "$sym")
+  live_opts="$live_opts --target-risk $target_risk"
+
   if [[ "$mode" == "backtest" ]]; then
     echo
     echo "  $(cyan '[LAUNCH]') backtest — $sym ($months months)"
-    exec python "$engine" "$sym" --stage backtest --months "$months"
+    exec python "$engine" "$sym" --stage backtest --months "$months" $auto_dl
 
   elif [[ "$mode" == "full" ]]; then
     echo
     echo "  $(cyan '[LAUNCH]') full backtest — $sym ($months months)"
-    exec python "$engine" "$sym" --stage backtest --months "$months"
+    exec python "$engine" "$sym" --stage backtest --months "$months" $auto_dl
 
   elif [[ "$mode" == "paper" ]]; then
     echo
@@ -232,7 +327,7 @@ do_launch() {
   elif [[ "$mode" == "dry_run" ]]; then
     echo
     echo "  $(yellow '[LAUNCH]') dry-run — $sym  (live bars, paper orders)"
-    _run_with_reconnect python "$engine" "$sym" --stage live --live-size "$gate" --dry-run
+    _run_with_reconnect python "$engine" "$sym" --stage live $live_opts --dry-run
 
   elif [[ "$mode" == "live" ]]; then
     echo
@@ -248,7 +343,8 @@ do_launch() {
     fi
     echo
     echo "  $(red '[LAUNCH]') LIVE — $sym  gate=$gate"
-    _run_with_reconnect python "$engine" "$sym" --stage live --live-size "$gate"
+    echo "  Running preflight checks before trading..."
+    _run_with_reconnect python "$engine" "$sym" --stage live $live_opts
   fi
 }
 
@@ -296,15 +392,47 @@ pick_mode
 pick_symbol
 
 GATE="micro"
-MONTHS=3
+AUTO_DOWNLOAD=""
+# MONTHS is already set by pick_mode (3 for backtest, 24 for full)
 if [[ "$MODE" == "live" ]]; then
   pick_gate
+fi
+
+# Check data availability for backtest modes
+if [[ "$MODE" == "backtest" || "$MODE" == "full" ]]; then
+  data_info=$(check_data_availability "$SYMBOL")
+  available_months=$(echo "$data_info" | cut -d'|' -f1)
+  data_start=$(echo "$data_info" | cut -d'|' -f2)
+  data_end=$(echo "$data_info" | cut -d'|' -f3)
+
+  if [[ "$available_months" -eq 0 ]]; then
+    echo
+    red "  ❌ No M1 data found for $SYMBOL"
+    echo
+    printf "  Download %s months now? [Y/n] " "$MONTHS"
+    read -r ans
+    ans="${ans:-y}"
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+      AUTO_DOWNLOAD="--auto-download"
+    else
+      echo "  Aborted. Download data first:"
+      echo "    python scripts/ctrader/download_ctrader_history.py --symbols $SYMBOL --days $(( MONTHS * 31 ))"
+      exit 1
+    fi
+  elif [[ "$available_months" -lt "$MONTHS" ]]; then
+    if prompt_auto_download "$SYMBOL" "$MONTHS" "$available_months"; then
+      AUTO_DOWNLOAD="--auto-download"
+    fi
+    echo
+    dim "  Data range: $data_start to $data_end (${available_months} months)"
+    echo
+  fi
 fi
 
 show_settings "$MODE" "$SYMBOL" "$GATE" "$MONTHS"
 
 if confirm; then
-  do_launch "$MODE" "$SYMBOL" "$GATE" "$MONTHS"
+  do_launch "$MODE" "$SYMBOL" "$GATE" "$MONTHS" "$AUTO_DOWNLOAD"
 else
   echo "  Aborted."
   exit 0

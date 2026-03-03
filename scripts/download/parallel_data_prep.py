@@ -9,9 +9,8 @@ GPU-accelerated physics + 32-thread parallel processing for:
 Uses GPU for physics, ThreadPoolExecutor for I/O.
 """
 
-import multiprocessing as mp
 import sys
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -300,9 +299,9 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
             gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Unknown"
             print(f"  🎮 GPU: {gpu_name} (ROCm/CUDA)")
         except:
-            print(f"  🎮 GPU: Available (PyTorch)")
+            print("  🎮 GPU: Available (PyTorch)")
     else:
-        print(f"  💻 GPU: Not available (CPU fallback)")
+        print("  💻 GPU: Not available (CPU fallback)")
 
     # Find all CSV files
     all_files = []
@@ -323,7 +322,7 @@ def prep_all_data(data_dir: Path = None, output_dir: Path = None):
     # Progress tracker
     progress = PrepProgress(len(all_files))
 
-    print(f"\n[1] Processing files...")
+    print("\n[1] Processing files...")
 
     results = []
 

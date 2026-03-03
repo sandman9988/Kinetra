@@ -14,6 +14,7 @@ Usage:
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 # Add project root
@@ -109,7 +110,7 @@ def main():
     print("  CONVERSION COMPLETE")
     print("=" * 80)
 
-    print(f"\n📊 Results:")
+    print("\n📊 Results:")
     print(f"  ✅ Converted: {converted}")
     print(f"  ⏭️  Skipped:   {skipped}")
     print(f"  ❌ Failed:    {failed}")

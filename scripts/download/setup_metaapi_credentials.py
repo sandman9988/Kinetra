@@ -23,7 +23,6 @@ Output:
 
 import asyncio
 import getpass
-import os
 import sys
 from pathlib import Path
 
@@ -282,7 +281,7 @@ def save_credentials_to_env(token: str, account_id: str = None):
                 with open(gitignore, "a") as f:
                     f.write("\n# Environment variables (DO NOT COMMIT)\n")
                     f.write(".env\n")
-                print(f"✅ Added .env to .gitignore")
+                print("✅ Added .env to .gitignore")
             except Exception as e:
                 print(f"⚠️  Warning: Could not update .gitignore: {e}")
     else:

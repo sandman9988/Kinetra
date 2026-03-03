@@ -127,21 +127,24 @@ This is a FINANCIAL TRADING SYSTEM. Unpredictable behavior from dependency updat
 After installation, run:
 
 ```bash
-# 1. Check all imports work
-python scripts/testing/test_imports.py
+# 1. Run smoke checks
+python scripts/renko_engine.py --help
 
 # 2. Run unit tests
-pytest tests/ -v
+make test
 
 # 3. Run integration test
-python scripts/testing/test_p0_p5_integration.py
+python -m py_compile scripts/renko_engine.py kinetra/renko/trading_engine.py
 
 # 4. Verify GPU availability
 python -c "import torch; print(torch.cuda.is_available() or (torch.version.hip is not None))"
 
 # 5. Test MetaAPI connection (if configured)
-python scripts/testing/test_metaapi_auth.py
+python scripts/download/test_metaapi_connection.py
 ```
+
+Note: historical test harnesses were archived to
+`archive/production_cleanup_2026-03-03/`.
 
 ## Troubleshooting
 

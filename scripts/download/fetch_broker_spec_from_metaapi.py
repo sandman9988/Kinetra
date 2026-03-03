@@ -18,7 +18,6 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from kinetra.market_microstructure import AssetClass, SymbolSpec
-from kinetra.canonical_asset_classification import get_asset_class_with_fallback
 
 
 async def fetch_symbol_spec_from_metaapi(
@@ -45,7 +44,7 @@ async def fetch_symbol_spec_from_metaapi(
     from metaapi_cloud_sdk import MetaApi
 
     print(f"\n{'=' * 80}")
-    print(f"FETCHING SYMBOL SPEC FROM METAAPI")
+    print("FETCHING SYMBOL SPEC FROM METAAPI")
     print(f"{'=' * 80}")
     print(f"\n  Symbol: {symbol}")
     print(f"  Account: {account_id}")
@@ -58,7 +57,7 @@ async def fetch_symbol_spec_from_metaapi(
         account = await api.metatrader_account_api.get_account(account_id)
 
         if account.state != "DEPLOYED":
-            print(f"\n⚠️  Account not deployed. Deploying...")
+            print("\n⚠️  Account not deployed. Deploying...")
             await account.deploy()
             await account.wait_deployed()
 
@@ -72,13 +71,13 @@ async def fetch_symbol_spec_from_metaapi(
         print(f"✅ Connected to {account.server}")
 
         # Get symbol specification
-        print(f"\n[Fetching symbol specification...]")
+        print("\n[Fetching symbol specification...]")
         symbol_spec_raw = await connection.get_symbol_specification(symbol)
 
         if not symbol_spec_raw:
             raise ValueError(f"Symbol {symbol} not found on {account.server}")
 
-        print(f"✅ Symbol specification retrieved")
+        print("✅ Symbol specification retrieved")
 
         # Get account info for currency
         account_info = await connection.get_account_information()
@@ -135,7 +134,7 @@ async def fetch_symbol_spec_from_metaapi(
             trade_stops_level=symbol_spec_raw.get("stopsLevel", 0),
         )
 
-        print(f"\n✅ SymbolSpec created:")
+        print("\n✅ SymbolSpec created:")
         print(f"  Asset Class:     {spec.asset_class.value}")
         print(f"  Digits:          {spec.digits}")
         print(f"  Point:           {spec.point}")
@@ -194,7 +193,7 @@ async def test_fetch_vantage_spec():
     spec.commission_per_lot = 3.0  # Vantage: $3/side = $6 round trip
 
     print(f"\n{'=' * 80}")
-    print(f"✅ FINAL SPEC (with manual commission)")
+    print("✅ FINAL SPEC (with manual commission)")
     print(f"{'=' * 80}")
     print(f"\n{spec}")
 

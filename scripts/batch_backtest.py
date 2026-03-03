@@ -25,19 +25,14 @@ import multiprocessing as mp
 import os
 import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from datetime import datetime
-from functools import partial
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import talib
 from dotenv import load_dotenv
-from hypothesis import given
-from hypothesis import strategies as st
 from metaapi_cloud_sdk import MetaApi
 from scipy import stats
-from scipy.signal import argrelextrema
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 

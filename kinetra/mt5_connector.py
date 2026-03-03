@@ -17,6 +17,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from kinetra.backtest_engine import BacktestEngine, Trade, TradeDirection
+from kinetra.dns_hardening import resolve_and_validate_host
 
 # Physics and RL integrations
 from kinetra.physics_engine import PhysicsEngine
@@ -94,6 +95,14 @@ class MT5Connector:
         # Initialize MT5
         # Use env vars for demo login if not connected
         if self.login and self.password and self.server:
+            # Some MT5 server values are plain labels (no DNS host). Validate
+            # only when the value looks like a real hostname.
+            if "." in self.server:
+                try:
+                    resolve_and_validate_host(self.server, service_name="mt5-server")
+                except ValueError as exc:
+                    logger.error("MT5 DNS hardening blocked server %r: %s", self.server, exc)
+                    return False
             if not mt5.login(self.login, password=self.password, server=self.server):
                 logger.error(f"MT5 login failed: {mt5.last_error()}")
                 return False

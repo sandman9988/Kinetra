@@ -45,7 +45,6 @@ from typing import Any
 
 import pandas as pd
 from tqdm import tqdm
-from tqdm.asyncio import tqdm as atqdm
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -463,7 +462,7 @@ async def download_one(
                                     "symbol": symbol,
                                     "tf": tf_label,
                                     "bars": 0,
-                                    "reason": f"Symbol not found on broker",
+                                    "reason": "Symbol not found on broker",
                                 }
                             elif retry == chunk_retry_max - 1:
                                 # Last retry failed
@@ -598,9 +597,9 @@ async def download_all():
     print("METAAPI BULK DATA DOWNLOAD (PARALLEL)")
     print("=" * 70)
     print(f"  Asset classes: {len(PREFERRED_SYMBOLS)}")
-    print(f"  Instruments per class: 6")
-    print(f"  Timeframes: H1, H4")
-    print(f"  History: 2 years")
+    print("  Instruments per class: 6")
+    print("  Timeframes: H1, H4")
+    print("  History: 2 years")
     print(f"  Concurrency: {MAX_CONCURRENT_DOWNLOADS} parallel downloads")
 
     # Connect
@@ -647,7 +646,7 @@ async def download_all():
                 else:
                     print(f"      ✗ {target} → NOT FOUND")
 
-    print(f"\n    * = ECN (tighter spreads)")
+    print("\n    * = ECN (tighter spreads)")
     print(
         f"    Total: {len(symbols_to_download)} symbols × {len(TIMEFRAMES)} timeframes = {len(symbols_to_download) * len(TIMEFRAMES)} files"
     )

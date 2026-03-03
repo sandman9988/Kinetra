@@ -16,13 +16,12 @@ Usage:
 """
 
 import sys
-from pathlib import Path
-from typing import Dict, List, Tuple
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import timedelta
+from pathlib import Path
+from typing import List
 
+import pandas as pd
 from pandas import DataFrame
 
 # Add project root
@@ -299,13 +298,13 @@ class DataIntegrityChecker:
         print_header("DATA INTEGRITY REPORT")
 
         # Summary
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"  Files checked:  {self.files_checked}")
         print(f"  ✅ Passed:      {self.files_passed}")
         print(f"  ❌ Failed:      {self.files_failed}")
 
         if not self.issues:
-            print(f"\n🎉 All files passed integrity checks!")
+            print("\n🎉 All files passed integrity checks!")
             return True
 
         # Group issues by severity and category
@@ -339,18 +338,18 @@ class DataIntegrityChecker:
                     print(f"    ... and {len(issues) - 5} more {category} warnings")
 
         # Recommendations
-        print(f"\n💡 Recommendations:")
+        print("\n💡 Recommendations:")
 
         if self.files_failed > 0:
             print(f"  1. Re-download failed files ({self.files_failed} files)")
-            print(f"     python scripts/download_interactive.py")
+            print("     python scripts/download_interactive.py")
 
         if 'GAPS' in [i.category for i in self.issues]:
-            print(f"  2. Run data preparation to handle gaps and missing data")
-            print(f"     python scripts/prepare_data.py")
+            print("  2. Run data preparation to handle gaps and missing data")
+            print("     python scripts/prepare_data.py")
 
         if 'QUALITY' in [i.category for i in self.issues]:
-            print(f"  3. Review data quality issues before training")
+            print("  3. Review data quality issues before training")
 
         return self.files_failed == 0
 
@@ -363,7 +362,7 @@ def main():
 
     if not data_dir.exists():
         print(f"\n❌ Data directory not found: {data_dir}")
-        print(f"   Run download script first")
+        print("   Run download script first")
         return
 
     checker = DataIntegrityChecker(data_dir)
@@ -371,12 +370,12 @@ def main():
     passed = checker.print_report()
 
     if passed:
-        print(f"\n✅ Data integrity verified!")
-        print(f"\n📁 Next step: Prepare data")
-        print(f"   python scripts/prepare_data.py")
+        print("\n✅ Data integrity verified!")
+        print("\n📁 Next step: Prepare data")
+        print("   python scripts/prepare_data.py")
     else:
-        print(f"\n⚠️  Data integrity issues detected")
-        print(f"   Fix critical issues before proceeding")
+        print("\n⚠️  Data integrity issues detected")
+        print("   Fix critical issues before proceeding")
 
 
 if __name__ == '__main__':

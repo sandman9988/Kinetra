@@ -64,8 +64,8 @@ def benchmark_import_time():
 
     print_result("PhysicsEngine access (lazy)", physics_time)
 
-    print(f"\n  TIP: Lazy imports defer loading until first use.")
-    print(f"       Initial import is fast; components load on demand.")
+    print("\n  TIP: Lazy imports defer loading until first use.")
+    print("       Initial import is fast; components load on demand.")
 
 
 def benchmark_sample_entropy():
@@ -135,8 +135,8 @@ def benchmark_sample_entropy():
         opt_time = time.perf_counter() - start
 
         print(f"\n  Data size: {n}")
-        print_result(f"  Pure Python", pure_time)
-        print_result(f"  Optimized", opt_time, pure_time)
+        print_result("  Pure Python", pure_time)
+        print_result("  Optimized", opt_time, pure_time)
 
 
 def benchmark_recurrence_matrix():
@@ -184,8 +184,8 @@ def benchmark_recurrence_matrix():
         is_correct = np.array_equal(R_naive, R_opt)
 
         print(f"\n  Data size: {n}")
-        print_result(f"  Naive (nested loops)", naive_time)
-        print_result(f"  Optimized (vectorized)", opt_time, naive_time)
+        print_result("  Naive (nested loops)", naive_time)
+        print_result("  Optimized (vectorized)", opt_time, naive_time)
         print(f"  Results match: {is_correct}")
 
 
@@ -223,12 +223,12 @@ def benchmark_rolling_operations():
         opt_time = time.perf_counter() - start
 
         print(f"\n  Data size: {n}, window: {window}")
-        print_result(f"  Pandas .apply()", pandas_time)
-        print_result(f"  Vectorized", opt_time, pandas_time)
+        print_result("  Pandas .apply()", pandas_time)
+        print_result("  Vectorized", opt_time, pandas_time)
     except ImportError:
         print(f"\n  Data size: {n}, window: {window}")
-        print_result(f"  Pandas .apply()", pandas_time)
-        print(f"  Vectorized: Not available (install kinetra.performance)")
+        print_result("  Pandas .apply()", pandas_time)
+        print("  Vectorized: Not available (install kinetra.performance)")
 
 
 def benchmark_rolling_entropy():
@@ -338,8 +338,8 @@ def benchmark_data_loading():
     second_load = time.perf_counter() - start
 
     print(f"  Bars loaded: {len(df1)}")
-    print_result(f"  First load (no cache)", first_load)
-    print_result(f"  Second load (cached)", second_load, first_load)
+    print_result("  First load (no cache)", first_load)
+    print_result("  Second load (cached)", second_load, first_load)
 
 
 def benchmark_physics_engine():
@@ -380,7 +380,7 @@ def benchmark_physics_engine():
     physics_state = engine.compute_physics_state_from_ohlcv(prices)
     physics_time = time.perf_counter() - start
 
-    print_result(f"  Full physics state computation", physics_time)
+    print_result("  Full physics state computation", physics_time)
     print(f"  Output columns: {len(physics_state.columns)}")
     print(f"  Output shape: {physics_state.shape}")
 

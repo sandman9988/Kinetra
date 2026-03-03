@@ -17,15 +17,14 @@ Usage:
     python3 scripts/download_metaapi.py
 """
 
+import asyncio
 import os
 import sys
-import asyncio
-import json
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Dict, List, Optional
+
 import pandas as pd
-import numpy as np
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -317,7 +316,7 @@ Then run this script again.
     if symbol_info:
         info_df = pd.DataFrame(symbol_info)
         info_df.to_csv(output_dir / 'symbol_info.csv', index=False)
-        print(f"\nSymbol info saved: symbol_info.csv")
+        print("\nSymbol info saved: symbol_info.csv")
 
     await downloader.close()
 

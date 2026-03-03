@@ -21,6 +21,7 @@ from typing import Optional
 @dataclass
 class TradingCosts:
     """Trading costs for a single trade."""
+
     spread_cost: float = 0.0
     commission: float = 0.0
     slippage: float = 0.0
@@ -37,22 +38,14 @@ class CostModel(ABC):
 
     @abstractmethod
     def calculate_entry_cost(
-        self,
-        symbol: str,
-        volume: float,
-        price: float,
-        **kwargs
+        self, symbol: str, volume: float, price: float, **kwargs
     ) -> TradingCosts:
         """Calculate entry costs."""
         pass
 
     @abstractmethod
     def calculate_exit_cost(
-        self,
-        symbol: str,
-        volume: float,
-        price: float,
-        **kwargs
+        self, symbol: str, volume: float, price: float, **kwargs
     ) -> TradingCosts:
         """Calculate exit costs."""
         pass
@@ -61,19 +54,16 @@ class CostModel(ABC):
 class FixedCostModel(CostModel):
     """
     Fixed spread cost model.
-    
+
     From: backtest_engine.py, physics_backtester.py
     """
 
     def __init__(
-        self,
-        spread_pips: float = 2.0,
-        commission_per_lot: float = 0.0,
-        slippage_pips: float = 0.5
+        self, spread_pips: float = 2.0, commission_per_lot: float = 0.0, slippage_pips: float = 0.5
     ):
         """
         Initialize fixed cost model.
-        
+
         Args:
             spread_pips: Fixed spread in pips
             commission_per_lot: Commission per lot
@@ -84,11 +74,7 @@ class FixedCostModel(CostModel):
         self.slippage_pips = slippage_pips
 
     def calculate_entry_cost(
-        self,
-        symbol: str,
-        volume: float,
-        price: float,
-        pip_value: float = 0.0001
+        self, symbol: str, volume: float, price: float, pip_value: float = 0.0001
     ) -> TradingCosts:
         """Calculate entry costs."""
         # Spread cost (half spread on entry)
@@ -100,18 +86,10 @@ class FixedCostModel(CostModel):
         # Slippage
         slippage = self.slippage_pips * pip_value * volume
 
-        return TradingCosts(
-            spread_cost=spread_cost,
-            commission=commission,
-            slippage=slippage
-        )
+        return TradingCosts(spread_cost=spread_cost, commission=commission, slippage=slippage)
 
     def calculate_exit_cost(
-        self,
-        symbol: str,
-        volume: float,
-        price: float,
-        pip_value: float = 0.0001
+        self, symbol: str, volume: float, price: float, pip_value: float = 0.0001
     ) -> TradingCosts:
         """Calculate exit costs."""
         # Same as entry for fixed model
@@ -121,20 +99,20 @@ class FixedCostModel(CostModel):
 class DynamicCostModel(CostModel):
     """
     Dynamic spread cost model (per-bar spreads).
-    
+
     From: realistic_backtester.py
-    
+
     Uses actual spread data from OHLCV if available.
     """
 
     def __init__(
         self,
         commission_per_lot: float = 0.0,
-        slippage_multiplier: float = 1.5  # Slippage as multiple of spread
+        slippage_multiplier: float = 1.5,  # Slippage as multiple of spread
     ):
         """
         Initialize dynamic cost model.
-        
+
         Args:
             commission_per_lot: Commission per lot
             slippage_multiplier: Slippage as multiple of current spread
@@ -148,11 +126,11 @@ class DynamicCostModel(CostModel):
         volume: float,
         price: float,
         spread: Optional[float] = None,
-        pip_value: float = 0.0001
+        pip_value: float = 0.0001,
     ) -> TradingCosts:
         """
         Calculate entry costs using actual spread.
-        
+
         Args:
             spread: Actual spread at entry (in pips)
             If None, uses a default
@@ -169,11 +147,7 @@ class DynamicCostModel(CostModel):
         # Slippage (proportional to spread)
         slippage = spread * self.slippage_multiplier * pip_value * volume
 
-        return TradingCosts(
-            spread_cost=spread_cost,
-            commission=commission,
-            slippage=slippage
-        )
+        return TradingCosts(spread_cost=spread_cost, commission=commission, slippage=slippage)
 
     def calculate_exit_cost(
         self,
@@ -181,7 +155,20 @@ class DynamicCostModel(CostModel):
         volume: float,
         price: float,
         spread: Optional[float] = None,
-        pip_value: float = 0.0001
+        pip_value: float = 0.0001,
     ) -> TradingCosts:
         """Calculate exit costs."""
         return self.calculate_entry_cost(symbol, volume, price, spread, pip_value)
+
+
+class CanonicalCostModel(DynamicCostModel):
+    """
+    Backward-compatible canonical alias used by legacy imports.
+
+    Historically, downstream modules imported ``CanonicalCostModel`` from
+    ``kinetra.backtesting``.  During consolidation, only ``DynamicCostModel``
+    remained in this module.  This thin subclass restores the old symbol while
+    preserving the current dynamic-spread behavior.
+    """
+
+    pass

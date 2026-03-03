@@ -18,11 +18,10 @@ Instruments to download (customizable):
 
 import sys
 from pathlib import Path
-from datetime import datetime, timedelta
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from kinetra.mt5_connector import MT5Connector, MT5_AVAILABLE
+from kinetra.mt5_connector import MT5_AVAILABLE, MT5Connector
 
 # Configuration
 INSTRUMENTS = [
@@ -67,7 +66,7 @@ def download_all():
         print("Make sure MetaTrader 5 is running.")
         return False
 
-    print(f"\nConnected to MT5!")
+    print("\nConnected to MT5!")
     account = connector.get_account_info()
     if account:
         print(f"Account: {account['login']}")
@@ -106,7 +105,7 @@ def download_all():
             df = connector.get_ohlcv(actual_symbol, tf, count=bars)
 
             if df is None or len(df) == 0:
-                print(f"  ✗ Failed to get data")
+                print("  ✗ Failed to get data")
                 failed.append((f"{symbol}_{tf}", "no data"))
                 continue
 

@@ -27,32 +27,29 @@ Usage:
     python scripts/metaapi_sync.py --weekly-update
 """
 
+import argparse
+import asyncio
+import json
 import os
 import sys
-import json
-import asyncio
-import argparse
 import tempfile
-import shutil
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-from enum import Enum
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Load environment variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # MetaAPI SDK
-from metaapi_cloud_sdk import MetaApi
-
 import pandas as pd
-import numpy as np
-
+from metaapi_cloud_sdk import MetaApi
 
 # =============================================================================
 # ATOMIC FILE OPERATIONS

@@ -15,15 +15,15 @@ Usage:
     python scripts/prepare_data.py
 """
 
-import sys
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-import pandas as pd
-import numpy as np
-from datetime import datetime, time
 import json
 import multiprocessing as mp
+import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from datetime import datetime, time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 from tqdm import tqdm
 
 # Add project root
@@ -365,7 +365,7 @@ class DataPreparer:
                     except Exception as e:
                         filepath = future_to_file[future]
                         print(f"\n❌ Error preparing {filepath.name}: {e}")
-                    
+
                     pbar.update(1)
 
         print(f"\n✅ Prepared {len(results)} files")
@@ -398,7 +398,7 @@ class DataPreparer:
                 by_market[market] = []
             by_market[market].append(r)
 
-        print(f"\n📊 By Market Type:")
+        print("\n📊 By Market Type:")
         for market, files in by_market.items():
             total_train = sum(f['train_bars'] for f in files)
             total_test = sum(f['test_bars'] for f in files)
@@ -407,7 +407,7 @@ class DataPreparer:
             print(f"    Test:  {total_test:,} bars")
 
         # Show sample files
-        print(f"\n📝 Sample Files:")
+        print("\n📝 Sample Files:")
         for r in results[:5]:
             print(f"\n  {r['symbol']} {r['timeframe']} ({r['market_type']}):")
             print(f"    Train: {r['train_bars']:,} bars ({r['train_start'][:10]} to {r['train_end'][:10]})")
@@ -416,8 +416,8 @@ class DataPreparer:
         if len(results) > 5:
             print(f"\n  ... and {len(results) - 5} more files")
 
-        print(f"\n✅ Data prepared and split (NO PEEKING guaranteed)")
-        print(f"\n📁 Output:")
+        print("\n✅ Data prepared and split (NO PEEKING guaranteed)")
+        print("\n📁 Output:")
         print(f"  Train: {self.train_dir}")
         print(f"  Test:  {self.test_dir}")
 
@@ -431,44 +431,44 @@ def main():
 
     if not master_dir.exists():
         print(f"\n❌ Master data directory not found: {master_dir}")
-        print(f"   Run download script first")
+        print("   Run download script first")
         return
 
     # Check for --auto flag for non-interactive mode
     auto_mode = '--auto' in sys.argv or any(arg.startswith('--test-ratio=') for arg in sys.argv)
-    
+
     # Get test ratio from command line or use default
     test_ratio = 0.2
     for arg in sys.argv:
         if arg.startswith('--test-ratio='):
             test_ratio = float(arg.split('=')[1])
-    
+
     if not auto_mode:
         # Interactive mode
         # Check if data integrity was verified
-        print(f"\n⚠️  Reminder: Run data integrity check first")
-        print(f"   python scripts/check_data_integrity.py")
+        print("\n⚠️  Reminder: Run data integrity check first")
+        print("   python scripts/check_data_integrity.py")
 
-        response = input(f"\nProceed with preparation? [1=Yes, 2=No]: ").strip()
+        response = input("\nProceed with preparation? [1=Yes, 2=No]: ").strip()
         if response != '1':
-            print(f"\n⚠️  Preparation cancelled")
+            print("\n⚠️  Preparation cancelled")
             return
 
         # Get test ratio
-        print(f"\nTrain/Test split:")
-        print(f"  1. 80% train / 20% test (default)")
-        print(f"  2. 70% train / 30% test")
-        print(f"  3. 90% train / 10% test")
-        print(f"  4. Custom")
+        print("\nTrain/Test split:")
+        print("  1. 80% train / 20% test (default)")
+        print("  2. 70% train / 30% test")
+        print("  3. 90% train / 10% test")
+        print("  4. Custom")
 
-        choice = input(f"\nSelect split [1-4]: ").strip()
+        choice = input("\nSelect split [1-4]: ").strip()
 
         if choice == '2':
             test_ratio = 0.3
         elif choice == '3':
             test_ratio = 0.1
         elif choice == '4':
-            test_pct = input(f"Enter test percentage (e.g., 20 for 20%): ").strip()
+            test_pct = input("Enter test percentage (e.g., 20 for 20%): ").strip()
             test_ratio = float(test_pct) / 100
         else:
             test_ratio = 0.2
@@ -484,8 +484,8 @@ def main():
 
         print_header("PREPARATION COMPLETE")
 
-        print(f"\n✅ Next step: Choose testing approach")
-        print(f"   python scripts/test_menu.py")
+        print("\n✅ Next step: Choose testing approach")
+        print("   python scripts/test_menu.py")
 
 
 if __name__ == '__main__':

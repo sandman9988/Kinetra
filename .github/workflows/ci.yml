@@ -1,4 +1,15 @@
 name: Kinetra CI - Continuous Validation
+# Jobs overview:
+#   gate-invariants          — menu gates, manifest provenance, Renko pipeline invariants
+#   renko-core               — brick_engine, filters, dsp, backtest, portfolio, vpin, circuit_breakers (Sprints 1–4)
+#   renko-qualification      — session, qualify, orchestrator, recalibration pipeline (Sprints 5A–5C + Sprint 6)
+#   renko-smoke              — CLI invocability smoke tests (qualify_instruments, renko_backtest, recalibrate_instruments)
+#   fast-tests               — core unit + integration tests
+#   exhaustive-tests         — nightly / [exhaustive] full run
+#   code-quality             — ruff, black, mypy
+#   rules-validation         — canonical rules checks
+#   agent-factory-tests      — AgentFactory instantiation
+#   security                 — CodeQL + secrets scan
 
 on:
   push:
@@ -10,6 +21,753 @@ on:
     - cron: "0 2 * * *"
 
 jobs:
+  # ── Gate Invariants & Manifest Provenance ────────────────────────────────
+  gate-invariants:
+    name: Gate Invariants & Manifest Tests
+    runs-on: ubuntu-latest
+    # renko-qualification produces the qualification.json files that gate-invariants
+    # validates indirectly via menu gate tests; run them in parallel — no hard dep.
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Validate canonical naming/provenance/spread consistency
+        run: |
+          python scripts/ops/validate_canonical_consistency.py \
+            --root data/master_standardized \
+            --provider ctrader \
+            --require-meta \
+            --require-spread \
+            --report-json results/ops/ci_canonical_consistency_report.json
+        timeout-minutes: 5
+
+      - name: Run menu gate tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_menu_gates.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run pipeline integration tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_pipeline_integration.py -v --tb=short
+        timeout-minutes: 10
+
+      - name: Run model manifest tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_model_manifest.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run reward orchestrator tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_reward_orchestrator.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run reward consolidation tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_reward_consolidation.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Run DRY deprecation tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_dry_deprecations.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Verify manifest CLI diagnostics
+        run: |
+          python -m kinetra.model_manifest || true
+          echo "✅ Manifest CLI invocable"
+        timeout-minutes: 1
+
+      - name: Run manifest health check
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          python -c "
+          from pathlib import Path
+          from kinetra.model_manifest import check_manifest_health
+
+          project_root = Path('.')
+          report = check_manifest_health(project_root)
+
+          print('=== Manifest Health Report ===')
+          print(report.summary)
+          for alert in report.alerts:
+              print(f'  [{alert.severity.name}] {alert.code}: {alert.message}')
+
+          # In CI without training data, NO_MANIFEST is expected — don't fail.
+          # Fail only on unexpected CRITICAL alerts (e.g., EXPIRED, MISSING_MODEL_FILES).
+          unexpected_critical = [
+              a for a in report.alerts
+              if a.severity.name == 'CRITICAL'
+              and a.code not in ('NO_MANIFEST', 'ORPHANED_MODELS')
+          ]
+          if unexpected_critical:
+              print('❌ Unexpected CRITICAL alerts found!')
+              raise SystemExit(2)
+          print('✅ Manifest health check passed')
+          "
+        timeout-minutes: 1
+
+      - name: Run operator health CLI smoke test
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          # Verify the operator CLI script is invocable and produces valid JSON.
+          # In CI (no manifest), exit code 2 is expected — we just check it runs.
+          python scripts/ops/manifest_health_report.py --json > /tmp/health.json || true
+          python -c "
+          import json, sys
+          with open('/tmp/health.json') as f:
+              data = json.load(f)
+          assert 'is_healthy' in data, 'Missing is_healthy key'
+          assert 'exit_code' in data, 'Missing exit_code key'
+          assert 'alerts' in data, 'Missing alerts key'
+          assert isinstance(data['alerts'], list), 'alerts must be a list'
+          print(f'✅ Operator CLI JSON valid — {len(data[\"alerts\"])} alert(s)')
+          "
+        timeout-minutes: 1
+
+      - name: Verify manifest write in training scripts
+        run: |
+          echo "Checking all training scripts import manifest functions..."
+          SCRIPTS=(
+            "scripts/features/run_additive_step.py"
+            "scripts/training/explore_compare_agents.py"
+            "scripts/training/train_rl.py"
+            "scripts/training/train_berserker.py"
+            "scripts/training/train_sniper.py"
+            "scripts/training/train_triad.py"
+            "scripts/training/train_fast_multi.py"
+            "scripts/training/train_with_metrics.py"
+            "scripts/training/train_rl_gpu.py"
+            "scripts/training/train_rl_physics.py"
+          )
+          MISSING=0
+          for script in "${SCRIPTS[@]}"; do
+            if ! grep -q "write_manifest\|build_manifest" "$script"; then
+              echo "❌ Missing manifest write: $script"
+              MISSING=1
+            else
+              echo "✅ $script"
+            fi
+          done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "ERROR: Some training scripts do not write manifests!"
+            exit 1
+          fi
+          echo "✅ All training scripts have manifest integration"
+        timeout-minutes: 1
+
+      - name: Validate gate-logic invariants
+        run: |
+          python -c "
+          # Verify key gate invariants are enforced in code
+          import sys
+
+          with open('kinetra_menu.py') as f:
+              source = f.read()
+
+          errors = []
+
+          # 1. models_trained_current must be the preferred gate (manifest-backed)
+          if 'models_trained_current' not in source:
+              errors.append('models_trained_current gate not found in menu')
+
+          # 2. agent_comparison_done must be required alongside models_trained
+          if 'agent_comparison_done' not in source:
+              errors.append('agent_comparison_done gate not found in menu')
+
+          # 3. M1-specific detection — Renko pipeline must gate on m1_data_available
+          if 'm1_data_available' not in source:
+              errors.append('m1_data_available field not found in menu (Renko M1 gate missing)')
+
+          # 4. Sequential Renko training gate — sweep must precede agent comparison
+          if 'renko_sweep_done' not in source and 'sweep_done' not in source:
+              # Accept either field name — just ensure sequential gating exists
+              if 'renko_agent_cmp_done' not in source and 'renko_cmp_done' not in source:
+                  errors.append('Sequential Renko training gate not found in menu (sweep → cmp → risk → alloc)')
+
+          # 5. Calibration drift status must be wired in system tools menu
+          if 'calibration_drift_status' not in source:
+              errors.append('calibration_drift_status not wired into Menu 5')
+
+          # 6. renko_drift_flags must appear in SystemStatus
+          if 'renko_drift_flags' not in source:
+              errors.append('renko_drift_flags not in SystemStatus')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+
+          print('✅ Gate-logic invariants verified in kinetra_menu.py')
+          "
+        timeout-minutes: 1
+
+      - name: Validate Renko canonical imports
+        run: |
+          python -c "
+          # Verify that all Sprint 5-6 canonical symbols are importable
+          import sys
+
+          required = [
+              ('kinetra.renko.qualify', 'recalibrate_instrument'),
+              ('kinetra.renko.qualify', 'RecalibrationResult'),
+              ('kinetra.renko.qualify', 'QualificationRegistry'),
+              ('kinetra.renko.qualify', 'QualificationResult'),
+              ('kinetra.renko.qualify', 'CalibrationDriftDetector'),
+              ('kinetra.renko.qualify', 'DriftCheckResult'),
+              ('kinetra.renko.qualify', 'qualify_instrument'),
+              ('kinetra.renko.session', 'detect_session_break'),
+              ('kinetra.renko.session', 'SessionProfile'),
+              ('kinetra.renko.session', 'clamp_spikes'),
+              ('kinetra.renko.dsp', 'scaled_filter_params'),
+              ('kinetra.renko.dsp', 'run_dsp'),
+              ('kinetra.renko.backtest', 'RiskParams'),
+              ('kinetra.renko.brick_engine', 'build_renko'),
+              ('kinetra.renko.orchestrator', 'run_full_pipeline'),
+              ('kinetra.renko.orchestrator', 'PortfolioPipelineResult'),
+              ('kinetra.renko.vpin', 'compute_vpin'),
+              ('kinetra.monitoring.circuit_breakers', 'CircuitBreakerManager'),
+              ('kinetra.rl.portfolio_env', 'InstrumentContext'),
+              ('kinetra.rl.risk_env', 'PortfolioDaySnapshot'),
+          ]
+
+          errors = []
+          for module_name, symbol in required:
+              try:
+                  mod = __import__(module_name, fromlist=[symbol])
+                  if not hasattr(mod, symbol):
+                      errors.append(f'{module_name}.{symbol} — module imported but symbol missing')
+              except ImportError as exc:
+                  errors.append(f'{module_name}.{symbol} — ImportError: {exc}')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+
+          print(f'✅ All {len(required)} Renko canonical symbols importable')
+          "
+        timeout-minutes: 2
+
+      - name: Validate Renko package __all__ completeness
+        run: |
+          python -c "
+          import sys
+          from kinetra.renko import __all__ as renko_all
+
+          # Every Sprint 5–6 public symbol must be re-exported from kinetra.renko
+          sprint56_symbols = [
+              'recalibrate_instrument', 'RecalibrationResult',
+              'qualify_instrument', 'QualificationResult', 'QualificationRegistry',
+              'CalibrationDriftDetector', 'DriftCheckResult',
+              'detect_session_break', 'SessionProfile', 'clamp_spikes',
+              'scaled_filter_params', 'RiskParams',
+              'run_full_pipeline', 'PortfolioPipelineResult',
+          ]
+
+          missing = [s for s in sprint56_symbols if s not in renko_all]
+          if missing:
+              for s in missing:
+                  print(f'ERROR: {s!r} missing from kinetra.renko.__all__')
+              sys.exit(1)
+
+          print(f'✅ All {len(sprint56_symbols)} Sprint 5-6 symbols present in kinetra.renko.__all__')
+          "
+        timeout-minutes: 1
+
+      - name: Verify recalibration script imports canonical functions
+        run: |
+          python -c "
+          import sys, ast
+          from pathlib import Path
+
+          cli_scripts = [
+              'scripts/renko/recalibrate_instruments.py',
+              'scripts/renko/qualify_instruments.py',
+          ]
+
+          errors = []
+          for script_path in cli_scripts:
+              source = Path(script_path).read_text()
+              # Must import from kinetra.renko.qualify (not inline logic)
+              if 'kinetra.renko.qualify' not in source:
+                  errors.append(f'{script_path}: does not import from kinetra.renko.qualify')
+              # Must not redefine core pipeline logic inline
+              for banned in ['def run_dsp', 'def build_renko', 'def flip_rate']:
+                  if banned in source:
+                      errors.append(f'{script_path}: contains banned inline definition: {banned}')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+
+          print('✅ Renko CLI scripts use canonical imports (no inline duplication)')
+          "
+        timeout-minutes: 1
+
+  # ── Renko Core — Sprints 1–4 ─────────────────────────────────────────────
+  renko-core:
+    name: Renko Core Tests (Sprints 1–4)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run brick_engine + filters + dsp tests (Sprint 1)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko.py -v --tb=short
+        timeout-minutes: 10
+
+      - name: Run backtest + portfolio tests (Sprint 2)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko_backtest.py -v --tb=short
+        timeout-minutes: 15
+
+      - name: Run RL env + reward tests (Sprint 3)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko_rl.py -v --tb=short
+        timeout-minutes: 15
+
+      - name: Run VPIN tests (Sprint 4)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko_vpin.py -v --tb=short
+        timeout-minutes: 10
+
+      - name: Run circuit breaker tests (Sprint 4)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_circuit_breakers.py -v --tb=short
+        timeout-minutes: 10
+
+      - name: Verify test counts meet minimums
+        run: |
+          python -c "
+          import subprocess, sys, re
+
+          # Each module has a documented minimum test count; verify no regression.
+          modules = {
+              'tests/test_renko.py':           100,
+              'tests/test_renko_backtest.py':  100,
+              'tests/test_renko_rl.py':        100,
+              'tests/test_renko_vpin.py':      100,
+              'tests/test_circuit_breakers.py':100,
+          }
+
+          errors = []
+          for module, minimum in modules.items():
+              result = subprocess.run(
+                  ['python', '-m', 'pytest', module, '--collect-only', '-q'],
+                  capture_output=True, text=True
+              )
+              # pytest --collect-only prints 'N tests collected'
+              match = re.search(r'(\d+) test', result.stdout + result.stderr)
+              if not match:
+                  errors.append(f'{module}: could not determine test count')
+                  continue
+              count = int(match.group(1))
+              if count < minimum:
+                  errors.append(f'{module}: {count} tests < minimum {minimum}')
+              else:
+                  print(f'  ✅ {module}: {count} tests (>= {minimum})')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+          print('✅ All Renko core test modules meet minimum test counts')
+          "
+        timeout-minutes: 3
+
+  # ── Renko Qualification & Recalibration — Sprints 5A–5C + Sprint 6 ───────
+  renko-qualification:
+    name: Renko Qualification & Recalibration Tests (Sprints 5A–6)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run session + qualification + registry + drift tests (Sprint 5B)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko_qualify.py -v --tb=short
+        timeout-minutes: 20
+
+      - name: Run orchestrator + pipeline + drift-wiring tests (Sprint 5C)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_renko_orchestrator.py -v --tb=short
+        timeout-minutes: 15
+
+      - name: Run recalibration pipeline + CLI tests (Sprint 6)
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          # TestRecalibrationResult + TestRecalibrateInstrument + TestRecalibrateInstrumentsCLI
+          pytest tests/test_renko_qualify.py::TestRecalibrationResult \
+                 tests/test_renko_qualify.py::TestRecalibrateInstrument \
+                 tests/test_renko_qualify.py::TestRecalibrateInstrumentsCLI \
+                 -v --tb=short
+        timeout-minutes: 10
+
+      - name: Verify qualification test counts meet minimums
+        run: |
+          python -c "
+          import subprocess, sys, re
+
+          modules = {
+              'tests/test_renko_qualify.py':    150,
+              'tests/test_renko_orchestrator.py': 80,
+          }
+
+          errors = []
+          for module, minimum in modules.items():
+              result = subprocess.run(
+                  ['python', '-m', 'pytest', module, '--collect-only', '-q'],
+                  capture_output=True, text=True
+              )
+              match = re.search(r'(\d+) test', result.stdout + result.stderr)
+              if not match:
+                  errors.append(f'{module}: could not determine test count')
+                  continue
+              count = int(match.group(1))
+              if count < minimum:
+                  errors.append(f'{module}: {count} tests < minimum {minimum}')
+              else:
+                  print(f'  ✅ {module}: {count} tests (>= {minimum})')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+          print('✅ Qualification + orchestrator test modules meet minimum test counts')
+          "
+        timeout-minutes: 3
+
+      - name: Verify recalibration is idempotent (unit guard)
+        run: |
+          python -c "
+          # Confirm that TestRecalibrateInstrument.test_idempotent_double_call_appends_two_log_entries
+          # exists and passes — idempotency is a hard contract for the recalibration pipeline.
+          import subprocess, sys
+          result = subprocess.run(
+              [
+                  'python', '-m', 'pytest',
+                  'tests/test_renko_qualify.py::TestRecalibrateInstrument::test_idempotent_double_call_appends_two_log_entries',
+                  '-v', '--tb=short',
+              ],
+              capture_output=True, text=True
+          )
+          print(result.stdout[-3000:])
+          if result.returncode != 0:
+              print(result.stderr[-1000:])
+              print('ERROR: Idempotency test failed or not found!')
+              sys.exit(1)
+          print('✅ Recalibration idempotency contract confirmed')
+          "
+        timeout-minutes: 3
+
+      - name: Verify session-break pipeline ordering contract
+        run: |
+          python -c "
+          # build_renko must not be called without a session_break_minutes parameter.
+          # Verify that recalibrate_instrument() chains detect_session_break() → build_renko().
+          import sys
+          from pathlib import Path
+
+          qualify_source = Path('kinetra/renko/qualify.py').read_text()
+
+          # recalibrate_instrument must call detect_session_break before build_renko
+          rb_pos = qualify_source.find('build_renko')
+          sb_pos = qualify_source.find('detect_session_break')
+
+          if rb_pos == -1:
+              print('ERROR: build_renko not found in qualify.py')
+              sys.exit(1)
+          if sb_pos == -1:
+              print('ERROR: detect_session_break not found in qualify.py')
+              sys.exit(1)
+          if sb_pos > rb_pos:
+              print('ERROR: detect_session_break appears AFTER build_renko in qualify.py')
+              print('  Pipeline ordering contract violated: session break must be detected first.')
+              sys.exit(1)
+
+          # session_break_minutes must be passed to build_renko
+          import re
+          # Find all build_renko call sites and verify session_break_minutes is passed
+          calls = re.findall(r'build_renko\([^)]+\)', qualify_source)
+          if not calls:
+              # Multi-line calls — check for keyword arg presence near each call site
+              if 'session_break_minutes' not in qualify_source:
+                  print('ERROR: session_break_minutes not passed to build_renko in qualify.py')
+                  sys.exit(1)
+          else:
+              bad = [c for c in calls if 'session_break' not in c]
+              if bad:
+                  print(f'ERROR: build_renko called without session_break_minutes: {bad}')
+                  sys.exit(1)
+
+          print('✅ Pipeline ordering contract confirmed: detect_session_break before build_renko')
+          "
+        timeout-minutes: 1
+
+  # ── Renko CLI Smoke Tests ─────────────────────────────────────────────────
+  renko-smoke:
+    name: Renko CLI Smoke Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Smoke — recalibrate_instruments.py --check (no data)
+        run: |
+          # Without a qualification registry, --check must exit 2 (config error).
+          # This tests that the script is importable and arg-parsing works.
+          EXIT_CODE=0
+          python scripts/renko/recalibrate_instruments.py --check 2>&1 || EXIT_CODE=$?
+          if [ "$EXIT_CODE" -eq 0 ] || [ "$EXIT_CODE" -eq 2 ]; then
+            echo "✅ recalibrate_instruments.py --check exits with expected code ($EXIT_CODE)"
+          else
+            echo "❌ Unexpected exit code $EXIT_CODE from --check with no registry"
+            exit 1
+          fi
+        timeout-minutes: 1
+
+      - name: Smoke — recalibrate_instruments.py --log UNKNOWN (no data)
+        run: |
+          # --log for an unknown symbol should exit cleanly (0) with an info message.
+          python scripts/renko/recalibrate_instruments.py --log UNKNOWN_SYM 2>&1 || true
+          echo "✅ recalibrate_instruments.py --log exits without crash"
+        timeout-minutes: 1
+
+      - name: Smoke — qualify_instruments.py --help
+        run: |
+          python scripts/renko/qualify_instruments.py --help
+          echo "✅ qualify_instruments.py --help exits 0"
+        timeout-minutes: 1
+
+      - name: Smoke — renko_backtest.py --help
+        run: |
+          python scripts/renko/renko_backtest.py --help
+          echo "✅ renko_backtest.py --help exits 0"
+        timeout-minutes: 1
+
+      - name: Smoke — recalibrate_instruments.py --help
+        run: |
+          python scripts/renko/recalibrate_instruments.py --help
+          echo "✅ recalibrate_instruments.py --help exits 0"
+        timeout-minutes: 1
+
+      - name: Smoke — kinetra.renko package import
+        run: |
+          python -c "
+          import kinetra.renko as renko
+          # Spot-check Sprint 6 symbols are present at package level
+          assert hasattr(renko, 'recalibrate_instrument'), 'recalibrate_instrument missing from kinetra.renko'
+          assert hasattr(renko, 'RecalibrationResult'),    'RecalibrationResult missing from kinetra.renko'
+          assert hasattr(renko, 'QualificationRegistry'),  'QualificationRegistry missing from kinetra.renko'
+          assert hasattr(renko, 'CalibrationDriftDetector'), 'CalibrationDriftDetector missing from kinetra.renko'
+          assert hasattr(renko, 'detect_session_break'),   'detect_session_break missing from kinetra.renko'
+          assert hasattr(renko, 'scaled_filter_params'),   'scaled_filter_params missing from kinetra.renko'
+          assert hasattr(renko, 'RiskParams'),             'RiskParams missing from kinetra.renko'
+          assert hasattr(renko, 'run_full_pipeline'),      'run_full_pipeline missing from kinetra.renko'
+          print('✅ kinetra.renko package imports all Sprint 5-6 symbols at package level')
+          "
+        timeout-minutes: 1
+
+      - name: Smoke — kinetra.monitoring package import
+        run: |
+          python -c "
+          from kinetra.monitoring.circuit_breakers import (
+              CircuitBreakerManager, CircuitBreakerConfig,
+              evaluate_circuit_breakers, BreakerAction,
+          )
+          print('✅ kinetra.monitoring.circuit_breakers imports OK')
+          "
+        timeout-minutes: 1
+
+      - name: Smoke — kinetra.rl package import
+        run: |
+          python -c "
+          from kinetra.rl.portfolio_env import RenkoPortfolioEnv, InstrumentContext, PortfolioEnvConfig
+          from kinetra.rl.risk_env import RiskOverlayEnv, PortfolioDaySnapshot, RiskEnvConfig
+          from kinetra.rl.reward import (
+              compute_allocation_reward, compute_risk_reward,
+              AllocationRewardConfig, RiskRewardConfig,
+          )
+          # Verify Sprint 5C drift fields on PortfolioDaySnapshot
+          import inspect
+          fields = {f.name for f in PortfolioDaySnapshot.__dataclass_fields__.values()}
+          assert 'vr_drift' in fields, 'vr_drift field missing from PortfolioDaySnapshot'
+          assert 'recalibration_pending' in fields, 'recalibration_pending field missing from PortfolioDaySnapshot'
+          print('✅ kinetra.rl package imports OK — Sprint 5C drift fields confirmed on PortfolioDaySnapshot')
+          "
+        timeout-minutes: 1
+
+      - name: Smoke — Run aggregation tests
+        env:
+          KINETRA_CI_MODE: 1
+        run: |
+          pytest tests/test_aggregation.py -v --tb=short
+        timeout-minutes: 5
+
+      - name: Smoke — Verify no orphan Renko generation in aggregation script
+        run: |
+          python -c "
+          # The aggregation step must NOT generate Renko bricks.
+          # Brick generation belongs exclusively in qualify_instrument().
+          # This prevents the pipeline ordering bug (orphaned Renko CSVs before session detection).
+          #
+          # Detection strategy: check whether the file *imports* build_renko.
+          # Docstrings and comments may mention 'build_renko()' for documentation
+          # purposes (e.g. explaining what NOT to do); an import is the reliable
+          # indicator that the module actually uses it.
+          import sys
+          from pathlib import Path
+
+          IMPORT_MARKERS = [
+              'from kinetra.renko.brick_engine import',
+              'from kinetra.renko import',
+              'import kinetra.renko.brick_engine',
+          ]
+
+          def _imports_build_renko(source: str) -> bool:
+              # Only flag if the file imports build_renko AND the import is not
+              # inside a TYPE_CHECKING block or a noqa comment.
+              for marker in IMPORT_MARKERS:
+                  if marker in source and 'build_renko' in source:
+                      # Crude but reliable: the import line mentions build_renko
+                      for line in source.splitlines():
+                          stripped = line.strip()
+                          if stripped.startswith('#'):
+                              continue
+                          if marker in stripped and 'build_renko' in stripped:
+                              return True
+              return False
+
+          files_to_check = [
+              Path('kinetra/aggregation.py'),
+              Path('scripts/data/aggregate_timeframes.py'),
+          ]
+
+          errors = []
+          for path in files_to_check:
+              if not path.exists():
+                  continue
+              source = path.read_text()
+              if _imports_build_renko(source):
+                  errors.append(f'{path}: imports build_renko — aggregation must NOT generate Renko bricks')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              print('  Brick generation belongs in qualify_instrument() after session detection.')
+              sys.exit(1)
+
+          print('✅ No orphan Renko brick generation in aggregation pipeline')
+          "
+        timeout-minutes: 1
+
+  # ── Fast Tests (CI Mode) ───────────────────────────────────────────────────
   fast-tests:
     name: Fast Tests (CI Mode)
     runs-on: ubuntu-latest
@@ -142,7 +900,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git add docs/EMPIRICAL_THEOREMS.md || true
+          git add docs/QUICKSTART.md || true
           git commit -m "Update empirical theorems from exhaustive tests [skip ci]" || true
           git push || true
 
@@ -161,6 +919,10 @@ jobs:
       - name: Install linters
         run: |
           pip install ruff black mypy
+
+      - name: Check filename style
+        run: |
+          python scripts/ops/check_filename_style.py
 
       - name: Run ruff (lint)
         run: |

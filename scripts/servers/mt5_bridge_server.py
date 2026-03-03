@@ -9,10 +9,11 @@ Usage:
     python mt5_bridge_server.py [--port 5555]
 """
 
-import socket
 import json
+import socket
 import threading
 from datetime import datetime
+
 import MetaTrader5 as mt5
 
 

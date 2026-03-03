@@ -13,15 +13,16 @@ Usage:
     python scripts/check_and_fill_data.py
 """
 
-import os
-import sys
 import asyncio
 import getpass
-from pathlib import Path
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Set, Tuple, Any
-import pandas as pd
+import os
+import sys
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Set, Tuple
+
+import pandas as pd
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -154,7 +155,7 @@ def find_data_gaps(filepath: Path, timeframe: str) -> List[Dict]:
 
         return large_gaps
 
-    except Exception as e:
+    except Exception:
         return []
 
 
@@ -259,7 +260,7 @@ class DataFiller:
 
             return df
 
-        except Exception as e:
+        except Exception:
             return None
 
     async def fill_missing_timeframes(self, missing: List[Tuple[str, Set[str]]], output_dir: Path):
@@ -309,7 +310,7 @@ class DataFiller:
             df = await self.download_candles(symbol, timeframe, days=365)
 
             if df is None:
-                print(f"  ❌ Failed to re-download")
+                print("  ❌ Failed to re-download")
                 failed += 1
                 continue
 
@@ -343,7 +344,7 @@ async def main():
 
     if not data_dir.exists():
         print(f"\n❌ Data directory not found: {data_dir}")
-        print(f"   Run: python scripts/download_interactive.py")
+        print("   Run: python scripts/download_interactive.py")
         return
 
     # Step 1: Analyze existing data
@@ -353,7 +354,7 @@ async def main():
 
     if existing_data['total_files'] == 0:
         print("\n❌ No data files found")
-        print(f"   Run: python scripts/download_interactive.py")
+        print("   Run: python scripts/download_interactive.py")
         return
 
     print(f"\n✅ Found {existing_data['total_files']} files")
@@ -408,7 +409,7 @@ async def main():
         print("   python scripts/prepare_data.py")
         return
 
-    print(f"\n📊 Issues found:")
+    print("\n📊 Issues found:")
     print(f"  Missing timeframes: {len(missing_timeframes)} symbols")
     print(f"  Data gaps:          {len(files_with_gaps)} files")
     print(f"  Total issues:       {total_issues}")
@@ -448,7 +449,7 @@ async def main():
 
     # Check token
     if token and any(placeholder in token.lower() for placeholder in placeholder_patterns):
-        print(f"\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
+        print("\n⚠️  Found placeholder METAAPI_TOKEN (ignoring it)")
         token = None
 
     # Prompt for token if not set
@@ -463,7 +464,7 @@ async def main():
 
     # Check account ID
     if account_id and any(placeholder in account_id.lower() for placeholder in placeholder_patterns):
-        print(f"\n⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
+        print("\n⚠️  Found placeholder METAAPI_ACCOUNT_ID (ignoring it)")
         account_id = None
 
     # Prompt for account ID if not set
@@ -501,7 +502,7 @@ async def main():
         # Final summary
         print_header("FILL COMPLETE")
 
-        print(f"\n📊 Results:")
+        print("\n📊 Results:")
         print(f"  ✅ Downloaded: {downloaded_count}")
         print(f"  ❌ Failed:     {failed_count}")
 
@@ -509,7 +510,7 @@ async def main():
         new_data = analyze_existing_data(data_dir)
         new_missing = find_missing_timeframes(new_data)
 
-        print(f"\n📈 Database status:")
+        print("\n📈 Database status:")
         print(f"  Files:              {new_data['total_files']}")
         print(f"  Symbols:            {len(new_data['symbols'])}")
         print(f"  Incomplete symbols: {len(new_missing)}")

@@ -20,7 +20,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kinetra.mt5_spec_extractor import extract_specs_from_mt5
 
-
 # Default symbols to extract (common trading instruments)
 DEFAULT_SYMBOLS = [
     # Forex majors

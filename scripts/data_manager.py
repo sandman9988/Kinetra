@@ -44,11 +44,9 @@ import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from functools import partial
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
-import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -855,10 +853,10 @@ Examples:
         results = preparator.prepare_all(validate=not args.no_validate)
 
         if all(results.values()):
-            print(f"\n✅ All files prepared successfully")
+            print("\n✅ All files prepared successfully")
             sys.exit(0)
         else:
-            print(f"\n⚠️  Some files failed to prepare")
+            print("\n⚠️  Some files failed to prepare")
             sys.exit(1)
 
     elif args.command == "snapshot":
@@ -886,7 +884,7 @@ Examples:
             print(f"✅ Snapshot valid: {args.snapshot}")
             sys.exit(0)
         else:
-            print(f"❌ Snapshot validation failed:")
+            print("❌ Snapshot validation failed:")
             for error in errors:
                 print(f"   - {error}")
             sys.exit(1)

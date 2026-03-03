@@ -10,13 +10,14 @@ Usage:
     python3 scripts/download_market_data.py
 """
 
-import sys
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
 import json
+import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 
@@ -463,7 +464,6 @@ def main():
     output_dir = Path(args.output)
 
     if args.clean and output_dir.exists():
-        import shutil
         print(f"Cleaning {output_dir}...")
         for f in output_dir.glob("*.csv"):
             f.unlink()

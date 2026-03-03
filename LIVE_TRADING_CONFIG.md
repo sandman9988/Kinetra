@@ -1,6 +1,6 @@
 # Kinetra Live Trading Configuration
 
-> Canonical status has moved to [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md).
+> Canonical status has moved to [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md).
 > This file is now an operator quick-reference for launch commands only.
 
 ## Quick Start
@@ -207,6 +207,6 @@ python scripts/renko_engine.py XAUUSD --stage dsp
 
 ## See Also
 
-- [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md) — Canonical live state and snapshot semantics
+- [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md) — Canonical live state and snapshot semantics
 - `SWAP_MODELING_TODO.md` — Swap cost modeling limitations
 - `scripts/ctrader/launch.sh` — Interactive launcher defaults

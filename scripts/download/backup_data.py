@@ -16,9 +16,9 @@ Usage:
     python scripts/backup_data.py --cleanup --days 30
 """
 
+import argparse
 import sys
 from pathlib import Path
-import argparse
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -52,7 +52,7 @@ def backup_all_data(master_dir: Path):
             print(f"  ❌ {csv_file.name}: {e}")
 
     print(f"\n✅ Backed up {success_count}/{len(csv_files)} files")
-    print(f"📁 Backups stored in: data/backups/")
+    print("📁 Backups stored in: data/backups/")
 
 
 def restore_all_data(master_dir: Path):

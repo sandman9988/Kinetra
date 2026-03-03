@@ -35,14 +35,14 @@ try:
         x = torch.randn(1000, 1000, device="cuda")
         y = torch.matmul(x, x)
         torch.cuda.synchronize()
-        print(f"  Matrix multiply (1000x1000): OK")
+        print("  Matrix multiply (1000x1000): OK")
 
         # Physics-like batch test
         prices = torch.randn(32, 10000, device="cuda")  # 32 instruments, 10k bars
         velocity = torch.diff(prices, dim=1)
         momentum = velocity * prices[:, 1:]
         torch.cuda.synchronize()
-        print(f"  Physics batch (32x10000): OK")
+        print("  Physics batch (32x10000): OK")
 
         print("\n[OK] GPU ready for physics computation!")
     else:

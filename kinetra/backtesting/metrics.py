@@ -11,18 +11,34 @@ Features:
 - Z-factor
 - MFE/MAE analysis
 - Regime-based breakdown
+
+Module-level convenience functions
+-----------------------------------
+``omega_ratio(returns, threshold)`` and ``calculate_z_factor(returns, benchmark)``
+are thin module-level wrappers around ``MetricsCalculator`` that accept both
+``pd.Series`` and ``np.ndarray``.  Import these in scripts and library code
+instead of writing a local copy (DRY-08, DRY-13).
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
+
+# Finite sentinel returned instead of infinity when the Omega ratio denominator is
+# zero (no losing trades). Using a finite value prevents inf from propagating into
+# downstream normalisations, reward functions, or comparisons.  Chosen large enough
+# to be distinguishable from real ratios while still being a valid float.
+OMEGA_INFINITE_SENTINEL: float = 10.0
 
 
 @dataclass
 class PerformanceMetrics:
     """Standard performance metrics."""
+
     total_return: float
     sharpe_ratio: float
     omega_ratio: float
@@ -38,24 +54,22 @@ class PerformanceMetrics:
 class MetricsCalculator:
     """
     Standardized metrics calculation.
-    
+
     Eliminates the 5 different Sharpe ratio calculations!
     """
 
     @staticmethod
     def sharpe_ratio(
-        returns: pd.Series,
-        periods_per_year: int = 252,
-        risk_free_rate: float = 0.0
+        returns: pd.Series, periods_per_year: int = 252, risk_free_rate: float = 0.0
     ) -> float:
         """
         Calculate Sharpe ratio (STANDARDIZED).
-        
+
         Args:
             returns: Return series
             periods_per_year: Scaling factor (252 for daily, 252*24 for hourly)
             risk_free_rate: Risk-free rate (annualized)
-            
+
         Returns:
             Sharpe ratio
         """
@@ -67,48 +81,52 @@ class MetricsCalculator:
         if excess_returns.std() == 0:
             return 0.0
 
-        return (
-            excess_returns.mean() / excess_returns.std() * np.sqrt(periods_per_year)
-        )
+        return excess_returns.mean() / excess_returns.std() * np.sqrt(periods_per_year)
 
     @staticmethod
-    def omega_ratio(returns: pd.Series, threshold: float = 0.0) -> float:
+    def omega_ratio(returns: Union[pd.Series, np.ndarray, list], threshold: float = 0.0) -> float:
         """
         Calculate Omega ratio (probability-weighted gain/loss).
-        
+
         Args:
-            returns: Return series
-            threshold: Return threshold
-            
+            returns: Return series (pd.Series, np.ndarray, or list)
+            threshold: Return threshold (default 0.0 — standard definition)
+
         Returns:
-            Omega ratio (>1 is good, >2.7 is target)
+            Omega ratio (>1 is good, >2.7 is target).
+            Returns 0.0 for empty input.
+            Returns ``OMEGA_INFINITE_SENTINEL`` (10.0) when there are no losing trades
+            and at least some gains — avoids inf polluting downstream calculations.
         """
-        returns_above = returns[returns > threshold] - threshold
-        returns_below = threshold - returns[returns < threshold]
+        arr = np.asarray(returns, dtype=float)
+        if len(arr) == 0:
+            return 0.0
 
-        gains = returns_above.sum()
-        losses = returns_below.sum()
+        gains = float(np.sum(np.maximum(arr - threshold, 0.0)))
+        losses = float(np.sum(np.maximum(threshold - arr, 0.0)))
 
-        if losses == 0:
-            return np.inf if gains > 0 else 0.0
+        if losses < 1e-10:
+            return OMEGA_INFINITE_SENTINEL if gains > 0.0 else 0.0
 
         return gains / losses
 
     @staticmethod
     def z_factor(trades: List[Dict]) -> float:
         """
-        Calculate Z-factor (statistical significance of edge).
-        
+        Calculate Z-factor from a list of trade dicts (statistical significance of edge).
+
+        Each dict must contain a ``'pnl'`` key.
+
         Args:
             trades: List of trades with 'pnl' field
-            
+
         Returns:
             Z-factor (>2.5 is statistically significant)
         """
         if len(trades) < 2:
             return 0.0
 
-        pnls = np.array([t['pnl'] for t in trades])
+        pnls = np.array([t["pnl"] for t in trades])
 
         wins = pnls[pnls > 0]
         losses = pnls[pnls < 0]
@@ -129,10 +147,10 @@ class MetricsCalculator:
     def max_drawdown(equity_curve: pd.Series) -> float:
         """
         Calculate maximum drawdown.
-        
+
         Args:
             equity_curve: Equity over time
-            
+
         Returns:
             Max drawdown as percentage (negative)
         """
@@ -142,37 +160,37 @@ class MetricsCalculator:
 
     @staticmethod
     def calculate_all(
-        trades: List[Dict],
-        equity_curve: pd.Series,
-        returns: pd.Series
+        trades: List[Dict], equity_curve: pd.Series, returns: pd.Series
     ) -> PerformanceMetrics:
         """
         Calculate all metrics.
-        
+
         Args:
             trades: List of trades
             equity_curve: Equity over time
             returns: Return series
-            
+
         Returns:
             PerformanceMetrics object
         """
         # Basic stats
-        total_return = (equity_curve.iloc[-1] / equity_curve.iloc[0] - 1) if len(equity_curve) > 0 else 0.0
+        total_return = (
+            (equity_curve.iloc[-1] / equity_curve.iloc[0] - 1) if len(equity_curve) > 0 else 0.0
+        )
 
         # Win rate and profit factor
-        winning_trades = [t for t in trades if t['pnl'] > 0]
-        losing_trades = [t for t in trades if t['pnl'] < 0]
+        winning_trades = [t for t in trades if t["pnl"] > 0]
+        losing_trades = [t for t in trades if t["pnl"] < 0]
 
         win_rate = len(winning_trades) / len(trades) if trades else 0.0
 
-        total_wins = sum(t['pnl'] for t in winning_trades)
-        total_losses = abs(sum(t['pnl'] for t in losing_trades))
+        total_wins = sum(t["pnl"] for t in winning_trades)
+        total_losses = abs(sum(t["pnl"] for t in losing_trades))
         profit_factor = total_wins / total_losses if total_losses > 0 else 0.0
 
         # MFE/MAE
-        avg_mfe = np.mean([t.get('mfe', 0) for t in trades]) if trades else 0.0
-        avg_mae = np.mean([t.get('mae', 0) for t in trades]) if trades else 0.0
+        avg_mfe = np.mean([t.get("mfe", 0) for t in trades]) if trades else 0.0
+        avg_mae = np.mean([t.get("mae", 0) for t in trades]) if trades else 0.0
 
         return PerformanceMetrics(
             total_return=total_return,
@@ -184,5 +202,62 @@ class MetricsCalculator:
             profit_factor=profit_factor,
             avg_mfe=avg_mfe,
             avg_mae=avg_mae,
-            total_trades=len(trades)
+            total_trades=len(trades),
         )
+
+
+# =============================================================================
+# MODULE-LEVEL CONVENIENCE ALIASES  (DRY-08, DRY-13)
+# =============================================================================
+# Import these in scripts and library code — never write a local copy.
+#
+#   from kinetra.backtesting.metrics import omega_ratio, calculate_z_factor
+#
+# Both accept pd.Series, np.ndarray, or plain list.
+
+
+def omega_ratio(returns: Union[pd.Series, np.ndarray, list], threshold: float = 0.0) -> float:
+    """
+    Module-level alias for ``MetricsCalculator.omega_ratio``.
+
+    Omega = Σ max(r − threshold, 0) / Σ max(threshold − r, 0)
+
+    Args:
+        returns: Trade or bar returns (pd.Series, np.ndarray, or list).
+        threshold: Return threshold, default 0.0 (standard definition).
+
+    Returns:
+        Omega ratio.  0.0 for empty input; 10.0 (finite sentinel) when
+        there are no losing returns but at least some gains.
+        Target: > 2.7.
+    """
+    return MetricsCalculator.omega_ratio(returns, threshold)
+
+
+def calculate_z_factor(
+    returns: Union[pd.Series, np.ndarray, list], benchmark: float = 0.0
+) -> float:
+    """
+    Z-factor: (mean − benchmark) / std × √n.
+
+    Measures statistical significance of the trading edge over ``benchmark``.
+    Accepts an array/series of returns directly (unlike the trade-dict-based
+    ``MetricsCalculator.z_factor``).
+
+    Args:
+        returns: Return series (pd.Series, np.ndarray, or list).
+        benchmark: Benchmark return to compare against (default 0.0).
+
+    Returns:
+        Z-factor.  0.0 when fewer than 2 observations or zero variance.
+        Target: > 2.5.
+    """
+    arr = np.asarray(returns, dtype=float)
+    n = len(arr)
+    if n < 2:
+        return 0.0
+    std = float(np.std(arr, ddof=1))
+    if std < 1e-10:
+        mean = float(np.mean(arr))
+        return float("inf") if mean > benchmark else 0.0
+    return float((np.mean(arr) - benchmark) / std * np.sqrt(n))

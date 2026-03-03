@@ -18,7 +18,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -87,7 +87,7 @@ def get_api_token() -> Optional[str]:
             if save == "y":
                 try:
                     with open(env_file, "a") as f:
-                        f.write(f"\n# MetaAPI Token (added by select_metaapi_account.py)\n")
+                        f.write("\n# MetaAPI Token (added by select_metaapi_account.py)\n")
                         f.write(f"METAAPI_TOKEN={token}\n")
                     print(f"✅ Token saved to {env_file}")
                     print("   Make sure .env is in .gitignore!")
@@ -211,7 +211,7 @@ Then update your .env file or METAAPI_TOKEN environment variable.
             print(f"  [{i}] {choice}")
 
         if len(accounts) == 1:
-            print(f"\n✅ Auto-selecting the only account")
+            print("\n✅ Auto-selecting the only account")
             selected_account = account_map[account_choices[0]]
         else:
             # Ask user to pick by number
@@ -263,13 +263,13 @@ async def main():
     selected = await list_and_select_account(api_token)
 
     if selected:
-        print(f"\n✅ Success! Use this account ID in your scripts:")
+        print("\n✅ Success! Use this account ID in your scripts:")
         print(f'\n   ACCOUNT_ID = "{selected["id"]}"')
-        print(f"\nNext steps:")
-        print(f"  1. Update test_mt5_vantage_full.py with this ACCOUNT_ID")
-        print(f"  2. Run the backtest to get real broker specs from MetaAPI")
+        print("\nNext steps:")
+        print("  1. Update test_mt5_vantage_full.py with this ACCOUNT_ID")
+        print("  2. Run the backtest to get real broker specs from MetaAPI")
     else:
-        print(f"\n❌ No account selected")
+        print("\n❌ No account selected")
 
 
 if __name__ == "__main__":

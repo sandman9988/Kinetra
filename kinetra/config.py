@@ -34,6 +34,7 @@ Three completely separate buckets — never mix them:
 import multiprocessing as mp
 import os
 from pathlib import Path
+from typing import Literal
 
 # =============================================================================
 # CPU / DISK PARALLELIZATION
@@ -110,7 +111,52 @@ PROJECT_ROOT: Path = _project_root
 DATA_DIR = Path(os.environ.get("KINETRA_DATA_DIR", _project_root / "data"))
 
 
-def resolve_project_path(path: str | Path) -> Path:
-    """Resolve *path* relative to PROJECT_ROOT unless already absolute."""
+def resolve_project_path(
+    path: str | Path,
+    *,
+    recursive: bool = False,
+    kind: Literal["any", "file", "dir"] = "any",
+) -> Path:
+    """Resolve *path* relative to ``PROJECT_ROOT`` unless already absolute.
+
+    Parameters
+    ----------
+    path:
+        Absolute path, or a project-relative path.
+    recursive:
+        If ``True`` and direct ``PROJECT_ROOT / path`` does not exist, search
+        recursively under ``PROJECT_ROOT`` for a unique match.
+    kind:
+        Optional type constraint when recursive search is enabled.
+    """
     p = Path(path)
-    return p if p.is_absolute() else (PROJECT_ROOT / p)
+    if p.is_absolute():
+        return p
+
+    direct = PROJECT_ROOT / p
+    if direct.exists() or not recursive:
+        return direct
+
+    matches = [m for m in PROJECT_ROOT.rglob(str(p))]
+    if kind == "file":
+        matches = [m for m in matches if m.is_file()]
+    elif kind == "dir":
+        matches = [m for m in matches if m.is_dir()]
+
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        raise ValueError(
+            f"Ambiguous recursive project path '{path}': "
+            f"{', '.join(str(m.relative_to(PROJECT_ROOT)) for m in matches[:8])}"
+        )
+    return direct
+
+
+def resolve_project_folder(name: str, *, recursive: bool = True) -> Path:
+    """Resolve a folder by name from project root.
+
+    If *name* is a direct top-level folder, it is returned. Otherwise,
+    recursive search is used (default) and must resolve to a unique directory.
+    """
+    return resolve_project_path(name, recursive=recursive, kind="dir")

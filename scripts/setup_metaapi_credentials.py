@@ -26,7 +26,6 @@ Environment Variables Set:
 import argparse
 import asyncio
 import getpass
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -318,7 +317,7 @@ async def setup_credentials(add_account_only: bool = False):
         token = env_vars["METAAPI_TOKEN"]
     else:
         if "METAAPI_TOKEN" in env_vars:
-            print(f"✅ Found existing METAAPI_TOKEN in .env")
+            print("✅ Found existing METAAPI_TOKEN in .env")
             use_existing = input("Use existing token? (Y/n): ").strip().lower()
             if use_existing != "n":
                 token = env_vars["METAAPI_TOKEN"]
@@ -381,7 +380,7 @@ async def setup_credentials(add_account_only: bool = False):
     print("✅ Credentials configured successfully")
     print()
     print("Environment variables set:")
-    print(f"  • METAAPI_TOKEN (hidden)")
+    print("  • METAAPI_TOKEN (hidden)")
     print(f"  • METAAPI_ACCOUNT_ID = {env_vars['METAAPI_ACCOUNT_ID']}")
     for acc in selected_accounts:
         print(f"  • METAAPI_ACCOUNT_{acc['label']} = {env_vars[f'METAAPI_ACCOUNT_{acc['label']}']}")

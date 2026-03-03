@@ -36,6 +36,16 @@ class TradeAnalytics:
     avg_winner: float = 0.0
     avg_loser: float = 0.0
 
+    # Friction cost breakdown
+    total_spread_usd: float = 0.0
+    total_commission_usd: float = 0.0
+    total_swap_usd: float = 0.0
+    total_friction_usd: float = 0.0
+    avg_spread_per_trade: float = 0.0
+    avg_commission_per_trade: float = 0.0
+    avg_swap_per_trade: float = 0.0
+    friction_pct_of_gross: float = 0.0  # Total friction as % of gross profit
+
     # Risk-adjusted ratios
     profit_factor: float = 0.0
     omega: float = 0.0
@@ -283,7 +293,7 @@ def analyze_trades(
     Args:
         trades: List of trade objects with 'net_usd' attribute (and optionally
                 'max_adverse_excursion', 'max_favorable_excursion', 'holding_hours',
-                'entry_time', 'exit_time')
+                'entry_time', 'exit_time', 'spread_usd', 'commission_usd', 'swap_usd')
         initial_equity: Starting account balance
 
     Returns:
@@ -305,6 +315,16 @@ def analyze_trades(
     gross_profit = float(winners.sum()) if len(winners) > 0 else 0.0
     gross_loss = float(abs(losers.sum())) if len(losers) > 0 else 0.0
     net_pnl = float(nets.sum())
+
+    # Friction cost breakdown
+    total_spread = sum(float(getattr(t, "spread_usd", 0)) for t in trades)
+    total_commission = sum(float(getattr(t, "commission_usd", 0)) for t in trades)
+    total_swap = sum(float(getattr(t, "swap_usd", 0)) for t in trades)
+    total_friction = total_spread + total_commission + total_swap
+    avg_spread = total_spread / n_trades if n_trades > 0 else 0.0
+    avg_commission = total_commission / n_trades if n_trades > 0 else 0.0
+    avg_swap = total_swap / n_trades if n_trades > 0 else 0.0
+    friction_pct = (total_friction / gross_profit * 100) if gross_profit > 0 else 0.0
 
     # Basic ratios
     profit_factor = gross_profit / gross_loss if gross_loss > 0 else float("inf")
@@ -357,6 +377,14 @@ def analyze_trades(
         avg_trade=net_pnl / n_trades if n_trades > 0 else 0.0,
         avg_winner=avg_winner,
         avg_loser=avg_loser,
+        total_spread_usd=total_spread,
+        total_commission_usd=total_commission,
+        total_swap_usd=total_swap,
+        total_friction_usd=total_friction,
+        avg_spread_per_trade=avg_spread,
+        avg_commission_per_trade=avg_commission,
+        avg_swap_per_trade=avg_swap,
+        friction_pct_of_gross=friction_pct,
         profit_factor=profit_factor,
         omega=omega,
         expectancy=expectancy,

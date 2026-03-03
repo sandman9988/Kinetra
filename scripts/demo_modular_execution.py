@@ -14,11 +14,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from kinetra.order_executor import create_executor, OrderExecutor, OrderResult
-from kinetra.market_microstructure import SymbolSpec, AssetClass
+from kinetra.market_microstructure import AssetClass, SymbolSpec
+from kinetra.order_executor import OrderExecutor, OrderResult, create_executor
 
 
 class SimpleAgent:
@@ -150,11 +150,11 @@ def demo_live_mode():
         trade_freeze_level=10,
     )
 
-    print(f"\nIn live mode, you would:")
-    print(f"1. Connect to MT5 via MetaApi SDK")
-    print(f"2. Create LiveExecutor with MT5 connection")
-    print(f"3. Create agent with LiveExecutor")
-    print(f"4. Agent code is IDENTICAL to backtest!")
+    print("\nIn live mode, you would:")
+    print("1. Connect to MT5 via MetaApi SDK")
+    print("2. Create LiveExecutor with MT5 connection")
+    print("3. Create agent with LiveExecutor")
+    print("4. Agent code is IDENTICAL to backtest!")
 
     print("\nExample code:")
     print("""
@@ -207,11 +207,11 @@ def demo_constraint_validation():
 
     executor = create_executor(spec=spec, mode='backtest', data=data)
 
-    print(f"\nSpec constraints:")
+    print("\nSpec constraints:")
     print(f"  Minimum stops level: {spec.trade_stops_level} points ({spec.trade_stops_level * spec.point:.5f})")
 
     # Test 1: Invalid SL (too close)
-    print(f"\nTest 1: Invalid SL (too close)")
+    print("\nTest 1: Invalid SL (too close)")
     current_price = 1.08500
     invalid_sl = 1.08485  # Only 15 points (< 20 minimum)
 
@@ -221,12 +221,12 @@ def demo_constraint_validation():
     )
 
     if result.success:
-        print(f"  ✗ Order accepted (BUG!)")
+        print("  ✗ Order accepted (BUG!)")
     else:
         print(f"  ✓ Order rejected: {result.error_message}")
 
     # Test 2: Valid SL (meets minimum)
-    print(f"\nTest 2: Valid SL (meets minimum)")
+    print("\nTest 2: Valid SL (meets minimum)")
     valid_sl = 1.08480  # 20 points (exactly minimum)
 
     result = executor.execute_order(
@@ -240,7 +240,7 @@ def demo_constraint_validation():
         print(f"  ✗ Order rejected: {result.error_message}")
 
     # Test 3: Auto-adjust SL
-    print(f"\nTest 3: Auto-adjust SL (validator fixes it)")
+    print("\nTest 3: Auto-adjust SL (validator fixes it)")
 
     # Recreate executor with auto_adjust=True
     from kinetra.order_validator import OrderValidator
@@ -255,13 +255,13 @@ def demo_constraint_validation():
     )
 
     if result.success:
-        print(f"  ✓ Order accepted with AUTO-ADJUSTED SL")
+        print("  ✓ Order accepted with AUTO-ADJUSTED SL")
         print(f"    Desired: {invalid_sl:.5f}")
         print(f"    Actual:  {result.actual_sl:.5f}")
     else:
         print(f"  ✗ Order rejected: {result.error_message}")
 
-    print(f"\n✓ Constraint validation works!")
+    print("\n✓ Constraint validation works!")
 
 
 def main():

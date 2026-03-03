@@ -20,7 +20,6 @@ Environment Variables (from .env):
 """
 
 import asyncio
-import os
 import sys
 from pathlib import Path
 
@@ -229,7 +228,7 @@ def main():
         sys.exit(1)
 
     # Display what we're testing
-    print(f"\n✅ Found credentials:")
+    print("\n✅ Found credentials:")
     print(f"   Token:      {token[:10]}...{token[-10:] if len(token) > 20 else ''}")
     print(f"   Account ID: {account_id}")
 

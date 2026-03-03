@@ -262,7 +262,7 @@ def run_single_optimization(args):
     logger.info("OPTIMIZATION COMPLETE")
     logger.info("=" * 80)
     logger.info(f"Best {args.metric}: {optimizer.best_value:.4f}")
-    logger.info(f"Best parameters:")
+    logger.info("Best parameters:")
     for param, value in best_params.items():
         logger.info(f"  {param:20s} = {value}")
 

@@ -118,14 +118,42 @@ class SystemStatus:
     def suggest_next_step(self) -> str:
         """Suggest next logical step based on current state."""
         if not self.credentials_configured:
-            return "Setup credentials (Menu 1)"
-        if not self.data_discovered:
-            return "Discover available data (Menu 2.1)"
-        if not self.data_ready:
-            return "Download or prepare data (Menu 2.2)"
-        if not self.models_trained:
-            return "Train RL agent (Menu 3.1)"
-        return "Run backtest (Menu 4)"
+            return "Setup cTrader credentials (Menu 1 → 6)"
+        renko_data = (PROJECT_ROOT / "data" / "master_standardized" / "ctrader").exists()
+        if not renko_data:
+            return "Download XAUUSD data (Menu 6 → 1)"
+        dsp_done = (PROJECT_ROOT / "outputs" / "results").exists() and any(
+            (PROJECT_ROOT / "outputs" / "results").glob("XAUUSD_backtest_*.json")
+        )
+        if not dsp_done:
+            return "Run Renko backtest (Menu 6 → 3)"
+        return "Launch Renko live trading (Menu 6 → 6)"
+
+
+def _check_ctrader_creds() -> bool:
+    """Return True if cTrader Open API credentials appear to be configured."""
+    env_files = [PROJECT_ROOT / ".env.openapi", PROJECT_ROOT / ".env"]
+    for ef in env_files:
+        if ef.exists():
+            text = ef.read_text()
+            if "CTRADER_CLIENT_ID" in text or "CTRADER_APP_CLIENT_ID" in text:
+                return True
+    return False
+
+
+def _renko_last_results(symbol: str) -> Optional[dict]:
+    """Return the most recent renko results dict for *symbol*, or None."""
+    results_dir = PROJECT_ROOT / "outputs" / "results"
+    if not results_dir.exists():
+        return None
+    files = sorted(results_dir.glob(f"{symbol}_*.json"), key=lambda p: p.stat().st_mtime)
+    if not files:
+        return None
+    try:
+        with open(files[-1]) as f:
+            return json.load(f)
+    except Exception:
+        return None
 
 
 def check_system_status() -> SystemStatus:
@@ -134,7 +162,7 @@ def check_system_status() -> SystemStatus:
 
     # Check credentials
     env_file = PROJECT_ROOT / ".env"
-    status.credentials_configured = env_file.exists()
+    status.credentials_configured = env_file.exists() or _check_ctrader_creds()
 
     if status.credentials_configured:
         # Check if MetaAPI token exists
@@ -149,6 +177,7 @@ def check_system_status() -> SystemStatus:
     # Check MT5
     try:
         import importlib.util
+
         status.mt5_available = importlib.util.find_spec("MetaTrader5") is not None  # type: ignore[import-not-found]
     except Exception:
         status.mt5_available = False
@@ -600,12 +629,7 @@ NO linear filters (MA/EMA) - they destroy non-linear features.
     if method_choice == "0":
         return
 
-    method_map = {
-        "1": "savgol",
-        "2": "median",
-        "3": "lowess",
-        "4": "wavelet"
-    }
+    method_map = {"1": "savgol", "2": "median", "3": "lowess", "4": "wavelet"}
 
     method = method_map.get(method_choice, "savgol")
 
@@ -875,17 +899,21 @@ def quick_backtest(status: SystemStatus):
 
     symbol = get_input(f"Symbol (default: {(status.available_symbols or ['BTCUSD'])[0]})")
     if not symbol:
-        symbol = (status.available_symbols or ['BTCUSD'])[0]
+        symbol = (status.available_symbols or ["BTCUSD"])[0]
 
     timeframe = get_input("Timeframe (default: H1)")
     if not timeframe:
         timeframe = "H1"
 
     print(f"\nBacktesting {symbol} {timeframe}...")
-    run_script(
+    success = run_script(
         "scripts/batch_backtest.py",
         ["--symbols", symbol, "--tf", timeframe, "--years", "2023", "2024"],
     )
+
+    # Display results
+    if success:
+        _display_backtest_results()
 
 
 def batch_backtest(status: SystemStatus):
@@ -1176,6 +1204,197 @@ def view_logs():
 
 
 # ============================================================================
+# MENU 6: RENKO ENGINE  (canonical live trading path)
+# ============================================================================
+
+_RENKO_SCRIPT = "scripts/renko_engine.py"
+_DEFAULT_SYMBOL = "XAUUSD"
+
+
+def _display_backtest_results() -> None:
+    """Display backtest results from CSV file."""
+    results_file = PROJECT_ROOT / "data" / "batch_backtest_results.csv"
+
+    if not results_file.exists():
+        print("❌ No backtest results file found")
+        return
+
+    try:
+        import pandas as pd
+
+        df = pd.read_csv(results_file)
+
+        if df.empty:
+            print("❌ No results in backtest file")
+            return
+
+        print("\n" + "=" * 80)
+        print("BACKTEST RESULTS SUMMARY")
+        print("=" * 80)
+
+        # Display key metrics
+        if "omega" in df.columns:
+            print(
+                f"\nOmega Ratio:           {df['omega'].mean():.3f} (avg), {df['omega'].max():.3f} (max)"
+            )
+        if "win_rate" in df.columns:
+            print(
+                f"Win Rate:              {df['win_rate'].mean():.1%} (avg), {df['win_rate'].max():.1%} (max)"
+            )
+        if "max_drawdown_pct" in df.columns:
+            print(
+                f"Max Drawdown:          {df['max_drawdown_pct'].min():.2f}% (min), {df['max_drawdown_pct'].mean():.2f}% (avg)"
+            )
+        if "net_usd" in df.columns:
+            print(
+                f"Net P&L:               ${df['net_usd'].sum():,.2f} (total), ${df['net_usd'].mean():,.2f} (avg)"
+            )
+        if "n_trades" in df.columns:
+            print(
+                f"Total Trades:          {df['n_trades'].sum():.0f} (total), {df['n_trades'].mean():.1f} (avg)"
+            )
+        if "sharpe_ratio" in df.columns:
+            print(f"Sharpe Ratio:          {df['sharpe_ratio'].mean():.3f} (avg)")
+        if "final_equity" in df.columns:
+            print(f"Final Equity:          ${df['final_equity'].mean():,.2f} (avg)")
+
+        # Show top 5 results
+        print("\nTop 5 Results:")
+        print("-" * 80)
+        if "omega" in df.columns:
+            top_5 = df.nlargest(5, "omega")[
+                ["symbol", "year", "omega", "win_rate", "net_usd", "max_drawdown_pct"]
+            ]
+        else:
+            top_5 = df.head(5)
+
+        for idx, row in top_5.iterrows():
+            symbol = row.get("symbol", "N/A")
+            year = row.get("year", "N/A")
+            omega = row.get("omega", 0.0)
+            win_rate = row.get("win_rate", 0.0)
+            net = row.get("net_usd", 0.0)
+            dd = row.get("max_drawdown_pct", 0.0)
+            print(
+                f"  {symbol} {year}: Ω={omega:.3f}, WR={win_rate:.1%}, P&L=${net:,.2f}, DD={dd:.2f}%"
+            )
+
+        print("=" * 80)
+        print(f"\n✅ Results saved to: {results_file}")
+
+    except Exception as e:
+        print(f"❌ Error reading results: {e}")
+
+
+def _renko_select_symbol() -> str:
+    """Pick symbol — default XAUUSD."""
+    sym = get_input(f"Symbol (Enter = {_DEFAULT_SYMBOL})")
+    return sym.strip().upper() if sym.strip() else _DEFAULT_SYMBOL
+
+
+def _renko_run_stage(symbol: str, stage: str, extra: Optional[List[str]] = None) -> bool:
+    args = [symbol, "--stage", stage] + (extra or [])
+    return run_script(_RENKO_SCRIPT, args)
+
+
+def _renko_show_results(symbol: str) -> None:
+    result = _renko_last_results(symbol)
+    if result is None:
+        print(f"\n  No saved results for {symbol} yet.")
+        return
+    s = result.get("summary", {})
+    print(f"\n  Last results for {symbol}:")
+    print(f"    Trades:       {s.get('n_trades', 0)}")
+    print(f"    Net P&L:      ${s.get('net_usd', 0):,.2f}")
+    print(f"    Omega:        {s.get('omega', 0):.3f}")
+    print(f"    Win rate:     {s.get('win_rate', 0):.1%}")
+    print(f"    Max drawdown: {s.get('max_drawdown_pct', 0):.2f}%")
+    print(f"    Final equity: ${s.get('final_equity', 0):,.2f}")
+
+
+def menu_renko_engine(status: SystemStatus):
+    """Renko Engine — single pipeline from download to live trading."""
+    symbol = _DEFAULT_SYMBOL
+
+    while True:
+        print_submenu_header(f"🎯 RENKO ENGINE  [{symbol}]", status)
+
+        ctrader_ok = _check_ctrader_creds()
+        cred_icon = "✅" if ctrader_ok else "❌"
+
+        print(f"  cTrader creds: {cred_icon}  |  Symbol: {symbol}\n")
+        print(f"  s. Change symbol (current: {symbol})")
+        print()
+        print("  ── Sequential validation ──────────────────────────")
+        print("  1. Download historical data")
+        print("  2. DSP analysis  (find optimal brick size)")
+        print("  3. Quick backtest  (3 months)")
+        print("  4. Full backtest   (all data, rolling OOS)")
+        print("  5. Paper trading   (historical replay, no orders)")
+        print(
+            f"  6. Live trading    (micro lots {'✅' if ctrader_ok else '❌ needs cTrader creds'})"
+        )
+        print()
+        print("  ── Shortcuts ──────────────────────────────────────")
+        print("  7. Run ALL stages  (download → live)")
+        print("  8. Test cTrader connection")
+        print("  9. View last results")
+        print("  0. Back to Main Menu")
+
+        choice = get_input(
+            "Select option",
+            ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "s"],
+        )
+
+        if choice == "0":
+            break
+
+        elif choice == "s":
+            symbol = _renko_select_symbol()
+            continue  # redraw menu, no "press Enter"
+
+        elif choice == "1":
+            _renko_run_stage(symbol, "download")
+
+        elif choice == "2":
+            _renko_run_stage(symbol, "dsp")
+
+        elif choice == "3":
+            months = get_input("Months to test (Enter = 3)")
+            extra = ["--months", months] if months.strip().isdigit() else []
+            _renko_run_stage(symbol, "backtest", extra)
+
+        elif choice == "4":
+            _renko_run_stage(symbol, "full")
+
+        elif choice == "5":
+            _renko_run_stage(symbol, "paper")
+
+        elif choice == "6":
+            if not ctrader_ok:
+                print("\n  ❌ cTrader credentials not found.")
+                print("  Add CTRADER_CLIENT_ID / CTRADER_CLIENT_SECRET to .env.openapi")
+                print("  See: scripts/ctrader/test_ctrader_connect.py")
+            else:
+                size = get_input("Lot size (micro / scaled)", ["micro", "scaled"])
+                _renko_run_stage(symbol, "live", ["--live-size", size or "micro"])
+
+        elif choice == "7":
+            print("\n  This will run: download → dsp → backtest → full → paper → live")
+            print("  Each stage gates the next. Paper must pass before live.\n")
+            if confirm_action("Start full pipeline?"):
+                _renko_run_stage(symbol, "all")
+
+        elif choice == "8":
+            run_script("scripts/ctrader/test_ctrader_connect.py")
+
+        elif choice == "9":
+            _renko_show_results(symbol)
+
+        input("\n📌 Press Enter to continue...")
+
+
+# ============================================================================
 # MAIN MENU
 # ============================================================================
 
@@ -1191,11 +1410,13 @@ def print_main_menu(status: SystemStatus):
 
     print("=" * 80)
     print("\nMAIN MENU:\n")
+    ctrader_icon = "✅" if _check_ctrader_creds() else "❌"
     print("1. 🔐 Setup & Authentication")
     print("2. 📊 Data Management")
     print("3. 🔬 Exploration & Training")
     print("4. 📈 Backtesting & Validation")
     print("5. 🛠️  System Tools & Monitoring")
+    print(f"6. 🎯 Renko Engine  [download → backtest → paper → live]  cTrader {ctrader_icon}")
     print("0. Exit")
 
 

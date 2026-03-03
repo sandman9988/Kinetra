@@ -42,7 +42,7 @@ from kinetra.silent_failure_logger import SilentFailureLogger
 
 class WorkflowOrchestrator:
     """Orchestrates the complete silent failure workflow."""
-    
+
     def __init__(self, dry_run: bool = False, quick_mode: bool = False):
         """
         Initialize workflow orchestrator.
@@ -54,7 +54,7 @@ class WorkflowOrchestrator:
         self.dry_run = dry_run
         self.quick_mode = quick_mode
         self.logger = SilentFailureLogger.get_instance()
-        
+
         # Workflow results
         self.results = {
             "started_at": datetime.now().isoformat(),
@@ -64,13 +64,13 @@ class WorkflowOrchestrator:
             "total_failures_fixed": 0,
             "validation_passed": False,
         }
-    
+
     def print_header(self, title: str):
         """Print a formatted header."""
         print(f"\n{'='*70}")
         print(f"{title:^70}")
         print(f"{'='*70}\n")
-    
+
     def run_phase(self, phase_name: str, command: list, success_message: str) -> bool:
         """
         Run a workflow phase.
@@ -84,7 +84,7 @@ class WorkflowOrchestrator:
             True if phase succeeded
         """
         self.print_header(f"Phase: {phase_name}")
-        
+
         try:
             print(f"Running: {' '.join(command)}\n")
             result = subprocess.run(
@@ -93,7 +93,7 @@ class WorkflowOrchestrator:
                 capture_output=False,
                 text=True,
             )
-            
+
             if result.returncode == 0:
                 print(f"\n✓ {success_message}")
                 self.results["phases_completed"].append(phase_name)
@@ -102,12 +102,12 @@ class WorkflowOrchestrator:
                 print(f"\n✗ {phase_name} failed with code {result.returncode}")
                 self.results["phases_failed"].append(phase_name)
                 return False
-                
+
         except Exception as e:
             print(f"\n✗ {phase_name} failed with error: {e}")
             self.results["phases_failed"].append(phase_name)
             return False
-    
+
     def detect_failures(self) -> bool:
         """
         Phase 1: Detect failures.
@@ -116,19 +116,19 @@ class WorkflowOrchestrator:
             True if detection succeeded
         """
         mode = "quick" if self.quick_mode else "comprehensive"
-        
+
         command = [
             sys.executable,
             str(project_root / "scripts" / "detect_silent_failures.py"),
             "--mode", mode,
         ]
-        
+
         return self.run_phase(
             "Failure Detection",
             command,
             f"Failure detection completed ({mode} mode)"
         )
-    
+
     def analyze_failures(self) -> bool:
         """
         Phase 2: Analyze failures.
@@ -141,21 +141,21 @@ class WorkflowOrchestrator:
             str(project_root / "scripts" / "fix_silent_failures.py"),
             "--analyze",
         ]
-        
+
         success = self.run_phase(
             "Failure Analysis",
             command,
             "Failure analysis completed"
         )
-        
+
         if success:
             # Update results with detection stats
             stats = self.logger.get_statistics()
             # Safely get the value with fallback
             self.results["total_failures_detected"] = stats.get("total_unique_failures", 0)
-        
+
         return success
-    
+
     def fix_failures(self) -> bool:
         """
         Phase 3: Fix failures.
@@ -169,16 +169,16 @@ class WorkflowOrchestrator:
             "--fix",
             "--auto",
         ]
-        
+
         if self.dry_run:
             command.append("--dry-run")
-        
+
         return self.run_phase(
             "Automated Fixing",
             command,
             "Fixes applied successfully" if not self.dry_run else "Fixes analyzed (dry run)"
         )
-    
+
     def validate_fixes(self) -> bool:
         """
         Phase 4: Validate fixes.
@@ -189,64 +189,64 @@ class WorkflowOrchestrator:
         if self.dry_run:
             print("\n⚠ Skipping validation in dry-run mode")
             return True
-        
+
         command = [
             sys.executable,
             str(project_root / "scripts" / "fix_silent_failures.py"),
             "--validate",
         ]
-        
+
         success = self.run_phase(
             "Fix Validation",
             command,
             "Validation passed"
         )
-        
+
         self.results["validation_passed"] = success
         return success
-    
+
     def generate_report(self):
         """Phase 5: Generate comprehensive report."""
         self.print_header("Final Report")
-        
+
         # Export detailed report
         report_path = self.logger.export_report()
-        
+
         # Print summary
         print(f"Workflow: {'DRY RUN' if self.dry_run else 'EXECUTED'}")
         print(f"Mode: {'Quick' if self.quick_mode else 'Comprehensive'}")
         print(f"Started: {self.results['started_at']}")
         print(f"Completed: {datetime.now().isoformat()}")
-        
+
         print(f"\nPhases Completed: {len(self.results['phases_completed'])}")
         for phase in self.results['phases_completed']:
             print(f"  ✓ {phase}")
-        
+
         if self.results['phases_failed']:
             print(f"\nPhases Failed: {len(self.results['phases_failed'])}")
             for phase in self.results['phases_failed']:
                 print(f"  ✗ {phase}")
-        
+
         print(f"\nFailures Detected: {self.results['total_failures_detected']}")
         print(f"Validation: {'PASSED' if self.results['validation_passed'] else 'FAILED'}")
-        
+
         print(f"\n📊 Detailed report: {report_path}")
-        
+
         # Get statistics
         stats = self.logger.get_statistics()
-        
+
         print(f"\n{'='*70}")
         print("Failure Statistics")
         print(f"{'='*70}")
-        
+
         print("\nBy Category:")
         for category, count in sorted(stats["by_category"].items(), key=lambda x: -x[1]):
             print(f"  {category:25} {count:>5}")
-        
+
         print("\nBy Severity:")
         for severity, count in sorted(stats["by_severity"].items(), key=lambda x: -x[1]):
             print(f"  {severity:25} {count:>5}")
-        
+
         if stats["top_failures"]:
             print(f"\nTop {min(5, len(stats['top_failures']))} Most Common Failures:")
             for i, failure in enumerate(stats["top_failures"][:5], 1):
@@ -257,12 +257,12 @@ class WorkflowOrchestrator:
                 print(f"   Category: {record['category']}")
                 print(f"   Severity: {record['severity']}")
                 print(f"   Message: {record['exception_message'][:80]}...")
-        
+
         # Next steps
         print(f"\n{'='*70}")
         print("Next Steps")
         print(f"{'='*70}")
-        
+
         if self.dry_run:
             print("\n1. Review the analysis above")
             print("2. Run without --dry-run to apply fixes:")
@@ -277,7 +277,7 @@ class WorkflowOrchestrator:
             print("1. Review the changes")
             print("2. Run tests: pytest tests/")
             print("3. Commit changes if tests pass")
-    
+
     def run_workflow(
         self,
         detect_only: bool = False,
@@ -293,10 +293,10 @@ class WorkflowOrchestrator:
             fix_only: Only run fixing phase
         """
         self.print_header("Silent Failure Workflow")
-        
+
         print(f"Mode: {'DRY RUN' if self.dry_run else 'LIVE'}")
         print(f"Speed: {'Quick' if self.quick_mode else 'Comprehensive'}")
-        
+
         if detect_only:
             print("\nRunning: Detection only")
             self.detect_failures()
@@ -315,30 +315,30 @@ class WorkflowOrchestrator:
             print("  3. Fix failures")
             print("  4. Validate fixes")
             print("  5. Generate report")
-            
+
             # Phase 1: Detect
             if not self.detect_failures():
                 print("\n⚠ Detection failed, stopping workflow")
                 self.generate_report()
                 return
-            
+
             # Phase 2: Analyze
             if not self.analyze_failures():
                 print("\n⚠ Analysis failed, stopping workflow")
                 self.generate_report()
                 return
-            
+
             # Phase 3: Fix
             if not self.fix_failures():
                 print("\n⚠ Fixing failed, stopping workflow")
                 self.generate_report()
                 return
-            
+
             # Phase 4: Validate (skip in dry-run)
             if not self.dry_run:
                 if not self.validate_fixes():
                     print("\n⚠ Validation failed!")
-        
+
         # Phase 5: Report
         self.generate_report()
 
@@ -373,15 +373,15 @@ def main():
         action="store_true",
         help="Only run fixing (assumes detection already run)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Initialize orchestrator
     orchestrator = WorkflowOrchestrator(
         dry_run=args.dry_run,
         quick_mode=args.quick,
     )
-    
+
     # Run workflow
     try:
         orchestrator.run_workflow(

@@ -36,12 +36,11 @@ __version__ = "2.0.0"
 
 import asyncio
 import getpass
-import json
 import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import List, Optional
 
 import pandas as pd
 
@@ -297,7 +296,7 @@ class InteractiveDownloader:
         if self.token and any(
             placeholder in self.token.lower() for placeholder in placeholder_patterns
         ):
-            print(f"\n⚠️  Found placeholder token in environment (ignoring it)")
+            print("\n⚠️  Found placeholder token in environment (ignoring it)")
             self.token = None
 
         if not self.token:
@@ -324,11 +323,11 @@ class InteractiveDownloader:
         if env_account_id:
             # Check if it's a placeholder
             if any(placeholder in env_account_id.lower() for placeholder in placeholder_patterns):
-                print(f"\n⚠️  Found placeholder account ID (ignoring it)")
+                print("\n⚠️  Found placeholder account ID (ignoring it)")
                 env_account_id = None
             else:
                 print(f"\n✅ Found account ID: {env_account_id[:8]}***")
-                response = input(f"\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
+                response = input("\nUse this account? [1=Yes, 2=List all accounts]: ").strip()
 
                 if response == "1":
                     self.account_id = env_account_id
@@ -386,10 +385,10 @@ class InteractiveDownloader:
 
                         return True
                     else:
-                        print(f"\n❌ Invalid choice")
+                        print("\n❌ Invalid choice")
                         return False
             except ValueError:
-                print(f"\n❌ Invalid input - enter a number or 'all'")
+                print("\n❌ Invalid input - enter a number or 'all'")
                 return False
 
         except Exception as e:
@@ -399,7 +398,7 @@ class InteractiveDownloader:
     async def connect(self) -> bool:
         """Connect to MetaAPI account."""
         try:
-            print(f"\n🔌 Connecting to MetaAPI...")
+            print("\n🔌 Connecting to MetaAPI...")
 
             if not self.api:
                 self.api = MetaApi(self.token)
@@ -498,7 +497,7 @@ class InteractiveDownloader:
             return []
 
         # Classify symbols using canonical classification
-        print(f"\n🔍 Classifying symbols using canonical asset classification...")
+        print("\n🔍 Classifying symbols using canonical asset classification...")
         by_class = {c: [] for c in asset_classes}
 
         for symbol in tradeable:
@@ -724,12 +723,12 @@ async def main():
 
         # Confirm before download
         print_header("DOWNLOAD CONFIRMATION")
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"  Symbols:    {len(symbols)}")
         print(f"  Timeframes: {len(timeframes)}")
         print(f"  Total:      {len(symbols) * len(timeframes)} datasets")
 
-        confirm = input(f"\nProceed with download? [1=Yes, 2=No]: ").strip()
+        confirm = input("\nProceed with download? [1=Yes, 2=No]: ").strip()
         if confirm != "1":
             print("\n⚠️  Download cancelled")
             return

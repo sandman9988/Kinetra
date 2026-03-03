@@ -50,7 +50,7 @@ See Also:
     - ``kinetra/renko/qualify.py``    — qualify_instrument, QualificationRegistry
     - ``kinetra/renko/backtest.py``   — backtest_portfolio, monte_carlo_instrument
     - ``kinetra/renko/portfolio.py``  — build_portfolio, tail_risk_analysis
-    - ``docs/RENKO_KINETRA_DESIGN_SPEC.md §Phase6`` — backtesting specification
+    - ``docs/MANUAL.md §Phase6`` — backtesting specification
 """
 
 from __future__ import annotations
@@ -301,7 +301,7 @@ class PortfolioPipelineResult:
 
 
 def _qualify_worker(
-    args: Tuple[str, pd.DataFrame, float, float, str, bool, Optional[Path]],
+    args: Tuple[str, pd.DataFrame, float, float, float, float, float, str, bool, Optional[Path]],
 ) -> InstrumentPipelineResult:
     """
     Worker function for parallel qualification.
@@ -313,7 +313,8 @@ def _qualify_worker(
     Parameters
     ----------
     args : tuple
-        ``(symbol, m1_df, spread_pts, tick_size, broker_source, force, output_dir)``
+        ``(symbol, m1_df, spread_pts, tick_size, commission_per_lot, swap_long_points,``
+        `` swap_short_points, broker_source, force, output_dir)``
 
     Returns
     -------
@@ -321,7 +322,18 @@ def _qualify_worker(
     """
     import time
 
-    symbol, m1_df, spread_pts, tick_size, broker_source, force, output_dir = args
+    (
+        symbol,
+        m1_df,
+        spread_pts,
+        tick_size,
+        commission_per_lot,
+        swap_long_points,
+        swap_short_points,
+        broker_source,
+        force,
+        output_dir,
+    ) = args
     t0 = time.perf_counter()
     try:
         q_result = qualify_instrument(
@@ -329,6 +341,9 @@ def _qualify_worker(
             m1_df=m1_df,
             spread_pts=spread_pts,
             tick_size=tick_size,
+            commission_per_lot=commission_per_lot,
+            swap_long_points=swap_long_points,
+            swap_short_points=swap_short_points,
             broker_source=broker_source,
             force=force,
             output_dir=output_dir,
@@ -361,7 +376,7 @@ def _qualify_worker(
 
 def run_full_pipeline(
     m1_data: Dict[str, pd.DataFrame],
-    spread_specs: Dict[str, Tuple[float, float]],
+    spread_specs: Dict[str, Tuple[float, ...]],
     *,
     output_dir: Optional[Path] = None,
     results_dir: Optional[Path] = None,
@@ -394,8 +409,9 @@ def run_full_pipeline(
     ----------
     m1_data : dict[str, pd.DataFrame]
         Raw M1 OHLCV DataFrames keyed by symbol.
-    spread_specs : dict[str, tuple[float, float]]
-        ``{symbol: (spread_pts, tick_size)}`` — broker friction inputs.
+    spread_specs : dict[str, tuple[float, ...]]
+        ``{symbol: (spread_pts, tick_size)}`` or
+        ``{symbol: (spread_pts, tick_size, commission_per_lot, swap_long_points, swap_short_points)}``.
     output_dir : Path or None
         Root dir for per-instrument ``qualification.json`` and
         ``session_profile.json`` files
@@ -617,7 +633,7 @@ def run_full_pipeline(
 
 def run_qualification_only(
     m1_data: Dict[str, pd.DataFrame],
-    spread_specs: Dict[str, Tuple[float, float]],
+    spread_specs: Dict[str, Tuple[float, ...]],
     *,
     output_dir: Optional[Path] = None,
     broker_source: str = "unknown",
@@ -634,8 +650,9 @@ def run_qualification_only(
     ----------
     m1_data : dict[str, pd.DataFrame]
         Raw M1 OHLCV DataFrames keyed by symbol.
-    spread_specs : dict[str, tuple[float, float]]
-        ``{symbol: (spread_pts, tick_size)}``.
+    spread_specs : dict[str, tuple[float, ...]]
+        ``{symbol: (spread_pts, tick_size)}`` or
+        ``{symbol: (spread_pts, tick_size, commission_per_lot, swap_long_points, swap_short_points)}``.
     output_dir : Path or None
         Root dir for qualification files
         (default: ``data/renko_qualified``).
@@ -790,9 +807,19 @@ def _derive_m30_closes(
     return closes
 
 
+def _unpack_spread_spec(spec: Tuple[float, ...]) -> Tuple[float, float, float, float, float]:
+    """Backward-compatible unpack for per-symbol friction spec tuples."""
+    spread_pts = float(spec[0]) if len(spec) >= 1 else 1.0
+    tick_size = float(spec[1]) if len(spec) >= 2 else 0.0001
+    commission_per_lot = float(spec[2]) if len(spec) >= 3 else 0.0
+    swap_long_points = float(spec[3]) if len(spec) >= 4 else 0.0
+    swap_short_points = float(spec[4]) if len(spec) >= 5 else 0.0
+    return spread_pts, tick_size, commission_per_lot, swap_long_points, swap_short_points
+
+
 def _qualify_sequential(
     m1_data: Dict[str, pd.DataFrame],
-    spread_specs: Dict[str, Tuple[float, float]],
+    spread_specs: Dict[str, Tuple[float, ...]],
     output_dir: Path,
     broker_source: str,
     force: bool,
@@ -803,7 +830,10 @@ def _qualify_sequential(
 
     results: List[InstrumentPipelineResult] = []
     for symbol, m1_df in m1_data.items():
-        spread_pts, tick_size = spread_specs.get(symbol, (1.0, 0.0001))
+        spec = spread_specs.get(symbol, (1.0, 0.0001))
+        spread_pts, tick_size, commission_per_lot, swap_long_points, swap_short_points = (
+            _unpack_spread_spec(spec)
+        )
         sym_dir = output_dir / symbol
         t0 = time.perf_counter()
         try:
@@ -812,6 +842,9 @@ def _qualify_sequential(
                 m1_df=m1_df,
                 spread_pts=spread_pts,
                 tick_size=tick_size,
+                commission_per_lot=commission_per_lot,
+                swap_long_points=swap_long_points,
+                swap_short_points=swap_short_points,
                 broker_source=broker_source,
                 force=force,
                 output_dir=sym_dir,
@@ -843,7 +876,7 @@ def _qualify_sequential(
 
 def _qualify_parallel(
     m1_data: Dict[str, pd.DataFrame],
-    spread_specs: Dict[str, Tuple[float, float]],
+    spread_specs: Dict[str, Tuple[float, ...]],
     output_dir: Path,
     broker_source: str,
     force: bool,
@@ -854,9 +887,25 @@ def _qualify_parallel(
     results: List[InstrumentPipelineResult] = []
     task_args = []
     for symbol, m1_df in m1_data.items():
-        spread_pts, tick_size = spread_specs.get(symbol, (1.0, 0.0001))
+        spec = spread_specs.get(symbol, (1.0, 0.0001))
+        spread_pts, tick_size, commission_per_lot, swap_long_points, swap_short_points = (
+            _unpack_spread_spec(spec)
+        )
         sym_dir = output_dir / symbol
-        task_args.append((symbol, m1_df, spread_pts, tick_size, broker_source, force, sym_dir))
+        task_args.append(
+            (
+                symbol,
+                m1_df,
+                spread_pts,
+                tick_size,
+                commission_per_lot,
+                swap_long_points,
+                swap_short_points,
+                broker_source,
+                force,
+                sym_dir,
+            )
+        )
 
     futures_map = {}
     with ProcessPoolExecutor(max_workers=n_workers) as executor:
