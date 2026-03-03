@@ -5,7 +5,7 @@
 
 ## Current Operational Docs (Renko)
 
-- [`docs/RENKO_LIVE_STATE.md`](docs/RENKO_LIVE_STATE.md) — canonical live/paper/backtest runtime state
+- [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md) — canonical live/paper/backtest runtime state
 - [`QUICK_START.md`](QUICK_START.md) — current launch flow and direct CLI examples
 - [`LIVE_TRADING_CONFIG.md`](LIVE_TRADING_CONFIG.md) — launch-time live configuration quick reference
 
@@ -32,20 +32,17 @@ The Scientific Testing Framework implements a rigorous, automated testing progra
 - **Auto-Execution**: Automatic error fixing, retry logic, checkpointing
 - **Integrated Backtesting**: Realistic cost modeling, efficiency metrics (MFE/MAE, Pythagorean)
 
-### Quick Start with Testing Framework
+### Quick Start (Production Runtime)
 
 ```bash
-# Run comprehensive E2E test (all pipeline stages)
-python scripts/testing/comprehensive_e2e_test.py
-
-# Step-by-step E2E test with detailed logging
-python scripts/testing/e2e_stepover_test.py
+# Launch interactive trading menu
+make launch
 
 # Run batch backtest
 python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 ```
 
-See [Scientific Testing Guide](docs/SCIENTIFIC_TESTING_GUIDE.md) for complete documentation.
+Note: test/research assets were archived to `archive/production_cleanup_2026-03-03/`.
 
 ## 🚀 Key Features
 
@@ -133,22 +130,13 @@ This provides a comprehensive interface for:
 - **Data Management** - Automated download, integrity checks, and preparation
 - **System Status** - Health monitoring and performance tracking
 
-See [Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md) for complete documentation.
+Menu/testing deep docs are archived in `archive/production_cleanup_2026-03-03/repo/docs/`.
 
 ### Live Testing
 
 Progressive pathway from virtual testing to live trading:
 
-```bash
-# Virtual/paper trading (no connection required)
-python scripts/testing/run_live_test.py --mode virtual
-
-# Demo account testing (requires MT5)
-python scripts/testing/run_live_test.py --mode demo
-
-# Connection test
-python scripts/testing/run_live_test.py --test-connection
-```
+Use `make launch` for the production launcher path.
 
 Features:
 - **Circuit Breakers**: Auto-halt on CHS < 0.55
@@ -156,24 +144,14 @@ Features:
 - **Order Validation**: All trades validated before execution
 - **Real-time Monitoring**: CHS tracking and logging
 
-See [Live Testing Guide](docs/LIVE_TESTING_GUIDE.md) for complete documentation.
+Historical live-testing guides are archived in `archive/production_cleanup_2026-03-03/repo/docs/`.
 
 ### End-to-End Testing
 
 Comprehensive E2E testing across all pipeline stages:
 
-```bash
-# Full E2E test (all stages: auth, data, validation, analysis, theorems)
-python scripts/testing/comprehensive_e2e_test.py
-
-# Step-by-step E2E with detailed logging and checkpointing
-python scripts/testing/e2e_stepover_test.py
-
-# Run batch backtest validation (16 instruments)
-python scripts/batch_backtest.py --runs 100
-```
-
-See [E2E Test Guide](scripts/testing/E2E_TEST_README.md) for detailed workflow documentation.
+E2E testing assets are archived in:
+`archive/production_cleanup_2026-03-03/scripts/testing/`
 
 ### Pop!_OS / Ubuntu Full Setup
 
@@ -188,10 +166,9 @@ cd Kinetra
 make setup          # Full Python dev environment
 make setup-mt5      # Install MetaTrader 5 via Wine
 
-# Option 2: Run scripts directly
-chmod +x scripts/setup_dev_env.sh scripts/setup_mt5_wine.sh
-./scripts/setup_dev_env.sh    # Python + dependencies
-./scripts/setup_mt5_wine.sh   # MT5 via Wine
+# Option 2: Run helpers directly
+python scripts/setup_metaapi_credentials.py
+python scripts/setup/check_gpu.py
 ```
 
 After setup:
@@ -264,16 +241,10 @@ Kinetra/
 │   ├── liquidity_features.py  # Liquidity proxy features
 │   ├── persistence_manager.py  # Atomic save and backup management
 │   └── workflow_manager.py # Pipeline workflow orchestration
-├── tests/                   # Comprehensive testing (25+ test files)
-│   ├── test_physics.py
-│   ├── test_risk.py
-│   ├── test_integration.py
-│   ├── test_exhaustive_combinations.py
-│   └── ...
-├── docs/                    # Design Bible (50+ documents)
-│   ├── architecture.md
-│   ├── theorem_proofs.md    # Mathematical proofs
-│   ├── EMPIRICAL_THEOREMS.md  # Data-driven discoveries
+├── archive/production_cleanup_2026-03-03/
+│   ├── repo/tests/          # Archived full test suite
+│   ├── repo/docs/           # Archived deep docs
+│   └── scripts/testing/     # Archived E2E/testing scripts
 │   ├── deployment.md
 │   └── TESTING_FRAMEWORK.md  # Testing framework docs
 ├── scripts/                 # Automation & setup
@@ -335,8 +306,8 @@ Every component is validated through multiple layers:
 - Out-of-sample validation (Jul–Dec 2025)
 
 ### Layer 4: Theorem Validation
-- Mathematical proofs in `docs/theorem_proofs.md`
-- Empirical discoveries in `docs/EMPIRICAL_THEOREMS.md` (p < 0.01)
+- Mathematical proofs in `archive/production_cleanup_2026-03-03/repo/docs/theorem_proofs.md`
+- Empirical discoveries in `archive/production_cleanup_2026-03-03/repo/docs/EMPIRICAL_THEOREMS.md` (p < 0.01)
 - Continuous validation via GitHub Actions
 - FDR control (False Discovery Rate < 0.05)
 
@@ -359,7 +330,7 @@ Every component is validated through multiple layers:
 GitHub Actions automatically validates every commit:
 
 ```yaml
-# .github/workflows/ci.yml
+# CI workflow file
 1. Unit Tests (pytest, 100% coverage)
 2. Integration Tests (end-to-end pipeline)
 3. Monte Carlo Backtest (100 runs, Omega > 2.7)
@@ -393,7 +364,7 @@ python scripts/silent_failure_workflow.py --quick
 - ✅ Validation and rollback capabilities
 - 📊 Comprehensive reporting for analysis
 
-See [SILENT_FAILURE_README.md](docs/SILENT_FAILURE_README.md) for quick start or [docs/SILENT_FAILURE_WORKFLOW.md](docs/SILENT_FAILURE_WORKFLOW.md) for full documentation.
+See [SILENT_FAILURE_README.md](archive/production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_README.md) for quick start or [SILENT_FAILURE_WORKFLOW.md](archive/production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_WORKFLOW.md) for full documentation.
 
 ## 📈 Monitoring & Observability
 
@@ -411,8 +382,8 @@ python scripts/branch_manager.py --setup
 # Create feature branch
 git checkout -b feature/new-physics-model
 
-# Make changes and test locally
-pytest tests/ -v
+# Make changes and run available checks
+make test
 
 # Run backtest validation
 python scripts/batch_backtest.py --instrument BTCUSD
@@ -427,18 +398,18 @@ git push origin feature/new-physics-model
 # - If pass → auto-merge to develop
 ```
 
-For complete branching workflow, see the [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md) or [Quick Reference](docs/BRANCHING_QUICK_REF.md).
+For complete branching workflow, see the [Branching Strategy Guide](archive/production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md) or [Quick Reference](archive/production_cleanup_2026-03-03/repo/docs/BRANCHING_QUICK_REF.md).
 
 ## 📚 Documentation
 
-- **[Menu System User Guide](docs/MENU_SYSTEM_USER_GUIDE.md)**: Interactive menu and E2E testing
-- **[Menu System Flowchart](docs/MENU_SYSTEM_FLOWCHART.md)**: Comprehensive workflow diagrams
+- **[Menu System User Guide](archive/production_cleanup_2026-03-03/repo/docs/MENU_SYSTEM_USER_GUIDE.md)**: Interactive menu and E2E testing
+- **[Menu System Flowchart](archive/production_cleanup_2026-03-03/repo/docs/MENU_SYSTEM_FLOWCHART.md)**: Comprehensive workflow diagrams
 - **Design Bible**: Complete system architecture and mathematical proofs
 - **API Reference**: Detailed function documentation
 - **Deployment Guide**: Production setup and monitoring
 - **Research Papers**: Theorem validation and empirical results
-- **[Branching Strategy](docs/BRANCHING_STRATEGY.md)**: Git workflow and branch management guide
-- **[Scientific Testing Guide](docs/SCIENTIFIC_TESTING_GUIDE.md)**: Comprehensive testing framework
+- **[Branching Strategy](archive/production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md)**: Git workflow and branch management guide
+- **[Scientific Testing Guide](archive/production_cleanup_2026-03-03/repo/docs/SCIENTIFIC_TESTING_GUIDE.md)**: Comprehensive testing framework
 
 Visit the [GitHub Wiki](https://github.com/sandman9988/Kinetra/wiki) or [GitHub Pages](https://sandman9988.github.io/Kinetra/) for full documentation.
 
@@ -447,12 +418,12 @@ Visit the [GitHub Wiki](https://github.com/sandman9988/Kinetra/wiki) or [GitHub 
 Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch (see [Branching Strategy](docs/BRANCHING_STRATEGY.md))
+2. Create a feature branch (see [Branching Strategy](archive/production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md))
 3. Add comprehensive tests
 4. Ensure all CI checks pass
 5. Submit a pull request with theorem validation
 
-For detailed branch management instructions and git workflow, see the [Branching Strategy Guide](docs/BRANCHING_STRATEGY.md). You can also use the branch management helper script:
+For detailed branch management instructions and git workflow, see the [Branching Strategy Guide](archive/production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md). You can also use the branch management helper script:
 
 ```bash
 # Set up local main branch tracking remote

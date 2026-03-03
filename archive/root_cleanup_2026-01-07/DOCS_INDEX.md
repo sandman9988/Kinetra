@@ -11,12 +11,12 @@ Status: Complete & Current
 ## 🚀 START HERE
 
 ### For Morning Testing
-1. **[MORNING_READINESS.md](MORNING_READINESS.md)** ⭐ READ FIRST
+1. **[../session_reports/cleanup_20260104/MORNING_READINESS.md](../session_reports/cleanup_20260104/MORNING_READINESS.md)** ⭐ READ FIRST
    - Final status and go/no-go decision
    - Quick start commands
    - Success criteria
 
-2. **[MORNING_TESTING_GUIDE.md](MORNING_TESTING_GUIDE.md)** ⭐ TESTING GUIDE
+2. **[../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md](../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md)** ⭐ TESTING GUIDE
    - Step-by-step testing instructions
    - Expected timings and outputs
    - Troubleshooting quick fixes
@@ -31,19 +31,19 @@ Status: Complete & Current
 ## 📚 MAIN DOCUMENTATION
 
 ### Production System
-- **[kinetra_production_menu.py](kinetra_production_menu.py)** - Main menu system (35 KB)
-- **[PRODUCTION_READY_SUMMARY.md](PRODUCTION_READY_SUMMARY.md)** - Production readiness overview
-- **[PROJECT_AUDIT_REPORT.md](PROJECT_AUDIT_REPORT.md)** - Comprehensive audit results
+- **[../../kinetra_menu.py](../../kinetra_menu.py)** - Main menu system (35 KB)
+- **[../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md](../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md)** - Production readiness overview
+- **[../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md](../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md)** - Comprehensive audit results
 
 ### Workflows & Architecture
-- **[WORKFLOW_DATA_PATHS.md](WORKFLOW_DATA_PATHS.md)** - Complete workflow mapping (23 KB)
+- **[../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md](../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md)** - Complete workflow mapping (23 KB)
   - Data flow architecture
   - Script integration matrix
   - Directory structure
   - All 7 major workflows documented
 
 ### Design & Rules
-- **[AGENT_RULES_MASTER.md](AGENT_RULES_MASTER.md)** ⭐ CANONICAL RULES
+- **[../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md](../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md)** ⭐ CANONICAL RULES
   - Core philosophy (first principles)
   - AI agent rules compliance
   - Physics-first approach
@@ -57,34 +57,34 @@ Status: Complete & Current
 ### "I want to test the system NOW"
 ```bash
 # Read these in order:
-1. MORNING_READINESS.md          (3 min read)
+1. ../session_reports/cleanup_20260104/MORNING_READINESS.md          (3 min read)
 2. QUICK_REFERENCE.md             (1 min read)
-3. python kinetra_production_menu.py
+3. python ../../kinetra_menu.py
 
-# Follow: MORNING_TESTING_GUIDE.md
+# Follow: ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md
 ```
 
 ### "I want to understand the architecture"
 ```bash
 # Read these:
-1. WORKFLOW_DATA_PATHS.md         (Complete workflows)
-2. PRODUCTION_READY_SUMMARY.md    (System overview)
-3. AGENT_RULES_MASTER.md          (Design principles)
+1. ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md         (Complete workflows)
+2. ../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md    (System overview)
+3. ../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md          (Design principles)
 ```
 
 ### "I want to develop/contribute"
 ```bash
 # Read these:
-1. AGENT_RULES_MASTER.md          (Rules & standards)
-2. PROJECT_AUDIT_REPORT.md        (Current state)
-3. WORKFLOW_DATA_PATHS.md         (Integration points)
+1. ../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md          (Rules & standards)
+2. ../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md        (Current state)
+3. ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md         (Integration points)
 4. docs/ directory                (Detailed design docs)
 ```
 
 ### "I need to troubleshoot an issue"
 ```bash
 # Check these:
-1. MORNING_TESTING_GUIDE.md       (Troubleshooting section)
+1. ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md       (Troubleshooting section)
 2. logs/ directory                (System logs)
 3. Menu 5 → 6                     (View logs)
 4. Menu 5 → 1                     (System diagnostics)
@@ -98,20 +98,20 @@ Status: Complete & Current
 
 | File | Size | Purpose | When to Read |
 |------|------|---------|--------------|
-| **MORNING_READINESS.md** | 11 KB | Final status & go/no-go | Before testing |
-| **MORNING_TESTING_GUIDE.md** | 8.6 KB | Step-by-step testing | During testing |
+| **../session_reports/cleanup_20260104/MORNING_READINESS.md** | 11 KB | Final status & go/no-go | Before testing |
+| **../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md** | 8.6 KB | Step-by-step testing | During testing |
 | **QUICK_REFERENCE.md** | 5.3 KB | One-page cheat sheet | Always handy |
-| **WORKFLOW_DATA_PATHS.md** | 23 KB | Complete workflows | Deep dive |
-| **PRODUCTION_READY_SUMMARY.md** | 12 KB | Production overview | Status check |
-| **PROJECT_AUDIT_REPORT.md** | 13 KB | Audit results | Quality review |
-| **AGENT_RULES_MASTER.md** | Large | Canonical rules | Development |
+| **../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md** | 23 KB | Complete workflows | Deep dive |
+| **../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md** | 12 KB | Production overview | Status check |
+| **../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md** | 13 KB | Audit results | Quality review |
+| **../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md** | Large | Canonical rules | Development |
 | **DOCS_INDEX.md** | This file | Navigation guide | Finding docs |
 
 ### Production Files
 
 | File | Size | Purpose |
 |------|------|---------|
-| **kinetra_production_menu.py** | 35 KB | Main menu system |
+| **../../kinetra_menu.py** | 35 KB | Main menu system |
 | **scripts/download/setup_metaapi_credentials.py** | 8.8 KB | Credential setup |
 | **scripts/discover_available_data.py** | - | Data discovery |
 | **scripts/batch_backtest.py** | - | Backtesting engine |
@@ -131,7 +131,7 @@ Status: Complete & Current
 ### Commands
 ```bash
 # Start menu
-python kinetra_production_menu.py
+python ../../kinetra_menu.py
 
 # Direct scripts
 python scripts/discover_available_data.py
@@ -166,17 +166,17 @@ Statistical p:      < 0.01 (SIGNIFICANT)
 ## 📖 DOCUMENTATION LAYERS
 
 ### Layer 1: Quick Start (5 minutes)
-- MORNING_READINESS.md
+- ../session_reports/cleanup_20260104/MORNING_READINESS.md
 - QUICK_REFERENCE.md
 
 ### Layer 2: Testing (30 minutes)
-- MORNING_TESTING_GUIDE.md
-- PRODUCTION_READY_SUMMARY.md
+- ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md
+- ../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md
 
 ### Layer 3: Understanding (2 hours)
-- WORKFLOW_DATA_PATHS.md
-- PROJECT_AUDIT_REPORT.md
-- AGENT_RULES_MASTER.md
+- ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md
+- ../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md
+- ../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md
 
 ### Layer 4: Deep Dive (Full day)
 - docs/ directory
@@ -244,19 +244,19 @@ Statistical p:      < 0.01 (SIGNIFICANT)
 
 ### If Documentation is Unclear
 1. Check QUICK_REFERENCE.md for basics
-2. Check MORNING_TESTING_GUIDE.md for how-to
-3. Check WORKFLOW_DATA_PATHS.md for details
+2. Check ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md for how-to
+3. Check ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md for details
 4. Check Menu 5 → 1 for system status
 
 ### If Something Doesn't Work
 1. Check logs (Menu 5 → 6)
-2. Check MORNING_TESTING_GUIDE.md troubleshooting
+2. Check ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md troubleshooting
 3. Verify prerequisites (Python, packages)
 4. Run diagnostics (Menu 5 → 1)
 
 ### If Documentation is Wrong
 1. Note the discrepancy
-2. Check PROJECT_AUDIT_REPORT.md for known issues
+2. Check ../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md for known issues
 3. Verify against actual code
 4. Update documentation
 
@@ -265,22 +265,22 @@ Statistical p:      < 0.01 (SIGNIFICANT)
 ## 🎓 LEARNING PATH
 
 ### Beginner (Day 1)
-1. Read MORNING_READINESS.md
+1. Read ../session_reports/cleanup_20260104/MORNING_READINESS.md
 2. Read QUICK_REFERENCE.md
-3. Run menu: `python kinetra_production_menu.py`
-4. Follow MORNING_TESTING_GUIDE.md
+3. Run menu: `python ../../kinetra_menu.py`
+4. Follow ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md
 5. Complete one backtest
 
 ### Intermediate (Week 1)
-1. Read WORKFLOW_DATA_PATHS.md
-2. Read PRODUCTION_READY_SUMMARY.md
+1. Read ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md
+2. Read ../session_reports/cleanup_20260104/PRODUCTION_READY_SUMMARY.md
 3. Test all menu options
 4. Run batch backtests
 5. Analyze results
 
 ### Advanced (Month 1)
-1. Read AGENT_RULES_MASTER.md
-2. Read PROJECT_AUDIT_REPORT.md
+1. Read ../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md
+2. Read ../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md
 3. Review source code
 4. Run comprehensive exploration
 5. Optimize hyperparameters
@@ -290,22 +290,22 @@ Statistical p:      < 0.01 (SIGNIFICANT)
 ## ✅ DOCUMENTATION CHECKLIST
 
 Before starting testing:
-- [ ] Read MORNING_READINESS.md
+- [ ] Read ../session_reports/cleanup_20260104/MORNING_READINESS.md
 - [ ] Print QUICK_REFERENCE.md
-- [ ] Bookmark MORNING_TESTING_GUIDE.md
+- [ ] Bookmark ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md
 - [ ] Verify Python environment
 - [ ] Check all prerequisites
 
 During testing:
 - [ ] Keep QUICK_REFERENCE.md handy
-- [ ] Follow MORNING_TESTING_GUIDE.md steps
+- [ ] Follow ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md steps
 - [ ] Document any issues found
 - [ ] Note performance metrics
 - [ ] Save all results
 
 After testing:
 - [ ] Review results vs. expectations
-- [ ] Check PROJECT_AUDIT_REPORT.md for known issues
+- [ ] Check ../session_reports/cleanup_20260104/PROJECT_AUDIT_REPORT.md for known issues
 - [ ] Update any incorrect documentation
 - [ ] Report findings
 
@@ -331,10 +331,10 @@ After testing:
 
 ## 🚀 FINAL NOTES
 
-**START HERE**: MORNING_READINESS.md  
+**START HERE**: ../session_reports/cleanup_20260104/MORNING_READINESS.md  
 **ALWAYS REFERENCE**: QUICK_REFERENCE.md  
-**WHEN STUCK**: MORNING_TESTING_GUIDE.md  
-**FOR DETAILS**: WORKFLOW_DATA_PATHS.md  
+**WHEN STUCK**: ../session_reports/cleanup_20260104/MORNING_TESTING_GUIDE.md  
+**FOR DETAILS**: ../session_reports/cleanup_20260104/WORKFLOW_DATA_PATHS.md  
 
 **EVERYTHING IS DOCUMENTED. YOU ARE READY.**
 

@@ -145,6 +145,6 @@ For example:
 
 ## See Also
 
-- [E2E Testing Framework](../../e2e_testing_framework.py) - Main implementation
-- [Menu System Quick Start](../../MENU_SYSTEM_QUICK_START.md) - Interactive menu usage
-- [Scientific Testing Guide](../../docs/SCIENTIFIC_TESTING_GUIDE.md) - Statistical validation methods
+- [E2E Testing Framework](../../archive/root_cleanup_2026-01-07/e2e_testing_framework.py) - Main implementation
+- [Menu System Quick Start](../../archive/status-reports/MENU_SYSTEM_QUICK_START.md) - Interactive menu usage
+- [Scientific Testing Guide](../../archive/production_cleanup_2026-03-03/repo/docs/SCIENTIFIC_TESTING_GUIDE.md) - Statistical validation methods

@@ -1,6 +1,7 @@
 # API Keys and Environment Variables
 .env
 .env.local
+.env.openapi
 config.json
 *.key
 *.pem
@@ -35,10 +36,19 @@ ENV/
 
 # IDE
 .vscode/
+.zed/
 .idea/
 *.swp
 *.swo
 *~
+
+# Tool/cache state
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.workflow_state/
+.metaapi/
+.cache/
 
 # OS
 .DS_Store
@@ -46,6 +56,7 @@ Thumbs.db
 
 # Trading System Artifacts
 results/
+outputs/
 *.pkl
 *.joblib
 *.h5
@@ -112,6 +123,18 @@ data/test_runs/*/cache/
 
 # Cache directory
 data/cache/
+
+# Empty legacy directories — not written by any active code path.
+# Keep the .gitkeep markers so the directories exist locally but
+# their contents (if any) are never committed.
+data/raw/
+data/training/
+data/runs/
+data/test_runs/
+
+# Stale physics-era prepared data — no longer read by any Renko pipeline step.
+# Archived to archive/data/prepared_standardized/ for reference.
+data/prepared_standardized/
 
 # Temporary files
 .*.tmp.*

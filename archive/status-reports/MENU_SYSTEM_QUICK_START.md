@@ -393,10 +393,10 @@ Efficiency = sqrt(MFE² + MAE²) / Ideal_Distance
 
 ## Documentation
 
-- **[Flowchart](docs/MENU_SYSTEM_FLOWCHART.md)**: Complete workflow diagrams
-- **[User Guide](docs/MENU_SYSTEM_USER_GUIDE.md)**: Detailed documentation
+- **[Flowchart](../production_cleanup_2026-03-03/repo/docs/MENU_SYSTEM_FLOWCHART.md)**: Complete workflow diagrams
+- **[User Guide](../production_cleanup_2026-03-03/repo/docs/MENU_SYSTEM_USER_GUIDE.md)**: Detailed documentation
 - **[Implementation Summary](MENU_SYSTEM_IMPLEMENTATION_SUMMARY.md)**: Technical details
-- **[Main README](README.md)**: Project overview
+- **[Main README](../../README.md)**: Project overview
 
 ## Troubleshooting
 

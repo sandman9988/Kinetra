@@ -63,11 +63,11 @@ A comprehensive audit of the Kinetra codebase has identified **657 vectorization
 
 1. **[Vectorization Audit Report](./vectorization_audit_report.md)** - Detailed analysis of all violations
 2. **[Vectorization Quick Reference Guide](./VECTORIZATION_GUIDE.md)** - Patterns and best practices
-3. **[Action Plan](./VECTORIZATION_ACTION_PLAN.md)** - Implementation roadmap and timeline
+3. **[Action Plan](../session_reports/cleanup_20260104/VECTORIZATION_ACTION_PLAN.md)** - Implementation roadmap and timeline
 
 ### Tools & Examples
 
-4. **[Vectorization Linter](./scripts/vectorization_linter.py)** - Automated detection tool
+4. **[Vectorization Linter](../../scripts/vectorization_linter.py)** - Automated detection tool
 5. **[Example Implementation](./vectorization_example_directional_order_flow.py)** - Before/after with benchmarks
 
 ---

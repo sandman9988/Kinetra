@@ -130,8 +130,8 @@ print(f"RL Agent: {__version__}")
 
 ### CLI Check
 ```bash
-# Check if comprehensive_e2e_test.py runs
-python scripts/testing/comprehensive_e2e_test.py --version
+# Check if archived comprehensive_e2e_test.py runs
+python archive/production_cleanup_2026-03-03/scripts/testing/comprehensive_e2e_test.py --version
 
 # Check batch_backtest.py
 python scripts/batch_backtest.py --help
@@ -173,7 +173,7 @@ When making changes:
 
 - `AGENT_RULES_MASTER.md` - Versioning and consolidation rules
 - `archive/testing_frameworks/ARCHIVAL_MANIFEST.md` - Archive details
-- `docs/TESTING_FRAMEWORK.md` - Testing documentation
+- `archive/production_cleanup_2026-03-03/repo/docs/TESTING_FRAMEWORK.md` - Testing documentation
 - `CHANGELOG.md` - Project-wide changelog
 
 ---

@@ -1,10 +1,10 @@
 # GitHub Copilot Instructions for Kinetra
-<!-- Synced from AGENT_RULES_MASTER.md v4.11 on 2026-02-28 -->
+<!-- Synced from consolidated repo rules v4.11 on 2026-02-28 -->
 <!-- Last updated: 2026-03-04 — reflects Sprint 4 COMPLETE + §29 Sprint 5 Architecture, plus §31 path-resolution policy (PROJECT_ROOT-anchored runtime paths, data/master_standardized canonical, resolve_project_path for relative defaults) -->
 
-> **⚠️ CANONICAL RULES:** All agent rules are consolidated in [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md)
+> **⚠️ CANONICAL RULES:** All agent rules are consolidated in [`AGENT_RULES_MASTER.md`](../README.md)
 >
-> This file provides a **quick reference** for GitHub Copilot. For complete rules, see the master document.
+> This file provides a **quick reference** for GitHub Copilot. For complete current guidance, see README and QUICK_START.
 
 ---
 
@@ -19,7 +19,7 @@ pip install -e ".[dev]" # Alternative: install with dev dependencies
 make test               # Run all tests
 make lint               # Lint code with Ruff
 make format             # Format code with Black
-pytest tests/test_physics.py -v  # Run specific test
+pytest archive/production_cleanup_2026-03-03/repo/tests/test_physics.py -v  # Run specific test
 
 # Ruff (zero violations required — enforced on every commit)
 ruff check .                     # Check entire project
@@ -45,7 +45,7 @@ statistical testing and continuous backtesting.
 **Renko Kinetra** is the active redesign around Renko price-space representation with three
 core simplifications: (1) M1-only downloads, derive all higher TFs by aggregation; (2) one
 strategy class (Renko flip with regime filter, no physics features); (3) RL for allocation
-and risk management, not entry/exit signals.  See `docs/RENKO_KINETRA_DESIGN_SPEC.md`.
+and risk management, not entry/exit signals.  See `archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`.
 
 ---
 
@@ -164,10 +164,10 @@ ignore = [
 "kinetra/dsp_features.py"   = ["E402"]
 "kinetra/physics_engine.py" = ["E402"]
 "kinetra/config.py"         = ["E402"]
-"scripts/analysis/superpot_explorer.py"       = ["E702"]  # features[fi]=…; fi+=1 idiom
-"scripts/research/liquidity_gate_analysis.py" = ["E701"]  # aligned column-map tables
-"scripts/research/mfe_runway_sweep.py"        = ["E701"]
-"scripts/feature_ablation_sweep.py"           = ["E701"]
+"archive/production_cleanup_2026-03-03/scripts/analysis/superpot_explorer.py"       = ["E702"]  # features[fi]=…; fi+=1 idiom
+"archive/production_cleanup_2026-03-03/scripts/research/analyze_results.py" = ["E701"]  # aligned column-map tables
+"archive/production_cleanup_2026-03-03/scripts/research/measurement_toolkit.py"        = ["E701"]
+"archive/production_cleanup_2026-03-03/scripts/analysis/superpot_complete.py"           = ["E701"]
 "scripts/testing/**" = ["E722", "F401"]
 ```
 
@@ -343,7 +343,7 @@ make test
 pytest tests/ -v
 
 # Run specific test file
-pytest tests/test_physics.py -v
+pytest archive/production_cleanup_2026-03-03/repo/tests/test_physics.py -v
 
 # Run with coverage
 pytest tests/ --cov=kinetra --cov-report=html
@@ -367,7 +367,7 @@ from kinetra.persistence_manager import get_persistence_manager
 
 pm = get_persistence_manager(backup_dir="data/backups", max_backups=10)
 pm.atomic_save(
-    filepath="data/master/BTCUSD_H1.csv",
+    filepath="data/master/",
     content=df,
     writer=lambda path, data: data.to_csv(path, index=False),
 )
@@ -443,23 +443,23 @@ assert p_value < 0.01, f"Not statistically significant (p={p_value})"
 
 ## When in Doubt
 
-1. Check [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md) for complete rules
+1. Check [`AGENT_RULES_MASTER.md`](../README.md) for complete rules
 2. Run `ruff check .` — fix all violations before proceeding
 3. Validate with statistical tests (p < 0.01)
 4. Write comprehensive tests first
 5. Question assumptions — "Is this a magic number?"
 6. Reference physics first principles
-7. Check [`docs/MENU_RESTRUCTURE_PLAN.md`](../docs/MENU_RESTRUCTURE_PLAN.md) for active pipeline work
-8. **Before writing any utility function**, grep for an existing implementation and check [`docs/DRY_REMEDIATION_PLAN.md`](../docs/DRY_REMEDIATION_PLAN.md) for the canonical home
+7. Check [`archive/production_cleanup_2026-03-03/repo/docs/WORKFLOW.md`](../archive/production_cleanup_2026-03-03/repo/docs/WORKFLOW.md) for active pipeline work
+8. **Before writing any utility function**, grep for an existing implementation and check [`archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`](../archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md) for the canonical home
 9. **Before adding any menu output**, read §30 of `AGENT_RULES_MASTER.md` — the UI styling guide
 
 ---
 
 ## Additional Resources
 
-- **Renko Design Spec**: [`docs/RENKO_KINETRA_DESIGN_SPEC.md`](../docs/RENKO_KINETRA_DESIGN_SPEC.md) — **7-phase architecture** (Sprint 1–2 complete)
-- **Renko Thread Context**: [`docs/RENKO_REDESIGN_THREAD_CONTEXT.md`](../docs/RENKO_REDESIGN_THREAD_CONTEXT.md) — decision history & empirical basis
-- **Complete Rules**: [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md) — **START HERE** (v4.9)
+- **Renko Design Spec**: [`archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`](../archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md) — **7-phase architecture** (Sprint 1–2 complete)
+- **Renko Thread Context**: [`archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`](../archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md) — decision history & empirical basis
+- **Complete Rules**: [`AGENT_RULES_MASTER.md`](../README.md) — **START HERE** (v4.9)
   - §30   — **Menu & Terminal UI Styling Guide** ✅ CANONICAL ← **read before any menu edit**
   - §29   — **Sprint 5 Architecture — Industrialisation** ⭐ CURRENT
   - §28   — **Multi-broker architecture** (cTrader planned) 📐 DESIGN
@@ -471,22 +471,22 @@ assert p_value < 0.01, f"Not statistically significant (p={p_value})"
   - §2.10 — Data preparation philosophy (what belongs in prepared files)
   - §20   — Feature engineering & additive testing protocol
   - §21   — Empirical ablation results (canonical_v2.2)
-- **DRY Remediation Plan**: [`docs/DRY_REMEDIATION_PLAN.md`](../docs/DRY_REMEDIATION_PLAN.md) — **19 violations tracked; Tier 1 (DRY-01–07) are Sprint 1–2**
-- **Menu Restructure Plan**: [`docs/MENU_RESTRUCTURE_PLAN.md`](../docs/MENU_RESTRUCTURE_PLAN.md) — **Phases A–D COMPLETE; all sign-off items done**
-- **Instrument Selection**: `docs/INSTRUMENT_SELECTION_DESIGN.md`
+- **DRY Remediation Plan**: [`archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`](../archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md) — **19 violations tracked; Tier 1 (DRY-01–07) are Sprint 1–2**
+- **Menu Restructure Plan**: [`archive/production_cleanup_2026-03-03/repo/docs/WORKFLOW.md`](../archive/production_cleanup_2026-03-03/repo/docs/WORKFLOW.md) — **Phases A–D COMPLETE; all sign-off items done**
+- **Instrument Selection**: `archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`
 - **Design Bible**: Complete architecture in `docs/` directory
-- **Theorem Proofs**: Mathematical validation in `docs/theorem_proofs.md`
-- **Empirical Theorems**: Data-driven discoveries in `docs/EMPIRICAL_THEOREMS.md`
-- **Testing Guide**: `docs/TESTING_FRAMEWORK.md`
-- **Operator Playbook**: `docs/OPERATOR_PLAYBOOK.md` — remediation procedures, gate debugging, manifest management
-- **Reward Consolidation**: `docs/RELEASE_NOTES_REWARD_CONSOLIDATION.md` — RewardOrchestrator consolidation
-- **Migration Guide**: `docs/MIGRATION_GUIDE_REWARD_SHAPING.md` — legacy ARS → RewardOrchestrator
+- **Theorem Proofs**: Mathematical validation in `QUICK_START.md`
+- **Empirical Theorems**: Data-driven discoveries in `QUICK_START.md`
+- **Testing Guide**: `QUICK_START.md`
+- **Operator Playbook**: `QUICK_START.md` — remediation procedures, gate debugging, manifest management
+- **Reward Consolidation**: `archive/production_cleanup_2026-03-03/repo/docs/IMPLEMENTATION_SUMMARY.md` — RewardOrchestrator consolidation
+- **Migration Guide**: `archive/production_cleanup_2026-03-03/repo/docs/INTEGRATION_GUIDE.md` — legacy ARS → RewardOrchestrator
 
 ---
 
 ## Menu & Terminal UI Styling — Quick Reference (§30)
 
-> **Full rules → [`AGENT_RULES_MASTER.md §30`](../AGENT_RULES_MASTER.md)**
+> **Full rules → [`AGENT_RULES_MASTER.md §30`](../README.md)**
 > Never introduce new visual constructs without reading §30 first.
 
 ### Header Types (exactly two — never add a third)
@@ -607,7 +607,7 @@ input("\n  📌  Press Enter to continue…")
 
 ### ASCII Block-Code / Box-Art Diagrams (§30.12)
 
-> **Full rules → [`AGENT_RULES_MASTER.md §30.12`](../AGENT_RULES_MASTER.md)**
+> **Full rules → [`AGENT_RULES_MASTER.md §30.12`](../README.md)**
 
 Two categories exist — never add a third without updating §30.12.
 
@@ -687,7 +687,7 @@ def _row(content: str) -> str:
 
 ---
 
-- **Operator Health CLI**: `scripts/ops/manifest_health_report.py` — `--json` for external alerting
+- **Operator Health CLI**: `scripts/monitor_daemon.py` — `--json` for external alerting
 
 ---
 
@@ -738,16 +738,16 @@ BROKER-AWARE (upstream)          │  BROKER-BLIND (downstream)
 
 1. **Phase 1 (CURRENT):** MetaAPI end-to-end.  No cTrader code.  But extract shared logic when refactoring.
 2. **Phase 2 (✅ COMPLETE):** Broker-neutral ABCs and shared utilities extracted:
-   - `kinetra/broker.py` — `BrokerConnection`, `BrokerDataHandler`, `BrokerSpecHandler` ABCs; `normalize_ohlcv()`, `detect_ohlcv_schema()`, `OHLCVSchema`, `BrokerInfo`, `SpecPollResult`; timeframe/symbol/category utilities; pre-built schemas (`MT5_SCHEMA`, `METAAPI_SCHEMA`, `CTRADER_SCHEMA`)
-   - `kinetra/spec_utils.py` — FX enrichment (`enrich_with_fx_rates`), save/merge (`save_specs`), symbol discovery (`discover_symbols`), quote-currency inference, dir lookup, contract spec loading — all extracted from `poll_symbol_specs.py`
+   - `kinetra/broker_compliance.py` — `BrokerConnection`, `BrokerDataHandler`, `BrokerSpecHandler` ABCs; `normalize_ohlcv()`, `detect_ohlcv_schema()`, `OHLCVSchema`, `BrokerInfo`, `SpecPollResult`; timeframe/symbol/category utilities; pre-built schemas (`MT5_SCHEMA`, `METAAPI_SCHEMA`, `CTRADER_SCHEMA`)
+   - `kinetra/friction_cost.py` — FX enrichment (`enrich_with_fx_rates`), save/merge (`save_specs`), symbol discovery (`discover_symbols`), quote-currency inference, dir lookup, contract spec loading — all extracted from `poll_symbol_specs.py`
    - `kinetra/data_utils.py` — `load_broker_csv()` canonical broker-neutral CSV loader with auto-detection
    - `kinetra/friction_cost.py` — `InstrumentSpec.from_broker_json(raw, source='metaapi'|'mt5'|'ctrader')` source-aware factory
-   - 134 tests in `tests/test_broker_abstractions.py`
-3. **Phase 3 (future):** `kinetra/ctrader_connector.py`, `poll_ctrader_specs.py`, OAuth2 token management, menu wiring.
+   - 134 tests in `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py`
+3. **Phase 3 (future):** `kinetra/connectors/ctrader_connector.py`, `poll_ctrader_specs.py`, OAuth2 token management, menu wiring.
 
 > **Broker data source strategy (§29.4):** Use **cTrader as primary research feed** (tighter spreads, cleaner UTC alignment). Do NOT overlay MetaAPI + cTrader data for the same instrument — correlated duplicates with different artifacts. Brick sequences and filter parameters transfer cross-broker; friction floor, VPIN baseline, session break UTC, and circuit breaker thresholds are broker-specific and must be recalibrated per broker. Always store `broker_source` and session gap UTC times in `spread_profile.json`.
 
-See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-architecture-2026-03-01) for the complete design.
+See [`AGENT_RULES_MASTER.md §28`](../README.md) for the complete design.
 
 ---
 
@@ -868,10 +868,10 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 | Renko risk env config | `kinetra.rl.risk_env.RiskEnvConfig` ✅ exists |
 | M1 → higher TF aggregation | `kinetra.aggregation.aggregate_ohlcv` ✅ exists |
 | M1 download chunking | `scripts.download.download_core.backward_chunk_download` ✅ exists |
-| Train allocation agent (L2) | `scripts/training/train_allocation_agent.py` ✅ exists (Sprint 4) |
-| Train risk agent (L3) | `scripts/training/train_risk_agent.py` ✅ exists (Sprint 4) |
-| Compare Renko agents (L2+L3) | `scripts/training/explore_compare_renko_agents.py` ✅ exists (Sprint 4) |
-| Reward weight sweep (L2+L3) | `scripts/training/reward_sweep.py` ✅ exists (Sprint 4) |
+| Train allocation agent (L2) | `scripts/train.py` ✅ exists (Sprint 4) |
+| Train risk agent (L3) | `scripts/train.py` ✅ exists (Sprint 4) |
+| Compare Renko agents (L2+L3) | `archive/production_cleanup_2026-03-03/scripts/training/explore_compare_agents.py` ✅ exists (Sprint 4) |
+| Reward weight sweep (L2+L3) | `scripts/run_hpo.py` ✅ exists (Sprint 4) |
 
 ### Hard Rules (§29 additions)
 
@@ -896,7 +896,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 - ❌ **Never** add another `omega_ratio()` standalone function to a script — import from `kinetra.backtesting.metrics`
 - ❌ **Never** add another `calculate_z_factor()` function to any module — import from `kinetra.backtesting.metrics`
 - ❌ **Never** redefine `MAX_FILL_BARS` with a "keep in sync" comment
-- ❌ **Never** add blacklist / gap-scan logic inline — it belongs in `kinetra/data_gap_tools.py`
+- ❌ **Never** add blacklist / gap-scan logic inline — it belongs in `scripts/download/check_and_fill_data.py`
 - ❌ **Never** write `project_root = Path(__file__).parent.parent` in library code — import `PROJECT_ROOT` from `kinetra.config`
 - ❌ **Never** use `portfolio_health.CompositeHealthScore` in new code — use `PortfolioHealthScore` instead
 - ❌ **Never** import from `kinetra.symbol_spec`, `kinetra.symbol_specs`, or `kinetra.symbol_info` in new code — use `kinetra.friction_cost.InstrumentSpec` (DRY-09)
@@ -924,23 +924,23 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 - ❌ **Never** build a new Renko RL env — use `kinetra.rl.portfolio_env.RenkoPortfolioEnv` (Layer 2) or `kinetra.rl.risk_env.RiskOverlayEnv` (Layer 3)
 - ❌ **Never** duplicate `InstrumentContext` — import from `kinetra.rl.portfolio_env`
 - ❌ **Never** duplicate `PortfolioDaySnapshot` — import from `kinetra.rl.risk_env`
-- ✅ **Always** check `docs/DRY_REMEDIATION_PLAN.md` before touching any open DRY-NN item
+- ✅ **Always** check `archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md` before touching any open DRY-NN item
 - ✅ **Always** run `pytest tests/ -q && ruff check .` after any DRY consolidation
 - ✅ **When refactoring MetaAPI code**, extract broker-neutral logic into shared helpers where a future cTrader implementation would otherwise duplicate it (§28)
 - ✅ **When building a new broker adapter**, implement `BrokerConnection`, `BrokerDataHandler`, and `BrokerSpecHandler` from `kinetra.broker` (§28 Phase 2)
 
 **Key changes (2026-03-01) — DRY Audit & Remediation Plan (Sprints 1–5 complete):**
-- `docs/DRY_REMEDIATION_PLAN.md` — Full DRY violations register (19 items, Tiers 1–4); v1.3 as of Sprint 5:
+- `archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md` — Full DRY violations register (19 items, Tiers 1–4); v1.3 as of Sprint 5:
   - **Tier 1 (✅ ALL DONE, Sprint 1–2):** DRY-01 `_detect_agent_comparison` ×7, DRY-02 wavelet step reader ×8, DRY-03 `_AGENT_CMP_FILE` ×10, DRY-04 `_is_blacklisted` ×2, DRY-05 `_read_blacklist` ×2, DRY-06 `_scan_and_classify_gaps` stranded in menu, DRY-07 `_MAX_FILL_BARS` redefined
   - **Tier 2 (✅ DONE: DRY-08, DRY-12, DRY-13 — Sprint 3–4; DRY-09/10/11 Phase A — Sprint 5):** DRY-08 `omega_ratio` canonical + thin wrappers; DRY-12 `CompositeHealthScore` → `PortfolioHealthScore` rename; DRY-13 `calculate_z_factor` canonical module-level function; DRY-09 `symbol_spec`/`symbol_specs`/`symbol_info` DeprecationWarning added; DRY-10 `data_manager`/`unified_data_manager` DeprecationWarning added; DRY-11 all 6 standalone backtester files DeprecationWarning added — Phase B caller migration deferred to Sprint 6+ (high blast radius)
   - **Tier 3 (✅ DONE: DRY-15; DRY-14 PARTIAL — Sprint 3–4):** DRY-15 `load_csv_data` thin wrapper over `load_mt5_csv`; DRY-14 `PROJECT_ROOT` exported from `kinetra.config` — library files updated, `scripts/analysis/` one-offs deferred
-  - **Tier 4 (✅ DONE: DRY-D1, DRY-D2 — Sprint 5):** DRY-D1 consolidation plan checklists updated; `docs/HOUSEKEEPING_AUDIT.md` superseded note confirmed; DRY-D2 `docs/ACTION_PLAN.md` replaced with archive pointer, original at `archive/docs/ACTION_PLAN.md`; DRY-D3 copilot/master overlap (by design)
-- `tests/test_dry_deprecations.py` — **NEW**: 62 tests (DRY-09/10/11 DeprecationWarning content + backward compat; canonical classes confirmed clean; DRY-D1/D2 doc assertions; cross-cutting redefinition guard; `_reload_and_collect_warnings()` with sys.modules save/restore to prevent cross-test pollution)
-- `tests/test_backtest_metrics.py` — **NEW** (Sprint 3–4): 71 tests (omega_ratio, calculate_z_factor, MetricsCalculator regressions, thin wrapper contracts, PortfolioHealthScore rename, PROJECT_ROOT export)
+  - **Tier 4 (✅ DONE: DRY-D1, DRY-D2 — Sprint 5):** DRY-D1 consolidation plan checklists updated; `archive/production_cleanup_2026-03-03/repo/docs/HOUSEKEEPING_AUDIT.md` superseded note confirmed; DRY-D2 `archive/production_cleanup_2026-03-03/repo/docs/ACTION_PLAN.md` replaced with archive pointer, original at `archive/production_cleanup_2026-03-03/repo/docs/ACTION_PLAN.md`; DRY-D3 copilot/master overlap (by design)
+- `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` — **NEW**: 62 tests (DRY-09/10/11 DeprecationWarning content + backward compat; canonical classes confirmed clean; DRY-D1/D2 doc assertions; cross-cutting redefinition guard; `_reload_and_collect_warnings()` with sys.modules save/restore to prevent cross-test pollution)
+- `archive/production_cleanup_2026-03-03/repo/tests/test_backtest_engine_comprehensive.py` — **NEW** (Sprint 3–4): 71 tests (omega_ratio, calculate_z_factor, MetricsCalculator regressions, thin wrapper contracts, PortfolioHealthScore rename, PROJECT_ROOT export)
 - `AGENT_RULES_MASTER.md` — **§27 added**: DRY rules, canonical module table, open violations summary, new-code rule, previously-remediated cross-reference
 
 **Key recent changes (2026-02-27) — Model Provenance Manifest + Reward Orchestrator Integration:**
-- `kinetra/model_manifest.py` — **NEW**: Model provenance manifest system:
+- `kinetra/config.py` — **NEW**: Model provenance manifest system:
   - `TrainingManifest` dataclass: version, pipeline_run_id, git_commit, wavelet step, agent comparison status, training config, model file inventory, expiry
   - `write_manifest()` / `read_manifest()` / `validate_manifest()`: atomic JSON write, tolerant read (unknown fields ignored, missing fields default), 3-gate validation (age, agent_comparison, ≥50% file presence)
   - `discover_model_files()`: recursive scan of `models/`, `checkpoints/`, `data/runs/` for all model extensions
@@ -948,17 +948,17 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
   - CLI: `python -m kinetra.model_manifest` for operator diagnostics
 - `kinetra_menu.py` — **SystemStatus + gate updates**:
   - `SystemStatus` gains `models_trained_current`, `manifest_age_days`, `manifest_run_id`, `manifest_rejection_reason` fields
-  - `check_system_status()` reads and validates `results/training_manifest.json` — sets `models_trained_current` only when manifest is valid, not expired, agent comparison done, and ≥50% model files present
+  - `check_system_status()` reads and validates `results/training_manifest` — sets `models_trained_current` only when manifest is valid, not expired, agent comparison done, and ≥50% model files present
   - Main menu explore badge: prefers `models_trained_current` (manifest-validated) over legacy `models_trained AND agent_comparison_done`
   - Menu 3 pipeline banner `_ps6` (Trained): prefers `models_trained_current`
   - Menu 4 backtest gate `has_trained`: prefers `models_trained_current`
 - `kinetra/__init__.py` — Lazy imports registered: `TrainingManifest`, `ManifestValidation`, `write_manifest`, `read_manifest`, `validate_manifest`, `build_manifest_from_status`, `discover_model_files`
-- `kinetra/reward_orchestrator.py` — **RewardOrchestrator** fully integrated into `_WaveletTradingEnv` (already done in prior session):
+- `kinetra/reward_shaping.py` — **RewardOrchestrator** fully integrated into `_WaveletTradingEnv` (already done in prior session):
   - `_step_orchestrated()`: routes raw P&L through orchestrator with MFE/MAE tracking, force-close handling, Omega terminal bonus
   - `_build_orchestrator()`: factory from `InstrumentRewardConfig` with horizon calibration
   - Per-episode CSV training logs: `results/wavelet/training_logs/step_N/<SYMBOL>_training_log.csv`
   - CLI flag: `--use-orchestrator` on `run_additive_step.py`
-- `tests/test_model_manifest.py` — **NEW**: 76 tests in 12 classes:
+- `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` — **NEW**: 76 tests in 12 classes:
   - `TestTrainingManifestCreation` (8): defaults, auto-fields, unique run IDs
   - `TestWriteReadRoundTrip` (9): serialisation, corruption resilience, unknown field tolerance, auto-discovery
   - `TestValidateManifest` (11): agent comparison gate, expiry, custom max_age, partial file presence, unparseable timestamps
@@ -971,7 +971,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
   - `TestProvenanceChain` (4): unique run IDs, git commit, training config preservation, wavelet step tracking
   - `TestPerformance` (2): write+read+validate < 100ms, discover 200 files < 500ms
   - `TestE2ETrainingManifestFlow` (10): **NEW** — end-to-end CI integration tests verifying training script → manifest → check_system_status → gate unlock flow; covers agent comparison manifest write, additive step with/without comparison, expired manifest (strict vs legacy fallback), retrain after expiry, model file deletion, latest-manifest-wins, pipeline banner logic, dry-run skip, full pipeline happy path
-- `docs/OPERATOR_PLAYBOOK.md` — **NEW**: Operator remediation guide:
+- `QUICK_START.md` — **NEW**: Operator remediation guide:
   - §1 Stale model artefacts: 3 remediation options (re-run pipeline, clean up, write manifest)
   - §2 Pipeline recovery: no-structure, audit failure, agent comparison failure, wavelet gate lock
   - §3 Common failures: training collapse, reckless trading, MetaAPI, import errors
@@ -979,26 +979,26 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
   - §5 Manifest management: viewing, lifecycle diagram, manual inspection, expiry extension
   - §6 Data integrity: quality checks, common problems table, safe operations
   - §7 Reward orchestrator diagnostics: training log analysis, healthy ranges, config overrides
-- `scripts/features/run_additive_step.py` — **Manifest auto-write**: at end of `main()` (when `--commit`), writes training manifest via `build_manifest_from_status()` + `write_manifest()` with wavelet step, agent comparison status (detected from `results/exploration/agent_comparison_FINAL.json`), and full training config (bands, episodes, seed, friction mode, orchestrator flag, aggregate/median Omega, trade count)
-- `scripts/training/explore_compare_agents.py` — **Manifest auto-write**: at end of `main()`, writes training manifest with `agent_comparison_done=True`, best agent name/omega from comparison results, wavelet step from disk, and training config (agents tested, episodes, baseline info, agents beating baseline)
-- `scripts/training/train_rl.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, backend info (PyTorch/NumPy), timeframe, symbol filter, instruments list, and physics state dim
-- `scripts/training/train_berserker.py` — **Manifest auto-write**: writes manifest at end of `main()` with strategy=berserker, episodes per timeframe, parallel instruments count, and run directory
-- `scripts/training/train_sniper.py` — **Manifest auto-write**: writes manifest at end of training via `_write_training_manifest()` helper with strategy=sniper, episodes, and run directory
-- `scripts/training/train_triad.py` — **Manifest auto-write**: writes manifest at end of `main()` with strategy=triad, role, per-agent performance metrics, file counts, and elapsed time
-- `scripts/training/train_fast_multi.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, episodes, instrument count, and instrument names
-- `scripts/training/train_with_metrics.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, episodes, data path, metrics port, and device
-- `scripts/training/train_rl_gpu.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN_GPU agent type, episodes, hidden sizes, learning rate, batch size, instruments, and device
-- `scripts/training/train_rl_physics.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN_physics agent type, instruments list, walk-forward fold count, and cross-instrument flag
+- `scripts/train.py` — **Manifest auto-write**: at end of `main()` (when `--commit`), writes training manifest via `build_manifest_from_status()` + `write_manifest()` with wavelet step, agent comparison status (detected from `results/exploration/`), and full training config (bands, episodes, seed, friction mode, orchestrator flag, aggregate/median Omega, trade count)
+- `archive/production_cleanup_2026-03-03/scripts/training/explore_compare_agents.py` — **Manifest auto-write**: at end of `main()`, writes training manifest with `agent_comparison_done=True`, best agent name/omega from comparison results, wavelet step from disk, and training config (agents tested, episodes, baseline info, agents beating baseline)
+- `archive/production_cleanup_2026-03-03/scripts/training/train_rl.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, backend info (PyTorch/NumPy), timeframe, symbol filter, instruments list, and physics state dim
+- `archive/production_cleanup_2026-03-03/scripts/training/train_berserker.py` — **Manifest auto-write**: writes manifest at end of `main()` with strategy=berserker, episodes per timeframe, parallel instruments count, and run directory
+- `archive/production_cleanup_2026-03-03/scripts/training/train_sniper.py` — **Manifest auto-write**: writes manifest at end of training via `_write_training_manifest()` helper with strategy=sniper, episodes, and run directory
+- `archive/production_cleanup_2026-03-03/scripts/training/train_triad.py` — **Manifest auto-write**: writes manifest at end of `main()` with strategy=triad, role, per-agent performance metrics, file counts, and elapsed time
+- `archive/production_cleanup_2026-03-03/scripts/training/train_fast_multi.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, episodes, instrument count, and instrument names
+- `archive/production_cleanup_2026-03-03/scripts/training/train_with_metrics.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN agent type, episodes, data path, metrics port, and device
+- `archive/production_cleanup_2026-03-03/scripts/training/train_rl_gpu.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN_GPU agent type, episodes, hidden sizes, learning rate, batch size, instruments, and device
+- `archive/production_cleanup_2026-03-03/scripts/training/train_rl_physics.py` — **Manifest auto-write**: writes manifest at end of `main()` with DQN_physics agent type, instruments list, walk-forward fold count, and cross-instrument flag
 - `kinetra/single_symbol_env.py` — **RewardOrchestrator integration**: optional `orchestrator` parameter added to `SingleSymbolRLEnv.__init__()`, trade close metadata tracking (MFE/MAE/bars held), `_route_through_orchestrator()` method mirroring `TradingEnv` and `RealisticTradingEnv` pattern, episode-end Omega bonus, full backward compatibility when `orchestrator=None`
 - `kinetra/unified_trading_env.py` — **RewardOrchestrator integration**: optional `orchestrator` parameter added to `UnifiedTradingEnv.__init__()`, `_record_trade_close()` helper, `_route_through_orchestrator()` method, MFE/MAE tracking per position, episode-end Omega bonus, full backward compatibility when `orchestrator=None`
-- `.github/workflows/ci.yml` — **NEW CI job `gate-invariants`**: runs menu gate tests, pipeline integration tests, model manifest tests, reward orchestrator tests, manifest CLI diagnostics, verifies all training scripts import manifest functions, and validates gate-logic invariants in `kinetra_menu.py`
+- `GitHub Actions workflow (`CI workflow YAML`)` — **NEW CI job `gate-invariants`**: runs menu gate tests, pipeline integration tests, model manifest tests, reward orchestrator tests, manifest CLI diagnostics, verifies all training scripts import manifest functions, and validates gate-logic invariants in `kinetra_menu.py`
 - **Total tests:** 349 passed (86 menu gates + 89 integration + 98 reward orchestrator + 76 model manifest), ruff zero violations
 
 **Manifest auto-write integration (all training scripts):**
 - `run_additive_step.py` writes manifest on `--commit` (skipped on `--no-commit` / dry-run)
 - `explore_compare_agents.py` writes manifest after agent comparison completes
 - `train_rl.py`, `train_berserker.py`, `train_sniper.py`, `train_triad.py`, `train_fast_multi.py`, `train_with_metrics.py`, `train_rl_gpu.py`, `train_rl_physics.py` — all write manifests at end of `main()`
-- All scripts detect agent comparison status from `results/exploration/agent_comparison_FINAL.json`
+- All scripts detect agent comparison status from `results/exploration/`
 - All scripts populate `training_config` with script name, parameters, and results
 - All scripts use `_detect_agent_comparison()` helper (reads both `status=COMPLETE` and legacy `best_overall` format)
 - Manifest includes auto-discovered model files via `discover_model_files()`
@@ -1007,7 +1007,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 **RewardOrchestrator coverage (all RL environments):**
 - `TradingEnv` (kinetra/trading_env.py) — ✅ orchestrator integrated
 - `RealisticTradingEnv` (kinetra/realistic_trading_env.py) — ✅ orchestrator integrated
-- `_WaveletTradingEnv` (scripts/features/run_additive_step.py) — ✅ orchestrator integrated
+- `_WaveletTradingEnv` (scripts/train.py) — ✅ orchestrator integrated
 - `SingleSymbolRLEnv` (kinetra/single_symbol_env.py) — ✅ orchestrator integrated (this session)
 - `UnifiedTradingEnv` (kinetra/unified_trading_env.py) — ✅ orchestrator integrated (this session)
 
@@ -1019,20 +1019,20 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
     - Menu 4 backtest gates: `has_trained` requires both flags — stale models no longer unlock backtesting
   - **BUG 2 (MEDIUM):** Wavelet pipeline (Menu 3 option 4) locked despite features already computed — gate relaxed from `has_t1_data and has_prepared` to `has_t1_data and (has_prepared or has_wavelet)` since wavelet operates on raw H4 CSVs
   - **BUG 3 (DESIGN):** `suggest_next_step()` no longer suggests "Prepare Data" when wavelet features already exist; audit suggestion guarded on `data_prepared=True`
-- `tests/test_menu_gates.py` — **12 new regression tests** in 3 classes:
+- `archive/production_cleanup_2026-03-03/repo/tests/test_menu_system.py` — **12 new regression tests** in 3 classes:
   - `TestStaleModelsDoNotPoisonBadges` (6 tests): stale models don't unlock ✅ badge, don't green pipeline banner, don't unlock backtest; legitimate trained path still works
   - `TestWaveletGateRelaxed` (4 tests): wavelet available with existing features, locked without both, still requires Tier-1 data
   - `TestPipelineOrderWaveletVsPrepare` (2 tests): suggest additive (not prepare) when wavelet done without prepare; don't regress to Phase 3 when additive is active
 
 **Previous changes (2026-02-26) — Path & Menu Bugfixes:**
-- `scripts/data/curate_instruments.py` — **SyntaxError fixed**: `global MIN_BARS_H4` moved to top of `main()` (Python 3.12 rejects use-before-global-declaration)
-- `scripts/data/poll_symbol_specs.py` — **Output path corrected**: header and save summary now show canonical `contract_spec.json` in instrument folders as primary, legacy `data/symbol_specs/` as secondary
+- `scripts/data_manager.py` — **SyntaxError fixed**: `global MIN_BARS_H4` moved to top of `main()` (Python 3.12 rejects use-before-global-declaration)
+- `scripts/download/fetch_broker_spec_from_metaapi.py` — **Output path corrected**: header and save summary now show canonical `contract_spec.json` in instrument folders as primary, legacy `data/symbol_specs/` as secondary
 - `kinetra_menu.py` — **Multiple fixes**:
   - `check_system_status()` spec detection: now reads `contract_spec.json` from instrument folders (canonical) first, falls back to legacy `data/symbol_specs/`
   - `curate_instruments()` menu wiring: removed invalid `--dry-run` flag (script defaults to dry-run when `--apply` absent)
   - `poll_symbol_specs()` display text: updated to show canonical instrument-folder path
   - `print_main_menu()`: Phase 2 sub-step "not run" hints now only shown when user is actually in Phase 2, not when past it into additive testing; shows current additive step progress when applicable
-- `tests/test_pipeline_integration.py` — NEW: 89 integration tests for full pipeline flows
+- `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` — NEW: 89 integration tests for full pipeline flows
 
 **Key changes (2026-02-25) — Menu Restructure Implementation (COMPLETE):**
 - `kinetra_menu.py` — **MAJOR RESTRUCTURE**: 6-phase pipeline with failure-aware gates
@@ -1047,11 +1047,11 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
   - **B5**: Prepare Data now accepts `--instruments` / `--tier` filter (menu offers Tier-1 / Tier-1+2 / all / custom)
   - **D2**: Walk-forward and Performance Report marked as 🚧 PLANNED with detailed capability cards
 - `scripts/download/parallel_data_prep.py` — `--instruments` and `--tier` CLI filters added; resolves symbols from discovery JSON
-- `scripts/data/curate_instruments.py` — NEW: §22 instrument curation (dry-run / apply / report)
-- `scripts/data/audit_prepared_data.py` — NEW: prepared-data quality audit (NaN, schema, stationarity, regime)
-- `tests/test_menu_gates.py` — NEW: 74 unit tests for gate logic (pipeline order, Gate 2 blocking, status parsing, filter resolution)
-- `tests/test_pipeline_integration.py` — NEW: 89 integration tests for full pipeline flows (happy path Phase 1→6, failure paths, gate lock matrix, malformed marker resilience, recovery scenarios, dynamic Tier-1 loading)
-- `docs/MENU_RESTRUCTURE_PLAN.md` — All sign-off checklist items complete
+- `scripts/data_manager.py` — NEW: §22 instrument curation (dry-run / apply / report)
+- `scripts/download/check_data_integrity.py` — NEW: prepared-data quality audit (NaN, schema, stationarity, regime)
+- `archive/production_cleanup_2026-03-03/repo/tests/test_menu_system.py` — NEW: 74 unit tests for gate logic (pipeline order, Gate 2 blocking, status parsing, filter resolution)
+- `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` — NEW: 89 integration tests for full pipeline flows (happy path Phase 1→6, failure paths, gate lock matrix, malformed marker resilience, recovery scenarios, dynamic Tier-1 loading)
+- `archive/production_cleanup_2026-03-03/repo/docs/WORKFLOW.md` — All sign-off checklist items complete
 
 **Canonical paths (after reorganisation):**
 - Symbol specs: `data/master_standardized/<category>/<SYMBOL>/contract_spec.json` (canonical), `data/symbol_specs/<SYMBOL>.json` (legacy)
@@ -1061,8 +1061,8 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 **All restructure work COMPLETE (see MENU_RESTRUCTURE_PLAN.md):**
 - ~~B5~~: ✅ DONE — `--instruments` / `--tier` filter in `parallel_data_prep.py` + menu tier selection UI
 - ~~D2~~: ✅ DONE — Walk-forward and Performance Report marked as 🚧 PLANNED with detailed cards
-- ~~Unit tests~~: ✅ DONE — 86 tests in `tests/test_menu_gates.py` (pipeline order, Gate 2, status parsing, filter resolution, stale-model regression, wavelet gate, pipeline order design)
-- ~~Integration tests~~: ✅ DONE — 89 tests in `tests/test_pipeline_integration.py` (happy path Phase 1→6, 6 failure paths, gate lock matrix at every stage, malformed marker resilience, recovery scenarios, dynamic Tier-1 loading, partial preparation, curation dry-run vs apply, symbol specs freshness, backtest detection, retroactive unlock)
+- ~~Unit tests~~: ✅ DONE — 86 tests in `archive/production_cleanup_2026-03-03/repo/tests/test_menu_system.py` (pipeline order, Gate 2, status parsing, filter resolution, stale-model regression, wavelet gate, pipeline order design)
+- ~~Integration tests~~: ✅ DONE — 89 tests in `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` (happy path Phase 1→6, 6 failure paths, gate lock matrix at every stage, malformed marker resilience, recovery scenarios, dynamic Tier-1 loading, partial preparation, curation dry-run vs apply, symbol specs freshness, backtest detection, retroactive unlock)
 - ~~Path/menu bugfixes~~: ✅ DONE — curate SyntaxError, spec canonical path, menu context hints, dry-run flag
 - ~~Stale-model/gate bugfixes~~: ✅ DONE — `models_trained` provenance guard, wavelet gate relaxed, pipeline order design fix
 
@@ -1086,7 +1086,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 - **Status line capped at 8 badges** — shows `+N more` when truncated to prevent terminal wrapping
 
 **Canonical manifest path:**
-- Training manifest: `results/training_manifest.json` — written by training scripts, read by `check_system_status()`
+- Training manifest: `results/training_manifest` — written by training scripts, read by `check_system_status()`
 
 **Key changes (2026-03-03) — Menu Review & Fix:**
 - `kinetra_menu.py` — **14 issues fixed**:
@@ -1107,7 +1107,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 - `SystemStatus` — **3 new fields**: `m1_data_available` (bool), `renko_backtest_done` (bool), `renko_backtest_age_days` (Optional[float]), `renko_backtest_portfolio_omega` (Optional[float])
 - `check_system_status()` — **2 new detection blocks**: M1 file scan (3-level `os.scandir`), Renko backtest results (`results/renko/backtest/*.json`)
 - **5 new menu functions**: `renko_instrument_backtest()`, `renko_portfolio_backtest()`, `renko_walk_forward()`, `renko_monte_carlo()`, `renko_friction_stress_test()`, `circuit_breaker_status()`
-- `tests/test_menu_gates.py` — **22 new tests** (108 total):
+- `archive/production_cleanup_2026-03-03/repo/tests/test_menu_system.py` — **22 new tests** (108 total):
   - `TestDataMenuLocks`: 3 new tests (aggregate M1 gate, aggregate locked without M1, archive in locks)
   - `TestGetStatusLine`: 1 new test (badge cap at max)
   - `TestM1DataAvailable` (NEW class, 3 tests): default false, requires M1 for Renko, appears with M1
@@ -1115,14 +1115,14 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
   - `TestRenkoSequentialGating` (NEW class, 5 tests): only sweep initially, cmp after sweep, risk after cmp, alloc after risk, alloc locked without risk
   - `TestRenkoBacktestingNoAgent` (NEW class, 3 tests): available without model, physics locked without agent, status fields default
   - Existing fixtures updated: `m1_data_available=True` added to Phase 1+ fixtures
-- `tests/test_pipeline_integration.py` — **4 tests updated, 1 new test** (93 total):
+- `archive/production_cleanup_2026-03-03/repo/tests/test_integration.py` — **4 tests updated, 1 new test** (93 total):
   - `_ProjectBuilder.add_m1_data()` method added — creates `*_M1_*.csv` stub files
   - Renko pipeline tests now call `.add_m1_data()` so `m1_data_available=True`
   - Option number references updated (11→10, 12→11)
   - `test_phase5b_renko_not_suggested_without_m1` — NEW: verifies fallthrough to validation when only H4 data exists
   - `test_phase5_agent` — tolerates badge cap truncation
 
-**For complete, comprehensive rules → See [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md)**
+**For complete, comprehensive rules → See [`AGENT_RULES_MASTER.md`](../README.md)**
 
 ---
 
@@ -1135,7 +1135,7 @@ See [`AGENT_RULES_MASTER.md §28`](../AGENT_RULES_MASTER.md#28-multi-broker-arch
 > Chop is a risk problem (loss-cluster breaker), not a signal problem.
 > Rejected and must not return: TMA, PSAR, entropy/DFA filters, higher-order Markov.
 
-> **Design Spec:** [`docs/RENKO_KINETRA_DESIGN_SPEC.md`](../docs/RENKO_KINETRA_DESIGN_SPEC.md)
+> **Design Spec:** [`archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md`](../archive/production_cleanup_2026-03-03/repo/docs/TRADING_STRATEGY_SPEC.md)
 > **Empirical basis:** Portfolio Omega 6.07, Z 28.89, 79% OOS survival, 100% friction stress survival (19 instruments, 8 clusters)
 
 ### What Changed (Current Kinetra → Renko Kinetra)
@@ -1359,17 +1359,17 @@ PHASE 7 ─ PROGRESSIVE LIVE          🔲 Sprint 6+
 ### Data Pipeline (Renko Kinetra)
 
 ```
-DOWNLOAD M1 (scripts/download/download_core.py)
+DOWNLOAD M1 (scripts/download/download_market_data.py)
   │  MetaAPI/cTrader → backward_chunk_download() → exhaust broker history
   ▼
 BROKER FINGERPRINT (kinetra/renko/session.py — 🔲 Sprint 5B)
   │  detect_session_break() → SessionProfile (gap UTC, duration, weekend bars)
   │  QC metrics: coverage, gaps, spikes, OHLC integrity
   ▼
-VALIDATE (kinetra/data_gap_tools.py)
+VALIDATE (scripts/download/check_and_fill_data.py)
   │  Gap scan, blacklist, integrity checks
   ▼
-AGGREGATE (kinetra/aggregation.py + scripts/data/aggregate_timeframes.py)
+AGGREGATE (kinetra/aggregation.py + scripts/download/parallel_data_prep.py)
   │  M1 → M5/M15/M30/H1/H4 — cache, not source — always re-derivable
   ▼
 DSP ANALYSIS (kinetra/renko/dsp.py)
@@ -1395,7 +1395,7 @@ PORTFOLIO (kinetra/renko/portfolio.py + kinetra/renko/orchestrator.py — 🔲 S
   ▼
 PORTFOLIO BACKTEST (kinetra/renko/backtest.py + orchestrator.py)
   │  backtest_portfolio() → monte_carlo_instrument() → tail_risk_analysis()
-  │  → writes results/renko/portfolio_result.json
+  │  → writes outputs/renko_results/portfolio_result.json
   ▼
 REWARD SWEEP (Menu 3 › 10 — ✅ COMPLETE)
   │  reward_sweep.py → grid/random search → Pareto-optimal reward weights
@@ -1536,11 +1536,11 @@ tests/
 | `kinetra/renko/qualify.py` | `qualify_instrument()`, `QualificationResult`, `QualificationRegistry`, `CalibrationDriftDetector` | 5B ✅ |
 | `kinetra/renko/orchestrator.py` | `run_full_pipeline()`, `run_qualification_only()`, `PortfolioPipelineResult`, private helpers | 5C ✅ |
 | `kinetra/renko/dsp.py` addition | `scaled_filter_params(dsp_result, bricks_per_day) → FilterParams` | 5A ✅ |
-| `kinetra/rl/risk_env.py` additions | `PortfolioDaySnapshot.vr_drift`, `PortfolioDaySnapshot.recalibration_pending`, `N_RISK_OBS_FEATURES=10` | 5C ✅ |
+| `kinetra/rl/portfolio_env.py` additions | `PortfolioDaySnapshot.vr_drift`, `PortfolioDaySnapshot.recalibration_pending`, `N_RISK_OBS_FEATURES=10` | 5C ✅ |
 | `kinetra/renko/backtest.py` addition | `RiskParams` dataclass (loss-cluster window/threshold/cooldown, DD throttle/halt) | 5A |
 | `kinetra/renko/brick_engine.py` addition | `session_break_minutes: float = 30.0` param in `build_renko()` | 5A |
-| `scripts/renko/qualify_instruments.py` | CLI: parallel qualification across instruments | 5B |
-| `scripts/renko/renko_backtest.py` | CLI: all Menu 4 Renko backtest modes | 5C |
+| `scripts/renko/stage1_dsp_screen.py` | CLI: parallel qualification across instruments | 5B |
+| `scripts/renko/stage3_multiwindow_backtest.py` | CLI: all Menu 4 Renko backtest modes | 5C |
 
 ### Training Scripts (Sprint 4) — Menu 3 Options 10-13
 
@@ -1649,4 +1649,4 @@ MENU 5 — System Tools & Monitoring
 - `renko_qualification_done: bool` — `renko_qualified_count >= 1`
 - `renko_drift_flags: int` — instruments with `recalibration_due=True`
 
-**For complete, comprehensive rules → See [`AGENT_RULES_MASTER.md`](../AGENT_RULES_MASTER.md)**
+**For complete, comprehensive rules → See [`AGENT_RULES_MASTER.md`](../README.md)**

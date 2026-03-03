@@ -14,6 +14,5 @@ Place your MT5 CSV exports here.
 
 ## Usage
 ```bash
-python scripts/run_full_backtest.py data/*.csv
+python scripts/batch_backtest.py --help
 ```
-

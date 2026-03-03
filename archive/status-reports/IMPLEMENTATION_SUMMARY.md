@@ -319,8 +319,8 @@ Most failures are expected (optional dependencies like PyTorch not installed).
 
 ## Documentation
 
-- **Quick Start**: [SILENT_FAILURE_README.md](SILENT_FAILURE_README.md)
-- **Full Guide**: [docs/SILENT_FAILURE_WORKFLOW.md](docs/SILENT_FAILURE_WORKFLOW.md)
+- **Quick Start**: [../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_README.md](../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_README.md)
+- **Full Guide**: [../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_WORKFLOW.md](../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_WORKFLOW.md)
 - **Main README**: Updated with new feature section
 
 ## Files Created
@@ -329,8 +329,8 @@ Most failures are expected (optional dependencies like PyTorch not installed).
 2. `scripts/detect_silent_failures.py` - Detection tool (450+ lines)
 3. `scripts/fix_silent_failures.py` - Automated fixer (500+ lines)
 4. `scripts/silent_failure_workflow.py` - Orchestrator (400+ lines)
-5. `docs/SILENT_FAILURE_WORKFLOW.md` - Full documentation
-6. `SILENT_FAILURE_README.md` - Quick reference
+5. `../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_WORKFLOW.md` - Full documentation
+6. `../production_cleanup_2026-03-03/repo/docs/SILENT_FAILURE_README.md` - Quick reference
 7. `IMPLEMENTATION_SUMMARY.md` - This file
 
 **Total**: ~2,000+ lines of production code + comprehensive documentation

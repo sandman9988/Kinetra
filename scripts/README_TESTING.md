@@ -4,7 +4,7 @@ This directory contains the comprehensive testing framework for Kinetra.
 
 ## Main Testing Framework
 
-**`unified_test_framework.py`** - The main testing interface
+**`archive/testing_frameworks/legacy/unified_test_framework.py`** - The archived testing interface
 
 Runs scientific tests across multiple dimensions to discover alpha.
 
@@ -12,21 +12,21 @@ Runs scientific tests across multiple dimensions to discover alpha.
 
 ```bash
 # Quick test (10 minutes)
-python scripts/unified_test_framework.py --quick
+python archive/testing_frameworks/legacy/unified_test_framework.py --quick
 
 # Run specific suite
-python scripts/unified_test_framework.py --suite control
-python scripts/unified_test_framework.py --suite physics
-python scripts/unified_test_framework.py --suite chaos
+python archive/testing_frameworks/legacy/unified_test_framework.py --suite control
+python archive/testing_frameworks/legacy/unified_test_framework.py --suite physics
+python archive/testing_frameworks/legacy/unified_test_framework.py --suite chaos
 
 # Compare approaches
-python scripts/unified_test_framework.py --compare control physics rl
+python archive/testing_frameworks/legacy/unified_test_framework.py --compare control physics rl
 
 # Full test suite
-python scripts/unified_test_framework.py --full
+python archive/testing_frameworks/legacy/unified_test_framework.py --full
 
 # EXTREME mode - all 18 test suites
-python scripts/unified_test_framework.py --extreme
+python archive/testing_frameworks/legacy/unified_test_framework.py --extreme
 ```
 
 ## Test Suites Available
@@ -55,10 +55,10 @@ python scripts/unified_test_framework.py --extreme
 
 ## Examples
 
-**`example_testing_framework.py`** - Learn by example
+**`archive/testing_frameworks/legacy/example_testing_framework.py`** - Learn by example
 
 ```bash
-python scripts/example_testing_framework.py
+python archive/testing_frameworks/legacy/example_testing_framework.py
 ```
 
 Shows:
@@ -98,7 +98,7 @@ test_results/
 
 ## Documentation
 
-See `docs/TESTING_FRAMEWORK.md` for comprehensive documentation.
+See `archive/production_cleanup_2026-03-03/repo/docs/TESTING_FRAMEWORK.md` for comprehensive documentation.
 
 ## Philosophy
 

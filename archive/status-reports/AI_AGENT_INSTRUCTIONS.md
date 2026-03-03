@@ -2,7 +2,7 @@
 
 > **⚠️ DEPRECATED:** This file has been archived and is no longer the authoritative source.
 > 
-> **→ See [`AGENT_RULES_MASTER.md`](../../AGENT_RULES_MASTER.md) for canonical rules**
+> **→ See [`AGENT_RULES_MASTER.md`](../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md) for canonical rules**
 > 
 > This archive is kept for historical reference only. All rules have been consolidated into the master rulebook.
 
@@ -12,10 +12,10 @@
 
 This file previously contained AI agent instructions but has been superseded by:
 
-- **Canonical Rules**: [`AGENT_RULES_MASTER.md`](../../AGENT_RULES_MASTER.md) - Single source of truth
+- **Canonical Rules**: [`AGENT_RULES_MASTER.md`](../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md) - Single source of truth
 - **GitHub Copilot Quick Reference**: [`.github/copilot-instructions.md`](../../.github/copilot-instructions.md)
-- **Claude/Zed Quick Reference**: [`.claude/instructions.md`](../../.claude/instructions.md)
-- **Type Checking Guidelines**: [`.claude/type_checking_guidelines.md`](../../.claude/type_checking_guidelines.md)
+- **Claude/Zed Quick Reference**: [`.claude/instructions.md`](../../.github/copilot-instructions.md)
+- **Type Checking Guidelines**: [`.claude/type_checking_guidelines.md`](../../.github/copilot-instructions.md)
 
 **DO NOT use this file for current development.** It is retained only for historical context.
 
@@ -724,7 +724,7 @@ git pull
 
 ### Branch Management
 
-Kinetra follows a documented branching strategy. See [docs/BRANCHING_STRATEGY.md](docs/BRANCHING_STRATEGY.md) for complete details.
+Kinetra follows a documented branching strategy. See [../production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md](../production_cleanup_2026-03-03/repo/docs/BRANCHING_STRATEGY.md) for complete details.
 
 **Quick Reference:**
 

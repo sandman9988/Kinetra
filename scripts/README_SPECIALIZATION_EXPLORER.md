@@ -53,7 +53,7 @@ For each strategy, the explorer computes:
 ### Basic Usage
 
 ```bash
-python3 scripts/explore_specialization.py
+python3 archive/production_cleanup_2026-03-03/scripts/training/explore_specialization.py
 ```
 
 This will:
@@ -65,7 +65,7 @@ This will:
 ### Custom Configuration
 
 ```bash
-python3 scripts/explore_specialization.py \
+python3 archive/production_cleanup_2026-03-03/scripts/training/explore_specialization.py \
   --data-dir data/master \
   --episodes 50 \
   --lr 0.0001 \
@@ -140,7 +140,7 @@ Best Consistency (Edge Robustness): Hybrid (Asset+TF)
 
 ### JSON Results
 
-Results are saved to `results/specialization_exploration/specialization_exploration_YYYYMMDD_HHMMSS.json`:
+Results are saved to `outputs/specialization_exploration/`:
 
 ```json
 {
@@ -200,7 +200,7 @@ Results are saved to `results/specialization_exploration/specialization_explorat
 
 1. **Run exploration**:
    ```bash
-   python3 scripts/explore_specialization.py --episodes 100
+   python3 archive/production_cleanup_2026-03-03/scripts/training/explore_specialization.py --episodes 100
    ```
 
 2. **Review results**:

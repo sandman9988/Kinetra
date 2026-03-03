@@ -125,7 +125,7 @@ Kinetra/
 │   ├── test_exhaustive_combinations.py
 │   └── test_e2e_orchestrator.py
 │
-├── docs/                    # Documentation
+├── ../production_cleanup_2026-03-03/repo/docs/                    # Documentation
 │   ├── EMPIRICAL_THEOREMS.md
 │   ├── VECTORIZATION_GUIDE.md
 │   ├── CPU_OPTIMIZATION.md
@@ -135,7 +135,7 @@ Kinetra/
 │   ├── session_reports/     # Old status reports
 │   └── testing_frameworks/  # Legacy test files
 │
-├── AGENT_RULES_MASTER.md    # Canonical rules (NEVER modify lightly)
+├── ../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md    # Canonical rules (NEVER modify lightly)
 ├── README.md                # Project overview
 ├── QUICK_REFERENCE.md       # Developer quick ref
 └── VERSION.md               # Version tracking
@@ -240,13 +240,13 @@ python scripts/batch_backtest.py --instrument BTCUSD --timeframe H1
 ## 📞 Support & Resources
 
 ### Documentation
-- **Rules**: [`AGENT_RULES_MASTER.md`](AGENT_RULES_MASTER.md)
+- **Rules**: [`../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md`](../production_cleanup_2026-03-03/root_misc/AGENT_RULES_MASTER.md)
 - **Quick Ref**: [`QUICK_REFERENCE.md`](QUICK_REFERENCE.md)
-- **Guides**: [`docs/`](docs/) directory
+- **Guides**: [`../production_cleanup_2026-03-03/repo/docs/`](../production_cleanup_2026-03-03/repo/docs/) directory
 
 ### Testing
 - **Quick Start**: [`TESTING_QUICK_START.md`](TESTING_QUICK_START.md)
-- **Comprehensive**: [`scripts/testing/comprehensive_e2e_test.py`](scripts/testing/comprehensive_e2e_test.py)
+- **Comprehensive**: [`../production_cleanup_2026-03-03/scripts/testing/comprehensive_e2e_test.py`](../production_cleanup_2026-03-03/scripts/testing/comprehensive_e2e_test.py)
 
 ### Development
 - **Workflow**: [`QUICK_START_WORKFLOW.md`](QUICK_START_WORKFLOW.md)

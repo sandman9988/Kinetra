@@ -234,8 +234,8 @@ python scripts/benchmark_performance.py --compare-baseline
 ## 📚 Resources & Tools
 
 ### Documentation
-- [Vectorization Quick Reference](./VECTORIZATION_GUIDE.md)
-- [Full Audit Report](./vectorization_audit_report.md)
+- [Vectorization Quick Reference](../../root_cleanup_2026-01-07/VECTORIZATION_GUIDE.md)
+- [Full Audit Report](../../root_cleanup_2026-01-07/vectorization_audit_report.md)
 - [NumPy Performance Tips](https://numpy.org/doc/stable/user/c-info.python-as-glue.html)
 
 ### Tools

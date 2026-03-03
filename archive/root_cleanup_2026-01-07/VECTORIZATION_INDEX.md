@@ -13,7 +13,7 @@
 | **[VECTORIZATION_README.md](./VECTORIZATION_README.md)** | Getting started guide | You're new to this effort |
 | **[VECTORIZATION_GUIDE.md](./VECTORIZATION_GUIDE.md)** | Quick reference patterns | You need coding examples |
 | **[vectorization_audit_report.md](./vectorization_audit_report.md)** | Detailed findings | You want technical details |
-| **[VECTORIZATION_ACTION_PLAN.md](./VECTORIZATION_ACTION_PLAN.md)** | Implementation roadmap | You're planning the work |
+| **[VECTORIZATION_ACTION_PLAN.md](../session_reports/cleanup_20260104/VECTORIZATION_ACTION_PLAN.md)** | Implementation roadmap | You're planning the work |
 | **[vectorization_example_directional_order_flow.py](./vectorization_example_directional_order_flow.py)** | Working code example | You learn by doing |
 
 ---
