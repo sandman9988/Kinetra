@@ -19,19 +19,16 @@ Author: Physics-First Trading System
 """
 
 import copy
-import json
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from numpy import floating
-
 
 # =============================================================================
 # TRADING MODE: Exploration vs Live
@@ -1293,7 +1290,7 @@ def demo_tripleganger():
     state = np.random.randn(64)
     action, info = system.select_action(state, mock_physics)
 
-    print(f"\n[2] Action selection test:")
+    print("\n[2] Action selection test:")
     print(f"    Action: {action}")
     print(f"    Is safe: {info['is_safe']}")
     print(f"    Position size mult: {info['position_size_mult']:.2f}")
@@ -1317,7 +1314,7 @@ def demo_tripleganger():
 
     action, info = system.select_action(state, risky_physics, epsilon=0.1)
 
-    print(f"\n[4] High-risk scenario (LIVE mode):")
+    print("\n[4] High-risk scenario (LIVE mode):")
     print(f"    Action: {action} (should be 0=HOLD if blocked)")
     print(f"    Is safe: {info['is_safe']}")
     if not info['is_safe']:

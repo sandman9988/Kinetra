@@ -39,6 +39,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 # which requires backtesting library
 import importlib.util
 
+
 def _load_module(name: str, file_path: str):
     """Load a module directly from file path."""
     spec = importlib.util.spec_from_file_location(name, file_path)
@@ -86,11 +87,9 @@ except Exception as e:
     MEASUREMENT_FRAMEWORK_AVAILABLE = False
 
 from rl_exploration_framework import (
-    RewardShaper,
     LinearQAgent,
-    FeatureTracker,
+    RewardShaper,
 )
-
 
 # =============================================================================
 # ASSET CLASS TAXONOMY
@@ -461,10 +460,10 @@ def run_comprehensive_exploration(
         print("=" * 80)
         print("\n🔍 Troubleshooting:")
         print(f"  1. Check that data files exist in: {standardized_dir}")
-        print(f"  2. Files should be in subdirectories (crypto/, forex/, etc.)")
-        print(f"  3. File format: INSTRUMENT_TIMEFRAME_START_END.csv")
-        print(f"  4. Run data download: python scripts/download/download_interactive.py")
-        print(f"\n📁 Directory contents:")
+        print("  2. Files should be in subdirectories (crypto/, forex/, etc.)")
+        print("  3. File format: INSTRUMENT_TIMEFRAME_START_END.csv")
+        print("  4. Run data download: python scripts/download/download_interactive.py")
+        print("\n📁 Directory contents:")
         data_path = Path(standardized_dir)
         if data_path.exists():
             subdirs = [d.name for d in data_path.iterdir() if d.is_dir()]
@@ -605,14 +604,14 @@ def run_comprehensive_exploration(
     print("  EXPLORATION RESULTS")
     print("=" * 80)
 
-    print(f"\n[CUMULATIVE]")
+    print("\n[CUMULATIVE]")
     print(f"  Episodes: {cumulative['episodes']}")
     print(f"  Total Reward: {cumulative['total_reward']:+.1f}")
     print(f"  Avg Reward: {cumulative['total_reward'] / cumulative['episodes']:+.2f}")
     print(f"  Total PnL: {cumulative['total_pnl']:+.2f}%")
     print(f"  Avg PnL: {cumulative['total_pnl'] / cumulative['episodes']:+.3f}%")
 
-    print(f"\n[BY ASSET CLASS]")
+    print("\n[BY ASSET CLASS]")
     print(f"  {'Class':<20} {'Eps':>5} {'Avg R':>10} {'Avg PnL%':>10} {'Trades':>8}")
     print("  " + "-" * 55)
     for cls in sorted(per_class.keys()):
@@ -662,7 +661,7 @@ def run_comprehensive_exploration(
         trend = profile.get('trend', {})
         trend_def = trend.get('definition', {})
         if trend_def.get('top_predictors'):
-            print(f"    TREND defined by:")
+            print("    TREND defined by:")
             for pred in trend_def['top_predictors'][:5]:
                 corr = pred['correlation']
                 name = pred['measurement']
@@ -675,7 +674,7 @@ def run_comprehensive_exploration(
         mr = profile.get('mean_reversion', {})
         mr_def = mr.get('definition', {})
         if mr_def.get('top_predictors'):
-            print(f"    MEAN-REVERSION defined by:")
+            print("    MEAN-REVERSION defined by:")
             for pred in mr_def['top_predictors'][:3]:
                 corr = pred['correlation']
                 name = pred['measurement']
@@ -748,7 +747,7 @@ def standardize_data(source_dir: str) -> str:
     csv_files = list(source_path.glob("*.csv"))
     csv_files.extend(source_path.glob("**/*.csv"))
     csv_files = list(set(csv_files))  # Remove duplicates
-    
+
     if not csv_files:
         print(f"  [WARN] No CSV files found in {source_dir}")
         return source_dir
@@ -782,12 +781,12 @@ def standardize_data(source_dir: str) -> str:
             match = re.search(r'_(\d{12})\.csv$', csv_file.name)
             if match:
                 ts = datetime.strptime(match.group(1), "%Y%m%d%H%M")
-                
+
                 # Preserve subdirectory structure
                 rel_path = csv_file.relative_to(source_path)
                 dest_file = output_path / rel_path
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
-                
+
                 if ts <= cutoff:
                     shutil.copy(csv_file, dest_file)
                     copied += 1
@@ -808,7 +807,7 @@ def standardize_data(source_dir: str) -> str:
 
                             df = df.drop(columns=['datetime'])
                             df.columns = ['<' + c.upper() + '>' for c in df.columns]
-                            
+
                             # Save to appropriate subdirectory
                             new_dest = dest_file.parent / new_name
                             df.to_csv(new_dest, sep='\t', index=False)

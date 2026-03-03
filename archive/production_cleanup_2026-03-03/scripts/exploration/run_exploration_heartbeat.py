@@ -18,14 +18,13 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent))
 
 from rl_exploration_framework import (
-    MultiInstrumentLoader,
-    MultiInstrumentEnv,
-    RewardShaper,
-    LinearQAgent,
     FeatureTracker,
+    LinearQAgent,
+    MultiInstrumentEnv,
+    MultiInstrumentLoader,
+    RewardShaper,
 )
-from test_physics_pipeline import get_rl_state_features, get_rl_feature_names
-
+from test_physics_pipeline import get_rl_feature_names, get_rl_state_features
 
 # Asset class mapping - REVISED TAXONOMY
 # Different classes have fundamentally different market dynamics:
@@ -210,7 +209,7 @@ def print_heartbeat(
 
     # Portfolio breakdown
     print(f"├{'─'*80}")
-    print(f"│ PORTFOLIO BY ASSET CLASS:")
+    print("│ PORTFOLIO BY ASSET CLASS:")
     for cls, stats in sorted(portfolio.items()):
         if stats['episodes'] > 0:
             avg_r = stats['total_reward'] / stats['episodes']
@@ -278,7 +277,7 @@ def run_with_heartbeat(
         entropy_alignment_weight=0.1,
     )
 
-    print(f"\n[AGENTS] Class-specific reward shapers:")
+    print("\n[AGENTS] Class-specific reward shapers:")
     for cls, shaper in reward_shapers.items():
         print(f"  {cls}: MAE_w={shaper.mae_penalty_weight}, "
               f"trend={shaper.trend_bonus_weight}, hold={shaper.holding_bonus_weight}")
@@ -391,14 +390,14 @@ def run_with_heartbeat(
     print("  FINAL RESULTS (PnL in PERCENTAGE terms for cross-instrument comparison)")
     print("=" * 80)
 
-    print(f"\n[CUMULATIVE]")
+    print("\n[CUMULATIVE]")
     print(f"  Total Episodes: {cumulative['episodes']}")
     print(f"  Total Reward:   {cumulative['total_reward']:+.1f}")
     print(f"  Total PnL:      {cumulative['total_pnl']:+.2f}%")
     print(f"  Avg PnL/Ep:     {cumulative['total_pnl'] / cumulative['episodes'] if cumulative['episodes'] > 0 else 0:+.2f}%")
     print(f"  Avg Reward:     {cumulative['avg_reward']:+.2f}")
 
-    print(f"\n[PORTFOLIO BY ASSET CLASS]")
+    print("\n[PORTFOLIO BY ASSET CLASS]")
     print(f"  {'Class':<12} {'Episodes':>8} {'Avg Reward':>12} {'Avg PnL%':>12} {'Total PnL%':>12}")
     print("  " + "-" * 60)
     for cls in sorted(portfolio.keys()):
@@ -408,7 +407,7 @@ def run_with_heartbeat(
             avg_pnl = stats['total_pnl'] / stats['episodes']
             print(f"  {cls:<12} {stats['episodes']:>8} {avg_r:>+12.2f} {avg_pnl:>+12.2f}% {stats['total_pnl']:>+11.2f}%")
 
-    print(f"\n[TOP 10 INSTRUMENTS BY AVG REWARD]")
+    print("\n[TOP 10 INSTRUMENTS BY AVG REWARD]")
     inst_avg = []
     for inst, data in per_instrument.items():
         if len(data['rewards']) > 0:
@@ -422,12 +421,12 @@ def run_with_heartbeat(
     for inst, avg_r, avg_pnl, eps in inst_avg[:10]:
         print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} {avg_pnl:>+12.2f}%")
 
-    print(f"\n[BOTTOM 5 INSTRUMENTS]")
+    print("\n[BOTTOM 5 INSTRUMENTS]")
     for inst, avg_r, avg_pnl, eps in inst_avg[-5:]:
         print(f"  {inst:<25} {eps:>5} {avg_r:>+12.2f} {avg_pnl:>+12.2f}%")
 
     # Top features
-    print(f"\n[TOP FEATURES LEARNED]")
+    print("\n[TOP FEATURES LEARNED]")
     top_features = tracker.get_top_features_per_action(top_k=5)
     for action, features in top_features.items():
         top_3 = features[:3]

@@ -6,11 +6,12 @@ Implements PPO, SAC, and TD3 agents following the BaseAgent interface.
 Lightweight implementations optimized for trading exploration.
 """
 
-import numpy as np
-from typing import Dict, Tuple
-from collections import deque
 import sys
+from collections import deque
 from pathlib import Path
+from typing import Tuple
+
+import numpy as np
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).parent))
@@ -18,8 +19,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 try:
     import torch
     import torch.nn as nn
-    import torch.optim as optim
     import torch.nn.functional as F
+    import torch.optim as optim
     from torch.distributions import Normal
     TORCH_AVAILABLE = True
 except ImportError:
@@ -32,7 +33,6 @@ except ImportError:
     print("⚠️  PyTorch not available. Deep RL agents (PPO, SAC, TD3) will not work.")
 
 from rl_exploration_framework import BaseAgent
-
 
 # =============================================================================
 # Neural Network Components

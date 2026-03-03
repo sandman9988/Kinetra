@@ -18,17 +18,13 @@ Author: Physics-First Trading System
 """
 
 import copy
-import json
 import logging
 from collections import deque
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum, auto
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from enum import Enum
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from numpy import floating
-
 
 # =============================================================================
 # ASSET CLASS DEFINITIONS
@@ -978,7 +974,7 @@ def demo_specialist_system():
     health_calc = PortfolioHealthScore()
     health_score, breakdown = health_calc.calculate(specialists)
 
-    print(f"\n[PORTFOLIO HEALTH SCORE]")
+    print("\n[PORTFOLIO HEALTH SCORE]")
     print(f"  Score: {health_score:.1f}/100 - {breakdown['status']}")
     print(f"  Return Score: {breakdown['return_score']:.1f}")
     print(f"  Risk Score: {breakdown['risk_score']:.1f}")
@@ -987,12 +983,12 @@ def demo_specialist_system():
 
     # Healing actions
     actions = health_calc.get_healing_actions(health_score)
-    print(f"\n[RECOMMENDED ACTIONS]")
+    print("\n[RECOMMENDED ACTIONS]")
     for action in actions:
         print(f"  • {action}")
 
     # Per-specialist summary
-    print(f"\n[SPECIALIST SUMMARIES]")
+    print("\n[SPECIALIST SUMMARIES]")
     for specialist in specialists:
         summary = specialist.get_summary()
         live = summary["live"]

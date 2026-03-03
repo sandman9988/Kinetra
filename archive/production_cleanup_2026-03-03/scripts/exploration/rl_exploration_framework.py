@@ -33,7 +33,7 @@ import tempfile
 import traceback
 import warnings
 from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -68,7 +68,7 @@ sys.path.insert(0, str(_this_dir / "tests"))
 
 # Try GPU physics (ROCm/CUDA)
 try:
-    from kinetra.parallel import GPUPhysicsEngine, TORCH_AVAILABLE
+    from kinetra.parallel import TORCH_AVAILABLE, GPUPhysicsEngine
     GPU_AVAILABLE = TORCH_AVAILABLE
 except ImportError:
     GPU_AVAILABLE = False
@@ -96,9 +96,9 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
     """
     if bar_index >= len(physics_state):
         return np.zeros(64, dtype=np.float32)
-    
+
     ps = physics_state.iloc[bar_index]
-    
+
     # Build ungated feature vector - let the agent discover what matters
     features = [
         # === KINEMATICS (derivatives) === [4 features]
@@ -106,38 +106,38 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
         ps.get("a", 0),                    # acceleration (2nd derivative)
         ps.get("j", 0),                    # jerk (3rd derivative)
         ps.get("jerk_z", 0),               # z-scored jerk
-        
+
         # === ENERGETICS === [4 features]
         ps.get("energy", 0),               # kinetic energy (0.5 * v^2)
         ps.get("PE", 0),                   # potential energy (1/vol)
         ps.get("eta", 0),                  # efficiency (KE/PE)
         ps.get("energy_pct", 0.5),         # percentile
-        
+
         # === DAMPING === [4 features]
         ps.get("damping", 0),              # damping coefficient
         ps.get("viscosity", 0),            # viscosity
         ps.get("visc_z", 0),               # z-scored viscosity
         ps.get("damping_pct", 0.5),        # percentile
-        
+
         # === ENTROPY/INFORMATION === [4 features]
         ps.get("entropy", 0),              # Shannon entropy
         ps.get("entropy_z", 0),            # z-scored entropy
         ps.get("reynolds", 0),             # Reynolds number
         ps.get("entropy_pct", 0.5),        # percentile
-        
+
         # === CHAOS INDICATORS === [5 features]
         ps.get("lyapunov_proxy", 0),       # Lyapunov exponent proxy
         ps.get("lyap_z", 0),               # z-scored Lyapunov
         ps.get("local_dim", 2.0),          # local dimension
         ps.get("lyapunov_proxy_pct", 0.5), # percentile
         ps.get("local_dim_pct", 0.5),      # percentile
-        
+
         # === TAIL RISK === [4 features]
         ps.get("cvar_95", 0),              # CVaR 95%
         ps.get("cvar_asymmetry", 1.0),     # tail asymmetry
         ps.get("cvar_95_pct", 0.5),        # percentile
         ps.get("cvar_asymmetry_pct", 0.5), # percentile
-        
+
         # === COMPOSITES === [6 features]
         ps.get("composite_jerk_entropy", 0),
         ps.get("stack_jerk_entropy", 0),
@@ -145,24 +145,24 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
         ps.get("triple_stack", 0),
         ps.get("composite_pct", 0.5),
         ps.get("triple_stack_pct", 0.5),
-        
+
         # === MOMENTUM === [2 features]
         ps.get("roc", 0),                  # rate of change
         ps.get("momentum_strength", 0),    # momentum strength
-        
+
         # === REGIME (one-hot) === [5 features]
         1.0 if ps.get("regime") == "OVERDAMPED" else 0.0,
         1.0 if ps.get("regime") == "UNDERDAMPED" else 0.0,
         1.0 if ps.get("regime") == "LAMINAR" else 0.0,
         1.0 if ps.get("regime") == "BREAKOUT" else 0.0,
         ps.get("regime_age_frac", 0),
-        
+
         # === ADAPTIVE === [4 features]
         ps.get("adaptive_trail_mult", 2.0),
         ps.get("PE_pct", 0.5),
         ps.get("reynolds_pct", 0.5),
         ps.get("eta_pct", 0.5),
-        
+
         # === ADVANCED VOLATILITY === [7 features]
         ps.get("vol_rs", 0),               # Rogers-Satchell
         ps.get("vol_yz", 0),               # Yang-Zhang
@@ -171,20 +171,20 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
         ps.get("vol_yz_z", 0),
         ps.get("vol_ratio_yz_rs", 1.0),
         ps.get("vol_term_structure", 1.0),
-        
+
         # === DSP (Digital Signal Processing) === [5 features]
         ps.get("dsp_roofing", 0),
         ps.get("dsp_roofing_z", 0),
         ps.get("dsp_trend", 0),
         ps.get("dsp_trend_dir", 0),
         ps.get("dsp_cycle_period", 24),
-        
+
         # === VPIN (Order Flow Toxicity) === [4 features]
         ps.get("vpin", 0.5),
         ps.get("vpin_z", 0),
         ps.get("vpin_pct", 0.5),
         ps.get("buy_pressure", 0.5),
-        
+
         # === HIGHER MOMENTS === [6 features]
         ps.get("kurtosis", 0),
         ps.get("kurtosis_z", 0),
@@ -193,12 +193,12 @@ def get_rl_state_features(physics_state: pd.DataFrame, bar_index: int) -> np.nda
         ps.get("tail_risk", 0),
         ps.get("jb_proxy_z", 0),
     ]
-    
+
     # Ensure exactly 64 features
     features = features[:64]
     while len(features) < 64:
         features.append(0.0)
-    
+
     return np.nan_to_num(np.array(features, dtype=np.float32), nan=0.0, posinf=0.0, neginf=0.0)
 
 
@@ -1444,7 +1444,7 @@ class RandomAgent(BaseAgent):
 try:
     import gymnasium as gym
     from gymnasium import spaces
-    from stable_baselines3 import SAC, PPO, TD3
+    from stable_baselines3 import PPO, SAC, TD3
     from stable_baselines3.common.callbacks import BaseCallback
     SB3_AVAILABLE = True
 except ImportError:
@@ -2094,15 +2094,15 @@ def run_exploration_test(
         )
 
     # Import from test_physics_pipeline
-    from test_physics_pipeline import (
-        PhysicsEngine,
-        load_btc_h1_data,
-        get_rl_state_features,
-        get_rl_feature_names,
-    )
-
     # Load data - find any H1 file dynamically (prefer BTCUSD, fallback to any)
     import glob
+
+    from test_physics_pipeline import (
+        PhysicsEngine,
+        get_rl_feature_names,
+        get_rl_state_features,
+        load_btc_h1_data,
+    )
     data_dir = os.environ.get("DATA_DIR", "data/master")
     h1_files = glob.glob(f"{data_dir}/*_H1_*.csv")
     if not h1_files:
@@ -2342,7 +2342,6 @@ def _load_single_worker(
     Worker function for parallel data loading.
     Must be module-level for multiprocessing pickle compatibility.
     """
-    import hashlib
     import pickle
     from pathlib import Path
 
@@ -2549,8 +2548,8 @@ class MultiInstrumentLoader:
 
     def _load_all_parallel(self, discovered: List[Tuple[str, str, str]]) -> Dict[str, InstrumentData]:
         """Parallel loading using ProcessPoolExecutor."""
-        from concurrent.futures import ProcessPoolExecutor, as_completed
         import time
+        from concurrent.futures import ProcessPoolExecutor, as_completed
 
         start_time = time.time()
 
@@ -2855,7 +2854,7 @@ def run_multi_instrument_exploration(
     n_instruments = len(train_instruments)
     total_episodes = max(n_episodes, n_instruments * episodes_per_instrument)
 
-    print(f"\nTraining plan:")
+    print("\nTraining plan:")
     print(f"  Train instruments: {n_instruments}")
     print(f"  Test instruments: {len(test_instruments)}")
     print(f"  Episodes per instrument: {episodes_per_instrument}")
