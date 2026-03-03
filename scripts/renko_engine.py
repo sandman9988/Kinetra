@@ -30,10 +30,13 @@ Usage:
 import json
 import logging
 import os
+import re
+import subprocess
 import sys
 import threading
 import time
 from collections import deque
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
@@ -59,6 +62,7 @@ from kinetra.renko.trading_engine import EngineConfig, RenkoEngine
 KR = PROJECT_ROOT
 console = Console()
 LOG = logging.getLogger("kinetra.renko")
+_STANDARDIZED_SYMBOLS: set[str] = set()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -84,13 +88,14 @@ def load_m1_data(symbol: str) -> Optional[pd.Series]:
     """Load M1 data from canonical location."""
     from kinetra.data_utils import load_mt5_csv
 
-    data_dir = KR / "data" / "master_standardized" / "ctrader" / "pepperstone" / "metals" / symbol
-    m1_file = list(data_dir.glob("*_M1_*.csv"))
+    _standardize_symbol_m1_data(symbol, max_depth=6)
+    data_dir = _canonical_symbol_dir(symbol)
+    best_file = _select_best_m1_file(data_dir, symbol)
 
-    if not m1_file:
+    if best_file is None:
         return None
 
-    df = load_mt5_csv(str(m1_file[0]))
+    df = load_mt5_csv(str(best_file))
 
     # load_mt5_csv returns Title case columns: Close, and sets datetime as index
     close_col = "Close" if "Close" in df.columns else "close"
@@ -117,7 +122,7 @@ def load_m1_data(symbol: str) -> Optional[pd.Series]:
 
 def get_data_path(symbol: str) -> Path:
     """Get canonical data directory for symbol."""
-    return KR / "data" / "master_standardized" / "ctrader" / "pepperstone" / "metals" / symbol
+    return _canonical_symbol_dir(symbol)
 
 
 def _format_number(value: float) -> str:
@@ -205,6 +210,415 @@ def _load_dsp_profile(symbol: str) -> tuple[Optional[dict], Path]:
         return None, dsp_file
     with open(dsp_file) as f:
         return json.load(f), dsp_file
+
+
+def _compute_and_store_dsp_profile(
+    symbol: str, closes: Optional[pd.Series] = None
+) -> tuple[Optional[dict], Path]:
+    """Compute DSP from M1 data and persist canonical profile."""
+    dsp_file = get_data_path(symbol) / "dsp_profile.json"
+    if closes is None:
+        closes = load_m1_data(symbol)
+    if closes is None or len(closes) == 0:
+        return None, dsp_file
+
+    from kinetra.renko.dsp import run_dsp
+
+    raw = run_dsp(closes, symbol=symbol, bars_per_hour=60.0)
+    if raw is None:
+        return None, dsp_file
+
+    # Convert DSPResult dataclass → plain dict (run_dsp returns a dataclass).
+    result: dict = asdict(raw) if not isinstance(raw, dict) else dict(raw)
+    if "error" in result:
+        return None, dsp_file
+
+    # Alias dsp_brick_size → brick_size so downstream dsp.get("brick_size") works.
+    if "brick_size" not in result and "dsp_brick_size" in result:
+        result["brick_size"] = result["dsp_brick_size"]
+
+    # Ensure cadence key exists for downstream window scaling/diagnostics.
+    result.setdefault("bars_per_hour", 60.0)
+
+    dsp_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(dsp_file, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, default=str)
+
+    # Keep legacy output artifact for operator visibility.
+    legacy_dir = KR / "outputs" / "dsp"
+    legacy_dir.mkdir(parents=True, exist_ok=True)
+    legacy_file = legacy_dir / f"{symbol}_dsp.json"
+    with open(legacy_file, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, default=str)
+
+    return result, dsp_file
+
+
+def _load_or_build_dsp_profile(
+    symbol: str, closes: Optional[pd.Series] = None
+) -> tuple[Optional[dict], Path]:
+    """Load canonical DSP profile; auto-build it from M1 when missing."""
+    dsp, dsp_file = _load_dsp_profile(symbol)
+    if dsp is not None:
+        return dsp, dsp_file
+    return _compute_and_store_dsp_profile(symbol, closes=closes)
+
+
+def _json_safe(value):
+    """Convert nested objects to JSON-safe types."""
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    if hasattr(value, "item"):
+        try:
+            return value.item()
+        except Exception:
+            pass
+    return value
+
+
+def _choose_unique_path(base_dir: Path, stem: str) -> Path:
+    """Return a non-existing path by appending an incrementing suffix."""
+    candidate = base_dir / f"{stem}.json"
+    if not candidate.exists():
+        return candidate
+    idx = 1
+    while True:
+        candidate = base_dir / f"{stem}_{idx}.json"
+        if not candidate.exists():
+            return candidate
+        idx += 1
+
+
+def _find_m1_source_file(symbol: str) -> Optional[Path]:
+    data_dir = _canonical_symbol_dir(symbol)
+    return _select_best_m1_file(data_dir, symbol)
+
+
+def _canonical_category_for_symbol(symbol: str) -> str:
+    from kinetra.canonical_asset_classification import get_asset_class_with_fallback
+
+    cls = get_asset_class_with_fallback(symbol)
+    val = str(getattr(cls, "value", "other")).lower()
+    mapping = {
+        "metal": "metals",
+        "metals": "metals",
+        "index": "indices",
+        "indices": "indices",
+        "commodity": "commodities",
+        "commodities": "commodities",
+        "stock": "shares",
+        "shares": "shares",
+        "etf": "other",
+        "etfs": "other",
+    }
+    return mapping.get(val, val if val in {"forex", "crypto", "energy"} else "other")
+
+
+def _canonical_symbol_dir(symbol: str) -> Path:
+    category = _canonical_category_for_symbol(symbol)
+    return (
+        KR / "data" / "master_standardized" / "ctrader" / "pepperstone" / category / symbol.upper()
+    )
+
+
+def _list_symbol_m1_files(symbol: str, max_depth: int = 6) -> list[Path]:
+    data_root = KR / "data"
+    pattern = re.compile(
+        rf"{re.escape(symbol.upper())}_M1_(\d{{12,14}})_(\d{{12,14}})\.csv$",
+        re.IGNORECASE,
+    )
+    out: list[Path] = []
+    for p in data_root.rglob("*.csv"):
+        try:
+            rel = p.relative_to(data_root)
+        except Exception:
+            continue
+        if len(rel.parts) > max_depth:
+            continue
+        if pattern.search(p.name):
+            out.append(p)
+    return sorted(out)
+
+
+def _score_m1_file(path: Path, symbol: str) -> tuple[float, int, float]:
+    pattern = re.compile(
+        rf"{re.escape(symbol.upper())}_M1_(\d{{12,14}})_(\d{{12,14}})\.csv$",
+        re.IGNORECASE,
+    )
+    span_s = -1.0
+    m = pattern.search(path.name)
+    if m:
+        fmt = "%Y%m%d%H%M%S" if len(m.group(1)) == 14 else "%Y%m%d%H%M"
+        try:
+            s = datetime.strptime(m.group(1), fmt).replace(tzinfo=timezone.utc)
+            e = datetime.strptime(m.group(2), fmt).replace(tzinfo=timezone.utc)
+            span_s = max((e - s).total_seconds(), 0.0)
+        except Exception:
+            span_s = -1.0
+    st = path.stat()
+    return span_s, int(st.st_size), float(st.st_mtime)
+
+
+def _load_m1_csv_generic(path: Path) -> Optional[pd.DataFrame]:
+    try:
+        df = pd.read_csv(path)
+    except Exception:
+        return None
+    if df.empty:
+        return None
+
+    cols = {c.lower(): c for c in df.columns}
+    time_col = next((cols[k] for k in ("time", "datetime", "date", "timestamp") if k in cols), None)
+    close_col = cols.get("close")
+    if time_col is None or close_col is None:
+        return None
+
+    work = pd.DataFrame()
+    work["time"] = pd.to_datetime(df[time_col], utc=True, errors="coerce")
+    for col in ("open", "high", "low", "close", "volume", "spread"):
+        src = cols.get(col)
+        work[col] = pd.to_numeric(df[src], errors="coerce") if src is not None else pd.NA
+
+    work = work.dropna(subset=["time", "close"]).sort_values("time")
+    if work.empty:
+        return None
+    work = work.drop_duplicates(subset=["time"], keep="last")
+    return work
+
+
+def _standardize_symbol_m1_data(symbol: str, max_depth: int = 6) -> None:
+    """Recursively discover and merge symbol M1 CSVs into canonical path."""
+    sym = symbol.upper()
+    if sym in _STANDARDIZED_SYMBOLS:
+        return
+
+    files = _list_symbol_m1_files(sym, max_depth=max_depth)
+    if not files:
+        return
+
+    ranked = sorted(files, key=lambda p: _score_m1_file(p, sym))
+    parts: list[pd.DataFrame] = []
+    for p in ranked:
+        d = _load_m1_csv_generic(p)
+        if d is not None and not d.empty:
+            parts.append(d)
+    if not parts:
+        return
+
+    merged = pd.concat(parts, ignore_index=True)
+    merged = merged.sort_values("time").drop_duplicates(subset=["time"], keep="last")
+    if merged.empty:
+        return
+
+    # Fill tiny gaps safely so the canonical dataset is contiguous for M1 consumers.
+    for col in ("open", "high", "low", "volume", "spread"):
+        if col in merged.columns:
+            merged[col] = merged[col].ffill().bfill()
+    merged["close"] = merged["close"].ffill().bfill()
+    merged["time"] = merged["time"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    out_dir = _canonical_symbol_dir(sym)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    t = pd.to_datetime(merged["time"], utc=True, errors="coerce").dropna()
+    if t.empty:
+        return
+    start_str = t.iloc[0].strftime("%Y%m%d%H%M")
+    end_str = t.iloc[-1].strftime("%Y%m%d%H%M")
+    out_path = out_dir / f"{sym}_M1_{start_str}_{end_str}.csv"
+
+    # Keep the CSV with most data in canonical folder; overwrite only if improved/new.
+    best_existing = _select_best_m1_file(out_dir, sym)
+    should_write = True
+    if best_existing is not None and best_existing.exists():
+        try:
+            existing_rows = max(sum(1 for _ in best_existing.open("r", encoding="utf-8")) - 1, 0)
+        except Exception:
+            existing_rows = 0
+        should_write = len(merged) >= existing_rows
+    if should_write:
+        merged.to_csv(out_path, index=False)
+        LOG.info("Standardized %s M1 data -> %s (%d bars)", sym, out_path, len(merged))
+
+    _STANDARDIZED_SYMBOLS.add(sym)
+
+
+def _persist_execution_audit(
+    *,
+    symbol: str,
+    mode: str,
+    results: dict,
+    metadata: Optional[dict] = None,
+) -> Path:
+    """Persist signal/order/trade reconciliation artifact."""
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+    out_dir = KR / "outputs" / "renko_results" / "audit" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = _choose_unique_path(out_dir, f"{symbol.lower()}_{mode}_audit_{ts}")
+
+    payload = {
+        "symbol": symbol.upper(),
+        "mode": mode,
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "summary": results.get("summary", {}),
+        "signals": results.get("signals", []),
+        "trades": results.get("trades", []),
+        "metadata": metadata or {},
+    }
+    with open(out_path, "x", encoding="utf-8") as f:
+        json.dump(_json_safe(payload), f, indent=2)
+    return out_path
+
+
+def _select_best_m1_file(data_dir: Path, symbol: str) -> Optional[Path]:
+    """Pick the best M1 CSV for a symbol by widest encoded time span."""
+    files = sorted(data_dir.glob("*_M1_*.csv"))
+    if not files:
+        return None
+
+    pattern = re.compile(
+        rf"{re.escape(symbol.upper())}_M1_(\d{{12,14}})_(\d{{12,14}})\.csv$",
+        re.IGNORECASE,
+    )
+    scored = []
+    for p in files:
+        span_s = -1.0
+        m = pattern.search(p.name)
+        if m:
+            fmt = "%Y%m%d%H%M%S" if len(m.group(1)) == 14 else "%Y%m%d%H%M"
+            try:
+                s = datetime.strptime(m.group(1), fmt).replace(tzinfo=timezone.utc)
+                e = datetime.strptime(m.group(2), fmt).replace(tzinfo=timezone.utc)
+                span_s = max((e - s).total_seconds(), 0.0)
+            except Exception:
+                span_s = -1.0
+        st = p.stat()
+        scored.append((span_s, int(st.st_size), float(st.st_mtime), p))
+
+    scored.sort(reverse=True, key=lambda x: (x[0], x[1], x[2]))
+    return scored[0][3]
+
+
+def _ensure_backtest_history(symbol: str, months: int, auto_download: bool) -> bool:
+    """Ensure local M1 history can cover requested backtest lookback."""
+    sym = symbol.upper()
+    closes = load_m1_data(sym)
+
+    def _has_coverage(series: pd.Series, req_months: int) -> bool:
+        if series is None or series.empty:
+            return False
+        end_ts = series.index[-1]
+        have_start = series.index[0]
+        need_start = end_ts - pd.DateOffset(months=int(req_months))
+        return have_start <= need_start
+
+    def _run_download(days: int, mode: str) -> bool:
+        cmd = [
+            sys.executable,
+            str(KR / "scripts" / "ctrader" / "download_ctrader_history.py"),
+            "--symbols",
+            sym,
+            "--days",
+            str(max(int(days), 1)),
+            "--chunk-days",
+            "90",
+        ]
+        if mode == "backfill":
+            cmd.append("--backfill")
+        else:
+            cmd.append("--resume")
+        rc = subprocess.run(cmd, cwd=str(KR)).returncode
+        if rc != 0:
+            click.secho(f"❌ Auto-{mode} failed (exit={rc})", fg="red")
+            return False
+        _STANDARDIZED_SYMBOLS.discard(sym)
+        _standardize_symbol_m1_data(sym, max_depth=6)
+        return True
+
+    if closes is None or closes.empty:
+        if not auto_download:
+            return False
+        days = max(int(months) * 31, 31)
+        click.secho(
+            f"No local M1 data for {symbol}. Auto-download enabled; fetching ~{days} days.",
+            fg="yellow",
+        )
+        if not _run_download(days=days, mode="resume"):
+            return False
+        refreshed = load_m1_data(sym)
+        if not _has_coverage(refreshed, months):
+            click.secho(
+                f"❌ Auto-download completed but history still does not cover {months} months.",
+                fg="red",
+            )
+            return False
+        return True
+
+    end_ts = closes.index[-1]
+    have_start = closes.index[0]
+    need_start = end_ts - pd.DateOffset(months=int(months))
+    if have_start <= need_start:
+        return True
+
+    if not auto_download:
+        have_days = int((end_ts - have_start).total_seconds() // 86400)
+        need_days = int((end_ts - need_start).total_seconds() // 86400)
+        click.secho(
+            f"⚠️ Insufficient local history for {months} months: have ~{have_days} days, need ~{need_days} days. "
+            "Re-run with --auto-download.",
+            fg="yellow",
+        )
+        return False
+
+    # 1) Forward fill first (resume latest bars) in 90-day API chunk mode.
+    click.secho(f"Forward-fill latest bars for {sym} (resume mode)...", fg="yellow")
+    if not _run_download(days=90, mode="resume"):
+        return False
+
+    # 2) Backfill older history in paginated 90-day windows (go backwards).
+    refreshed = load_m1_data(sym)
+    max_pages = 36  # up to ~9 years in 90-day pages
+    page = 0
+    while refreshed is not None and not refreshed.empty and not _has_coverage(refreshed, months):
+        end_ts = refreshed.index[-1]
+        have_start = refreshed.index[0]
+        need_start = end_ts - pd.DateOffset(months=int(months))
+        missing_days = max(1, int((have_start - need_start).total_seconds() // 86400) + 2)
+        page_days = min(90, missing_days)
+        page += 1
+        click.secho(
+            f"Backfill page {page}/{max_pages}: downloading {page_days} day chunk backwards...",
+            fg="yellow",
+        )
+        if not _run_download(days=page_days, mode="backfill"):
+            return False
+        refreshed = load_m1_data(sym)
+        if page >= max_pages:
+            break
+
+    if not _has_coverage(refreshed, months):
+        have_days = 0
+        if refreshed is not None and not refreshed.empty:
+            have_days = int((refreshed.index[-1] - refreshed.index[0]).total_seconds() // 86400)
+            need_days = int(
+                (
+                    refreshed.index[-1] - (refreshed.index[-1] - pd.DateOffset(months=int(months)))
+                ).total_seconds()
+                // 86400
+            )
+        else:
+            need_days = int(months) * 31
+        click.secho(
+            f"❌ Backfill completed but history is still short: have ~{have_days} days, need ~{need_days} days.",
+            fg="red",
+        )
+        return False
+    return True
 
 
 def _build_stream_runtime(symbol: str, dsp: dict, lot_ceiling: float, live_orders: bool):
@@ -807,6 +1221,15 @@ def _dashboard_panel(
         "Warmup",
         f"ready={last_eval.get('warmup_ready', False)} remaining={int(last_eval.get('warmup_remaining', 0) or 0)}",
     )
+    warmup_target = int(max(getattr(engine.cfg, "min_warmup_bricks", 2), 1))
+    table.add_row(
+        "Warmup target",
+        f"{warmup_target} bricks (FR={int(engine.cfg.fliprate_window)}, M={int(engine.cfg.markov_window)})",
+    )
+    table.add_row(
+        "Startup skip",
+        f"remaining_flips={int(last_eval.get('startup_skip_remaining', 0) or 0)}",
+    )
     table.add_row(
         "Eval metrics",
         f"FR={_fmt_eval_num(last_eval.get('fr'))} M={_fmt_eval_num(last_eval.get('markov'))} lots={float(last_eval.get('lots', 0.0)):.3f}",
@@ -816,11 +1239,22 @@ def _dashboard_panel(
     last_brick_s = (
         pd.Timestamp(last_brick_time).strftime("%H:%M:%S") if last_brick_time is not None else "n/a"
     )
+    if last_brick_time is not None:
+        try:
+            age_s = int(
+                (pd.Timestamp.now(tz="UTC") - pd.Timestamp(last_brick_time)).total_seconds()
+            )
+            last_brick_age = f"{max(age_s, 0)}s"
+        except Exception:
+            last_brick_age = "n/a"
+    else:
+        last_brick_age = "n/a"
     table.add_row("[dim]Live Filter Activity[/]", "")
     table.add_row("Bars seen", str(int(getattr(engine, "stream_bars_seen", 0))))
     table.add_row("Flips seen", str(int(getattr(engine, "flips_seen", 0))))
     table.add_row("Filter-ready", str(int(getattr(engine, "filter_ready_bricks", 0))))
     table.add_row("Last brick UTC", last_brick_s)
+    table.add_row("Last brick age", last_brick_age)
 
     table.add_row("[dim]Connection[/]", "")
     status = str(acct_info.get("connection_status", "-")).upper()
@@ -919,7 +1353,17 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
 
     # Instrument & Broker
     spec_table.add_row("Symbol", cfg.symbol, "cTrader Pepperstone ECN")
-    spec_table.add_row("Contract Size", f"{spec.contract_size:.0f} oz", "Standard gold lot")
+    _sym = spec.symbol.upper()
+    if any(x in _sym for x in ("XAU", "XAG", "XPT", "XPD")):
+        _cs_unit = f"{spec.contract_size:.0f} oz"
+        _cs_note = "Standard precious-metal lot"
+    elif any(c.isdigit() for c in _sym):
+        _cs_unit = f"{spec.contract_size:.0f} units"
+        _cs_note = "Index CFD contract"
+    else:
+        _cs_unit = f"{spec.contract_size:.0f} units"
+        _cs_note = "Standard forex lot"
+    spec_table.add_row("Contract Size", _cs_unit, _cs_note)
     spec_table.add_row(
         "Tick Size", f"${spec.tick_size:.2f}", f"Value per tick: ${spec.tick_value_usd:.2f}"
     )
@@ -959,18 +1403,30 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
         "Commission", f"${cfg.commission_per_lot:.2f}/lot", "ECN round-trip per standard lot"
     )
 
-    # Swap rates (from spec if available)
-    if hasattr(spec, "swap_long") and spec.swap_long:
+    # Swap rates — prefer broker-polled USD; otherwise show raw broker value
+    # in its native unit (pips for mode 0, % p.a. for mode 1).
+    if spec.swap_long_usd_per_lot_per_eff_day is not None:
+        _sl_str = f"${spec.swap_long_usd_per_lot_per_eff_day:.3f}/day"
+        _ss_str = f"${spec.swap_short_usd_per_lot_per_eff_day:+.3f}/day"
+        _swap_note = "USD per lot per day (broker-polled)"
+    elif spec.swap_mode == 1:
+        # Percentage annual rate — indices (NAS100, GER40, JPN225, etc.)
+        _sl_str = f"{spec.swap_long_points:.2f}% p.a."
+        _ss_str = f"{spec.swap_short_points:+.2f}% p.a."
+        _swap_note = "Annual rate applied to notional"
+    elif spec.swap_long_points or spec.swap_short_points:
+        # Pips per day — metals, forex, commodities
+        _sl_str = f"{spec.swap_long_points:.2f} pips/day"
+        _ss_str = f"{spec.swap_short_points:+.2f} pips/day"
+        _swap_note = "Pips per lot per day"
+    else:
+        _sl_str = None
+    if _sl_str:
+        spec_table.add_row("Swap Long", _sl_str, _swap_note)
+        spec_table.add_row("Swap Short", _ss_str, _swap_note)
         spec_table.add_row(
-            "Swap Long", f"${spec.swap_long:.3f}/day", "Cost to hold long positions overnight"
+            "Triple Swap", f"Day {spec.triple_swap_day}", "3× swap charged on this weekday"
         )
-        spec_table.add_row(
-            "Swap Short", f"${spec.swap_short:+.3f}/day", "Earn on short positions (positive carry)"
-        )
-        if hasattr(spec, "triple_swap_day"):
-            spec_table.add_row(
-                "Triple Swap", f"{spec.triple_swap_day}", "3× swap charged on Wednesdays"
-            )
 
     # Position Sizing
     spec_table.add_row("Initial Equity", f"${cfg.initial_equity:,.2f}", "Starting account balance")
@@ -990,14 +1446,21 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
     )
 
     # Trading Hours
-    spec_table.add_row("Trading Hours", "24/5 (Mon-Fri)", "No weekend trading (forex session)")
+    _sym_hours = spec.symbol.upper()
+    if any(c.isdigit() for c in _sym_hours) and not any(x in _sym_hours for x in ("XAU", "XAG")):
+        _hours_note = "Index CFD session (broker-specific hours)"
+    else:
+        _hours_note = "No weekend trading (forex/metals session)"
+    spec_table.add_row("Trading Hours", "24/5 (Mon-Fri)", _hours_note)
     spec_table.add_row("Week Start", "Monday 00:00 UTC", "New trading week begins")
     spec_table.add_row("Week Close", "Friday 24:00 UTC", "End of week, swap settlement")
 
     # DSP-derived
     vr_peak = dsp.get("vr_peak_scale", "N/A")
+    bars_per_hour = dsp.get("bars_per_hour", "N/A")
     regime = dsp.get("regime", "UNKNOWN")
-    spec_table.add_row("VR Peak Scale", f"{vr_peak} M30 bars", "Trend persistence peak from DSP")
+    spec_table.add_row("VR Peak Scale", f"{vr_peak} bars", "Trend persistence peak from DSP")
+    spec_table.add_row("DSP Source Rate", f"{bars_per_hour} bars/hour", "Expected: 60 for M1")
     spec_table.add_row("Regime", str(regime), "Market classification from DSP")
 
     # Validation gates
@@ -1028,30 +1491,19 @@ def stage_dsp(symbol: str) -> bool:
 
     click.echo(f"Loaded {len(closes):,} M1 bars")
 
-    # Run DSP analysis
-    from kinetra.renko.dsp import run_dsp
-
     click.echo("Running DSP analysis...")
-    result = run_dsp(closes, symbol=symbol)
-
-    if "error" in result:
-        click.secho(f"❌ DSP analysis failed: {result['error']}", fg="red")
+    result, dsp_file = _compute_and_store_dsp_profile(symbol, closes=closes)
+    if result is None:
+        click.secho("❌ DSP analysis failed", fg="red")
         return False
-
-    # Save DSP profile
-    dsp_dir = KR / "outputs" / "dsp"
-    dsp_dir.mkdir(parents=True, exist_ok=True)
-    dsp_file = dsp_dir / f"{symbol}_dsp.json"
-
-    with open(dsp_file, "w") as f:
-        json.dump(result, f, indent=2, default=str)
 
     click.secho(f"✅ DSP profile saved to {dsp_file}", fg="green")
 
     # Print summary
     click.echo()
     click.echo(f"Brick Size: ${result.get('brick_size', 0):.2f}")
-    click.echo(f"VR Peak Scale: {result.get('vr_peak_scale', 0)} M30 bars")
+    click.echo(f"VR Peak Scale: {result.get('vr_peak_scale', 0)} bars (M1)")
+    click.echo(f"DSP Source Rate: {result.get('bars_per_hour', 0)} bars/hour")
     click.echo(f"Regime: {result.get('regime', 'UNKNOWN')}")
     click.echo(f"Bricks/Day: {result.get('bricks_per_day', 0):.1f}")
 
@@ -1074,19 +1526,25 @@ def _build_engine_config(
     - spread_ticks (median from CSV or spec)
     - commission_per_lot (ECN rate)
 
-    Converts vr_peak_scale (in M30 bars from DSP) to brick-based filter window
-    by building sample bricks and measuring empirical frequency.
+    Converts vr_peak_scale (in source-data bars from DSP profile, M1 in this
+    runner) to brick-based filter window by building sample bricks and
+    measuring empirical brick frequency.
     """
-    from kinetra.friction_cost import load_spec
+    from kinetra.friction_cost import build_spec_with_csv_spread
 
-    # Load instrument spec from contract_spec.json (broker calibration)
-    spec = load_spec(symbol)
+    # Load spec and enrich with CSV-measured spread (bid/ask data from bar CSV).
+    # Priority chain inside spec: csv_measured → typical → broker → snapshot.
+    spec = build_spec_with_csv_spread(symbol)
 
     LOG.info(
-        "Loaded %s spec: tick_size=%.5f, contract_size=%.0f, spread=%.1f ticks, commission=$%.2f/lot",
+        "Loaded %s spec: tick_size=%.5f, contract_size=%.0f, "
+        "spread=%.1f pts (csv=%.1f, typical=%.1f, raw=%.1f), commission=$%.2f/lot",
         symbol,
         spec.tick_size,
         spec.contract_size,
+        spec.csv_measured_spread_points or spec.typical_spread_points or spec.spread_points,
+        spec.csv_measured_spread_points,
+        spec.typical_spread_points,
         spec.spread_points,
         spec.commission_per_lot,
     )
@@ -1101,30 +1559,103 @@ def _build_engine_config(
         bricks = build_renko(closes.tail(min(10000, len(closes))), brick_size)
         if len(bricks) > 10:
             bpd = bricks_per_day(bricks)
-            # vr_peak_scale is in M30 bars (from M30_VR_SCALES in dsp.py)
-            # M30: 48 bars per trading day (2 bars/hour × 24 hours)
-            vr_peak_scale_m30 = int(dsp.get("vr_peak_scale", 50))
-            m30_bars_per_day = 2 * 24  # M30: 48 bars/day
-            days_in_peak = vr_peak_scale_m30 / m30_bars_per_day
-            window = max(10, int(bpd * days_in_peak))
+            # IMPORTANT: use the actual source cadence from DSP profile.
+            # In this runner we compute DSP on M1, so bars_per_hour is 60.
+            vr_peak_scale = int(dsp.get("vr_peak_scale", 50))
+            source_bph = float(dsp.get("bars_per_hour", 60.0))
+            # Backward-compat: older profiles were generated on M1 but left at
+            # default bars_per_hour=2.0, which inflates warmup windows ~30x.
+            if source_bph <= 2.1:
+                LOG.warning(
+                    "Legacy DSP profile cadence detected (bars_per_hour=%.3f). "
+                    "Normalizing to M1 cadence (60.0 bars/hour). Re-run --stage dsp to refresh profile.",
+                    source_bph,
+                )
+                source_bph = 60.0
+            source_bars_per_day = max(1.0, source_bph * 24.0)
+            days_in_peak = vr_peak_scale / source_bars_per_day
+            # Guardrails: keep filter windows in a practical range.
+            window = max(10, min(100, int(round(bpd * days_in_peak))))
         else:
             window = 50  # Fallback
     else:
         window = 50  # Fallback
 
+    # Spread: use spec.spread_usd_per_lot which already resolves through the
+    # priority chain: csv_measured_spread_points (set by poll_symbol_specs from
+    # the bar CSV's <SPREAD> column) → typical_spread_points → spread_points →
+    # bid/ask snapshot.  Convert back to ticks for the engine's arithmetic.
+    spread_ticks = (
+        spec.spread_usd_per_lot / spec.tick_value_usd
+        if spec.tick_value_usd > 0
+        else spec.spread_points
+    )
+    _spread_source = (
+        "csv"
+        if spec.csv_measured_spread_points > 0
+        else "typical"
+        if spec.typical_spread_points > 0
+        else "spec"
+    )
+    LOG.info(
+        "%s spread: %.1f points ($%.4f/lot) [source: %s]",
+        symbol,
+        spread_ticks,
+        spread_ticks * spec.tick_value_usd,
+        _spread_source,
+    )
+
+    # Swap: mode 0 (pips) → direct USD/day; mode 1 (% p.a.) → approximate using
+    # poll-time mid price (bid/ask average or bid). Negative = cost, positive = credit.
+    import math
+
+    _swap_long_usd = spec.swap_long_usd_per_day
+    _swap_short_usd = spec.swap_short_usd_per_day
+    if math.isnan(_swap_long_usd):
+        # Mode 1 (% p.a.): convert using poll-time price as proxy
+        _ref_price = (spec.bid + spec.ask) / 2.0 if spec.ask > spec.bid > 0 else spec.bid
+        if _ref_price > 0:
+            _swap_long_usd = (
+                _ref_price
+                * spec.contract_size
+                * spec.quote_usd_rate
+                * (spec.swap_long_points / 100.0)
+                / 365.0
+            )
+            _swap_short_usd = (
+                _ref_price
+                * spec.contract_size
+                * spec.quote_usd_rate
+                * (spec.swap_short_points / 100.0)
+                / 365.0
+            )
+        else:
+            _swap_long_usd = _swap_short_usd = 0.0
+
+    LOG.info(
+        "%s swap: long=$%.4f/day  short=$%.4f/day  triple_day=%d",
+        symbol,
+        _swap_long_usd,
+        _swap_short_usd,
+        spec.triple_swap_day,
+    )
+
     return (
         EngineConfig(
             symbol=symbol,
             brick_size=brick_size,
-            usd_per_tick=spec.tick_value_usd,  # From spec (calculated: tick_size × contract_size)
-            tick_size=spec.tick_size,  # From spec (broker)
+            usd_per_tick=spec.tick_value_usd,  # tick_size × contract_size × quote_usd_rate
+            tick_size=spec.tick_size,
             stop_bricks=stop_bricks,
             fliprate_window=window,
             markov_window=window,
             fliprate_threshold=0.35,
             markov_threshold=0.55,
-            spread_ticks=spec.spread_points,  # From spec (median of CSV or broker snapshot)
-            commission_per_lot=spec.commission_per_lot,  # From spec ($7.00 ECN standard)
+            spread_ticks=spread_ticks,  # csv_measured → typical → spec → snapshot
+            commission_per_lot=spec.commission_per_lot * 2,  # per-side × 2 = round-trip
+            swap_long_usd_per_day=_swap_long_usd,
+            swap_short_usd_per_day=_swap_short_usd,
+            triple_swap_day=spec.triple_swap_day,
             sizing_mode=sizing_mode,
             gate_lot_ceiling=lot_ceiling,
         ),
@@ -1142,6 +1673,7 @@ def stage_backtest(
     months: int = 3,
     min_omega: float = 1.5,
     min_trades: int = 30,
+    auto_download: bool = False,
     stop_bricks_override: Optional[float] = None,
     target_risk_override: Optional[float] = None,
     brick_size_override: Optional[float] = None,
@@ -1151,9 +1683,16 @@ def stage_backtest(
     markov_threshold_override: Optional[float] = None,
 ) -> bool:
     """Backtest the last N months of data."""
+    run_started_utc = datetime.now(timezone.utc)
+    run_id = run_started_utc.strftime("%Y%m%dT%H%M%S_%fZ")
+
     click.echo(f"\n{'=' * 60}")
     click.secho(f"STAGE 3: BACKTEST ({months} months)", fg="cyan", bold=True)
     click.echo(f"{'=' * 60}")
+
+    if not _ensure_backtest_history(symbol, months, auto_download=auto_download):
+        click.secho(f"❌ Unable to prepare required M1 history for {symbol}", fg="red")
+        return False
 
     # Load all M1 data
     closes = load_m1_data(symbol)
@@ -1169,7 +1708,7 @@ def stage_backtest(
     click.echo(f"Range: {test_closes.index[0]} to {test_closes.index[-1]}")
 
     # Load DSP profile
-    dsp, dsp_file = _load_dsp_profile(symbol)
+    dsp, dsp_file = _load_or_build_dsp_profile(symbol, closes=closes)
     if dsp is None:
         click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
         return False
@@ -1191,60 +1730,196 @@ def stage_backtest(
     click.echo()
     _print_system_spec(cfg_sample, spec, dsp)
 
-    # Suppress detailed log messages during backtest
-    original_log_level = LOG.level
-    LOG.setLevel(logging.WARNING)
-
     # Run backtest with both sizing scenarios for XAUUSD
     scenarios = ["static", "compounding"] if symbol.upper() == "XAUUSD" else ["risk_based"]
     all_pass = True
+    scenario_reports: dict = {}
+    original_log_level = LOG.level
+    engine_log = logging.getLogger("kinetra.renko.trading_engine")
+    original_engine_log_level = engine_log.level
+    LOG.setLevel(logging.WARNING)
+    engine_log.setLevel(logging.ERROR)
+    try:
+        for scenario in scenarios:
+            click.echo(f"--- {scenario.upper()} SIZING ---")
 
-    for scenario in scenarios:
-        click.echo(f"--- {scenario.upper()} SIZING ---")
+            # For compounding: use realistic lot ceiling (10.0)
+            # For static: use min_lots (0.01)
+            lot_ceiling = 10.0 if scenario == "compounding" else 0.01
 
-        # For compounding: use realistic lot ceiling (10.0)
-        # For static: use min_lots (0.01)
-        lot_ceiling = 10.0 if scenario == "compounding" else 0.01
-
-        cfg, _ = _build_engine_config(symbol, dsp, sizing_mode=scenario, lot_ceiling=lot_ceiling)
-        _apply_strategy_overrides(
-            cfg,
-            stop_bricks=stop_bricks_override,
-            target_risk=target_risk_override,
-            brick_size=brick_size_override,
-            fliprate_window=fliprate_window_override,
-            markov_window=markov_window_override,
-            fliprate_threshold=fliprate_threshold_override,
-            markov_threshold=markov_threshold_override,
-        )
-        engine = RenkoEngine(cfg)
-        results = engine.backtest(test_closes)
-
-        if "error" in results:
-            click.secho(f"❌ Error: {results['error']}", fg="red")
-            all_pass = False
-            continue
-
-        summary = results.get("summary", {})
-        trades = results.get("trades", [])
-
-        _print_stats(summary, symbol, f"backtest-{scenario}", trades=trades)
-
-        n_trades = summary.get("n_trades", 0)
-        omega = summary.get("omega", 0.0)
-        passes = n_trades >= min_trades and omega >= min_omega
-
-        if passes:
-            click.secho("✅ PASS", fg="green")
-        else:
-            click.secho(
-                f"❌ FAIL - trades={n_trades} (need {min_trades}), omega={omega:.2f} (need {min_omega})",
-                fg="red",
+            cfg, _ = _build_engine_config(
+                symbol, dsp, sizing_mode=scenario, lot_ceiling=lot_ceiling
             )
-            all_pass = False
+            _apply_strategy_overrides(
+                cfg,
+                stop_bricks=stop_bricks_override,
+                target_risk=target_risk_override,
+                brick_size=brick_size_override,
+                fliprate_window=fliprate_window_override,
+                markov_window=markov_window_override,
+                fliprate_threshold=fliprate_threshold_override,
+                markov_threshold=markov_threshold_override,
+            )
+            engine = RenkoEngine(cfg)
+            results = engine.backtest(test_closes)
 
-    # Restore original log level
-    LOG.setLevel(original_log_level)
+            if "error" in results:
+                click.secho(f"❌ Error: {results['error']}", fg="red")
+                scenario_reports[scenario] = {
+                    "status": "ERROR",
+                    "error": str(results["error"]),
+                    "lot_ceiling": lot_ceiling,
+                    "engine_config": asdict(cfg),
+                }
+                all_pass = False
+                continue
+
+            summary = results.get("summary", {})
+            trades = results.get("trades", [])
+            audit_path = _persist_execution_audit(
+                symbol=symbol,
+                mode=f"backtest_{scenario}",
+                results=results,
+                metadata={
+                    "months": int(months),
+                    "scenario": scenario,
+                    "lot_ceiling": lot_ceiling,
+                    "engine_config": asdict(cfg),
+                },
+            )
+
+            _print_stats(summary, symbol, f"backtest-{scenario}", trades=trades)
+
+            n_trades = int(summary.get("n_trades", 0))
+            omega = float(summary.get("omega", 0.0))
+            passes = n_trades >= min_trades and omega >= min_omega
+
+            scenario_reports[scenario] = {
+                "status": "PASS" if passes else "FAIL",
+                "pass_gates": bool(passes),
+                "lot_ceiling": lot_ceiling,
+                "engine_config": asdict(cfg),
+                "summary": summary,
+                "audit_path": str(audit_path),
+            }
+
+            if passes:
+                click.secho("✅ PASS", fg="green")
+            else:
+                click.secho(
+                    f"❌ FAIL - trades={n_trades} (need {min_trades}), omega={omega:.2f} (need {min_omega})",
+                    fg="red",
+                )
+                all_pass = False
+    finally:
+        LOG.setLevel(original_log_level)
+        engine_log.setLevel(original_engine_log_level)
+
+    m1_source = _find_m1_source_file(symbol)
+    m1_source_meta = None
+    if m1_source is not None:
+        st = m1_source.stat()
+        m1_source_meta = {
+            "path": str(m1_source),
+            "size_bytes": int(st.st_size),
+            "modified_utc": datetime.fromtimestamp(st.st_mtime, tz=timezone.utc).isoformat(),
+        }
+
+    report = {
+        "symbol": symbol,
+        "stage": "backtest",
+        "run_id": run_id,
+        "run_started_utc": run_started_utc.isoformat(),
+        "run_finished_utc": datetime.now(timezone.utc).isoformat(),
+        "command": " ".join(
+            [
+                "python",
+                "scripts/renko_engine.py",
+                symbol,
+                "--stage",
+                "backtest",
+                "--months",
+                str(months),
+                "--min-omega",
+                str(min_omega),
+                "--min-trades",
+                str(min_trades),
+                *(["--auto-download"] if auto_download else []),
+                *(
+                    ["--stop-bricks", str(stop_bricks_override)]
+                    if stop_bricks_override is not None
+                    else []
+                ),
+                *(
+                    ["--target-risk", str(target_risk_override)]
+                    if target_risk_override is not None
+                    else []
+                ),
+                *(
+                    ["--brick-size", str(brick_size_override)]
+                    if brick_size_override is not None
+                    else []
+                ),
+                *(
+                    ["--fliprate-window", str(fliprate_window_override)]
+                    if fliprate_window_override is not None
+                    else []
+                ),
+                *(
+                    ["--markov-window", str(markov_window_override)]
+                    if markov_window_override is not None
+                    else []
+                ),
+                *(
+                    ["--fliprate-threshold", str(fliprate_threshold_override)]
+                    if fliprate_threshold_override is not None
+                    else []
+                ),
+                *(
+                    ["--markov-threshold", str(markov_threshold_override)]
+                    if markov_threshold_override is not None
+                    else []
+                ),
+            ]
+        ),
+        "inputs": {
+            "months": int(months),
+            "min_omega": float(min_omega),
+            "min_trades": int(min_trades),
+            "auto_download": bool(auto_download),
+            "overrides": {
+                "stop_bricks": stop_bricks_override,
+                "target_risk": target_risk_override,
+                "brick_size": brick_size_override,
+                "fliprate_window": fliprate_window_override,
+                "markov_window": markov_window_override,
+                "fliprate_threshold": fliprate_threshold_override,
+                "markov_threshold": markov_threshold_override,
+            },
+        },
+        "data_window": {
+            "bars_tested": int(len(test_closes)),
+            "range_start_utc": test_closes.index[0].isoformat(),
+            "range_end_utc": test_closes.index[-1].isoformat(),
+        },
+        "data_source": m1_source_meta,
+        "dsp_profile": {
+            "path": str(dsp_file),
+            "values": dsp,
+        },
+        "instrument_spec": spec.to_dict(),
+        "scenario_order": scenarios,
+        "scenario_results": scenario_reports,
+        "overall_status": "PASS" if all_pass else "FAIL",
+    }
+
+    out_dir = KR / "outputs" / "renko_results" / "backtests" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_stem = f"{symbol.lower()}_backtest_{months}m_{run_id}"
+    out_path = _choose_unique_path(out_dir, out_stem)
+    with open(out_path, "x", encoding="utf-8") as f:
+        json.dump(_json_safe(report), f, indent=2)
+    click.secho(f"Saved backtest report: {out_path}", fg="cyan")
 
     return all_pass
 
@@ -1289,7 +1964,7 @@ def stage_paper(
         return False
 
     # Load DSP profile
-    dsp, dsp_file = _load_dsp_profile(symbol)
+    dsp, dsp_file = _load_or_build_dsp_profile(symbol)
     if dsp is None:
         click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
         click.echo("Run --stage dsp first")
@@ -1367,6 +2042,7 @@ def stage_paper(
     click.echo("Press Ctrl+C to stop and see final results")
     click.echo()
 
+    results: dict = {"summary": {}, "trades": [], "signals": []}
     try:
         results = _run_streaming_engine(
             engine,
@@ -1395,6 +2071,13 @@ def stage_paper(
         click.secho("PAPER TRADING RESULTS", fg="cyan", bold=True)
         click.secho("=" * 60, fg="cyan")
         _print_stats(summary, symbol, "paper", trades=trades)
+        audit_path = _persist_execution_audit(
+            symbol=symbol,
+            mode="paper",
+            results=results,
+            metadata={"stage": "paper", "min_omega": min_omega, "min_trades": min_trades},
+        )
+        click.secho(f"Saved execution audit: {audit_path}", fg="cyan")
 
         # Summary
         n_trades = summary.get("n_trades", 0)
@@ -1444,7 +2127,7 @@ def stage_live_real(
     LOT_CEILINGS = {"micro": 0.01, "small": 0.10, "full": 50.0}
     lot_ceiling = LOT_CEILINGS.get(live_size, 0.01)
 
-    dsp, dsp_file = _load_dsp_profile(symbol)
+    dsp, dsp_file = _load_or_build_dsp_profile(symbol)
     if dsp is None:
         click.secho("❌ No DSP profile found", fg="red")
         return False
@@ -1475,6 +2158,12 @@ def stage_live_real(
     click.secho("=" * 60, fg="red")
     click.echo(f"  Symbol:        {symbol}")
     click.echo(f"  Lot Ceiling:   {lot_ceiling:.2f} lots ({live_size})")
+    click.echo(f"  Fill timeout:  {os.getenv('CTRADER_FILL_WAIT_S', '30')}s")
+    click.echo(f"  Equity timeout:{os.getenv('CTRADER_EQUITY_TIMEOUT_S', '15')}s")
+    click.echo(
+        f"  Dashboard mode:{os.getenv('KINETRA_LIVE_DASHBOARD_REPLACE', 'auto')} "
+        "(auto=single-frame on TTY)"
+    )
     click.echo()
 
     click.secho("Connecting to cTrader...", fg="yellow")
@@ -1568,12 +2257,15 @@ def stage_live_real(
     stats_lock = threading.Lock()
     bar_count = [0]
     stop_event = threading.Event()
-    replace_panel = os.getenv("KINETRA_LIVE_DASHBOARD_REPLACE", "0").strip().lower() not in {
-        "0",
-        "false",
-        "no",
-        "off",
-    }
+    replace_raw = os.getenv("KINETRA_LIVE_DASHBOARD_REPLACE", "auto").strip().lower()
+    if replace_raw in {"0", "false", "no", "off"}:
+        replace_panel = False
+    elif replace_raw in {"1", "true", "yes", "on"}:
+        replace_panel = True
+    else:
+        # auto: prefer single-frame live refresh on interactive TTY.
+        replace_panel = True
+
     use_live_replace = bool(replace_panel and console.is_terminal and sys.stdout.isatty())
     if replace_panel and not use_live_replace:
         LOG.info(
@@ -1601,9 +2293,12 @@ def stage_live_real(
         "snapshot_source": "cached",
         "recent_errors": [],
     }
+    broker_balance_start: Optional[float] = None
+    broker_balance_end: Optional[float] = None
     try:
         init_snapshot = connector.get_account_snapshot(timeout_s=10.0)
         broker_balance = float(init_snapshot.get("balance", engine._live_equity))
+        broker_balance_start = float(broker_balance)
         engine._live_equity = broker_balance
         last_acct_info = {
             "broker": init_snapshot.get("broker_name", "Pepperstone"),
@@ -1628,7 +2323,8 @@ def stage_live_real(
         last_print_ts = 0.0
         last_signature = None
         last_emit_ts = 0.0
-        min_interval_default = "2" if use_live_replace else "30"
+        last_health_probe_ts = 0.0
+        min_interval_default = "2" if use_live_replace else "120"
         min_interval_s = max(
             float(os.getenv("KINETRA_LIVE_DASHBOARD_MIN_INTERVAL_S", min_interval_default)), 2.0
         )
@@ -1638,6 +2334,14 @@ def stage_live_real(
         )
         heartbeat_interval_s = max(
             float(os.getenv("KINETRA_LIVE_HEARTBEAT_INTERVAL_S", "2.0")), 1.0
+        )
+        stale_brick_probe_s = max(
+            float(os.getenv("KINETRA_LIVE_STALE_BRICK_PROBE_S", "90.0")),
+            10.0,
+        )
+        health_probe_interval_s = max(
+            float(os.getenv("KINETRA_LIVE_HEALTH_PROBE_INTERVAL_S", "15.0")),
+            5.0,
         )
         heartbeat_on = False
         last_heartbeat_flip = time.time()
@@ -1710,40 +2414,106 @@ def stage_live_real(
                     )
                     acct_info["snapshot_source"] = "cached"
                     acct_info["heartbeat_on"] = heartbeat_on
+                    last_brick_time = getattr(engine, "last_brick_time", None)
+                    stale_for_s = 0.0
+                    if last_brick_time is not None:
+                        try:
+                            stale_for_s = max(
+                                0.0,
+                                (
+                                    pd.Timestamp.now(tz="UTC") - pd.Timestamp(last_brick_time)
+                                ).total_seconds(),
+                            )
+                        except Exception:
+                            stale_for_s = 0.0
+                    status = str(acct_info.get("connection_status", "")).upper()
+                    should_probe = status == "DOWN" or (
+                        stale_for_s >= stale_brick_probe_s and status != "UP"
+                    )
+                    if should_probe and (now - last_health_probe_ts) >= health_probe_interval_s:
+                        try:
+                            probe = connector.get_account_snapshot(timeout_s=5.0)
+                            acct_info["balance"] = float(
+                                probe.get("balance", acct_info.get("balance", engine._live_equity))
+                            )
+                            acct_info["snapshot_source"] = "health_probe"
+                            acct_info["connection_status"] = _conn_status()
+                            acct_info["endpoint"] = (
+                                getattr(connector, "selected_endpoint", "-") or "-"
+                            )
+                            last_acct_info.update(acct_info)
+                            LOG.info(
+                                "Live health probe succeeded (status=%s, stale_brick_s=%.0f)",
+                                acct_info["connection_status"],
+                                stale_for_s,
+                            )
+                        except Exception as probe_exc:
+                            LOG.warning("Live health probe failed: %s", probe_exc)
+                        finally:
+                            last_health_probe_ts = now
                 try:
                     with errors_lock:
                         err_lines = list(recent_errors)
                     summary = engine._make_results().get("summary", {})
                     last_eval = getattr(engine, "_last_eval", {}) or {}
                     acct_info["recent_errors"] = err_lines
+
+                    # Build a comprehensive signature that changes only when
+                    # meaningful data changes — prevents spam in non-TTY mode.
                     signature = (
                         int(summary.get("n_trades", 0)),
+                        float(summary.get("net_usd", 0.0)),
+                        float(summary.get("omega", 0.0)),
                         str(last_eval.get("reason", "n/a")),
                         bool(last_eval.get("is_flip", False)),
-                        bool(acct_info.get("heartbeat_on", False)) if use_live_replace else False,
+                        bool(last_eval.get("entry_ok", False)),
+                        bool(acct_info.get("heartbeat_on", False)),
                         str(acct_info.get("connection_status", "-")),
+                        str(acct_info.get("snapshot_source", "-")),
                         err_lines[0] if err_lines else "",
                     )
-                    should_print = (
-                        last_signature is None
-                        or signature != last_signature
-                        or (now - last_print_ts) >= min_interval_s
-                    )
-                    if should_print and (now - last_emit_ts) >= min_emit_gap_s:
-                        # Set dedupe state before rendering to prevent duplicate
-                        # emissions in case stdout writes interleave.
-                        last_print_ts = now
+
+                    # Only emit when signature changes OR minimum interval elapsed
+                    should_emit = last_signature is None or signature != last_signature
+                    time_since_emit = now - last_emit_ts
+                    time_since_print = now - last_print_ts
+
+                    # Force emit if enough time has passed (heartbeat)
+                    if time_since_emit >= min_interval_s:
+                        should_emit = True
+
+                    # In non-TTY mode, be more conservative to avoid spam
+                    if not use_live_replace and not should_emit:
+                        # Skip this update — nothing changed and not yet time for heartbeat
+                        continue
+
+                    if should_emit and time_since_emit >= min_emit_gap_s:
+                        # Update state before rendering to prevent duplicate emissions
                         last_signature = signature
                         last_emit_ts = now
+                        last_print_ts = now
+
                         panel = _dashboard_renderable(
                             engine, symbol, "LIVE", current_bricks, acct_info
                         )
                         if live_ctx is not None:
+                            # Rich Live context — single-frame in-place refresh
                             live_ctx.update(panel, refresh=True)
                         else:
+                            # Non-TTY / file redirect mode — periodic snapshots only
+                            # Clear line and print fresh panel (avoid stacking)
+                            if console.is_terminal:
+                                console.clear_live()
                             _print_dashboard(engine, symbol, "LIVE", current_bricks, acct_info)
                 except Exception as e:
                     LOG.warning("Dashboard update failed: %s", e)
+
+    # Print before starting the live display — click writes bypass Rich's
+    # live context and corrupt the in-place refresh if called after start().
+    click.secho("Starting LIVE trading...", fg="red", bold=True)
+    click.echo("REAL orders will be submitted")
+    click.echo("Press Ctrl+C to stop")
+    click.echo()
 
     live_ctx = None
     dashboard_thread = None
@@ -1753,11 +2523,7 @@ def stage_live_real(
     dashboard_thread = threading.Thread(target=update_dashboard, daemon=True)
     dashboard_thread.start()
 
-    click.secho("Starting LIVE trading...", fg="red", bold=True)
-    click.echo("REAL orders will be submitted")
-    click.echo("Press Ctrl+C to stop")
-    click.echo()
-
+    results: dict = {"summary": {}, "trades": [], "signals": []}
     try:
         results = _run_streaming_engine(
             engine,
@@ -1773,6 +2539,16 @@ def stage_live_real(
                 live_ctx.stop()
             except Exception:
                 pass
+        try:
+            final_snapshot = connector.get_account_snapshot(timeout_s=10.0)
+            broker_balance_end = float(
+                final_snapshot.get("balance", last_acct_info.get("balance", engine._live_equity))
+            )
+        except Exception:
+            try:
+                broker_balance_end = float(last_acct_info.get("balance", engine._live_equity))
+            except Exception:
+                broker_balance_end = None
         click.echo()
         click.secho("Closing connections...", fg="yellow")
         try:
@@ -1794,6 +2570,13 @@ def stage_live_real(
         click.secho("  LIVE TRADING RESULTS", fg="cyan", bold=True)
         click.secho("=" * 60, fg="cyan")
         _print_stats(summary, symbol, "LIVE", trades=trades)
+        audit_path = _persist_execution_audit(
+            symbol=symbol,
+            mode="live",
+            results=results,
+            metadata={"stage": "live", "live_size": live_size, "lot_ceiling": lot_ceiling},
+        )
+        click.secho(f"Saved execution audit: {audit_path}", fg="cyan")
 
         n_trades = summary.get("n_trades", 0)
         omega = summary.get("omega", 0.0)
@@ -1802,7 +2585,16 @@ def stage_live_real(
         click.echo()
         if n_trades > 0:
             click.secho(f"  Trades:  {n_trades}", fg="cyan")
-            click.secho(f"  Net P&L: ${net_pnl:,.2f}", fg="green" if net_pnl > 0 else "red")
+            click.secho(
+                f"  Strategy Net P&L: ${net_pnl:,.2f}",
+                fg="green" if net_pnl > 0 else "red",
+            )
+            if broker_balance_start is not None and broker_balance_end is not None:
+                broker_delta = float(broker_balance_end - broker_balance_start)
+                click.secho(
+                    f"  Broker Balance Δ: ${broker_delta:,.2f} (start=${broker_balance_start:,.2f} -> end=${broker_balance_end:,.2f})",
+                    fg="green" if broker_delta > 0 else ("red" if broker_delta < 0 else "yellow"),
+                )
             click.secho(f"  Omega:   {omega:.3f}", fg="green" if omega >= 1.5 else "yellow")
         else:
             click.secho("  No trades executed", fg="yellow")
@@ -1882,7 +2674,11 @@ def stage_live_dryrun(
 @click.option("--markov-threshold", type=float, default=None, help="Override Markov gate threshold")
 @click.option("--monday-start", type=str, default="", help="Legacy launcher option (reserved)")
 @click.option("--friday-end", type=str, default="", help="Legacy launcher option (reserved)")
-@click.option("--auto-download", is_flag=True, help="Legacy launcher option (reserved)")
+@click.option(
+    "--auto-download",
+    is_flag=True,
+    help="Auto-download/backfill M1 history when local coverage is insufficient",
+)
 @click.option(
     "--preflight-test-order/--no-preflight-test-order",
     default=False,
@@ -2012,12 +2808,11 @@ def main(
         "markov_max": adapt_markov_max,
         "rollback_omega": adapt_rollback_omega,
     }
-    if monday_start or friday_end or auto_download:
+    if monday_start or friday_end:
         LOG.info(
-            "Accepted legacy launcher options: monday_start=%s friday_end=%s auto_download=%s",
+            "Accepted legacy launcher options: monday_start=%s friday_end=%s",
             monday_start or "-",
             friday_end or "-",
-            auto_download,
         )
 
     if stage in ("dsp", "all"):
@@ -2031,6 +2826,7 @@ def main(
             months=months,
             min_omega=min_omega,
             min_trades=min_trades,
+            auto_download=auto_download,
             stop_bricks_override=stop_bricks,
             target_risk_override=target_risk,
             brick_size_override=brick_size,

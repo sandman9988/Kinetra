@@ -57,14 +57,26 @@ values are used to convert to a floating-point spread in price units
 (same units as the brick size and stop).  ``get_spread_pts()`` returns
 this live value with a 1.0-point fallback if not yet observed.
 
-Order-fill tracking
--------------------
+Order-fill tracking (two-phase)
+--------------------------------
 ``CTraderOrderDispatcher.open_position()`` posts a ``ProtoOANewOrderReq``
-and blocks (up to ``request_timeout_s``) for the corresponding
-``ProtoOAExecutionEvent`` with ``executionType == ORDER_FILLED`` or
-``MARKET_BUY`` / ``MARKET_SELL``.  An ``_ExecutionWaiter`` is registered
-on the push handler before the request is sent, so no fill event is ever
-missed even if it arrives before the request round-trip returns.
+and blocks (up to ``fill_timeout_s``) for the corresponding fill event.
+An ``_ExecutionWaiter`` is registered on the push handler **before** the
+request is sent (so no event is ever lost to a race).
+
+The waiter uses a two-phase matching strategy:
+
+1. **ORDER_ACCEPTED** (``executionType == 1``) — matched by ``clientOrderId``
+   / ``label``.  The broker-assigned ``orderId`` is stored; the waiter does
+   **not** fire yet.
+2. **ORDER_FILLED / POSITION_OPENED** (``executionType`` in
+   ``_SUCCESS_EXECUTION_TYPES``) — matched by ``clientOrderId``, ``label``,
+   **or** the broker ``orderId`` learned in phase 1.  Only then does the
+   waiter fire.
+
+Events that carry no identifiers are always rejected to prevent false-positive
+captures from unrelated concurrent execution events (e.g. stop-loss hits on
+other open positions).
 
 Hard rules (§28 / §29 AGENT_RULES_MASTER.md)
 ----------------------------------------------
@@ -111,6 +123,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import threading
 import time
 from dataclasses import dataclass
@@ -158,40 +171,56 @@ _TIF_FOK: int = 1
 #: ProtoOATrendbarPeriod.M1
 _PERIOD_M1: int = 1
 
-#: Execution types that indicate a successful fill.
-#: Maps to ProtoOAExecutionType enum values.
+# ProtoOAExecutionType enum values (from openapi-proto-messages/OpenApiModelMessages.proto)
+#   ORDER_ACCEPTED       = 2
+#   ORDER_FILLED         = 3
+#   ORDER_REPLACED       = 4
+#   ORDER_CANCELLED      = 5
+#   ORDER_EXPIRED        = 6
+#   ORDER_REJECTED       = 7
+#   ORDER_CANCEL_REJECTED= 8
+#   SWAP                 = 9
+#   DEPOSIT_WITHDRAW     = 10
+#   ORDER_PARTIAL_FILL   = 11
+
+#: Execution types that indicate a complete or partial fill (open or close).
 _FILL_EXECUTION_TYPES: frozenset[int] = frozenset(
     {
-        2,  # ORDER_FILLED
-        3,  # ORDER_CANCELLED (treat as non-fill — kept for completeness)
+        3,  # ORDER_FILLED
+        11,  # ORDER_PARTIAL_FILL
     }
 )
 
-#: Execution types that indicate an accepted / filled trade.
+#: Execution types that fire the _ExecutionWaiter for an open order.
 _SUCCESS_EXECUTION_TYPES: frozenset[int] = frozenset(
     {
-        2,  # ORDER_FILLED
-        6,  # POSITION_OPENED
-        8,  # MARKET_ACCEPTED (some broker variants)
+        3,  # ORDER_FILLED
+        11,  # ORDER_PARTIAL_FILL
     }
 )
 
 #: Execution types that indicate a close / position exit.
 _CLOSE_EXECUTION_TYPES: frozenset[int] = frozenset(
     {
-        2,  # ORDER_FILLED (closing order)
-        7,  # POSITION_CLOSED
+        3,  # ORDER_FILLED (closing order)
+        11,  # ORDER_PARTIAL_FILL (partial close)
     }
 )
 
 #: Seconds to wait for a fill notification after sending a market order.
-_FILL_WAIT_S: float = 10.0
+_FILL_WAIT_S: float = float(os.getenv("CTRADER_FILL_WAIT_S", "30.0"))
 
 #: Seconds between spot-subscription retries on startup.
-_SUBSCRIBE_RETRY_INTERVAL_S: float = 2.0
+_SUBSCRIBE_RETRY_INTERVAL_S: float = max(
+    float(os.getenv("CTRADER_SUBSCRIBE_RETRY_INTERVAL_S", "3.0")),
+    0.2,
+)
 
 #: Number of subscription retry attempts per symbol before giving up.
-_SUBSCRIBE_MAX_RETRIES: int = 3
+_SUBSCRIBE_MAX_RETRIES: int = max(
+    int(os.getenv("CTRADER_SUBSCRIBE_MAX_RETRIES", "12")),
+    1,
+)
 
 
 def _extract_response_error(resp: Any) -> Optional[str]:
@@ -295,8 +324,19 @@ class _ExecutionWaiter:
     reactor thread; the placing thread blocks on :meth:`wait` until the
     matching execution event arrives or the timeout expires.
 
-    The waiter matches on ``clientOrderId`` (a string we embed in the request)
-    so that concurrent orders on different symbols do not interfere.
+    Matching strategy (two-phase)
+    -----------------------------
+    1. **ORDER_ACCEPTED** (``executionType == 1``): matched by ``clientOrderId``
+       or ``label``.  The broker-assigned ``orderId`` is extracted and stored so
+       that the subsequent ORDER_FILLED event can be matched even if cTrader
+       omits ``clientOrderId`` on the fill notification.  The waiter does **not**
+       fire on ORDER_ACCEPTED — it continues waiting.
+    2. **ORDER_FILLED / POSITION_OPENED** (types in ``_SUCCESS_EXECUTION_TYPES``):
+       matched by ``clientOrderId``, ``label``, **or** the stored broker
+       ``orderId`` learned in phase 1.  Only then does the waiter fire.
+    3. Events with **no identifiers at all** are always rejected to prevent
+       false-positive captures from unrelated concurrent execution events
+       (e.g. stop-loss hits on other positions).
 
     Parameters
     ----------
@@ -306,28 +346,64 @@ class _ExecutionWaiter:
         How long :meth:`wait` will block before returning ``None``.
     """
 
+    #: executionType value for ORDER_ACCEPTED (pre-fill acknowledgement).
+    _TYPE_ORDER_ACCEPTED: int = 2
+
     def __init__(self, client_order_id: str, timeout_s: float = _FILL_WAIT_S) -> None:
         self._coid = client_order_id
         self._timeout_s = timeout_s
         self._event = threading.Event()
         self._payload: Optional[Any] = None
+        # Broker-assigned orderId learned from the ORDER_ACCEPTED phase.
+        self._broker_order_id: Optional[str] = None
+        self._id_lock = threading.Lock()
 
     def handle(self, payload: Any) -> None:
         """Push-handler callback — called on the reactor thread."""
-        # Check whether this event matches our clientOrderId.
-        # cTrader may expose either label or clientOrderId depending on feed.
+        exec_type = int(getattr(payload, "executionType", -1))
+
         order = getattr(payload, "order", None)
+        label = ""
+        event_client_oid = ""
+        event_broker_oid = ""
         if order is not None:
             trade_data = getattr(order, "tradeData", None)
-            label = ""
             if trade_data is not None:
                 label = str(getattr(trade_data, "label", "") or "")
-            client_order_id = str(getattr(order, "clientOrderId", "") or "")
-            # If identifiers are present, accept when either matches.
-            if label or client_order_id:
-                if self._coid not in {label, client_order_id}:
-                    return  # Not our order
-        # Accept the event regardless of executionType — caller inspects it.
+            event_client_oid = str(getattr(order, "clientOrderId", "") or "")
+            event_broker_oid = str(getattr(order, "orderId", "") or "")
+
+        # --- identity check -------------------------------------------------
+        # Reject events that carry no identifiers — they cannot be attributed
+        # to our order and accepting them would cause false-positive captures.
+        with self._id_lock:
+            known_broker_oid = self._broker_order_id
+
+        matched_by_client = self._coid and self._coid in {label, event_client_oid}
+        matched_by_broker = bool(
+            known_broker_oid and event_broker_oid and known_broker_oid == event_broker_oid
+        )
+
+        if not (label or event_client_oid or event_broker_oid):
+            return  # No identifiers — cannot be our order
+
+        if not (matched_by_client or matched_by_broker):
+            return  # Identifiers present but none match ours
+
+        # --- phase 1: ORDER_ACCEPTED ----------------------------------------
+        # Learn the broker orderId for phase-2 matching, then keep waiting.
+        if exec_type == self._TYPE_ORDER_ACCEPTED:
+            if event_broker_oid:
+                with self._id_lock:
+                    if self._broker_order_id is None:
+                        self._broker_order_id = event_broker_oid
+            return  # Do not fire yet — wait for the actual fill
+
+        # --- phase 2: fill event --------------------------------------------
+        # Only fire on recognised fill execution types.
+        if exec_type not in _SUCCESS_EXECUTION_TYPES:
+            return  # Skip ORDER_REJECTED, ORDER_EXPIRED, etc.
+
         self._payload = payload
         self._event.set()
 
@@ -500,6 +576,12 @@ class CTraderBarProvider:
         self._lock = threading.Lock()
         self._started: bool = False
         self._stopped: bool = False
+        self._watchdog_stop = threading.Event()
+        self._watchdog_thread: Optional[threading.Thread] = None
+        self._last_failover_generation: int = int(
+            getattr(self._connector, "failover_generation", 0)
+        )
+        self._last_connected_up: bool = bool(self._connector.is_connected())
 
         # Pending subscriptions registered before start()
         self._pending_symbols: List[tuple[str, Callable[..., None]]] = []
@@ -519,6 +601,7 @@ class CTraderBarProvider:
             Called with keyword arguments ``(symbol, open_, high, low,
             close, volume, timestamp)`` for each completed M1 bar.
         """
+        symbol = str(symbol).strip().upper()
         with self._lock:
             self._bar_callbacks.setdefault(symbol, []).append(callback)
 
@@ -545,6 +628,10 @@ class CTraderBarProvider:
         self._connector.add_push_handler("ProtoOASpotEvent", self._on_spot_event)
 
         self._started = True
+        self._stopped = False
+        self._watchdog_stop.clear()
+        self._last_failover_generation = int(getattr(self._connector, "failover_generation", 0))
+        self._last_connected_up = bool(self._connector.is_connected())
         logger.info("[cTrader] BarProvider starting …")
 
         # Materialise all pending subscriptions
@@ -554,6 +641,7 @@ class CTraderBarProvider:
                 self._ensure_subscribed(symbol)
                 seen_symbols.add(symbol)
         self._pending_symbols.clear()
+        self._start_watchdog()
 
         logger.info(
             "[cTrader] BarProvider ready — subscribed to %d symbols", len(self._subscribed_ids)
@@ -564,6 +652,10 @@ class CTraderBarProvider:
         if self._stopped:
             return
         self._stopped = True
+        self._watchdog_stop.set()
+        if self._watchdog_thread is not None:
+            self._watchdog_thread.join(timeout=5.0)
+        self._watchdog_thread = None
         logger.info("[cTrader] BarProvider stopping …")
 
         self._connector.remove_push_handler("ProtoOASpotEvent", self._on_spot_event)
@@ -576,6 +668,56 @@ class CTraderBarProvider:
             self._price_scale.clear()
 
         logger.info("[cTrader] BarProvider stopped.")
+
+    def _start_watchdog(self) -> None:
+        if self._watchdog_thread is not None and self._watchdog_thread.is_alive():
+            return
+        self._watchdog_thread = threading.Thread(
+            target=self._subscription_watchdog,
+            name="ctrader_barprovider_watchdog",
+            daemon=True,
+        )
+        self._watchdog_thread.start()
+
+    def _subscription_watchdog(self) -> None:
+        """Keep live subscriptions healthy across reconnect/failover transitions."""
+        interval_s = max(float(os.getenv("CTRADER_SUB_WATCHDOG_INTERVAL_S", "5.0")), 1.0)
+        while not self._watchdog_stop.wait(timeout=interval_s):
+            if not self._started or self._stopped:
+                continue
+            connected_up = bool(self._connector.is_connected())
+            generation = int(getattr(self._connector, "failover_generation", 0))
+            if not connected_up:
+                self._last_connected_up = False
+                continue
+
+            must_resubscribe = False
+            reason = ""
+            if not self._last_connected_up:
+                must_resubscribe = True
+                reason = "reconnected"
+            elif generation != self._last_failover_generation:
+                must_resubscribe = True
+                reason = f"failover_generation {self._last_failover_generation}->{generation}"
+
+            if must_resubscribe:
+                with self._lock:
+                    self._subscribed_ids.clear()
+                    self._last_bar_minute.clear()
+                logger.warning("[cTrader] Refreshing trendbar/spot subscriptions (%s)", reason)
+
+            self._last_connected_up = True
+            self._last_failover_generation = generation
+
+            symbols = list(self._bar_callbacks.keys())
+            for symbol in symbols:
+                try:
+                    self._ensure_subscribed(symbol)
+                except Exception:
+                    logger.exception(
+                        "[cTrader] Watchdog failed ensuring subscription for %s",
+                        symbol,
+                    )
 
     # ── Spread access (used by CTraderOrderDispatcher) ───────────────────────
 
@@ -596,6 +738,7 @@ class CTraderBarProvider:
         float
             ``ask - bid`` in the same price units as the brick size.
         """
+        symbol = str(symbol).strip().upper()
         sid = self._symbol_ids.get(symbol)
         if sid is None:
             return 1.0
@@ -606,6 +749,7 @@ class CTraderBarProvider:
 
     def _ensure_subscribed(self, symbol: str) -> None:
         """Resolve symbol → id and subscribe if not already subscribed."""
+        symbol = str(symbol).strip().upper()
         sid = self._connector.find_symbol_id(symbol)
         if sid is None:
             logger.warning("[cTrader] Cannot resolve symbol %r — skipping subscription", symbol)
@@ -975,7 +1119,8 @@ class CTraderOrderDispatcher:
         Used for live spread estimation via :meth:`get_spread_pts`.
     fill_timeout_s:
         Seconds to wait for a ``ProtoOAExecutionEvent`` after sending a
-        market order.  Defaults to ``_FILL_WAIT_S`` (10s).
+        market order.  Defaults to ``_FILL_WAIT_S`` (from env
+        ``CTRADER_FILL_WAIT_S``, default 30s).
     """
 
     def __init__(
@@ -994,6 +1139,11 @@ class CTraderOrderDispatcher:
         self._fill_timeout_s = fill_timeout_s
         self._order_counter: int = 0
         self._counter_lock = threading.Lock()
+        logger.info(
+            "[cTrader] OrderDispatcher configured: fill_timeout_s=%.1f equity_timeout_s=%s",
+            float(self._fill_timeout_s),
+            os.getenv("CTRADER_EQUITY_TIMEOUT_S", "15.0"),
+        )
 
     # ── OrderDispatcher interface ────────────────────────────────────────────
 
@@ -1101,10 +1251,14 @@ class CTraderOrderDispatcher:
             if comment:
                 req.comment = comment[:31]
 
-            # Fire the request — we do NOT wait for the RPC response here
-            # because cTrader acknowledges with an ExecutionEvent push, not
-            # a direct RPC response to the NewOrderReq.
-            resp = self._connector.send_and_wait(req)
+            # cTrader does not send a synchronous RPC response to
+            # ProtoOANewOrderReq.  The fill is delivered as a push
+            # ProtoOAExecutionEvent (no clientMsgId), which the waiter
+            # captures.  We use a short 3-second window only to catch
+            # immediate ProtoOAErrorRes rejections (e.g. invalid symbol,
+            # insufficient margin).  A None return simply means no
+            # immediate error — the fill will arrive via the push handler.
+            resp = self._connector.send_and_wait(req, timeout_s=3.0)
 
             # Check for immediate error response (e.g. invalid symbol).
             err = _extract_response_error(resp)
@@ -1123,7 +1277,7 @@ class CTraderOrderDispatcher:
                     req2.clientOrderId = client_order_id
                     if comment:
                         req2.comment = comment[:31]
-                    resp2 = self._connector.send_and_wait(req2)
+                    resp2 = self._connector.send_and_wait(req2, timeout_s=3.0)
                     err2 = _extract_response_error(resp2)
                     if err2:
                         return OrderResult(success=False, error=err2)
@@ -1136,6 +1290,28 @@ class CTraderOrderDispatcher:
             self._connector.remove_push_handler("ProtoOAExecutionEvent", waiter.handle)
 
         if exec_event is None:
+            reconciled = self._reconcile_position_after_timeout(
+                symbol=symbol,
+                symbol_id=int(symbol_id),
+                expected_price=float(price),
+                expected_lots=float(lots),
+            )
+            if reconciled is not None:
+                logger.warning(
+                    "[cTrader] Fill event timeout but position exists (reconciled): symbol=%s positionId=%s",
+                    symbol,
+                    reconciled,
+                )
+                return OrderResult(
+                    success=True,
+                    order_id=str(reconciled),
+                    filled_price=float(price),
+                    filled_lots=float(lots),
+                    raw={
+                        "reconciled_after_timeout": True,
+                        "position_id": str(reconciled),
+                    },
+                )
             logger.error(
                 "[cTrader] No fill event received within %.0fs for %s",
                 self._fill_timeout_s,
@@ -1189,14 +1365,22 @@ class CTraderOrderDispatcher:
         # cTrader volume in integer units
         volume = max(int(round(lots * 100)) * 100, 100)
 
+        # Generate a clientOrderId for tracking the close execution event
+        client_order_id = self._next_client_order_id()
+
         logger.info(
-            "[cTrader] CLOSE %s positionId=%s vol=%d @ ~%.5f  %s",
+            "[cTrader] CLOSE %s positionId=%s vol=%d @ ~%.5f  clientOrderId=%s  %s",
             symbol,
             order_id,
             volume,
             price,
+            client_order_id,
             comment,
         )
+
+        # Register execution waiter BEFORE sending the request (race-condition safety)
+        waiter = _ExecutionWaiter(client_order_id, timeout_s=self._fill_timeout_s)
+        self._connector.add_push_handler("ProtoOAExecutionEvent", waiter.handle)
 
         try:
             api_msgs = _get_api_msgs()
@@ -1204,25 +1388,47 @@ class CTraderOrderDispatcher:
             req.ctidTraderAccountId = self._connector.credentials.account_id
             req.positionId = position_id
             req.volume = volume
+            # Some broker feeds include clientOrderId in the execution event for closes
+            req.clientOrderId = client_order_id
 
-            resp = self._connector.send_and_wait(req)
+            # cTrader does not send a synchronous RPC response to
+            # ProtoOAClosePositionReq.  The fill is delivered as a push
+            # ProtoOAExecutionEvent.  Use a short timeout only to catch
+            # immediate ProtoOAErrorRes rejections.
+            resp = self._connector.send_and_wait(req, timeout_s=3.0)
+
+            # Check for immediate error response
+            err = _extract_response_error(resp)
+            if err:
+                logger.error("[cTrader] Close immediate error: %s", err)
+                return OrderResult(success=False, error=err)
+
+            # Block until the execution event arrives
+            exec_event = waiter.wait()
         except Exception as exc:
             logger.exception("[cTrader] close_position raised for positionId=%s", order_id)
             return OrderResult(success=False, error=str(exc))
+        finally:
+            self._connector.remove_push_handler("ProtoOAExecutionEvent", waiter.handle)
 
-        if resp is None:
-            return OrderResult(success=False, error="close_position: no response (timeout)")
-        close_err = _extract_response_error(resp)
-        if close_err:
-            logger.error("[cTrader] Close error: %s", close_err)
-            return OrderResult(success=False, error=close_err)
+        if exec_event is None:
+            logger.warning(
+                "[cTrader] No fill event received within %.0fs for close positionId=%s",
+                self._fill_timeout_s,
+                order_id,
+            )
+            # Return success anyway — cTrader close requests are fire-and-forget
+            # and the position may have closed without an execution event
+            return OrderResult(
+                success=True,
+                order_id=order_id,
+                filled_price=price,
+                filled_lots=lots,
+                raw={"execution_event_timeout": True},
+            )
 
-        return OrderResult(
-            success=True,
-            order_id=order_id,
-            filled_price=price,
-            filled_lots=lots,
-        )
+        # Parse the execution event
+        return self._parse_execution_event(exec_event, price, lots, expected_open=False)
 
     def get_spread_pts(self, symbol: str) -> float:
         """Return the current bid-ask spread in price units.
@@ -1250,7 +1456,8 @@ class CTraderOrderDispatcher:
         caller can safely fall back to its internal simulated equity.
         """
         try:
-            snapshot = self._connector.get_account_snapshot(timeout_s=5.0)
+            timeout_s = max(float(os.getenv("CTRADER_EQUITY_TIMEOUT_S", "15.0")), 5.0)
+            snapshot = self._connector.get_account_snapshot(timeout_s=timeout_s)
             return float(snapshot["balance"])
         except Exception as exc:
             logger.warning("[cTrader] get_equity failed: %s", exc)
@@ -1263,6 +1470,55 @@ class CTraderOrderDispatcher:
         with self._counter_lock:
             self._order_counter += 1
             return f"RENKO-{self._order_counter:08d}"
+
+    def _reconcile_position_after_timeout(
+        self,
+        symbol: str,
+        symbol_id: int,
+        expected_price: float,
+        expected_lots: float,
+    ) -> Optional[str]:
+        """Best-effort fallback: inspect open positions when fill event times out."""
+        try:
+            api_msgs = _get_api_msgs()
+            req = api_msgs.ProtoOAReconcileReq()
+            req.ctidTraderAccountId = self._connector.credentials.account_id
+            rec = self._connector.send_and_wait(req, timeout_s=max(self._fill_timeout_s, 10.0))
+            if rec is None or hasattr(rec, "errorCode"):
+                return None
+
+            digits = int(self._connector.get_digits(symbol_id) or 2)
+            scale = float(10 ** max(digits, 0))
+            best_id: Optional[str] = None
+            best_score = float("inf")
+
+            for pos in getattr(rec, "position", []):
+                sid = int(getattr(pos, "symbolId", 0) or 0)
+                if sid != symbol_id:
+                    continue
+                pid = str(getattr(pos, "positionId", "") or "")
+                if not pid:
+                    continue
+
+                trade_data = getattr(pos, "tradeData", None)
+                raw_open = int(getattr(trade_data, "openPrice", 0) or 0) if trade_data else 0
+                open_price = (raw_open / scale) if raw_open > 0 else float(expected_price)
+                volume_units = int(getattr(pos, "volume", 0) or 0)
+                lots = float(volume_units) / 10000.0 if volume_units > 0 else float(expected_lots)
+
+                score = abs(open_price - float(expected_price)) + (
+                    0.2 * abs(lots - float(expected_lots))
+                )
+                if score < best_score:
+                    best_score = score
+                    best_id = pid
+            return best_id
+        except Exception:
+            logger.exception(
+                "[cTrader] reconcile fallback failed after fill timeout for %s",
+                symbol,
+            )
+            return None
 
     def _parse_execution_event(
         self,
@@ -1303,6 +1559,8 @@ class CTraderOrderDispatcher:
         # Extract positionId and executionPrice from the nested order/position
         position_id: Optional[str] = None
         actual_price = filled_price
+        client_order_id = ""
+        order_id = ""
 
         position = getattr(payload, "position", None)
         if position is not None:
@@ -1324,6 +1582,9 @@ class CTraderOrderDispatcher:
             exec_price = getattr(order, "executionPrice", 0.0)
             if exec_price > 0:
                 actual_price = float(exec_price)
+        if order is not None:
+            client_order_id = str(getattr(order, "clientOrderId", "") or "")
+            order_id = str(getattr(order, "orderId", "") or "")
 
         if not position_id:
             position_id = f"UNKNOWN-{int(time.time())}"
@@ -1341,6 +1602,12 @@ class CTraderOrderDispatcher:
             order_id=position_id,
             filled_price=actual_price,
             filled_lots=filled_lots,
+            raw={
+                "execution_type": int(exec_type),
+                "position_id": position_id,
+                "client_order_id": client_order_id,
+                "broker_order_id": order_id,
+            },
         )
 
 
