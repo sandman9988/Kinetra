@@ -139,3 +139,7 @@ data/prepared_standardized/
 # Temporary files
 .*.tmp.*
 *.tmp
+
+# One-off archive leftovers and repo sync bundles
+archive/production_cleanup_2026-03-03/root_misc/
+backups/*.bundle
