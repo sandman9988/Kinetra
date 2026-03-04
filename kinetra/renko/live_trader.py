@@ -1787,7 +1787,9 @@ class RenkoLiveTrader:
     ) -> None:
         """Evaluate stop and colour-change exits for the open position."""
         trade = state.open_trade
-        assert trade is not None
+        if trade is None:
+            LOG.warning("Exit evaluation called with no open trade, skipping")
+            return
 
         if state.active_stop_price is None:
             stop_distance = state.stop_bricks * state.brick_size
