@@ -1180,37 +1180,30 @@ def build_spread_profile(
     )
 
 
-def scaled_filter_params(dsp_result: DSPResult, bricks_per_day: float) -> FilterParams:
+def scaled_filter_params(bricks_per_day: float) -> FilterParams:
     """
-    Derive adaptive FilterParams from DSP analysis result.
+    Derive FilterParams scaled to one trading day of bricks.
 
-    Scales filter window sizes based on the VR peak scale to match
-    the instrument's natural trend horizon. Thresholds are fixed
-    empirical defaults — validated through backtesting.
+    Window = bricks_per_day, clamped to [10, 200].  This ensures the
+    FlipRate and Markov filters always look back ~1 day regardless of
+    brick size, giving a consistent time horizon across instruments.
 
     Parameters
     ----------
-    dsp_result : DSPResult
-        Complete DSP analysis result.
     bricks_per_day : float
-        Average bricks per day (from brick_summary).
+        Average bricks per trading day (from brick_summary or build_renko).
 
     Returns
     -------
     FilterParams
         Adaptive filter configuration.
     """
-    # Local import avoids module-cycle issues while ensuring runtime availability.
     from kinetra.renko.backtest import FilterParams
 
-    # Scale window sizes based on VR peak scale (trend horizon)
-    fliprate_window = max(10, min(100, dsp_result.vr_peak_scale))
-    markov_window = fliprate_window
-
-    # Fixed thresholds — empirically validated
+    window = int(max(10, min(200, round(bricks_per_day))))
     return FilterParams(
-        fliprate_window=fliprate_window,
+        fliprate_window=window,
         fliprate_threshold=0.35,
-        markov_window=markov_window,
+        markov_window=window,
         markov_threshold=0.55,
     )

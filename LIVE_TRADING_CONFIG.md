@@ -1,212 +1,301 @@
-# Kinetra Live Trading Configuration
+# Live Trading Configuration — Kinetra Renko Engine
 
-> Canonical status has moved to [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md).
-> This file is now an operator quick-reference for launch commands only.
+Last updated: 2026-03-04
 
 ## Quick Start
 
 ```bash
-# Interactive launcher (recommended)
-make launch
+# Dry run (paper trading)
+python scripts/renko_engine.py XAUUSD --stage live --live-size micro --dry-run
 
-# Or direct command line
-python scripts/renko_engine.py XAUUSD --stage live [OPTIONS]
+# Live micro lots with preflight
+python scripts/renko_engine.py XAUUSD --stage live --live-size micro \
+  --preflight-test-order --preflight-lots 0.01 \
+  --ack-live I_UNDERSTAND_LIVE_RISK
+
+# Live trading (full)
+python scripts/renko_engine.py XAUUSD --stage live --live-size full \
+  --ack-live I_UNDERSTAND_LIVE_RISK
 ```
 
-## Configuration Options
+## Configuration Methods
 
-### Lot Size (`--live-size`)
+Priority (highest to lowest):
+1. CLI arguments
+2. Environment variables (`.env`)
+3. Default values in code
 
-| Tier | Lot Ceiling | Use Case |
-|------|-------------|----------|
-| `micro` | 0.01 lots | Testing, minimal risk |
-| `small` | 0.10 lots | Small accounts |
-| `full` | 50.0 lots (broker max) | Full position sizing |
+## Essential Environment Variables
 
-**Default:** `micro`
-
-### Sizing Mode
-
-Sizing mode is currently selected by profile/runtime config in `scripts/renko_engine.py`.
-Use strategy overrides (`--target-risk`, `--stop-bricks`, thresholds/windows) to tune behavior.
-
-### Stop Loss (`--stop-bricks`)
-
-Stop loss distance in Renko bricks.
-
-**Default:** `1.0` (from broker defaults)
-
-**Example:** `--stop-bricks 0.5` for tighter stops
-
-### Brick Size (`--brick-size`)
-
-Override the DSP-profile brick size.
-
-**Default:** From DSP profile (e.g., $1.00 for XAUUSD)
-
-### Execution Preflight (`--preflight-test-order`)
-
-Optional real micro-order open/close verification before entering live loop.
-
-Requires:
-- `--preflight-test-order`
-- `--preflight-lots <value>`
-- `--ack-live I_UNDERSTAND_LIVE_RISK`
-
-### Trading Hours (`--monday-start`, `--friday-end`)
-
-Session window in UTC.
-
-**Defaults (XAUUSD):**
-- Monday: `03:00` UTC
-- Friday: `20:55` UTC
-
-### Target Risk (`--target-risk`)
-
-Risk USD per trade for `risk_based` sizing.
-
-**Default:** $100.00 (from broker defaults)
-
-### Dry Run (`--dry-run`)
-
-Paper trading with live data — NO REAL ORDERS.
-
-**Use for:** Testing configuration before going live
-
----
-
-## Symbol-Specific Defaults
-
-Defaults are loaded from `scripts/ctrader/launch.sh`:
+Create `.env` in project root:
 
 ```bash
-# XAUUSD defaults
-DEFAULTS_BRICK[XAUUSD]="1.0"
-DEFAULTS_STOP_LIVE[XAUUSD]="0.5"
-DEFAULTS_MONDAY[XAUUSD]="03:00"
-DEFAULTS_FRIDAY[XAUUSD]="20:55"
-DEFAULTS_DD_HALT_LIVE[XAUUSD]="0.02"
-DEFAULTS_TARGET_RISK[XAUUSD]="100.0"
+# Required: cTrader OpenAPI credentials
+CTRADER_CLIENT_ID=your_client_id
+CTRADER_CLIENT_SECRET=your_client_secret
+CTRADER_ACCESS_TOKEN=your_access_token
+CTRADER_ACCOUNT_ID=your_account_id
 
-# NAS100 defaults
-DEFAULTS_BRICK[NAS100]="5.0"
-DEFAULTS_STOP_LIVE[NAS100]="1.0"
-DEFAULTS_MONDAY[NAS100]="14:30"
-DEFAULTS_FRIDAY[NAS100]="21:00"
+# Required: Environment (demo/live)
+CTRADER_ENVIRONMENT=demo
+
+# Optional: Connection settings
+CTRADER_ENDPOINT=demo.ctraderapi.com
+CTRADER_PORT=5035
+
+# Optional: Timeouts
+CTRADER_FILL_WAIT_S=5.0           # Fill timeout (default: 5.0)
+CTRADER_CLOSE_WAIT_S=5.0          # Close timeout (default: 5.0)
+
+# Optional: Safety
+CTRADER_MAX_FILL_FAILURES=5       # Circuit breaker threshold (default: 5)
+CTRADER_HOT_STANDBY=1             # Enable hot standby (default: 0)
 ```
 
----
+## CLI Arguments
 
-## Example Commands
-
-### Conservative Live Trading (XAUUSD)
+### Stage Selection
 ```bash
-python scripts/renko_engine.py XAUUSD --stage live \
-  --live-size micro \
-  --stop-bricks 0.5
+--stage {download,dsp,backtest,paper,live}
+    Trading stage to run
+    
+--live-size {micro,full}
+    Lot size for live trading (default: micro)
+    
+--dry-run
+    Simulate live trading without real orders
 ```
 
-### Aggressive Compounding (XAUUSD)
+### Preflight Options
 ```bash
-python scripts/renko_engine.py XAUUSD --stage live \
-  --live-size full \
-  --stop-bricks 1.0
+--preflight-test-order
+    Execute test order before trading (validates full pipeline)
+    
+--preflight-lots 0.01
+    Lot size for test order (default: 0.01)
+    
+--ack-live I_UNDERSTAND_LIVE_RISK
+    Required acknowledgment for live trading
 ```
 
-### Dry-Run Testing
+### Strategy Parameters
 ```bash
-python scripts/renko_engine.py XAUUSD --stage live \
-  --live-size full \
-  --stop-bricks 0.5 \
-  --dry-run
+--brick-size 1.0
+    Renko brick size in price points
+    
+--profile {aggressive,balanced,conservative}
+    Filter profile (default: balanced)
+    
+--target-trades-per-day 15.0
+    Target trade frequency
+    
+--months 24
+    Backtest period (months)
 ```
 
-### Custom Trading Hours
+## Connection Settings
+
+### Basic Connection
 ```bash
-python scripts/renko_engine.py XAUUSD --stage live \
-  --monday-start 03:00 \
-  --friday-end 20:55
+CTRADER_ENDPOINT=demo.ctraderapi.com
+CTRADER_PORT=5035
+CTRADER_TLS=1
 ```
 
----
+### Hot Standby (High Availability)
+```bash
+CTRADER_HOT_STANDBY=1
+CTRADER_HOT_STANDBY_START_RETRIES=2
+```
 
-## Full Workflow
+Enables automatic failover on connection failure.
 
-1. **DSP Analysis** (first time only)
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage dsp
-   ```
+### DNS Configuration
+```bash
+KINETRA_DNS_USE_PUBLIC_RESOLVERS=1
+KINETRA_DNS_RESOLVERS=1.1.1.1,8.8.8.8,9.9.9.9
+```
 
-2. **Backtest Validation**
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage backtest --months 24
-   ```
+For production trading, use reliable DNS resolvers.
 
-3. **Paper Trading**
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage paper
-   ```
+## Timeout Configuration
 
-4. **Dry-Run** (live data, paper orders)
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage live --dry-run
-   ```
+| Timeout | Variable | Default | Description |
+|---------|----------|---------|-------------|
+| Fill Wait | `CTRADER_FILL_WAIT_S` | 5.0 | Max time to wait for fill confirmation |
+| Close Wait | `CTRADER_CLOSE_WAIT_S` | 5.0 | Max time to wait for close confirmation |
+| Heartbeat | `KINETRA_PREFLIGHT_MAX_LATENCY_MS` | 500 | Max acceptable latency |
 
-5. **LIVE Trading** (REAL ORDERS)
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage live --live-size micro
-   ```
-   Optional execution preflight:
-   ```bash
-   python scripts/renko_engine.py XAUUSD --stage live --live-size micro \
-     --preflight-test-order --preflight-lots 0.01 \
-     --ack-live I_UNDERSTAND_LIVE_RISK
-   ```
+Adjust based on your network conditions:
+- Low latency (<50ms): Use defaults
+- High latency (>200ms): Increase to 10.0s
 
----
+## Safety Configuration
 
-## Safety Checklist
+### Circuit Breaker
+```bash
+CTRADER_MAX_FILL_FAILURES=5
+```
 
-Before going live:
+Trading halts after N consecutive fill failures. Manual reset required via menu or restart.
 
-- [ ] Backtest shows Omega ≥ 1.5
-- [ ] Backtest shows ≥ 30 trades
-- [ ] Paper trading validates live execution
-- [ ] Dry-run confirms broker connectivity
-- [ ] Lot size appropriate for account equity
-- [ ] Stop loss configured correctly
-- [ ] Trading hours match your availability
-- [ ] You understand the risks
+### Preflight Thresholds
+```bash
+# Minimum balance to allow trading
+KINETRA_PREFLIGHT_MIN_BALANCE=100.0
 
-**⚠️ NEVER trade more than you can afford to lose.**
+# Minimum free margin
+KINETRA_PREFLIGHT_MIN_MARGIN=50.0
 
----
+# Max acceptable latency
+KINETRA_PREFLIGHT_MAX_LATENCY_MS=500.0
+```
+
+### Position Limits
+```python
+# In kinetra/renko/strategies.py or config
+max_position_size_usd = 1000.0    # Max $ exposure per trade
+max_open_positions = 1            # Only 1 position at a time
+```
+
+## Lot Sizing
+
+### Micro Lots (0.01)
+```bash
+python scripts/renko_engine.py XAUUSD --stage live --live-size micro
+```
+- XAUUSD: ~$0.10 per point
+- Good for testing with <$1000
+
+### Full Lots
+```bash
+python scripts/renko_engine.py XAUUSD --stage live --live-size full
+```
+- XAUUSD: ~$10.00 per point
+- Requires $10,000+ balance recommended
+
+## Account Types
+
+### Demo Account
+```bash
+CTRADER_ENVIRONMENT=demo
+CTRADER_ENDPOINT=demo.ctraderapi.com
+```
+- No real money risk
+- Same execution as live
+- Use for testing and development
+
+### Live Account
+```bash
+CTRADER_ENVIRONMENT=live
+CTRADER_ENDPOINT=live.ctraderapi.com
+```
+- Real money at risk
+- Requires live credentials
+- Ensure preflight passes
+
+## Monitoring Configuration
+
+### Health Checks
+```python
+# In code
+health_service = ConnectionHealthService(
+    connector=connector,
+    check_interval=30.0,        # Check every 30 seconds
+    latency_threshold_ms=500,    # Degraded if > 500ms
+    critical_threshold_ms=1000,  # Critical if > 1000ms
+    enable_preemptive_failover=True
+)
+```
+
+### Dashboard Settings
+```python
+# Auto-refresh interval
+dashboard_refresh_interval = 5.0  # seconds
+
+# Metrics window
+metrics_window_days = 7
+```
+
+## State Persistence
+
+### Automatic Saving
+State auto-saved on:
+- Fill confirmation
+- Trade completion
+- Graceful shutdown
+
+### Manual Save
+Press `s` in the live dashboard.
+
+### Storage Location
+```python
+# Default
+KINETRA_PERSIST_DIR=./.workflow_state
+
+# Production
+KINETRA_PERSIST_DIR=/var/kinetra/state
+```
+
+## Complete Example Config
+
+### Development
+```bash
+# .env
+CTRADER_ENVIRONMENT=demo
+CTRADER_CLIENT_ID=your_demo_id
+CTRADER_CLIENT_SECRET=your_demo_secret
+CTRADER_ACCESS_TOKEN=your_demo_token
+CTRADER_ACCOUNT_ID=12345
+
+CTRADER_FILL_WAIT_S=5.0
+CTRADER_MAX_FILL_FAILURES=5
+```
+
+### Production
+```bash
+# .env
+CTRADER_ENVIRONMENT=live
+CTRADER_CLIENT_ID=your_live_id
+CTRADER_CLIENT_SECRET=your_live_secret
+CTRADER_ACCESS_TOKEN=your_live_token
+CTRADER_ACCOUNT_ID=67890
+
+CTRADER_ENDPOINT=live.ctraderapi.com
+CTRADER_HOT_STANDBY=1
+
+CTRADER_FILL_WAIT_S=10.0
+CTRADER_MAX_FILL_FAILURES=3
+
+KINETRA_DNS_USE_PUBLIC_RESOLVERS=1
+KINETRA_PERSIST_DIR=/var/kinetra/state
+```
 
 ## Troubleshooting
 
-### "cTrader connector not available"
-```bash
-pip install ctrader-open-api
-```
+### "Connection timeout"
+- Check firewall settings
+- Verify endpoint and port
+- Increase `CTRADER_FILL_WAIT_S`
 
-### "No DSP profile found"
-```bash
-python scripts/renko_engine.py XAUUSD --stage dsp
-```
+### "Session expired"
+- Renew access token
+- Check `CTRADER_ACCESS_TOKEN`
+- Verify `CTRADER_ENVIRONMENT`
 
-### "Failed to connect to cTrader"
-- Check `.env.openapi` credentials
-- Verify network connectivity
-- Check cTrader account status
+### "Insufficient balance"
+- Deposit funds
+- Use micro lots
+- Check `KINETRA_PREFLIGHT_MIN_BALANCE`
 
-### Wrong lot size
-- Verify `--live-size` matches your intent
-- Check broker `volume_max` in `contract_spec.json`
-
----
+### "Circuit breaker triggered"
+- Check logs for fill failures
+- Restart to reset (only if confident)
+- Investigate broker issues
 
 ## See Also
 
-- [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md) — Canonical live state and snapshot semantics
-- `SWAP_MODELING_TODO.md` — Swap cost modeling limitations
-- `scripts/ctrader/launch.sh` — Interactive launcher defaults
+- [QUICK_START.md](QUICK_START.md) - Quick reference
+- [PREFLIGHT_CHECKS.md](PREFLIGHT_CHECKS.md) - Preflight documentation
+- [PIPELINE.md](PIPELINE.md) - Trading pipeline
+- [TRADING_ARCHITECTURE.md](TRADING_ARCHITECTURE.md) - System architecture

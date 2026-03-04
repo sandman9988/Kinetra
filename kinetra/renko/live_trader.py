@@ -749,6 +749,11 @@ class OrderDispatcher(ABC):
         "use internal simulated equity" — it must never raise.
         """
 
+    def get_order_book_imbalance(self, symbol: str, levels: int = 5) -> Optional[float]:
+        """Optional L2 imbalance in [-1, 1]. Default: unavailable."""
+        _ = (symbol, levels)
+        return None
+
 
 class PaperDispatcher(OrderDispatcher):
     """

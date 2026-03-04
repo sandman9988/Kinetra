@@ -395,7 +395,7 @@ def main():
     bricks_per_day = len(bricks_temp) / max(days, 1)
 
     dsp_result = run_dsp(closes.values, symbol=INSTRUMENT, bars_per_hour=60.0)
-    filter_params = scaled_filter_params(dsp_result, bricks_per_day)
+    filter_params = scaled_filter_params(bricks_per_day)
 
     print_subsection("FILTER PARAMS")
     logger.info(f"  VR peak:          {dsp_result.vr_peak_value:.4f} ({dsp_result.regime})")

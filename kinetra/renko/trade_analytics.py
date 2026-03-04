@@ -70,6 +70,9 @@ class TradeAnalytics:
     avg_holding_hours: float = 0.0  # Average trade duration in hours
     avg_winner_hours: float = 0.0  # Average winner duration
     avg_loser_hours: float = 0.0  # Average loser duration
+    avg_run_capture: float = 0.0  # Mean held_bricks / trend_run_bricks
+    median_run_capture: float = 0.0  # Median held_bricks / trend_run_bricks
+    run_capture_samples: int = 0  # Number of trades with capture diagnostics
 
     # Drawdown
     max_drawdown_pct: float = 0.0
@@ -283,6 +286,37 @@ def extract_holding_times(trades: List[Any]) -> tuple[float, float, float]:
     return avg_all, avg_winner, avg_loser
 
 
+def extract_run_capture(trades: List[Any]) -> tuple[float, float, int]:
+    """
+    Extract trend run-capture diagnostics.
+
+    Expects trades to optionally carry:
+    - ``n_bricks_held``: bricks held in position
+    - ``trend_run_bricks``: total bricks in the captured trend run
+    """
+    captures: List[float] = []
+    for trade in trades:
+        held = getattr(trade, "n_bricks_held", None)
+        run = getattr(trade, "trend_run_bricks", None)
+        if held is None or run is None:
+            continue
+        try:
+            held_f = float(held)
+            run_f = float(run)
+        except (TypeError, ValueError):
+            continue
+        if run_f <= 0:
+            continue
+        capture = held_f / run_f
+        capture = min(max(capture, 0.0), 1.0)
+        captures.append(float(capture))
+
+    if not captures:
+        return 0.0, 0.0, 0
+    arr = np.asarray(captures, dtype=np.float64)
+    return float(arr.mean()), float(np.median(arr)), int(arr.size)
+
+
 def analyze_trades(
     trades: List[Any],
     initial_equity: float = 10000.0,
@@ -365,6 +399,7 @@ def analyze_trades(
 
     # Holding times
     avg_holding, avg_winner_hrs, avg_loser_hrs = extract_holding_times(trades)
+    avg_capture, median_capture, capture_samples = extract_run_capture(trades)
 
     return TradeAnalytics(
         n_trades=n_trades,
@@ -400,6 +435,9 @@ def analyze_trades(
         avg_holding_hours=avg_holding,
         avg_winner_hours=avg_winner_hrs,
         avg_loser_hours=avg_loser_hrs,
+        avg_run_capture=avg_capture,
+        median_run_capture=median_capture,
+        run_capture_samples=capture_samples,
         max_drawdown_pct=max_dd_pct,
         max_drawdown_usd=max_dd_usd,
         final_equity=final_equity,
@@ -455,3 +493,6 @@ def print_analytics(analytics: TradeAnalytics, symbol: str = "") -> None:
         print(f"Avg Hold Time:  {analytics.avg_holding_hours:.1f}h")
         print(f"Avg Winner:     {analytics.avg_winner_hours:.1f}h")
         print(f"Avg Loser:      {analytics.avg_loser_hours:.1f}h")
+    if analytics.run_capture_samples > 0:
+        print(f"Run Capture μ:  {analytics.avg_run_capture:.2%}")
+        print(f"Run Capture 50%:{analytics.median_run_capture:.2%}")

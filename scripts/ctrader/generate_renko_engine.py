@@ -223,7 +223,7 @@ def _limited_precheck(
         bpd = float(max(bricks_per_day(temp_bricks), 1.0))
     except Exception:
         bpd = 5.0
-    filter_params = scaled_filter_params(dsp, bpd)
+    filter_params = scaled_filter_params(bpd)
     stop_params = StopParams()
 
     bt = backtest_instrument(

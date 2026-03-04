@@ -620,7 +620,7 @@ def qualify_instrument(
         bpd = 5.0  # safe fallback
 
     try:
-        filter_params = scaled_filter_params(dsp_result, bpd)
+        filter_params = scaled_filter_params(bpd)
     except Exception as exc:
         logger.warning("%s: scaled_filter_params failed (%s), using defaults", symbol, exc)
         filter_params = FilterParams()
@@ -1140,7 +1140,7 @@ def recalibrate_instrument(
         bpd = 48.0  # conservative fallback if brick build fails
 
     try:
-        new_filter_params = scaled_filter_params(new_dsp, bricks_per_day=bpd)
+        new_filter_params = scaled_filter_params(bpd)
     except Exception as exc:
         logger.warning("%s: scaled_filter_params failed: %s — using defaults", symbol, exc)
         new_filter_params = FilterParams()

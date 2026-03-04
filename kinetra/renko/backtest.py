@@ -298,6 +298,33 @@ class VolSizingParams:
     compounding_capital_per_lot: float = 1_000.0
 
 
+@dataclass(frozen=True, slots=True)
+class LatencyParams:
+    """
+    Execution latency model for backtest fills.
+
+    Latency is applied as a delay from signal brick time to fill brick time.
+    Decision logic still evaluates on the signal brick; only fill price/time
+    are shifted to a later brick.
+    """
+
+    entry_latency_ms: float = 0.0
+    exit_latency_ms: float = 0.0
+    entry_jitter_ms: float = 0.0
+    exit_jitter_ms: float = 0.0
+    random_seed: int = 42
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("entry_latency_ms", self.entry_latency_ms),
+            ("exit_latency_ms", self.exit_latency_ms),
+            ("entry_jitter_ms", self.entry_jitter_ms),
+            ("exit_jitter_ms", self.exit_jitter_ms),
+        ):
+            if value < 0:
+                raise ValueError(f"{name} must be >= 0, got {value}")
+
+
 @dataclass(slots=True)
 class RenkoTrade:
     """
@@ -575,6 +602,28 @@ def _apply_friction_to_trade(
     return float(gross), float(friction), float(net)
 
 
+def _resolve_latency_fill_index(
+    *,
+    brick_times_ns: np.ndarray,
+    signal_idx: int,
+    base_latency_ms: float,
+    jitter_ms: float,
+    rng: np.random.Generator,
+) -> int:
+    """Map a signal brick index to a latency-adjusted fill brick index."""
+    latency_ms = float(base_latency_ms)
+    if jitter_ms > 0.0:
+        latency_ms += float(rng.normal(0.0, float(jitter_ms)))
+    latency_ms = max(latency_ms, 0.0)
+    target_ns = int(brick_times_ns[signal_idx]) + int(round(latency_ms * 1_000_000.0))
+    fill_idx = int(np.searchsorted(brick_times_ns, target_ns, side="left"))
+    if fill_idx < signal_idx:
+        fill_idx = signal_idx
+    if fill_idx >= len(brick_times_ns):
+        fill_idx = len(brick_times_ns) - 1
+    return fill_idx
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Mode 1 — Instrument Backtest
 # ══════════════════════════════════════════════════════════════════════════════
@@ -595,6 +644,7 @@ def backtest_instrument(
     session_break_minutes: float = 30.0,
     sizing_mode: SizingMode = SizingMode.FIXED_LOT,
     vol_sizing_params: Optional[VolSizingParams] = None,
+    latency_params: Optional[LatencyParams] = None,
 ) -> InstrumentBacktestResult:
     """
     Run a single-instrument Renko backtest.
@@ -635,6 +685,9 @@ def backtest_instrument(
         Parameters for ``COMPOUNDING`` and ``VOL_TARGET`` modes.
         Ignored when ``sizing_mode == FIXED_LOT``.
         Defaults to ``VolSizingParams()`` if None.
+    latency_params : LatencyParams or None
+        Optional execution-latency model applied to entry/exit fills.
+        Defaults to ``LatencyParams()`` (no latency).
 
     session_break_minutes : float, default 30.0
         Minimum gap in minutes to trigger a session break in
@@ -668,6 +721,8 @@ def backtest_instrument(
         risk_params = RiskParams()
     if vol_sizing_params is None:
         vol_sizing_params = VolSizingParams()
+    if latency_params is None:
+        latency_params = LatencyParams()
 
     # ── Instrument-spec economics (pip value / lot constraints / friction) ───
     # If caller did not provide explicit friction calculator and sizing params,
@@ -735,11 +790,17 @@ def backtest_instrument(
 
     n_source = len(closes)
     if n_source == 0:
-        return _empty_instrument_result(symbol, brick_size, filter_params, stop_params)
+        return _empty_instrument_result(
+            symbol,
+            brick_size,
+            filter_params,
+            stop_params,
+            initial_equity=vol_sizing_params.initial_equity,
+        )
 
     # Estimate years from data span
     if n_source >= 2:
-        span = (closes.index[-1] - closes.index[0]).total_seconds()
+        span = (pd.Timestamp(closes.index[-1]) - pd.Timestamp(closes.index[0])).total_seconds()
         years = max(span / (365.25 * 86400), 0.001)
     else:
         years = 0.001
@@ -756,12 +817,15 @@ def backtest_instrument(
             stop_params,
             n_source_bars=n_source,
             years=years,
+            initial_equity=vol_sizing_params.initial_equity,
         )
 
     # ── Compute filter signals ──────────────────────────────────────────
     directions = bricks["direction"].values.astype(np.int8)
     brick_closes = bricks["brick_close"].values.astype(np.float64)
     brick_times = bricks["time"].values
+    brick_times_ns = pd.to_datetime(bricks["time"], utc=True).astype("int64").to_numpy()
+    rng = np.random.default_rng(latency_params.random_seed)
 
     fr_vals = flip_rate(directions, filter_params.fliprate_window)
     pUU_vals, pDD_vals = markov_stickiness(directions, filter_params.markov_window)
@@ -780,6 +844,7 @@ def backtest_instrument(
             n_source_bars=n_source,
             n_bricks=n_bricks,
             years=years,
+            initial_equity=vol_sizing_params.initial_equity,
         )
 
     # ── Vol-targeted sizing: precompute causal rolling vol array ─────────
@@ -823,13 +888,14 @@ def backtest_instrument(
     # ── Core backtest loop ──────────────────────────────────────────────
     stop_distance = stop_params.stop_bricks * brick_size
     trades: List[RenkoTrade] = []
-    equity: List[float] = [0.0]
+    initial_equity = vol_sizing_params.initial_equity
+    equity: List[float] = [initial_equity]
     cumulative = 0.0
     _trade_counter = 0  # Sequential trade ID counter
 
     # Running equity for sizing (starts at initial_equity for VOL_TARGET /
     # COMPOUNDING; unused for FIXED_LOT)
-    live_equity = vol_sizing_params.initial_equity
+    live_equity = initial_equity
 
     in_pos = False
     pos_direction = 0
@@ -839,7 +905,7 @@ def backtest_instrument(
     entry_lots: float = 1.0  # lots opened for the current position
 
     # Risk management state
-    peak_equity = 0.0
+    peak_equity = initial_equity
     recent_wins: List[bool] = []
     throttle_counter = 0
     halted = False
@@ -863,8 +929,8 @@ def backtest_instrument(
             if not halted and peak_equity > 0:
                 unreal_pts = (price - entry_price) * pos_direction
                 unreal_usd = unreal_pts * entry_lots * vol_sizing_params.usd_per_point
-                unreal_cumulative = cumulative + unreal_usd
-                if (peak_equity - unreal_cumulative) / peak_equity > risk_params.dd_halt_pct:
+                unreal_equity = initial_equity + cumulative + unreal_usd
+                if (peak_equity - unreal_equity) / peak_equity > risk_params.dd_halt_pct:
                     halted = True
 
             stop_hit = (pos_direction == 1 and price <= entry_price - stop_distance) or (
@@ -878,15 +944,24 @@ def backtest_instrument(
                     if stop_hit
                     else ("halt" if halted and not colour_change else "colour_change")
                 )
-                n_held = i - entry_brick_idx
+                exit_idx = _resolve_latency_fill_index(
+                    brick_times_ns=brick_times_ns,
+                    signal_idx=i,
+                    base_latency_ms=latency_params.exit_latency_ms,
+                    jitter_ms=latency_params.exit_jitter_ms,
+                    rng=rng,
+                )
+                exit_price = float(brick_closes[exit_idx])
+                exit_bt = _ensure_utc(pd.Timestamp(brick_times[exit_idx]))
+                n_held = exit_idx - entry_brick_idx
 
                 gross_1lot, fric_1lot, net_1lot = _apply_friction_safe(
                     calc,
                     pos_direction == 1,
                     entry_price,
-                    price,
+                    exit_price,
                     entry_time,
-                    bt,
+                    exit_bt,
                 )
                 # Scale P&L by actual lot size
                 gross = gross_1lot * entry_lots
@@ -902,10 +977,10 @@ def backtest_instrument(
                         symbol=symbol,
                         direction=pos_direction,
                         entry_price=entry_price,
-                        exit_price=price,
+                        exit_price=exit_price,
                         entry_time=entry_time,
-                        exit_time=bt,
-                        gross_pts=(price - entry_price) * pos_direction,
+                        exit_time=exit_bt,
+                        gross_pts=(exit_price - entry_price) * pos_direction,
                         gross_usd=gross,
                         friction_usd=fric,
                         net_usd=net,
@@ -916,12 +991,13 @@ def backtest_instrument(
                         sizing_mode=sizing_mode.value,
                     )
                 )
-                equity.append(cumulative)
+                equity.append(initial_equity + cumulative)
                 in_pos = False
 
                 # Update risk state after trade
-                peak_equity = max(peak_equity, cumulative)
-                dd = (peak_equity - cumulative) / peak_equity if peak_equity > 0 else 0.0
+                peak_equity = max(peak_equity, initial_equity + cumulative)
+                current_equity = initial_equity + cumulative
+                dd = (peak_equity - current_equity) / peak_equity if peak_equity > 0 else 0.0
                 if dd > risk_params.dd_halt_pct:
                     halted = True
 
@@ -974,18 +1050,32 @@ def backtest_instrument(
                     continue
 
                 if bd == 1:
+                    entry_idx = _resolve_latency_fill_index(
+                        brick_times_ns=brick_times_ns,
+                        signal_idx=i,
+                        base_latency_ms=latency_params.entry_latency_ms,
+                        jitter_ms=latency_params.entry_jitter_ms,
+                        rng=rng,
+                    )
                     in_pos = True
                     pos_direction = 1
-                    entry_price = price
-                    entry_time = bt
-                    entry_brick_idx = i
+                    entry_price = float(brick_closes[entry_idx])
+                    entry_time = _ensure_utc(pd.Timestamp(brick_times[entry_idx]))
+                    entry_brick_idx = entry_idx
                     entry_lots = trade_lots
                 elif bd == -1 and stop_params.allow_short:
+                    entry_idx = _resolve_latency_fill_index(
+                        brick_times_ns=brick_times_ns,
+                        signal_idx=i,
+                        base_latency_ms=latency_params.entry_latency_ms,
+                        jitter_ms=latency_params.entry_jitter_ms,
+                        rng=rng,
+                    )
                     in_pos = True
                     pos_direction = -1
-                    entry_price = price
-                    entry_time = bt
-                    entry_brick_idx = i
+                    entry_price = float(brick_closes[entry_idx])
+                    entry_time = _ensure_utc(pd.Timestamp(brick_times[entry_idx]))
+                    entry_brick_idx = entry_idx
                     entry_lots = trade_lots
 
     # ── Force-close open position at end of data ────────────────────────
@@ -1160,6 +1250,7 @@ def _empty_instrument_result(
     n_source_bars: int = 0,
     n_bricks: int = 0,
     years: float = 0.0,
+    initial_equity: float = 1000.0,
 ) -> InstrumentBacktestResult:
     """Return an empty result when no trades can be generated."""
     return InstrumentBacktestResult(
@@ -1168,7 +1259,7 @@ def _empty_instrument_result(
         filter_params=filter_params,
         stop_params=stop_params,
         trades=[],
-        equity_curve=[0.0],
+        equity_curve=[initial_equity],
         n_source_bars=n_source_bars,
         n_bricks=n_bricks,
         years=years,
@@ -1193,6 +1284,7 @@ def backtest_portfolio(
     allocation_weights: Optional[Dict[str, float]] = None,
     *,
     cluster_map: Optional[Dict[str, str]] = None,
+    initial_equity: float = 1000.0,
 ) -> PortfolioBacktestResult:
     """
     Build a portfolio-level backtest from per-instrument results.
@@ -1217,7 +1309,7 @@ def backtest_portfolio(
         Portfolio-level results with equity curve and metrics.
     """
     if not instrument_results:
-        return _empty_portfolio_result()
+        return _empty_portfolio_result(initial_equity=initial_equity)
 
     if allocation_weights is None:
         allocation_weights = {sym: 1.0 for sym in instrument_results}
@@ -1239,7 +1331,7 @@ def backtest_portfolio(
     all_trades.sort(key=lambda x: x[0])
 
     # ── Build portfolio equity curve ────────────────────────────────────
-    equity: List[float] = [0.0]
+    equity: List[float] = [initial_equity]
     cumulative = 0.0
     net_returns: List[float] = []
     per_instrument_pnl: Dict[str, float] = {sym: 0.0 for sym in instrument_results}
@@ -1247,7 +1339,7 @@ def backtest_portfolio(
 
     for exit_time, scaled_net, sym, cluster in all_trades:
         cumulative += scaled_net
-        equity.append(cumulative)
+        equity.append(initial_equity + cumulative)
         net_returns.append(scaled_net)
         per_instrument_pnl[sym] += scaled_net
         cluster_pnl[cluster] = cluster_pnl.get(cluster, 0.0) + scaled_net
@@ -1294,13 +1386,13 @@ def backtest_portfolio(
     )
 
 
-def _empty_portfolio_result() -> PortfolioBacktestResult:
+def _empty_portfolio_result(initial_equity: float = 1000.0) -> PortfolioBacktestResult:
     """Return an empty portfolio result."""
     return PortfolioBacktestResult(
         instruments=[],
         instrument_results={},
         allocation_weights={},
-        equity_curve=[0.0],
+        equity_curve=[initial_equity],
         total_trades=0,
         omega=0.0,
         z_factor=0.0,

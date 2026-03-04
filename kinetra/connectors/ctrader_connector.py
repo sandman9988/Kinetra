@@ -1485,6 +1485,27 @@ class HotStandbyCTraderConnector:
             return "DEGRADED"
         return "DOWN"
 
+    def get_detailed_health(self) -> Dict[str, Any]:
+        """Get detailed health information for both connections."""
+        active = self._active()
+        standby = self._standby()
+
+        return {
+            "active": {
+                "connected": active.is_connected(),
+                "endpoint": active.selected_endpoint,
+                "timeouts": active.request_timeout_count,
+            },
+            "standby": {
+                "connected": standby.is_connected(),
+                "endpoint": standby.selected_endpoint,
+                "timeouts": standby.request_timeout_count,
+            },
+            "failover_count": self._failover_count,
+            "generation": self._generation,
+            "status": self.health_status,
+        }
+
     def _restore_state(self) -> None:
         try:
             if not self._state_path.exists():

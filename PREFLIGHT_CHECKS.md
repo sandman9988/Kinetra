@@ -1,220 +1,459 @@
 # Preflight Checks — Live Trading Safety
 
-> Canonical runtime status and current behavior are tracked in
-> [`archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md`](archive/production_cleanup_2026-03-03/repo/docs/RENKO_LIVE_STATE.md).
+Last updated: 2026-03-04
 
 ## Overview
 
-Before executing any **REAL ORDERS**, the live trading stage runs comprehensive preflight checks to verify:
+Before executing any **REAL ORDERS**, the system runs comprehensive preflight checks. These checks validate the entire trading pipeline from network connectivity to broker execution.
 
-1. ✅ **DNS Resolution** — Broker endpoints resolve correctly
-2. ✅ **Network Latency** — Connection speed is acceptable (<500ms ideal)
-3. ✅ **Authentication** — Valid credentials and active session
-4. ✅ **Account Balance** — Sufficient funds for minimum lot size
-5. ✅ **Symbol Tradability** — Instrument is available for trading
-6. ✅ **Optional Test Order** — Full open + close cycle with a tiny lot size when explicitly enabled
+**Enhanced preflight includes:**
+- DNS resolution validation
+- TCP connection pool health
+- Heartbeat/keep-alive verification
+- Broker session validation
+- Account balance & margin checks
+- Symbol resolution
+- Market hours validation
+- Hot standby verification
+- Connection health service check
+- Optional test order execution
+
+## Quick Reference
+
+```bash
+# Run with preflight (recommended)
+python scripts/renko_engine.py XAUUSD --stage live --live-size micro \
+  --preflight-test-order --preflight-lots 0.01 \
+  --ack-live I_UNDERSTAND_LIVE_RISK
+
+# Skip test order (faster)
+python scripts/renko_engine.py XAUUSD --stage live --live-size micro
+```
 
 ## Check Details
 
 ### 1. DNS Resolution
 ```
-[1/6] DNS resolution... ✓ PASS
+[1/10] DNS resolution... ✓ PASS
+  demo.ctraderapi.com -> 1.2.3.4, 5.6.7.8 (45.2ms)
 ```
+
 **What it checks:**
 - Broker endpoint hostname resolves to valid IP
-- No DNS hijacking or poisoning detected
+- Multiple DNS resolvers tested (if configured)
+- Resolution time < 1000ms
 
 **Failure mode:**
 - Network misconfiguration
 - DNS server issues
 - Broker endpoint changed
 
-### 2. Network Latency
+**Action on fail:** Block trading
+
+---
+
+### 2. TCP Connection Pool
 ```
-[2/6] Network latency... ✓ PASS (45ms)
+[2/10] TCP connection pool... ✓ PASS
+  Connected to demo.ctraderapi.com:5035
+  Hot-standby: UP
 ```
+
 **What it checks:**
-- Round-trip time to broker server
-- Acceptable: <500ms (green), 500-1000ms (yellow warning), >1000ms (red fail)
+- Active TCP connection to broker
+- Hot standby status (if enabled)
+- Endpoint accessibility
+
+**Failure mode:**
+- Firewall blocking
+- Network partition
+- Broker maintenance
+
+**Action on fail:** Block trading
+
+---
+
+### 3. Heartbeat/Keep-Alive
+```
+[3/10] Heartbeat... ✓ PASS (23.1ms)
+```
+
+**What it checks:**
+- Round-trip latency to broker
+- Keep-alive message success
+- Latency < 500ms (ideal), < 1000ms (acceptable)
 
 **Failure mode:**
 - Network congestion
-- Geographic distance from broker servers
-- Firewall/proxy interference
+- Broker overload
+- Route instability
 
-### 3. Authentication
+**Action on fail:** Block if > 1000ms
+
+---
+
+### 4. Broker Session
 ```
-[3/6] Authentication... ✓ PASS (account: 45841299)
+[4/10] Broker session... ✓ PASS
+  Account: 12345
+  Broker: Pepperstone
+  Environment: demo
 ```
+
 **What it checks:**
 - Valid API credentials
 - Active trading session
-- Account not locked or suspended
+- Account not locked/suspended
 
 **Failure mode:**
 - Expired credentials
 - Wrong password/token
-- Account suspended by broker
+- Account suspended
 
-### 4. Account Balance
+**Action on fail:** Block trading
+
+---
+
+### 5. Account Balance
 ```
-[4/6] Account balance... ✓ PASS ($1,250.00 USD)
+[5/10] Account balance... ✓ PASS ($1,250.00 USD)
 ```
+
 **What it checks:**
-- Current account balance
-- Minimum $100 for micro lots (0.01)
-- Minimum $1,000 recommended for small lots (0.10)
+- Current balance > minimum ($100 default)
+- Recommended: $1000+ for small lots
 
 **Failure mode:**
 - Insufficient funds
-- Margin already in use
-- Account currency mismatch
+- Wrong account
 
-### 5. Symbol Tradability
+**Action on fail:** Block trading
+
+---
+
+### 6. Margin Available
 ```
-[5/6] Symbol 'XAUUSD' tradable... ✓ PASS (symbolId: 41)
+[6/10] Margin available... ✓ PASS ($1,250.00)
+  Used: $0.00
 ```
+
 **What it checks:**
-- Symbol exists on broker platform
-- Symbol is currently tradable (not suspended)
-- Symbol ID resolved for order submission
+- Free margin > minimum ($50 default)
+- Not over-leveraged
 
 **Failure mode:**
-- Symbol delisted
-- Trading halted by broker
-- Wrong symbol name
+- Existing positions using margin
+- Account near stop-out
 
-### 6. Optional Test Order (Open + Close)
+**Action on fail:** Block trading
+
+---
+
+### 7. Symbol Resolution
 ```
-[6/6] Test order (0.01 lot)...
+[7/10] Symbol resolution... ✓ PASS
+  XAUUSD -> symbolId: 41
+  Digits: 2
+```
+
+**What it checks:**
+- Symbol exists on broker
+- Symbol ID resolved
+- Digits/precision known
+
+**Failure mode:**
+- Symbol not available
+- Wrong symbol name
+- Trading suspended
+
+**Action on fail:** Block trading
+
+---
+
+### 8. Market Hours
+```
+[8/10] Market hours... ✓ PASS
+  Market open (2026-03-04 12:00 UTC)
+```
+
+**What it checks:**
+- Market currently open
+- Not weekend (Fri 20:00 - Sun 22:00 UTC)
+- Not maintenance (00:00-00:01 UTC)
+
+**XAUUSD Hours:**
+- Open: Sunday 22:00 UTC
+- Close: Friday 20:00 UTC
+
+**Failure mode:**
+- Weekend trading attempted
+- Holiday closure
+
+**Action on fail:** Warning (allows trading for 24h markets)
+
+---
+
+### 9. Hot Standby
+```
+[9/10] Hot standby... ✓ PASS
+  Status: UP
+  Failover count: 0
+```
+
+**What it checks:** (if `CTRADER_HOT_STANDBY=1`)
+- Standby connection ready
+- Failover history
+
+**Failure mode:**
+- Standby connection failed
+- Single point of failure
+
+**Action on fail:** Warning (degraded mode)
+
+---
+
+### 10. Connection Health
+```
+[10/10] Connection health... ✓ PASS
+  Status: HEALTHY
+  Latency: 23.1ms (p95: 25.3ms)
+  Packet loss: 0.0%
+```
+
+**What it checks:**
+- Health service validation
+- Recent latency samples
+- Packet loss rate
+
+**Status levels:**
+- **HEALTHY** - All metrics normal
+- **DEGRADED** - Elevated latency/jitter
+- **UNHEALTHY** - Packet loss or failures
+- **CRITICAL** - Connection down
+
+**Action on fail:** Warning if DEGRADED, Block if UNHEALTHY/CRITICAL
+
+---
+
+### 11. Test Order (Optional)
+```
+[11/11] Test order (0.01 lot)...
     Submitting test BUY order... ✓ FILLED
     Closing test position... ✓ CLOSED
     Test P&L: $-0.50
     ✓ PASS
 ```
-**What it checks (when enabled):**
-- **Full order lifecycle**: Open → Fill → Close
-- **Market execution**: Real bid/ask spread
-- **Stop-loss placement**: Verified with broker
-- **Position tracking**: Position ID returned and used
-- **Minimum lot size**: 0.01 lots (micro)
 
-**Failure modes:**
-- Order rejected (insufficient margin, invalid parameters)
-- Fill timeout (network issue, market closed)
-- Close failed (position already closed, broker error)
+**What it checks:**
+- Full order lifecycle: Open → Fill → Close
+- Market execution with real spread
+- Position tracking
+- Fill confirmation
 
-**⚠️ Important:** This submits a **REAL ORDER** and immediately closes it.
-It is only run when you pass:
+**Cost:** ~$0.50 (spread + commission)
 
-```bash
---preflight-test-order --preflight-lots 0.01 --ack-live I_UNDERSTAND_LIVE_RISK
-```
+**When to use:**
+- First time trading new symbol
+- After broker changes
+- After system updates
 
-The small loss (spread + commission) is the cost of verification.
+**Action on fail:** Block trading
 
 ---
 
-## Preflight Output Example
+## Configuration
 
+### Environment Variables
+
+```bash
+# DNS
+export KINETRA_DNS_USE_PUBLIC_RESOLVERS=1
+export KINETRA_DNS_RESOLVERS=1.1.1.1,8.8.8.8,9.9.9.9
+
+# Thresholds
+export KINETRA_PREFLIGHT_MIN_BALANCE=100.0
+export KINETRA_PREFLIGHT_MAX_LATENCY_MS=500.0
+export KINETRA_PREFLIGHT_MAX_DNS_LATENCY_MS=1000.0
+
+# Hot standby
+export CTRADER_HOT_STANDBY=1
+export CTRADER_HOT_STANDBY_START_RETRIES=2
 ```
-Running preflight checks...
-  [PASS] connection       connector authenticated
-  [PASS] account_snapshot balance=$48,589.59
-  [PASS] symbol_resolution XAUUSD -> 41
-  [PASS] symbol_digits    digits=2
-✅ Preflight passed
+
+### Code Configuration
+
+```python
+from kinetra.preflight_enhanced import PreflightConfig
+
+config = PreflightConfig(
+    symbol="XAUUSD",
+    min_balance_usd=100.0,
+    min_margin_available_usd=50.0,
+    max_latency_ms=500.0,
+    require_hot_standby=False,
+    check_market_hours=True,
+    enable_health_service=True,
+)
 ```
 
 ---
 
 ## Failure Handling
 
-If any check fails:
+### Blocking vs Warning
 
-1. **Trading is aborted** — No real orders will be placed
-2. **Error message displayed** — Specific failure reason shown
-3. **Connection closed** — Clean disconnect from broker
-4. **Manual intervention required** — Fix issue before retrying
+| Check | Fail Action | Recovery |
+|-------|-------------|----------|
+| DNS Resolution | Block | Fix network/DNS |
+| TCP Connection | Block | Check firewall |
+| Heartbeat | Block if >1000ms | Check latency |
+| Broker Session | Block | Renew credentials |
+| Balance | Block | Deposit funds |
+| Margin | Block | Close positions |
+| Symbol | Block | Verify symbol |
+| Market Hours | Warn | Wait for open |
+| Hot Standby | Warn | Fix standby |
+| Health | Warn/Block | Check network |
+| Test Order | Block | Check broker |
 
-### Example Failure
+### Preflight Output Examples
 
+**All Pass:**
 ```
-Running preflight checks...
-  [1/6] DNS resolution... ✓ PASS
-  [2/6] Network latency... ✓ PASS (48ms)
-  [3/6] Authentication... ✓ PASS (account: 45841299)
-  [4/6] Account balance... ✗ FAIL ($50.00 - insufficient)
-    Minimum balance $100 required for micro lots
-  [5/6] Symbol 'XAUUSD' tradable... (skipped)
-  [6/6] Test order (0.01 lot)... (skipped)
+============================================================
+PREFLIGHT CHECK RESULTS
+Timestamp: 2026-03-04 12:00:00 UTC
+Duration: 1250.5ms
+Passed: 11/11
+============================================================
 
-  Preflight: 3/6 checks passed
-❌ Preflight checks failed - aborting live trading
+✅ PASSED:
+  ✓ dns_resolution: demo.ctraderapi.com -> 1.2.3.4 (45.2ms)
+  ✓ tcp_connection: Connected to demo.ctraderapi.com:5035
+  ...
+
+🟢 ALL CHECKS PASSED - Safe to trade
+============================================================
+```
+
+**With Failures:**
+```
+============================================================
+PREFLIGHT CHECK RESULTS
+Timestamp: 2026-03-04 12:00:00 UTC
+Duration: 2500.3ms
+Passed: 8/11
+============================================================
+
+❌ BLOCKING ISSUES:
+  ✗ account_balance: Balance: $50.00 (min: $100.00)
+  ✗ broker_session: Session expired
+
+⚠️  WARNINGS:
+  ! market_hours: Market closed (weekend)
+
+🔴 PREFLIGHT FAILED - Trading blocked
+Blocking reasons:
+  - account_balance: Balance: $50.00 (min: $100.00)
+  - broker_session: Session expired
+============================================================
 ```
 
 ---
 
-## Skipping Preflight
+## Standalone Usage
 
-**Dry-run mode** (`--dry-run`) does not run live execution preflight because:
-- No real orders are submitted
-- Paper dispatcher doesn't require broker connection
-- Safe for testing configuration
+### Programmatic
+
+```python
+from kinetra.preflight_enhanced import EnhancedPreflight, PreflightConfig
+from kinetra.connectors.ctrader_connector import build_connector
+
+# Create connector
+connector = build_connector()
+
+# Configure preflight
+config = PreflightConfig(
+    symbol="XAUUSD",
+    min_balance_usd=100.0,
+)
+
+# Run checks
+preflight = EnhancedPreflight(connector, config)
+result = preflight.run_all_checks()
+
+# Check result
+if result.can_trade:
+    print("Safe to trade")
+else:
+    print(f"Blocked: {result.blocking_reasons}")
+```
+
+### CLI
 
 ```bash
-python scripts/renko_engine.py XAUUSD --stage live --dry-run
-# No preflight checks (paper trading)
+# Using Python directly
+python -c "
+from kinetra.preflight_enhanced import run_preflight_cli
+from kinetra.connectors.ctrader_connector import build_connector
+connector = build_connector()
+run_preflight_cli(connector, 'XAUUSD')
+"
 ```
-
----
-
-## Best Practices
-
-1. **Run preflight before every live session** — Network conditions change
-2. **Don't skip failed checks** — They protect your capital
-3. **Monitor test order P&L** — Should be ~spread + commission
-4. **Keep minimum balance** — At least $100 for micro lots
-5. **Verify symbol ID** — Ensure trading correct instrument
 
 ---
 
 ## Troubleshooting
 
 ### "DNS resolution failed"
-- Check internet connection
-- Try `ping demo.ctraderapi.com`
-- Verify DNS settings
+```bash
+# Check DNS
+nslookup demo.ctraderapi.com
 
-### "Network latency too high"
-- Check network congestion
-- Consider VPS closer to broker servers
-- Close bandwidth-heavy applications
+# Use public resolvers
+export KINETRA_DNS_USE_PUBLIC_RESOLVERS=1
+```
 
-### "Authentication failed"
-- Verify `.env.openapi` credentials
-- Check account status with broker
-- Renew API token if expired
+### "TCP connection failed"
+```bash
+# Test connectivity
+nc -zv demo.ctraderapi.com 5035
+
+# Check firewall
+sudo iptables -L | grep 5035
+```
+
+### "Heartbeat latency too high"
+```bash
+# Test latency
+ping demo.ctraderapi.com
+
+# Consider VPS closer to broker
+```
 
 ### "Insufficient balance"
 - Deposit funds
-- Reduce lot size (use `--live-size micro`)
-- Close other positions to free margin
+- Reduce `--preflight-lots` if using test order
 
-### "Symbol not found"
-- Verify symbol name (case-sensitive)
-- Check if symbol is tradable on your account type
-- Contact broker if symbol should be available
+### "Market closed"
+- XAUUSD: Sun 22:00 - Fri 20:00 UTC
+- Check broker holiday schedule
 
-### "Test order failed"
-- Check market hours (forex closed weekends)
-- Verify stop-loss distance (not too tight)
-- Ensure sufficient margin for 0.01 lots
+---
+
+## Best Practices
+
+1. **Always run preflight** before live trading
+2. **Use test order** on first run or after changes
+3. **Monitor warnings** - they indicate degraded conditions
+4. **Fix blocking issues** immediately
+5. **Log all preflight results** for audit trail
 
 ---
 
 ## See Also
 
-- `LIVE_TRADING_CONFIG.md` — Full live trading configuration reference
-- `SWAP_MODELING_TODO.md` — Swap cost modeling limitations
-- `scripts/ctrader/launch.sh` — Interactive launcher with preflight
+- [QUICK_START.md](QUICK_START.md) - Quick start guide
+- [LIVE_TRADING_CONFIG.md](LIVE_TRADING_CONFIG.md) - Configuration
+- [PIPELINE.md](PIPELINE.md) - Trading pipeline
+- `kinetra/preflight_enhanced.py` - Implementation

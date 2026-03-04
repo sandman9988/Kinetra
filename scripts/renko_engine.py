@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 import click
+import numpy as np
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -56,6 +57,11 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
 
+from kinetra.preflight_enhanced import (
+    EnhancedPreflight,
+    PreflightConfig,
+    format_preflight_report,
+)
 from kinetra.renko.brick_engine import bricks_per_day, build_renko
 from kinetra.renko.trading_engine import EngineConfig, RenkoEngine
 
@@ -120,6 +126,29 @@ def load_m1_data(symbol: str) -> Optional[pd.Series]:
     return series
 
 
+def load_m1_market_data(symbol: str) -> Optional[pd.DataFrame]:
+    """Load canonical M1 close+spread data indexed by UTC timestamp."""
+    _standardize_symbol_m1_data(symbol, max_depth=6)
+    data_dir = _canonical_symbol_dir(symbol)
+    best_file = _select_best_m1_file(data_dir, symbol)
+    if best_file is None:
+        return None
+    df = _load_m1_csv_generic(best_file)
+    if df is None or df.empty:
+        return None
+    df = df[["time", "close", "spread"]].copy()
+    df["time"] = pd.to_datetime(df["time"], utc=True, errors="coerce")
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df["spread"] = pd.to_numeric(df["spread"], errors="coerce")
+    df = df.dropna(subset=["time", "close"])
+    df = df.sort_values("time").drop_duplicates(subset=["time"], keep="last").set_index("time")
+    if df.index.tz is None:
+        df.index = df.index.tz_localize("UTC")
+    else:
+        df.index = df.index.tz_convert("UTC")
+    return df
+
+
 def get_data_path(symbol: str) -> Path:
     """Get canonical data directory for symbol."""
     return _canonical_symbol_dir(symbol)
@@ -147,60 +176,59 @@ def _adaptive_panel_width(min_width: int = 88, max_width: int = 160, pad: int = 
     return min(usable, max_width)
 
 
-def _run_preflight_checks(connector, symbol: str) -> bool:
-    """Run minimal live-trading safety checks before enabling REAL orders."""
-    checks = []
+def _run_preflight_checks(
+    connector,
+    symbol: str,
+    min_balance_usd: float = 100.0,
+    require_hot_standby: bool = False,
+) -> bool:
+    """Run comprehensive live-trading safety checks before enabling REAL orders.
 
-    # 1) Connector/session health
-    try:
-        connected = bool(connector.is_connected())
-        checks.append(("connection", connected, "connector authenticated"))
-    except Exception as e:
-        checks.append(("connection", False, f"is_connected failed: {e}"))
+    Enhanced preflight includes:
+    - DNS resolution validation
+    - TCP connection pool health
+    - Heartbeat/keep-alive verification
+    - Broker session validation
+    - Account balance check
+    - Margin requirements
+    - Symbol resolution
+    - Market hours validation
+    - Hot standby verification (if required)
+    - Connection health service check
+    """
+    config = PreflightConfig(
+        symbol=symbol,
+        min_balance_usd=min_balance_usd,
+        require_hot_standby=require_hot_standby,
+        enable_health_service=True,
+    )
 
-    # 2) Account snapshot
-    snapshot = None
-    try:
-        snapshot = connector.get_account_snapshot(timeout_s=10.0)
-        balance = float(snapshot.get("balance", 0.0))
-        checks.append(("account_snapshot", balance > 0.0, f"balance=${balance:,.2f}"))
-    except Exception as e:
-        checks.append(("account_snapshot", False, f"snapshot failed: {e}"))
-
-    # 3) Symbol resolution
-    symbol_id = None
-    try:
-        symbol_id = connector.find_symbol_id(symbol, timeout_s=10.0)
-        checks.append(("symbol_resolution", symbol_id is not None, f"{symbol} -> {symbol_id}"))
-    except Exception as e:
-        checks.append(("symbol_resolution", False, f"resolve failed: {e}"))
-
-    # 4) Symbol metadata sanity (digits)
-    try:
-        if symbol_id is None:
-            raise RuntimeError("symbol id unavailable")
-        digits = int(connector.get_digits(symbol_id, timeout_s=10.0))
-        checks.append(("symbol_digits", 0 <= digits <= 10, f"digits={digits}"))
-    except Exception as e:
-        checks.append(("symbol_digits", False, f"digits failed: {e}"))
+    preflight = EnhancedPreflight(connector, config)
 
     click.echo()
-    click.secho("Preflight results:", fg="cyan", bold=True)
-    all_ok = True
-    for name, ok, detail in checks:
-        mark = "PASS" if ok else "FAIL"
-        color = "green" if ok else "red"
-        click.secho(f"  [{mark}] {name:16s} {detail}", fg=color)
-        all_ok = all_ok and ok
+    click.secho("Running enhanced preflight checks...", fg="cyan", bold=True)
+    click.echo()
 
-    # Print account context for operator confirmation.
-    if snapshot:
+    def _progress(msg: str):
+        click.echo(f"  {msg}")
+
+    result = preflight.run_all_checks(progress_callback=_progress)
+
+    click.echo()
+    click.echo(format_preflight_report(result, verbose=False))
+
+    # Print summary account info
+    try:
+        snapshot = connector.get_account_snapshot(timeout_s=5.0)
         click.echo(
-            f"  Account: {snapshot.get('account_id')}  "
+            f"\n  Account: {snapshot.get('account_id')}  "
             f"Broker: {snapshot.get('broker_name', 'unknown')}  "
             f"Balance: ${float(snapshot.get('balance', 0.0)):,.2f}"
         )
-    return all_ok
+    except Exception:
+        pass
+
+    return result.can_trade
 
 
 def _load_dsp_profile(symbol: str) -> tuple[Optional[dict], Path]:
@@ -293,6 +321,225 @@ def _choose_unique_path(base_dir: Path, stem: str) -> Path:
         if not candidate.exists():
             return candidate
         idx += 1
+
+
+def _choose_unique_file(base_dir: Path, stem: str, ext: str) -> Path:
+    """Return a non-existing file path with requested extension."""
+    suffix = ext if ext.startswith(".") else f".{ext}"
+    candidate = base_dir / f"{stem}{suffix}"
+    if not candidate.exists():
+        return candidate
+    idx = 1
+    while True:
+        candidate = base_dir / f"{stem}_{idx}{suffix}"
+        if not candidate.exists():
+            return candidate
+        idx += 1
+
+
+def _save_equity_plot(
+    *,
+    symbol: str,
+    mode: str,
+    trades: list,
+    initial_equity: float = 1000.0,
+    run_id: str = "",
+) -> Optional[Path]:
+    """Save equity curve PNG from trade list; returns path when successful."""
+    if not trades:
+        return None
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except Exception:
+        return None
+
+    nets = []
+    times = []
+    for i, t in enumerate(trades):
+        if isinstance(t, dict):
+            net = float(t.get("net_usd", 0.0))
+            ts = t.get("exit_time")
+        else:
+            net = float(getattr(t, "net_usd", 0.0))
+            ts = getattr(t, "exit_time", None)
+        nets.append(net)
+        times.append(ts if ts is not None else i)
+
+    eq = np.asarray(nets, dtype=np.float64)
+    eq = np.cumsum(eq) + float(initial_equity)
+    if eq.size == 0:
+        return None
+
+    out_dir = KR / "outputs" / "renko_results" / "plots" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    stem = (
+        f"{symbol.lower()}_{mode}_equity_{run_id}" if run_id else f"{symbol.lower()}_{mode}_equity"
+    )
+    out_path = _choose_unique_file(out_dir, stem, ".png")
+
+    # Prefer time axis when timestamps are parseable.
+    x = pd.to_datetime(times, utc=True, errors="coerce")
+    use_time_axis = bool(getattr(x, "notna", lambda: pd.Series([], dtype=bool))().all())
+    if use_time_axis:
+        x_axis = x
+    else:
+        x_axis = np.arange(eq.size)
+
+    fig, ax = plt.subplots(figsize=(10.5, 4.2))
+    ax.plot(x_axis, eq, lw=1.5, color="#0b6e4f")
+    ax.set_title(f"{symbol.upper()} {mode.upper()} Equity Curve")
+    ax.set_ylabel("Equity (USD)")
+    ax.grid(alpha=0.25)
+    if not use_time_axis:
+        ax.set_xlabel("Trade #")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140)
+    plt.close(fig)
+    return out_path
+
+
+def _save_equity_compare_plot(
+    *,
+    symbol: str,
+    mode: str,
+    trades_is: list,
+    trades_oos: list,
+    initial_equity: float = 1000.0,
+    run_id: str = "",
+) -> Optional[Path]:
+    """Save a 2-line IS vs OOS equity curve PNG."""
+    if not trades_is and not trades_oos:
+        return None
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except Exception:
+        return None
+
+    def _curve(trades_list: list) -> np.ndarray:
+        if not trades_list:
+            return np.asarray([float(initial_equity)], dtype=np.float64)
+        vals = []
+        for t in trades_list:
+            if isinstance(t, dict):
+                vals.append(float(t.get("net_usd", 0.0)))
+            else:
+                vals.append(float(getattr(t, "net_usd", 0.0)))
+        arr = np.cumsum(np.asarray(vals, dtype=np.float64)) + float(initial_equity)
+        return arr if arr.size > 0 else np.asarray([float(initial_equity)], dtype=np.float64)
+
+    eq_is = _curve(trades_is)
+    eq_oos = _curve(trades_oos)
+
+    out_dir = KR / "outputs" / "renko_results" / "plots" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    stem = (
+        f"{symbol.lower()}_{mode}_equity_compare_{run_id}"
+        if run_id
+        else f"{symbol.lower()}_{mode}_equity_compare"
+    )
+    out_path = _choose_unique_file(out_dir, stem, ".png")
+
+    fig, ax = plt.subplots(figsize=(10.5, 4.2))
+    ax.plot(np.arange(eq_is.size), eq_is, lw=1.4, color="#1f77b4", label="IS")
+    ax.plot(np.arange(eq_oos.size), eq_oos, lw=1.4, color="#d62728", label="OOS")
+    ax.set_title(f"{symbol.upper()} {mode.upper()} Equity (IS vs OOS)")
+    ax.set_xlabel("Trade #")
+    ax.set_ylabel("Equity (USD)")
+    ax.grid(alpha=0.25)
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140)
+    plt.close(fig)
+    return out_path
+
+
+def _save_leverage_plot(
+    *,
+    symbol: str,
+    mode: str,
+    trades: list,
+    initial_equity: float,
+    usd_per_point: float,
+    max_leverage: Optional[float] = None,
+    run_id: str = "",
+) -> Optional[Path]:
+    """Save actual leverage usage plot from closed trades."""
+    if not trades:
+        return None
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except Exception:
+        return None
+
+    lev_vals: list[float] = []
+    times = []
+    equity = float(initial_equity)
+    usdpp = max(float(usd_per_point), 0.0)
+
+    for i, t in enumerate(trades):
+        if isinstance(t, dict):
+            lots = float(t.get("lots", 0.0))
+            entry_price = float(t.get("entry_price", 0.0))
+            net = float(t.get("net_usd", 0.0))
+            ts = t.get("entry_time") or t.get("exit_time")
+        else:
+            lots = float(getattr(t, "lots", 0.0))
+            entry_price = float(getattr(t, "entry_price", 0.0))
+            net = float(getattr(t, "net_usd", 0.0))
+            ts = getattr(t, "entry_time", None) or getattr(t, "exit_time", None)
+
+        notional_usd = abs(lots) * abs(entry_price) * usdpp
+        lev = notional_usd / max(abs(equity), 1e-12)
+        lev_vals.append(float(lev))
+        times.append(ts if ts is not None else i)
+        equity += net
+
+    arr = np.asarray(lev_vals, dtype=np.float64)
+    if arr.size == 0:
+        return None
+
+    out_dir = KR / "outputs" / "renko_results" / "plots" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    stem = (
+        f"{symbol.lower()}_{mode}_leverage_{run_id}"
+        if run_id
+        else f"{symbol.lower()}_{mode}_leverage"
+    )
+    out_path = _choose_unique_file(out_dir, stem, ".png")
+
+    x = pd.to_datetime(times, utc=True, errors="coerce")
+    use_time_axis = bool(getattr(x, "notna", lambda: pd.Series([], dtype=bool))().all())
+    x_axis = x if use_time_axis else np.arange(arr.size)
+
+    fig, ax = plt.subplots(figsize=(10.5, 4.2))
+    ax.plot(x_axis, arr, lw=1.4, color="#8b0000", label="Actual leverage")
+    if max_leverage is not None and float(max_leverage) > 0:
+        ax.axhline(
+            y=float(max_leverage),
+            color="#1f77b4",
+            lw=1.2,
+            ls="--",
+            label=f"Max leverage 1:{float(max_leverage):.1f}",
+        )
+    ax.set_title(f"{symbol.upper()} {mode.upper()} Leverage Usage")
+    ax.set_ylabel("Leverage (x)")
+    if not use_time_axis:
+        ax.set_xlabel("Trade #")
+    ax.grid(alpha=0.25)
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140)
+    plt.close(fig)
+    return out_path
 
 
 def _find_m1_source_file(symbol: str) -> Optional[Path]:
@@ -637,16 +884,41 @@ def _apply_strategy_overrides(
     cfg: EngineConfig,
     *,
     stop_bricks: Optional[float] = None,
+    trailing_mfe_fraction: Optional[float] = None,
+    trailing_mfe_after_bricks: Optional[int] = None,
     target_risk: Optional[float] = None,
     brick_size: Optional[float] = None,
     fliprate_window: Optional[int] = None,
     markov_window: Optional[int] = None,
     fliprate_threshold: Optional[float] = None,
     markov_threshold: Optional[float] = None,
+    max_leverage: Optional[float] = None,
+    spread_sides: Optional[float] = None,
+    conservative_fills: Optional[bool] = None,
+    entry_slip_bricks: Optional[float] = None,
+    exit_slip_bricks: Optional[float] = None,
+    stop_worst_case_bricks: Optional[float] = None,
+    flip_trade_through_bricks: Optional[float] = None,
+    use_pe_gate: Optional[bool] = None,
+    pe_window: Optional[int] = None,
+    pe_order: Optional[int] = None,
+    pe_entry_threshold: Optional[float] = None,
+    pe_exit_threshold: Optional[float] = None,
+    use_time_decay: Optional[bool] = None,
+    stale_brick_factor: Optional[float] = None,
+    markov_stale_penalty: Optional[float] = None,
+    use_obi_slippage_buffer: Optional[bool] = None,
+    obi_levels: Optional[int] = None,
+    obi_max_buffer_bricks: Optional[float] = None,
+    obi_ema_alpha: Optional[float] = None,
 ) -> None:
     """Apply CLI optimization overrides consistently across all execution modes."""
     if stop_bricks is not None:
         cfg.stop_bricks = float(stop_bricks)
+    if trailing_mfe_fraction is not None:
+        cfg.trailing_mfe_fraction = float(trailing_mfe_fraction)
+    if trailing_mfe_after_bricks is not None:
+        cfg.trailing_mfe_after_bricks = int(trailing_mfe_after_bricks)
     if target_risk is not None:
         cfg.target_risk_usd = float(target_risk)
     if brick_size is not None:
@@ -659,6 +931,125 @@ def _apply_strategy_overrides(
         cfg.fliprate_threshold = float(fliprate_threshold)
     if markov_threshold is not None:
         cfg.markov_threshold = float(markov_threshold)
+    if max_leverage is not None:
+        lev = float(max_leverage)
+        if lev <= 0:
+            raise ValueError("max_leverage must be > 0")
+        # Conservative cap: effective leverage cannot exceed broker or user cap.
+        cfg.margin_rate = max(float(getattr(cfg, "margin_rate", 0.0)), 1.0 / lev)
+    if spread_sides is not None:
+        cfg.spread_sides = float(spread_sides)
+    if conservative_fills is not None:
+        cfg.conservative_fills = bool(conservative_fills)
+    if entry_slip_bricks is not None:
+        cfg.entry_slip_bricks = float(entry_slip_bricks)
+    if exit_slip_bricks is not None:
+        cfg.exit_slip_bricks = float(exit_slip_bricks)
+    if stop_worst_case_bricks is not None:
+        cfg.stop_worst_case_bricks = float(stop_worst_case_bricks)
+    if flip_trade_through_bricks is not None:
+        cfg.flip_trade_through_bricks = float(flip_trade_through_bricks)
+    if use_pe_gate is not None:
+        cfg.use_permutation_entropy = bool(use_pe_gate)
+    if pe_window is not None:
+        cfg.pe_window = int(pe_window)
+    if pe_order is not None:
+        cfg.pe_order = int(pe_order)
+    if pe_entry_threshold is not None:
+        cfg.pe_entry_threshold = float(pe_entry_threshold)
+    if pe_exit_threshold is not None:
+        cfg.pe_exit_threshold = float(pe_exit_threshold)
+    if use_time_decay is not None:
+        cfg.use_time_decay = bool(use_time_decay)
+    if stale_brick_factor is not None:
+        cfg.stale_brick_factor = float(stale_brick_factor)
+    if markov_stale_penalty is not None:
+        cfg.markov_stale_penalty = float(markov_stale_penalty)
+    if use_obi_slippage_buffer is not None:
+        cfg.use_obi_slippage_buffer = bool(use_obi_slippage_buffer)
+    if obi_levels is not None:
+        cfg.obi_levels = int(obi_levels)
+    if obi_max_buffer_bricks is not None:
+        cfg.obi_max_buffer_bricks = float(obi_max_buffer_bricks)
+    if obi_ema_alpha is not None:
+        cfg.obi_ema_alpha = float(obi_ema_alpha)
+
+
+def _apply_latency_slippage_to_completed_trades(
+    *,
+    completed_trades: list,
+    brick_size: float,
+    usd_per_point: float,
+    entry_latency_ms: int = 0,
+    exit_latency_ms: int = 0,
+    latency_jitter_ms: int = 0,
+    latency_seed: int = 42,
+) -> dict:
+    """Apply latency-induced adverse slippage to already-closed trades."""
+    if not completed_trades or (
+        entry_latency_ms <= 0 and exit_latency_ms <= 0 and latency_jitter_ms <= 0
+    ):
+        return {
+            "enabled": False,
+            "entry_latency_ms": int(entry_latency_ms),
+            "exit_latency_ms": int(exit_latency_ms),
+            "latency_jitter_ms": int(latency_jitter_ms),
+            "latency_seed": int(latency_seed),
+            "trades_adjusted": 0,
+            "avg_entry_slip": 0.0,
+            "avg_exit_slip": 0.0,
+        }
+
+    rng = np.random.default_rng(int(latency_seed))
+    entry_base = max(float(entry_latency_ms), 0.0) / 60000.0 * float(brick_size)
+    exit_base = max(float(exit_latency_ms), 0.0) / 60000.0 * float(brick_size)
+    jitter_std = max(float(latency_jitter_ms), 0.0) / 60000.0 * float(brick_size)
+
+    adjusted = 0
+    entry_slip_sum = 0.0
+    exit_slip_sum = 0.0
+
+    for t in completed_trades:
+        if getattr(t, "is_open", False):
+            continue
+        if getattr(t, "entry_price", None) is None or getattr(t, "exit_price", None) is None:
+            continue
+
+        try:
+            dir_sign = int(getattr(t, "direction").value)
+        except Exception:
+            continue
+        if dir_sign not in (-1, 1):
+            continue
+
+        e_slip = max(0.0, entry_base + float(rng.normal(0.0, jitter_std)))
+        x_slip = max(0.0, exit_base + float(rng.normal(0.0, jitter_std)))
+
+        original_entry = float(t.entry_price)
+        original_exit = float(t.exit_price)
+        new_entry = original_entry + dir_sign * e_slip
+        new_exit = original_exit - dir_sign * x_slip
+
+        t.entry_price = new_entry
+        t.exit_price = new_exit
+        t.gross_pts = (new_exit - new_entry) * dir_sign
+        t.gross_usd = t.gross_pts * float(usd_per_point) * float(t.lots)
+        t.net_usd = t.gross_usd - float(getattr(t, "friction_usd", 0.0))
+
+        adjusted += 1
+        entry_slip_sum += e_slip
+        exit_slip_sum += x_slip
+
+    return {
+        "enabled": adjusted > 0,
+        "entry_latency_ms": int(entry_latency_ms),
+        "exit_latency_ms": int(exit_latency_ms),
+        "latency_jitter_ms": int(latency_jitter_ms),
+        "latency_seed": int(latency_seed),
+        "trades_adjusted": int(adjusted),
+        "avg_entry_slip": float(entry_slip_sum / adjusted) if adjusted > 0 else 0.0,
+        "avg_exit_slip": float(exit_slip_sum / adjusted) if adjusted > 0 else 0.0,
+    }
 
 
 def _clamp(value: float, low: float, high: float) -> float:
@@ -829,7 +1220,7 @@ def _run_execution_preflight_trade(
     dispatcher_cls,
     lots: float,
     hold_seconds: float = 1.5,
-    timeout_s: float = 30.0,
+    timeout_s: float = 90.0,  # Increased from 30s - M1 bars arrive once per minute
 ) -> bool:
     """Place and close a tiny live order to verify execution path."""
     from kinetra.renko.live_trader import TradeDirection
@@ -854,6 +1245,7 @@ def _run_execution_preflight_trade(
         return False
 
     try:
+        click.secho(f"  Waiting for live M1 bar (timeout: {timeout_s}s)...", fg="cyan")
         if not bar_ready.wait(timeout=timeout_s):
             click.secho("❌ Execution preflight failed: no live bar received", fg="red")
             return False
@@ -941,6 +1333,11 @@ def _stats_panel(
     # Drawdown
     dd = summary.get("max_drawdown_pct", 0.0)
     dd_usd = summary.get("max_drawdown_usd", 0.0)
+    dd_mtm = summary.get("max_drawdown_mtm_pct", dd)
+    dd_mtm_usd = summary.get("max_drawdown_mtm_usd", dd_usd)
+    max_margin_used = summary.get("max_used_margin_usd", 0.0)
+    min_margin_level = summary.get("min_margin_level_pct", None)
+    margin_rejects = summary.get("margin_rejects", 0)
     total_return = summary.get("total_return_pct", 0.0)
 
     # MAE/MFE (prefer summary, fall back to calculating from trades)
@@ -1086,10 +1483,28 @@ def _stats_panel(
         f"${_format_number(dd_usd)}",
     )
     t.add_row(
+        "Max MTM DD",
+        f"{dd_mtm:.2f}%",
+        "Max MTM DD $",
+        f"${_format_number(dd_mtm_usd)}",
+    )
+    t.add_row(
         "Max win streak",
         f"{max_ws}",
         "Max loss streak",
         f"{max_ls}",
+    )
+    t.add_row(
+        "Max used margin",
+        f"${_format_number(float(max_margin_used or 0.0))}",
+        "Margin rejects",
+        f"{int(margin_rejects or 0)}",
+    )
+    t.add_row(
+        "Min margin level",
+        (f"{float(min_margin_level):.1f}%" if min_margin_level is not None else "N/A"),
+        "",
+        "",
     )
 
     # ── SECTION: EXECUTION (if data available) ────────────────────────────────
@@ -1155,15 +1570,75 @@ def _print_stats(summary: dict, symbol: str, mode: str, trades: list = None) -> 
     """Render stats panel to terminal and log a one-liner to file."""
     console.print(_stats_panel(summary, symbol, mode, trades=trades))
     LOG.info(
-        "[%s %s] trades=%d net=%.2f omega=%.3f dd=%.2f%% equity=%.2f",
+        "[%s %s] trades=%d net=%.2f omega=%.3f dd_closed=%.2f%% dd_mtm=%.2f%% equity=%.2f",
         symbol,
         mode,
         summary.get("n_trades", 0),
         summary.get("net_usd", 0.0),
         summary.get("omega", 0.0),
         summary.get("max_drawdown_pct", 0.0),
+        summary.get("max_drawdown_mtm_pct", summary.get("max_drawdown_pct", 0.0)),
         summary.get("final_equity", 0.0),
     )
+
+
+def _print_spread_sanity_samples(
+    *,
+    symbol: str,
+    mode: str,
+    trades: list,
+    cfg: EngineConfig,
+    sample_n: int = 20,
+    seed: int = 42,
+) -> None:
+    """Print a small random sample of trade-level spread sanity diagnostics."""
+    if not trades:
+        return
+    n_total = len(trades)
+    n = min(int(sample_n), n_total)
+    if n <= 0:
+        return
+
+    rng = np.random.default_rng(int(seed))
+    idx = np.sort(rng.choice(n_total, size=n, replace=False))
+    spread_points = float(getattr(cfg, "spread_ticks", 0.0))
+    spread_price = spread_points * float(getattr(cfg, "tick_size", 0.0))
+    spread_sides = float(getattr(cfg, "spread_sides", 1.0))
+    click.echo()
+    click.echo(
+        f"[SPREAD SANITY] {symbol} {mode} sample={n}/{n_total} "
+        f"spread_points={spread_points:.2f} spread_price={spread_price:.5f} spread_sides={spread_sides:.2f}"
+    )
+    click.echo("  idx  lots  sp_pts  sp_px   entry_fill  exit_fill  gross_usd  spread_usd  net_usd")
+    for i in idx:
+        t = trades[int(i)]
+        if not isinstance(t, dict):
+            continue
+        lots = float(t.get("lots", 0.0) or 0.0)
+        entry_fill = float(t.get("entry_price", 0.0) or 0.0)
+        exit_fill = float(t.get("exit_price", 0.0) or 0.0)
+        spread_usd = float(t.get("spread_usd", 0.0) or 0.0)
+        net_usd = float(t.get("net_usd", 0.0) or 0.0)
+        denom = (
+            float(getattr(cfg, "usd_per_tick", 0.0)) * max(spread_sides, 1e-12) * max(lots, 1e-12)
+        )
+        spread_pts_trade = spread_usd / denom if denom > 0 else float("nan")
+        spread_px_trade = spread_pts_trade * float(getattr(cfg, "tick_size", 0.0))
+        gross_usd = float(
+            t.get(
+                "gross_usd",
+                net_usd
+                + spread_usd
+                + float(t.get("commission_usd", 0.0) or 0.0)
+                + float(t.get("swap_usd", 0.0) or 0.0),
+            )
+            or 0.0
+        )
+        click.echo(
+            f"  {int(i):4d}  {lots:4.2f}  {spread_pts_trade:6.2f}  {spread_px_trade:6.4f}  "
+            f"{entry_fill:10.5f}  {exit_fill:10.5f}  "
+            f"{gross_usd:9.2f}  {spread_usd:10.2f}  {net_usd:8.2f}"
+        )
 
 
 def _dashboard_panel(
@@ -1249,8 +1724,19 @@ def _dashboard_panel(
             last_brick_age = "n/a"
     else:
         last_brick_age = "n/a"
+    _tick_mode = bool(acct_info.get("tick_mode", False))
+    _ticks_received = int(acct_info.get("ticks_received", 0))
     table.add_row("[dim]Live Filter Activity[/]", "")
-    table.add_row("Bars seen", str(int(getattr(engine, "stream_bars_seen", 0))))
+    table.add_row(
+        "Data source",
+        "[cyan]Tick feed[/]" if _tick_mode else "[dim]M1 bars[/]",
+    )
+    if _tick_mode:
+        table.add_row("Ticks received", str(_ticks_received))
+    table.add_row(
+        "Ticks seen" if _tick_mode else "Bars seen",
+        str(int(getattr(engine, "stream_bars_seen", 0))),
+    )
     table.add_row("Flips seen", str(int(getattr(engine, "flips_seen", 0))))
     table.add_row("Filter-ready", str(int(getattr(engine, "filter_ready_bricks", 0))))
     table.add_row("Last brick UTC", last_brick_s)
@@ -1279,6 +1765,44 @@ def _dashboard_panel(
     table.add_row("Last failover", str(acct_info.get("last_failover_utc", "-")))
     table.add_row("Req timeouts", str(acct_info.get("request_timeouts", "-")))
     table.add_row("Snapshot source", str(acct_info.get("snapshot_source", "-")))
+
+    # Health and Fill Metrics
+    table.add_row("[dim]Health & Execution[/]", "")
+    health_status = str(acct_info.get("health_status", "UNKNOWN"))
+    if health_status == "HEALTHY":
+        health_fmt = "[green]HEALTHY[/]"
+    elif health_status == "DEGRADED":
+        health_fmt = "[yellow]DEGRADED[/]"
+    elif health_status in ("UNHEALTHY", "CRITICAL"):
+        health_fmt = "[red]{}[/]".format(health_status)
+    else:
+        health_fmt = health_status
+    table.add_row("Health status", health_fmt)
+    table.add_row("Health latency", f"{float(acct_info.get('health_latency_ms', 0)):.1f}ms")
+
+    fill_rate = float(acct_info.get("fill_success_rate", 1.0))
+    if fill_rate >= 0.95:
+        fill_fmt = f"[green]{fill_rate:.1%}[/]"
+    elif fill_rate >= 0.80:
+        fill_fmt = f"[yellow]{fill_rate:.1%}[/]"
+    else:
+        fill_fmt = f"[red]{fill_rate:.1%}[/]"
+    table.add_row("Fill success", fill_fmt)
+
+    consec_fails = int(acct_info.get("consecutive_fill_failures", 0))
+    if consec_fails == 0:
+        consec_fmt = "[green]0[/]"
+    elif consec_fails < 3:
+        consec_fmt = f"[yellow]{consec_fails}[/]"
+    else:
+        consec_fmt = f"[red]{consec_fails}[/]"
+    table.add_row("Consec failures", consec_fmt)
+
+    orders_sub = int(acct_info.get("orders_submitted", 0))
+    orders_ok = int(acct_info.get("orders_filled", 0))
+    orders_fail = int(acct_info.get("orders_failed", 0))
+    if orders_sub > 0:
+        table.add_row("Orders", f"{orders_ok}/{orders_sub} OK, {orders_fail} fail")
 
     table.add_row("[dim]Account / Broker Info[/]", "")
     table.add_row("Balance", f"${float(acct_info.get('balance', 0.0)):,.2f}")
@@ -1341,7 +1865,16 @@ def _print_dashboard(
     console.print(_dashboard_renderable(engine, symbol, mode, bricks, acct_info))
 
 
-def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
+def _print_system_spec(
+    cfg: EngineConfig,
+    spec,
+    dsp: dict,
+    *,
+    entry_latency_ms: Optional[int] = None,
+    exit_latency_ms: Optional[int] = None,
+    latency_jitter_ms: Optional[int] = None,
+    latency_seed: Optional[int] = None,
+) -> None:
     """Print complete trading system specification before performance analysis."""
     console.print()
 
@@ -1391,17 +1924,71 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
         f"${cfg.stop_bricks * cfg.brick_size:.2f} fixed distance",
     )
     spec_table.add_row("Exit Signal", "Colour change (opposite)", "Exit on first reversal brick")
-    spec_table.add_row("Trailing Stop", "Off", "Standard 1-brick fixed stop used")
+    if (
+        float(getattr(cfg, "trailing_mfe_fraction", 0.0)) > 0
+        and int(getattr(cfg, "trailing_mfe_after_bricks", 0)) > 0
+    ):
+        spec_table.add_row(
+            "Trailing Stop",
+            f"{100.0 * float(cfg.trailing_mfe_fraction):.0f}% MFE after {int(cfg.trailing_mfe_after_bricks)} bricks",
+            "Locks in fraction of max favorable excursion",
+        )
+    else:
+        spec_table.add_row("Trailing Stop", "Off", "Standard fixed stop used")
+    if bool(getattr(cfg, "conservative_fills", False)):
+        spec_table.add_row(
+            "Fill Model",
+            "Conservative",
+            (
+                f"entry={float(getattr(cfg, 'entry_slip_bricks', 0.0)):.2f}b "
+                f"exit={float(getattr(cfg, 'exit_slip_bricks', 0.0)):.2f}b "
+                f"stop+={float(getattr(cfg, 'stop_worst_case_bricks', 0.0)):.2f}b "
+                f"flip+={float(getattr(cfg, 'flip_trade_through_bricks', 0.0)):.2f}b"
+            ),
+        )
+    else:
+        spec_table.add_row("Fill Model", "Standard", "No adverse offset beyond friction model")
 
     # Friction Costs
     spec_table.add_row(
         "Spread",
         f"{cfg.spread_ticks:.1f} ticks",
-        f"${cfg.spread_ticks * cfg.usd_per_tick:.2f} per round-trip",
+        f"${cfg.spread_ticks * cfg.usd_per_tick * max(float(getattr(cfg, 'spread_sides', 1.0)), 0.0):.2f} modeled RT",
     )
     spec_table.add_row(
         "Commission", f"${cfg.commission_per_lot:.2f}/lot", "ECN round-trip per standard lot"
     )
+    if (
+        entry_latency_ms is not None
+        or exit_latency_ms is not None
+        or latency_jitter_ms is not None
+        or latency_seed is not None
+    ):
+        spec_table.add_row(
+            "Latency Model",
+            "Backtest-only",
+            "Adverse post-fill slippage model",
+        )
+        spec_table.add_row(
+            "Entry Latency",
+            f"{int(entry_latency_ms or 0)} ms",
+            "Applied as adverse entry offset",
+        )
+        spec_table.add_row(
+            "Exit Latency",
+            f"{int(exit_latency_ms or 0)} ms",
+            "Applied as adverse exit offset",
+        )
+        spec_table.add_row(
+            "Latency Jitter",
+            f"{int(latency_jitter_ms or 0)} ms",
+            "Gaussian stddev (adverse-clamped)",
+        )
+        spec_table.add_row(
+            "Latency Seed",
+            f"{int(latency_seed or 0)}",
+            "Deterministic RNG seed",
+        )
 
     # Swap rates — prefer broker-polled USD; otherwise show raw broker value
     # in its native unit (pips for mode 0, % p.a. for mode 1).
@@ -1430,6 +2017,22 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
 
     # Position Sizing
     spec_table.add_row("Initial Equity", f"${cfg.initial_equity:,.2f}", "Starting account balance")
+    implied_lev = (1.0 / float(cfg.margin_rate)) if float(cfg.margin_rate) > 0 else 0.0
+    spec_table.add_row(
+        "Max Leverage",
+        f"1:{implied_lev:.1f}" if implied_lev > 0 else "N/A",
+        "Effective cap after broker + user constraints",
+    )
+    spec_table.add_row(
+        "Margin Rate",
+        f"{100.0 * float(cfg.margin_rate):.3f}%",
+        f"Implied leverage ~1:{implied_lev:.1f}" if implied_lev > 0 else "N/A",
+    )
+    spec_table.add_row(
+        "Margin Call / Stop-Out",
+        f"{float(cfg.margin_call_level_pct):.1f}% / {float(cfg.stop_out_level_pct):.1f}%",
+        "Forced close when margin level <= stop-out",
+    )
     spec_table.add_row(
         "Risk per Trade", f"${cfg.target_risk_usd:.2f}", "Target USD at risk per position"
     )
@@ -1442,7 +2045,11 @@ def _print_system_spec(cfg: EngineConfig, spec, dsp: dict) -> None:
     spec_table.add_row(
         "Sizing Mode (Backtest)",
         sizing_note,
-        "Static (0.01) + Compounding (max 10.0)" if cfg.symbol.upper() == "XAUUSD" else "",
+        (
+            f"Static (0.01) + Compounding (max {cfg.gate_lot_ceiling:.2f})"
+            if cfg.symbol.upper() == "XAUUSD"
+            else ""
+        ),
     )
 
     # Trading Hours
@@ -1484,10 +2091,12 @@ def stage_dsp(symbol: str) -> bool:
     click.echo(f"{'=' * 60}")
 
     # Load M1 data
-    closes = load_m1_data(symbol)
-    if closes is None:
+    market_df = load_m1_market_data(symbol)
+    if market_df is None or market_df.empty:
         click.secho(f"❌ No M1 data found for {symbol}", fg="red")
         return False
+    closes = market_df["close"]
+    spread_series = market_df["spread"] if "spread" in market_df.columns else None
 
     click.echo(f"Loaded {len(closes):,} M1 bars")
 
@@ -1514,7 +2123,7 @@ def _build_engine_config(
     symbol: str,
     dsp: dict,
     sizing_mode: str = "compounding",
-    lot_ceiling: float = 999.0,
+    lot_ceiling: float = 50.0,
 ) -> tuple:
     """Build a canonical EngineConfig from a DSP profile dict.
 
@@ -1656,6 +2265,7 @@ def _build_engine_config(
             swap_long_usd_per_day=_swap_long_usd,
             swap_short_usd_per_day=_swap_short_usd,
             triple_swap_day=spec.triple_swap_day,
+            margin_rate=float(spec.margin_initial) if float(spec.margin_initial) > 0 else 0.01,
             sizing_mode=sizing_mode,
             gate_lot_ceiling=lot_ceiling,
         ),
@@ -1681,6 +2291,32 @@ def stage_backtest(
     markov_window_override: Optional[int] = None,
     fliprate_threshold_override: Optional[float] = None,
     markov_threshold_override: Optional[float] = None,
+    max_leverage_override: Optional[float] = None,
+    trailing_mfe_fraction_override: Optional[float] = None,
+    trailing_mfe_after_bricks_override: Optional[int] = None,
+    entry_latency_ms: int = 250,
+    exit_latency_ms: int = 250,
+    latency_jitter_ms: int = 10,
+    latency_seed: int = 42,
+    lot_ceiling_override: float = 50.0,
+    conservative_fills: bool = True,
+    spread_sides: float = 1.0,
+    entry_slip_bricks: float = 0.0,
+    exit_slip_bricks: float = 0.10,
+    stop_worst_case_bricks: float = 0.25,
+    flip_trade_through_bricks: float = 0.10,
+    use_pe_gate_override: Optional[bool] = None,
+    pe_window_override: Optional[int] = None,
+    pe_order_override: Optional[int] = None,
+    pe_entry_threshold_override: Optional[float] = None,
+    pe_exit_threshold_override: Optional[float] = None,
+    use_time_decay_override: Optional[bool] = None,
+    stale_brick_factor_override: Optional[float] = None,
+    markov_stale_penalty_override: Optional[float] = None,
+    use_obi_slippage_buffer_override: Optional[bool] = None,
+    obi_levels_override: Optional[int] = None,
+    obi_max_buffer_bricks_override: Optional[float] = None,
+    obi_ema_alpha_override: Optional[float] = None,
 ) -> bool:
     """Backtest the last N months of data."""
     run_started_utc = datetime.now(timezone.utc)
@@ -1694,11 +2330,13 @@ def stage_backtest(
         click.secho(f"❌ Unable to prepare required M1 history for {symbol}", fg="red")
         return False
 
-    # Load all M1 data
-    closes = load_m1_data(symbol)
-    if closes is None:
+    # Load all M1 data (close + spread for dynamic spread costing)
+    market_df = load_m1_market_data(symbol)
+    if market_df is None or market_df.empty:
         click.secho(f"❌ No M1 data found for {symbol}", fg="red")
         return False
+    closes = market_df["close"]
+    spread_series = market_df["spread"] if "spread" in market_df.columns else None
 
     # Filter to last N months
     cutoff = closes.index[-1] - pd.DateOffset(months=months)
@@ -1714,21 +2352,52 @@ def stage_backtest(
         return False
 
     # Build config for both scenarios
-    cfg_sample, spec = _build_engine_config(symbol, dsp, sizing_mode="static")
+    cfg_sample, spec = _build_engine_config(
+        symbol, dsp, sizing_mode="static", lot_ceiling=float(lot_ceiling_override)
+    )
     _apply_strategy_overrides(
         cfg_sample,
         stop_bricks=stop_bricks_override,
+        trailing_mfe_fraction=trailing_mfe_fraction_override,
+        trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
         target_risk=target_risk_override,
         brick_size=brick_size_override,
         fliprate_window=fliprate_window_override,
         markov_window=markov_window_override,
         fliprate_threshold=fliprate_threshold_override,
         markov_threshold=markov_threshold_override,
+        max_leverage=max_leverage_override,
+        spread_sides=spread_sides,
+        conservative_fills=conservative_fills,
+        entry_slip_bricks=entry_slip_bricks,
+        exit_slip_bricks=exit_slip_bricks,
+        stop_worst_case_bricks=stop_worst_case_bricks,
+        flip_trade_through_bricks=flip_trade_through_bricks,
+        use_pe_gate=use_pe_gate_override,
+        pe_window=pe_window_override,
+        pe_order=pe_order_override,
+        pe_entry_threshold=pe_entry_threshold_override,
+        pe_exit_threshold=pe_exit_threshold_override,
+        use_time_decay=use_time_decay_override,
+        stale_brick_factor=stale_brick_factor_override,
+        markov_stale_penalty=markov_stale_penalty_override,
+        use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+        obi_levels=obi_levels_override,
+        obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+        obi_ema_alpha=obi_ema_alpha_override,
     )
 
     # Print system specification BEFORE backtest
     click.echo()
-    _print_system_spec(cfg_sample, spec, dsp)
+    _print_system_spec(
+        cfg_sample,
+        spec,
+        dsp,
+        entry_latency_ms=entry_latency_ms,
+        exit_latency_ms=exit_latency_ms,
+        latency_jitter_ms=latency_jitter_ms,
+        latency_seed=latency_seed,
+    )
 
     # Run backtest with both sizing scenarios for XAUUSD
     scenarios = ["static", "compounding"] if symbol.upper() == "XAUUSD" else ["risk_based"]
@@ -1743,9 +2412,8 @@ def stage_backtest(
         for scenario in scenarios:
             click.echo(f"--- {scenario.upper()} SIZING ---")
 
-            # For compounding: use realistic lot ceiling (10.0)
-            # For static: use min_lots (0.01)
-            lot_ceiling = 10.0 if scenario == "compounding" else 0.01
+            # Static uses fixed min lot; non-static scenarios respect user lot cap.
+            lot_ceiling = 0.01 if scenario == "static" else float(lot_ceiling_override)
 
             cfg, _ = _build_engine_config(
                 symbol, dsp, sizing_mode=scenario, lot_ceiling=lot_ceiling
@@ -1753,15 +2421,58 @@ def stage_backtest(
             _apply_strategy_overrides(
                 cfg,
                 stop_bricks=stop_bricks_override,
+                trailing_mfe_fraction=trailing_mfe_fraction_override,
+                trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
                 target_risk=target_risk_override,
                 brick_size=brick_size_override,
                 fliprate_window=fliprate_window_override,
                 markov_window=markov_window_override,
                 fliprate_threshold=fliprate_threshold_override,
                 markov_threshold=markov_threshold_override,
+                max_leverage=max_leverage_override,
+                spread_sides=spread_sides,
+                conservative_fills=conservative_fills,
+                entry_slip_bricks=entry_slip_bricks,
+                exit_slip_bricks=exit_slip_bricks,
+                stop_worst_case_bricks=stop_worst_case_bricks,
+                flip_trade_through_bricks=flip_trade_through_bricks,
+                use_pe_gate=use_pe_gate_override,
+                pe_window=pe_window_override,
+                pe_order=pe_order_override,
+                pe_entry_threshold=pe_entry_threshold_override,
+                pe_exit_threshold=pe_exit_threshold_override,
+                use_time_decay=use_time_decay_override,
+                stale_brick_factor=stale_brick_factor_override,
+                markov_stale_penalty=markov_stale_penalty_override,
+                use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+                obi_levels=obi_levels_override,
+                obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+                obi_ema_alpha=obi_ema_alpha_override,
             )
             engine = RenkoEngine(cfg)
+            engine.set_dynamic_spread_series(spread_series)
             results = engine.backtest(test_closes)
+            latency_meta = _apply_latency_slippage_to_completed_trades(
+                completed_trades=engine._completed,
+                brick_size=float(cfg.brick_size),
+                usd_per_point=float(engine._usd_per_point),
+                entry_latency_ms=int(entry_latency_ms),
+                exit_latency_ms=int(exit_latency_ms),
+                latency_jitter_ms=int(latency_jitter_ms),
+                latency_seed=int(latency_seed),
+            )
+            if latency_meta.get("enabled", False):
+                results = engine._make_results()
+                LOG.warning(
+                    "[BACKTEST LATENCY] scenario=%s adjusted=%d entry_ms=%d exit_ms=%d jitter_ms=%d avg_entry_slip=%.5f avg_exit_slip=%.5f",
+                    scenario,
+                    int(latency_meta.get("trades_adjusted", 0)),
+                    int(latency_meta.get("entry_latency_ms", 0)),
+                    int(latency_meta.get("exit_latency_ms", 0)),
+                    int(latency_meta.get("latency_jitter_ms", 0)),
+                    float(latency_meta.get("avg_entry_slip", 0.0)),
+                    float(latency_meta.get("avg_exit_slip", 0.0)),
+                )
 
             if "error" in results:
                 click.secho(f"❌ Error: {results['error']}", fg="red")
@@ -1787,8 +2498,33 @@ def stage_backtest(
                     "engine_config": asdict(cfg),
                 },
             )
+            equity_plot = _save_equity_plot(
+                symbol=symbol,
+                mode=f"backtest_{scenario}",
+                trades=trades,
+                initial_equity=float(cfg.initial_equity),
+                run_id=run_id,
+            )
+            lev_cap = (1.0 / float(cfg.margin_rate)) if float(cfg.margin_rate) > 0 else None
+            leverage_plot = _save_leverage_plot(
+                symbol=symbol,
+                mode=f"backtest_{scenario}",
+                trades=trades,
+                initial_equity=float(cfg.initial_equity),
+                usd_per_point=float(engine._usd_per_point),
+                max_leverage=lev_cap,
+                run_id=run_id,
+            )
 
             _print_stats(summary, symbol, f"backtest-{scenario}", trades=trades)
+            _print_spread_sanity_samples(
+                symbol=symbol,
+                mode=f"backtest-{scenario}",
+                trades=trades,
+                cfg=cfg,
+                sample_n=20,
+                seed=42,
+            )
 
             n_trades = int(summary.get("n_trades", 0))
             omega = float(summary.get("omega", 0.0))
@@ -1799,8 +2535,11 @@ def stage_backtest(
                 "pass_gates": bool(passes),
                 "lot_ceiling": lot_ceiling,
                 "engine_config": asdict(cfg),
+                "latency": latency_meta,
                 "summary": summary,
                 "audit_path": str(audit_path),
+                "equity_plot_path": str(equity_plot) if equity_plot is not None else None,
+                "leverage_plot_path": str(leverage_plot) if leverage_plot is not None else None,
             }
 
             if passes:
@@ -1851,6 +2590,16 @@ def stage_backtest(
                     else []
                 ),
                 *(
+                    ["--trailing-mfe-fraction", str(trailing_mfe_fraction_override)]
+                    if trailing_mfe_fraction_override is not None
+                    else []
+                ),
+                *(
+                    ["--trailing-mfe-after-bricks", str(trailing_mfe_after_bricks_override)]
+                    if trailing_mfe_after_bricks_override is not None
+                    else []
+                ),
+                *(
                     ["--target-risk", str(target_risk_override)]
                     if target_risk_override is not None
                     else []
@@ -1880,6 +2629,19 @@ def stage_backtest(
                     if markov_threshold_override is not None
                     else []
                 ),
+                *(
+                    ["--max-leverage", str(max_leverage_override)]
+                    if max_leverage_override is not None
+                    else []
+                ),
+                "--entry-latency-ms",
+                str(int(entry_latency_ms)),
+                "--exit-latency-ms",
+                str(int(exit_latency_ms)),
+                "--latency-jitter-ms",
+                str(int(latency_jitter_ms)),
+                "--latency-seed",
+                str(int(latency_seed)),
             ]
         ),
         "inputs": {
@@ -1887,14 +2649,31 @@ def stage_backtest(
             "min_omega": float(min_omega),
             "min_trades": int(min_trades),
             "auto_download": bool(auto_download),
+            "latency": {
+                "entry_latency_ms": int(entry_latency_ms),
+                "exit_latency_ms": int(exit_latency_ms),
+                "latency_jitter_ms": int(latency_jitter_ms),
+                "latency_seed": int(latency_seed),
+            },
+            "execution_model": {
+                "conservative_fills": bool(conservative_fills),
+                "spread_sides": float(spread_sides),
+                "entry_slip_bricks": float(entry_slip_bricks),
+                "exit_slip_bricks": float(exit_slip_bricks),
+                "stop_worst_case_bricks": float(stop_worst_case_bricks),
+                "flip_trade_through_bricks": float(flip_trade_through_bricks),
+            },
             "overrides": {
                 "stop_bricks": stop_bricks_override,
+                "trailing_mfe_fraction": trailing_mfe_fraction_override,
+                "trailing_mfe_after_bricks": trailing_mfe_after_bricks_override,
                 "target_risk": target_risk_override,
                 "brick_size": brick_size_override,
                 "fliprate_window": fliprate_window_override,
                 "markov_window": markov_window_override,
                 "fliprate_threshold": fliprate_threshold_override,
                 "markov_threshold": markov_threshold_override,
+                "max_leverage": max_leverage_override,
             },
         },
         "data_window": {
@@ -1925,6 +2704,635 @@ def stage_backtest(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# STAGE 3B: FULL BACKTEST (ROLLING OOS)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def stage_full_rolling_oos(
+    symbol: str,
+    months: int = 24,
+    oos_window_months: int = 3,
+    wf_is_months: int = 3,
+    wf_trials: int = 16,
+    wf_seed: int = 42,
+    min_omega: float = 1.5,
+    min_trades: int = 30,
+    auto_download: bool = False,
+    stop_bricks_override: Optional[float] = None,
+    trailing_mfe_fraction_override: Optional[float] = None,
+    trailing_mfe_after_bricks_override: Optional[int] = None,
+    target_risk_override: Optional[float] = None,
+    brick_size_override: Optional[float] = None,
+    fliprate_window_override: Optional[int] = None,
+    markov_window_override: Optional[int] = None,
+    fliprate_threshold_override: Optional[float] = None,
+    markov_threshold_override: Optional[float] = None,
+    max_leverage_override: Optional[float] = None,
+    entry_latency_ms: int = 250,
+    exit_latency_ms: int = 250,
+    latency_jitter_ms: int = 10,
+    latency_seed: int = 42,
+    lot_ceiling_override: float = 50.0,
+    conservative_fills: bool = True,
+    spread_sides: float = 1.0,
+    entry_slip_bricks: float = 0.0,
+    exit_slip_bricks: float = 0.10,
+    stop_worst_case_bricks: float = 0.25,
+    flip_trade_through_bricks: float = 0.10,
+    use_pe_gate_override: Optional[bool] = None,
+    pe_window_override: Optional[int] = None,
+    pe_order_override: Optional[int] = None,
+    pe_entry_threshold_override: Optional[float] = None,
+    pe_exit_threshold_override: Optional[float] = None,
+    use_time_decay_override: Optional[bool] = None,
+    stale_brick_factor_override: Optional[float] = None,
+    markov_stale_penalty_override: Optional[float] = None,
+    use_obi_slippage_buffer_override: Optional[bool] = None,
+    obi_levels_override: Optional[int] = None,
+    obi_max_buffer_bricks_override: Optional[float] = None,
+    obi_ema_alpha_override: Optional[float] = None,
+) -> bool:
+    """Walk-forward full backtest with IS fit + OOS evaluation per fold."""
+    if months <= 0 or oos_window_months <= 0 or wf_is_months <= 0:
+        click.secho("❌ months, oos_window_months and wf_is_months must be > 0", fg="red")
+        return False
+
+    run_started_utc = datetime.now(timezone.utc)
+    run_id = run_started_utc.strftime("%Y%m%dT%H%M%S_%fZ")
+
+    click.echo(f"\n{'=' * 60}")
+    click.secho(
+        (
+            "STAGE 3B: FULL BACKTEST "
+            f"(WALK-FORWARD, {months}m total, IS={wf_is_months}m, OOS={oos_window_months}m, trials={wf_trials})"
+        ),
+        fg="cyan",
+        bold=True,
+    )
+    click.echo(f"{'=' * 60}")
+
+    if not _ensure_backtest_history(symbol, months, auto_download=auto_download):
+        click.secho(f"❌ Unable to prepare required M1 history for {symbol}", fg="red")
+        return False
+
+    market_df = load_m1_market_data(symbol)
+    if market_df is None or market_df.empty:
+        click.secho(f"❌ No M1 data found for {symbol}", fg="red")
+        return False
+    closes = market_df["close"]
+    spread_series = market_df["spread"] if "spread" in market_df.columns else None
+
+    cutoff = closes.index[-1] - pd.DateOffset(months=months)
+    test_closes = closes[closes.index >= cutoff]
+    if test_closes.empty:
+        click.secho("❌ Empty test window after history filter", fg="red")
+        return False
+
+    click.echo(f"Testing {len(test_closes):,} bars ({months} months total)")
+    click.echo(f"Range: {test_closes.index[0]} to {test_closes.index[-1]}")
+
+    dsp, dsp_file = _load_or_build_dsp_profile(symbol, closes=closes)
+    if dsp is None:
+        click.secho(f"❌ No DSP profile found at {dsp_file}", fg="red")
+        return False
+
+    cfg_sample, spec = _build_engine_config(
+        symbol, dsp, sizing_mode="static", lot_ceiling=float(lot_ceiling_override)
+    )
+    _apply_strategy_overrides(
+        cfg_sample,
+        stop_bricks=stop_bricks_override,
+        trailing_mfe_fraction=trailing_mfe_fraction_override,
+        trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
+        target_risk=target_risk_override,
+        brick_size=brick_size_override,
+        fliprate_window=fliprate_window_override,
+        markov_window=markov_window_override,
+        fliprate_threshold=fliprate_threshold_override,
+        markov_threshold=markov_threshold_override,
+        max_leverage=max_leverage_override,
+        spread_sides=spread_sides,
+        conservative_fills=conservative_fills,
+        entry_slip_bricks=entry_slip_bricks,
+        exit_slip_bricks=exit_slip_bricks,
+        stop_worst_case_bricks=stop_worst_case_bricks,
+        flip_trade_through_bricks=flip_trade_through_bricks,
+        use_pe_gate=use_pe_gate_override,
+        pe_window=pe_window_override,
+        pe_order=pe_order_override,
+        pe_entry_threshold=pe_entry_threshold_override,
+        pe_exit_threshold=pe_exit_threshold_override,
+        use_time_decay=use_time_decay_override,
+        stale_brick_factor=stale_brick_factor_override,
+        markov_stale_penalty=markov_stale_penalty_override,
+        use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+        obi_levels=obi_levels_override,
+        obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+        obi_ema_alpha=obi_ema_alpha_override,
+    )
+    click.echo()
+    _print_system_spec(
+        cfg_sample,
+        spec,
+        dsp,
+        entry_latency_ms=entry_latency_ms,
+        exit_latency_ms=exit_latency_ms,
+        latency_jitter_ms=latency_jitter_ms,
+        latency_seed=latency_seed,
+    )
+
+    # Build sequential OOS folds inside [test_start, test_end].
+    folds: list[tuple[pd.Timestamp, pd.Timestamp]] = []
+    fold_start = pd.Timestamp(test_closes.index[0])
+    test_end = pd.Timestamp(test_closes.index[-1])
+    while fold_start < test_end:
+        fold_end = min(fold_start + pd.DateOffset(months=oos_window_months), test_end)
+        if fold_end <= fold_start:
+            break
+        folds.append((fold_start, fold_end))
+        fold_start = fold_end
+    if not folds:
+        click.secho("❌ Failed to construct OOS folds", fg="red")
+        return False
+
+    scenarios = ["static", "compounding"] if symbol.upper() == "XAUUSD" else ["risk_based"]
+    scenario_reports: dict = {}
+    all_pass = True
+
+    def _summary_score(summary: dict) -> float:
+        n_trades = int(summary.get("n_trades", 0))
+        omega = float(summary.get("omega", 0.0))
+        net_usd = float(summary.get("net_usd", 0.0))
+        dd_pct = abs(float(summary.get("max_drawdown_pct", 0.0))) / 100.0
+        trade_term = min(n_trades, 250) / 250.0
+        net_term = _clamp(net_usd / 3000.0, -2.0, 2.0)
+        dd_penalty = max(0.0, dd_pct - 0.12) * 3.5
+        low_trade_penalty = max(0, 25 - n_trades) * 0.08
+        return float(omega + trade_term + net_term - dd_penalty - low_trade_penalty)
+
+    def _fit_fold_params(base_cfg: EngineConfig, is_series: pd.Series, seed: int) -> dict:
+        rng = np.random.default_rng(int(seed))
+        if wf_trials <= 0:
+            return {
+                "brick_size": float(base_cfg.brick_size),
+                "stop_bricks": float(base_cfg.stop_bricks),
+                "target_risk_usd": float(base_cfg.target_risk_usd),
+                "fliprate_threshold": float(base_cfg.fliprate_threshold),
+                "markov_threshold": float(base_cfg.markov_threshold),
+                "trailing_mfe_fraction": float(base_cfg.trailing_mfe_fraction),
+                "trailing_mfe_after_bricks": int(base_cfg.trailing_mfe_after_bricks),
+                "score": float("-inf"),
+            }
+
+        # Sane local bounds around current config.
+        b0 = float(base_cfg.brick_size)
+        s0 = float(base_cfg.stop_bricks)
+        r0 = float(base_cfg.target_risk_usd)
+        f0 = float(base_cfg.fliprate_threshold)
+        m0 = float(base_cfg.markov_threshold)
+        tf0 = float(base_cfg.trailing_mfe_fraction)
+        ta0 = int(base_cfg.trailing_mfe_after_bricks)
+        best = None
+        best_score = -float("inf")
+
+        for _ in range(int(wf_trials)):
+            cand = {
+                "brick_size": float(_clamp(rng.uniform(b0 * 0.7, b0 * 1.6), 0.05, 9999.0)),
+                "stop_bricks": float(_clamp(rng.uniform(s0 * 0.6, s0 * 1.8), 0.2, 5.0)),
+                "target_risk_usd": float(_clamp(rng.uniform(r0 * 0.5, r0 * 1.8), 5.0, 10000.0)),
+                "fliprate_threshold": float(_clamp(rng.uniform(f0 - 0.12, f0 + 0.12), 0.15, 0.65)),
+                "markov_threshold": float(_clamp(rng.uniform(m0 - 0.12, m0 + 0.12), 0.40, 0.90)),
+                "trailing_mfe_fraction": float(
+                    _clamp(rng.uniform(max(0.2, tf0 - 0.2), min(0.9, tf0 + 0.2)), 0.2, 0.9)
+                ),
+                "trailing_mfe_after_bricks": int(
+                    _clamp(round(rng.uniform(max(1, ta0 - 2), max(2, ta0 + 3))), 1, 12)
+                ),
+            }
+            cfg_fit = EngineConfig(**asdict(base_cfg))
+            cfg_fit.brick_size = cand["brick_size"]
+            cfg_fit.stop_bricks = cand["stop_bricks"]
+            cfg_fit.target_risk_usd = cand["target_risk_usd"]
+            cfg_fit.fliprate_threshold = cand["fliprate_threshold"]
+            cfg_fit.markov_threshold = cand["markov_threshold"]
+            cfg_fit.trailing_mfe_fraction = cand["trailing_mfe_fraction"]
+            cfg_fit.trailing_mfe_after_bricks = cand["trailing_mfe_after_bricks"]
+
+            engine_fit = RenkoEngine(cfg_fit, quiet_mode=True)
+            fit_res = engine_fit.backtest(is_series)
+            if "error" in fit_res:
+                continue
+            fit_score = _summary_score(fit_res.get("summary", {}))
+            if fit_score > best_score:
+                best_score = fit_score
+                best = cand
+
+        if best is None:
+            best = {
+                "brick_size": float(base_cfg.brick_size),
+                "stop_bricks": float(base_cfg.stop_bricks),
+                "target_risk_usd": float(base_cfg.target_risk_usd),
+                "fliprate_threshold": float(base_cfg.fliprate_threshold),
+                "markov_threshold": float(base_cfg.markov_threshold),
+                "trailing_mfe_fraction": float(base_cfg.trailing_mfe_fraction),
+                "trailing_mfe_after_bricks": int(base_cfg.trailing_mfe_after_bricks),
+            }
+        best["score"] = float(best_score)
+        return best
+
+    def _delta_block(is_s: dict, oos_s: dict) -> dict:
+        return {
+            "omega_delta": float(oos_s.get("omega", 0.0)) - float(is_s.get("omega", 0.0)),
+            "net_usd_delta": float(oos_s.get("net_usd", 0.0)) - float(is_s.get("net_usd", 0.0)),
+            "win_rate_delta": float(oos_s.get("win_rate", 0.0)) - float(is_s.get("win_rate", 0.0)),
+            "n_trades_delta": int(oos_s.get("n_trades", 0)) - int(is_s.get("n_trades", 0)),
+            "dd_pct_delta": float(oos_s.get("max_drawdown_pct", 0.0))
+            - float(is_s.get("max_drawdown_pct", 0.0)),
+        }
+
+    original_log_level = LOG.level
+    engine_log = logging.getLogger("kinetra.renko.trading_engine")
+    original_engine_log_level = engine_log.level
+    LOG.setLevel(logging.WARNING)
+    engine_log.setLevel(logging.ERROR)
+    try:
+        for scenario in scenarios:
+            click.echo(f"--- {scenario.upper()} SIZING (rolling OOS) ---")
+            lot_ceiling = 0.01 if scenario == "static" else float(lot_ceiling_override)
+            cfg, _ = _build_engine_config(
+                symbol, dsp, sizing_mode=scenario, lot_ceiling=lot_ceiling
+            )
+            _apply_strategy_overrides(
+                cfg,
+                stop_bricks=stop_bricks_override,
+                trailing_mfe_fraction=trailing_mfe_fraction_override,
+                trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
+                target_risk=target_risk_override,
+                brick_size=brick_size_override,
+                fliprate_window=fliprate_window_override,
+                markov_window=markov_window_override,
+                fliprate_threshold=fliprate_threshold_override,
+                markov_threshold=markov_threshold_override,
+                max_leverage=max_leverage_override,
+                spread_sides=spread_sides,
+                conservative_fills=conservative_fills,
+                entry_slip_bricks=entry_slip_bricks,
+                exit_slip_bricks=exit_slip_bricks,
+                stop_worst_case_bricks=stop_worst_case_bricks,
+                flip_trade_through_bricks=flip_trade_through_bricks,
+                use_pe_gate=use_pe_gate_override,
+                pe_window=pe_window_override,
+                pe_order=pe_order_override,
+                pe_entry_threshold=pe_entry_threshold_override,
+                pe_exit_threshold=pe_exit_threshold_override,
+                use_time_decay=use_time_decay_override,
+                stale_brick_factor=stale_brick_factor_override,
+                markov_stale_penalty=markov_stale_penalty_override,
+                use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+                obi_levels=obi_levels_override,
+                obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+                obi_ema_alpha=obi_ema_alpha_override,
+            )
+
+            all_completed_oos = []
+            all_completed_is = []
+            fold_reports: list[dict] = []
+            for i, (fstart, fend) in enumerate(folds, start=1):
+                is_start = fstart - pd.DateOffset(months=wf_is_months)
+                is_series = closes[(closes.index >= is_start) & (closes.index < fstart)]
+                if i < len(folds):
+                    oos_series = test_closes[
+                        (test_closes.index >= fstart) & (test_closes.index < fend)
+                    ]
+                else:
+                    oos_series = test_closes[
+                        (test_closes.index >= fstart) & (test_closes.index <= fend)
+                    ]
+                if is_series.empty or oos_series.empty:
+                    continue
+
+                best = _fit_fold_params(cfg, is_series, seed=wf_seed + i)
+                cfg_fold = EngineConfig(**asdict(cfg))
+                cfg_fold.brick_size = float(best["brick_size"])
+                cfg_fold.stop_bricks = float(best["stop_bricks"])
+                cfg_fold.target_risk_usd = float(best["target_risk_usd"])
+                cfg_fold.fliprate_threshold = float(best["fliprate_threshold"])
+                cfg_fold.markov_threshold = float(best["markov_threshold"])
+                cfg_fold.trailing_mfe_fraction = float(best["trailing_mfe_fraction"])
+                cfg_fold.trailing_mfe_after_bricks = int(best["trailing_mfe_after_bricks"])
+
+                engine_is = RenkoEngine(cfg_fold, quiet_mode=True)
+                engine_is.set_dynamic_spread_series(spread_series)
+                is_results = engine_is.backtest(is_series)
+                if "error" in is_results:
+                    fold_reports.append(
+                        {
+                            "fold": i,
+                            "range_start_utc": fstart.isoformat(),
+                            "range_end_utc": fend.isoformat(),
+                            "status": "ERROR",
+                            "error": f"is_error: {is_results['error']}",
+                        }
+                    )
+                    continue
+                is_summary = is_results.get("summary", {})
+                all_completed_is.extend(engine_is._completed)
+
+                engine_oos = RenkoEngine(cfg_fold, quiet_mode=True)
+                engine_oos.set_dynamic_spread_series(spread_series)
+                oos_results = engine_oos.backtest(oos_series)
+                latency_meta = _apply_latency_slippage_to_completed_trades(
+                    completed_trades=engine_oos._completed,
+                    brick_size=float(cfg_fold.brick_size),
+                    usd_per_point=float(engine_oos._usd_per_point),
+                    entry_latency_ms=int(entry_latency_ms),
+                    exit_latency_ms=int(exit_latency_ms),
+                    latency_jitter_ms=int(latency_jitter_ms),
+                    latency_seed=int(latency_seed),
+                )
+                if latency_meta.get("enabled", False):
+                    oos_results = engine_oos._make_results()
+
+                if "error" in oos_results:
+                    fold_reports.append(
+                        {
+                            "fold": i,
+                            "range_start_utc": fstart.isoformat(),
+                            "range_end_utc": fend.isoformat(),
+                            "status": "ERROR",
+                            "error": f"oos_error: {oos_results['error']}",
+                        }
+                    )
+                    continue
+
+                oos_summary = oos_results.get("summary", {})
+                all_completed_oos.extend(engine_oos._completed)
+                deltas = _delta_block(is_summary, oos_summary)
+                fold_reports.append(
+                    {
+                        "fold": i,
+                        "is_start_utc": is_start.isoformat(),
+                        "is_end_utc": fstart.isoformat(),
+                        "range_start_utc": fstart.isoformat(),
+                        "range_end_utc": fend.isoformat(),
+                        "fit_score": float(best.get("score", 0.0)),
+                        "fitted_params": {
+                            "brick_size": cfg_fold.brick_size,
+                            "stop_bricks": cfg_fold.stop_bricks,
+                            "target_risk_usd": cfg_fold.target_risk_usd,
+                            "fliprate_threshold": cfg_fold.fliprate_threshold,
+                            "markov_threshold": cfg_fold.markov_threshold,
+                            "trailing_mfe_fraction": cfg_fold.trailing_mfe_fraction,
+                            "trailing_mfe_after_bricks": cfg_fold.trailing_mfe_after_bricks,
+                        },
+                        "is_summary": {
+                            "n_trades": int(is_summary.get("n_trades", 0)),
+                            "omega": float(is_summary.get("omega", 0.0)),
+                            "net_usd": float(is_summary.get("net_usd", 0.0)),
+                            "win_rate": float(is_summary.get("win_rate", 0.0)),
+                            "max_drawdown_pct": float(is_summary.get("max_drawdown_pct", 0.0)),
+                        },
+                        "oos_summary": {
+                            "n_trades": int(oos_summary.get("n_trades", 0)),
+                            "omega": float(oos_summary.get("omega", 0.0)),
+                            "net_usd": float(oos_summary.get("net_usd", 0.0)),
+                            "win_rate": float(oos_summary.get("win_rate", 0.0)),
+                            "max_drawdown_pct": float(oos_summary.get("max_drawdown_pct", 0.0)),
+                        },
+                        "delta_oos_minus_is": deltas,
+                        "latency": latency_meta,
+                    }
+                )
+
+            if not all_completed_oos:
+                scenario_reports[scenario] = {
+                    "status": "ERROR",
+                    "error": "no_trades_across_folds",
+                    "lot_ceiling": lot_ceiling,
+                    "engine_config": asdict(cfg),
+                    "folds": fold_reports,
+                }
+                all_pass = False
+                continue
+
+            agg_is_engine = RenkoEngine(cfg, quiet_mode=True)
+            agg_is_engine._completed = all_completed_is
+            agg_is_results = agg_is_engine._make_results()
+            agg_is_summary = agg_is_results.get("summary", {})
+
+            agg_oos_engine = RenkoEngine(cfg, quiet_mode=True)
+            agg_oos_engine._completed = all_completed_oos
+            agg_oos_results = agg_oos_engine._make_results()
+            agg_oos_summary = agg_oos_results.get("summary", {})
+            agg_oos_trades = agg_oos_results.get("trades", [])
+
+            _print_stats(
+                agg_is_summary,
+                symbol,
+                f"full-is-{scenario}",
+                trades=agg_is_results.get("trades", []),
+            )
+            _print_stats(agg_oos_summary, symbol, f"full-oos-{scenario}", trades=agg_oos_trades)
+            _print_spread_sanity_samples(
+                symbol=symbol,
+                mode=f"full-oos-{scenario}",
+                trades=agg_oos_trades,
+                cfg=cfg,
+                sample_n=20,
+                seed=42,
+            )
+            agg_delta = _delta_block(agg_is_summary, agg_oos_summary)
+            click.echo("  Δ OOS-IS:")
+            click.echo(
+                "    omega={:+.3f}  win_rate={:+.2%}  net=${:+,.2f}  trades={:+d}  dd_pct={:+.2f}".format(
+                    float(agg_delta["omega_delta"]),
+                    float(agg_delta["win_rate_delta"]),
+                    float(agg_delta["net_usd_delta"]),
+                    int(agg_delta["n_trades_delta"]),
+                    float(agg_delta["dd_pct_delta"]),
+                )
+            )
+
+            n_trades = int(agg_oos_summary.get("n_trades", 0))
+            omega = float(agg_oos_summary.get("omega", 0.0))
+            passes = n_trades >= min_trades and omega >= min_omega
+            if passes:
+                click.secho("✅ PASS", fg="green")
+            else:
+                click.secho(
+                    f"❌ FAIL - trades={n_trades} (need {min_trades}), omega={omega:.2f} (need {min_omega})",
+                    fg="red",
+                )
+                all_pass = False
+
+            audit_path = _persist_execution_audit(
+                symbol=symbol,
+                mode=f"full_oos_{scenario}",
+                results=agg_oos_results,
+                metadata={
+                    "months": int(months),
+                    "oos_window_months": int(oos_window_months),
+                    "wf_is_months": int(wf_is_months),
+                    "wf_trials": int(wf_trials),
+                    "wf_seed": int(wf_seed),
+                    "scenario": scenario,
+                    "folds": fold_reports,
+                    "is_summary": agg_is_summary,
+                    "lot_ceiling": lot_ceiling,
+                    "engine_config": asdict(cfg),
+                },
+            )
+            equity_plot_oos = _save_equity_plot(
+                symbol=symbol,
+                mode=f"full_oos_{scenario}",
+                trades=agg_oos_trades,
+                initial_equity=float(cfg.initial_equity),
+                run_id=run_id,
+            )
+            equity_plot_is = _save_equity_plot(
+                symbol=symbol,
+                mode=f"full_is_{scenario}",
+                trades=agg_is_results.get("trades", []),
+                initial_equity=float(cfg.initial_equity),
+                run_id=run_id,
+            )
+            equity_plot_compare = _save_equity_compare_plot(
+                symbol=symbol,
+                mode=f"full_{scenario}",
+                trades_is=agg_is_results.get("trades", []),
+                trades_oos=agg_oos_trades,
+                initial_equity=float(cfg.initial_equity),
+                run_id=run_id,
+            )
+            lev_cap = (1.0 / float(cfg.margin_rate)) if float(cfg.margin_rate) > 0 else None
+            leverage_plot_oos = _save_leverage_plot(
+                symbol=symbol,
+                mode=f"full_oos_{scenario}",
+                trades=agg_oos_trades,
+                initial_equity=float(cfg.initial_equity),
+                usd_per_point=float(agg_oos_engine._usd_per_point),
+                max_leverage=lev_cap,
+                run_id=run_id,
+            )
+            leverage_plot_is = _save_leverage_plot(
+                symbol=symbol,
+                mode=f"full_is_{scenario}",
+                trades=agg_is_results.get("trades", []),
+                initial_equity=float(cfg.initial_equity),
+                usd_per_point=float(agg_is_engine._usd_per_point),
+                max_leverage=lev_cap,
+                run_id=run_id,
+            )
+
+            scenario_reports[scenario] = {
+                "status": "PASS" if passes else "FAIL",
+                "pass_gates": bool(passes),
+                "lot_ceiling": lot_ceiling,
+                "engine_config": asdict(cfg),
+                "is_summary": agg_is_summary,
+                "oos_summary": agg_oos_summary,
+                "delta_oos_minus_is": agg_delta,
+                "audit_path": str(audit_path),
+                "equity_plot_oos_path": str(equity_plot_oos)
+                if equity_plot_oos is not None
+                else None,
+                "equity_plot_is_path": str(equity_plot_is) if equity_plot_is is not None else None,
+                "equity_plot_compare_path": (
+                    str(equity_plot_compare) if equity_plot_compare is not None else None
+                ),
+                "leverage_plot_oos_path": (
+                    str(leverage_plot_oos) if leverage_plot_oos is not None else None
+                ),
+                "leverage_plot_is_path": (
+                    str(leverage_plot_is) if leverage_plot_is is not None else None
+                ),
+                "folds": fold_reports,
+            }
+    finally:
+        LOG.setLevel(original_log_level)
+        engine_log.setLevel(original_engine_log_level)
+
+    report = {
+        "symbol": symbol,
+        "stage": "full",
+        "mode": "rolling_oos",
+        "run_id": run_id,
+        "run_started_utc": run_started_utc.isoformat(),
+        "run_finished_utc": datetime.now(timezone.utc).isoformat(),
+        "command": " ".join(
+            [
+                "python",
+                "scripts/renko_engine.py",
+                symbol,
+                "--stage",
+                "full",
+                "--months",
+                str(months),
+                "--oos-window-months",
+                str(oos_window_months),
+                "--wf-is-months",
+                str(wf_is_months),
+                "--wf-trials",
+                str(wf_trials),
+                "--wf-seed",
+                str(wf_seed),
+            ]
+        ),
+        "inputs": {
+            "months": int(months),
+            "oos_window_months": int(oos_window_months),
+            "wf_is_months": int(wf_is_months),
+            "wf_trials": int(wf_trials),
+            "wf_seed": int(wf_seed),
+            "min_omega": float(min_omega),
+            "min_trades": int(min_trades),
+            "auto_download": bool(auto_download),
+            "latency": {
+                "entry_latency_ms": int(entry_latency_ms),
+                "exit_latency_ms": int(exit_latency_ms),
+                "latency_jitter_ms": int(latency_jitter_ms),
+                "latency_seed": int(latency_seed),
+            },
+            "execution_model": {
+                "conservative_fills": bool(conservative_fills),
+                "spread_sides": float(spread_sides),
+                "entry_slip_bricks": float(entry_slip_bricks),
+                "exit_slip_bricks": float(exit_slip_bricks),
+                "stop_worst_case_bricks": float(stop_worst_case_bricks),
+                "flip_trade_through_bricks": float(flip_trade_through_bricks),
+            },
+            "overrides": {
+                "stop_bricks": stop_bricks_override,
+                "trailing_mfe_fraction": trailing_mfe_fraction_override,
+                "trailing_mfe_after_bricks": trailing_mfe_after_bricks_override,
+                "target_risk": target_risk_override,
+                "brick_size": brick_size_override,
+                "fliprate_window": fliprate_window_override,
+                "markov_window": markov_window_override,
+                "fliprate_threshold": fliprate_threshold_override,
+                "markov_threshold": markov_threshold_override,
+                "max_leverage": max_leverage_override,
+            },
+        },
+        "folds": [
+            {"fold": i + 1, "range_start_utc": s.isoformat(), "range_end_utc": e.isoformat()}
+            for i, (s, e) in enumerate(folds)
+        ],
+        "scenario_results": scenario_reports,
+        "overall_status": "PASS" if all_pass else "FAIL",
+    }
+
+    out_dir = KR / "outputs" / "renko_results" / "backtests" / symbol.upper()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_stem = f"{symbol.lower()}_full_oos_{months}m_{run_id}"
+    out_path = _choose_unique_path(out_dir, out_stem)
+    with open(out_path, "x", encoding="utf-8") as f:
+        json.dump(_json_safe(report), f, indent=2)
+    click.secho(f"Saved full rolling OOS report: {out_path}", fg="cyan")
+    return all_pass
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # STAGE 4: PAPER TRADING (Live Broker Data, No Real Orders)
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1935,12 +3343,27 @@ def stage_paper(
     min_omega: float = 1.5,
     min_trades: int = 30,
     stop_bricks_override: Optional[float] = None,
+    trailing_mfe_fraction_override: Optional[float] = None,
+    trailing_mfe_after_bricks_override: Optional[int] = None,
     target_risk_override: Optional[float] = None,
     brick_size_override: Optional[float] = None,
     fliprate_window_override: Optional[int] = None,
     markov_window_override: Optional[int] = None,
     fliprate_threshold_override: Optional[float] = None,
     markov_threshold_override: Optional[float] = None,
+    max_leverage_override: Optional[float] = None,
+    use_pe_gate_override: Optional[bool] = None,
+    pe_window_override: Optional[int] = None,
+    pe_order_override: Optional[int] = None,
+    pe_entry_threshold_override: Optional[float] = None,
+    pe_exit_threshold_override: Optional[float] = None,
+    use_time_decay_override: Optional[bool] = None,
+    stale_brick_factor_override: Optional[float] = None,
+    markov_stale_penalty_override: Optional[float] = None,
+    use_obi_slippage_buffer_override: Optional[bool] = None,
+    obi_levels_override: Optional[int] = None,
+    obi_max_buffer_bricks_override: Optional[float] = None,
+    obi_ema_alpha_override: Optional[float] = None,
     drift_adapt: bool = False,
     drift_opts: Optional[dict] = None,
 ) -> bool:
@@ -1977,12 +3400,27 @@ def stage_paper(
     _apply_strategy_overrides(
         cfg,
         stop_bricks=stop_bricks_override,
+        trailing_mfe_fraction=trailing_mfe_fraction_override,
+        trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
         target_risk=target_risk_override,
         brick_size=brick_size_override,
         fliprate_window=fliprate_window_override,
         markov_window=markov_window_override,
         fliprate_threshold=fliprate_threshold_override,
         markov_threshold=markov_threshold_override,
+        max_leverage=max_leverage_override,
+        use_pe_gate=use_pe_gate_override,
+        pe_window=pe_window_override,
+        pe_order=pe_order_override,
+        pe_entry_threshold=pe_entry_threshold_override,
+        pe_exit_threshold=pe_exit_threshold_override,
+        use_time_decay=use_time_decay_override,
+        stale_brick_factor=stale_brick_factor_override,
+        markov_stale_penalty=markov_stale_penalty_override,
+        use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+        obi_levels=obi_levels_override,
+        obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+        obi_ema_alpha=obi_ema_alpha_override,
     )
     adaptor = DriftAdaptationController(
         engine,
@@ -2101,27 +3539,46 @@ def stage_paper(
 def stage_live_real(
     symbol: str = "XAUUSD",
     live_size: str = "micro",
+    live_orders: bool = True,
     preflight_test_order: bool = False,
     ack_live: str = "",
     preflight_lots: float = 0.01,
     stop_bricks_override: Optional[float] = None,
+    trailing_mfe_fraction_override: Optional[float] = None,
+    trailing_mfe_after_bricks_override: Optional[int] = None,
     target_risk_override: Optional[float] = None,
     brick_size_override: Optional[float] = None,
     fliprate_window_override: Optional[int] = None,
     markov_window_override: Optional[int] = None,
     fliprate_threshold_override: Optional[float] = None,
     markov_threshold_override: Optional[float] = None,
+    max_leverage_override: Optional[float] = None,
+    use_pe_gate_override: Optional[bool] = None,
+    pe_window_override: Optional[int] = None,
+    pe_order_override: Optional[int] = None,
+    pe_entry_threshold_override: Optional[float] = None,
+    pe_exit_threshold_override: Optional[float] = None,
+    use_time_decay_override: Optional[bool] = None,
+    stale_brick_factor_override: Optional[float] = None,
+    markov_stale_penalty_override: Optional[float] = None,
+    use_obi_slippage_buffer_override: Optional[bool] = None,
+    obi_levels_override: Optional[int] = None,
+    obi_max_buffer_bricks_override: Optional[float] = None,
+    obi_ema_alpha_override: Optional[float] = None,
     drift_adapt: bool = False,
     drift_opts: Optional[dict] = None,
 ) -> bool:
-    """REAL live trading with REAL orders via cTrader."""
+    """Live trading via cTrader — real orders when live_orders=True, paper when False."""
     import threading
     import time
 
     from kinetra.connectors.ctrader_connector import build_connector
 
     click.echo(f"\n{'=' * 60}")
-    click.secho("STAGE 5: LIVE TRADING (REAL ORDERS)", fg="red", bold=True)
+    if live_orders:
+        click.secho("STAGE 5: LIVE TRADING (REAL ORDERS)", fg="red", bold=True)
+    else:
+        click.secho("STAGE 5: DRY-RUN (Live data, paper orders)", fg="cyan", bold=True)
     click.echo(f"{'=' * 60}")
 
     LOT_CEILINGS = {"micro": 0.01, "small": 0.10, "full": 50.0}
@@ -2132,17 +3589,32 @@ def stage_live_real(
         click.secho("❌ No DSP profile found", fg="red")
         return False
     cfg, spec, engine, bar_provider_cls, dispatcher_cls = _build_stream_runtime(
-        symbol, dsp, lot_ceiling=lot_ceiling, live_orders=True
+        symbol, dsp, lot_ceiling=lot_ceiling, live_orders=live_orders
     )
     _apply_strategy_overrides(
         cfg,
         stop_bricks=stop_bricks_override,
+        trailing_mfe_fraction=trailing_mfe_fraction_override,
+        trailing_mfe_after_bricks=trailing_mfe_after_bricks_override,
         target_risk=target_risk_override,
         brick_size=brick_size_override,
         fliprate_window=fliprate_window_override,
         markov_window=markov_window_override,
         fliprate_threshold=fliprate_threshold_override,
         markov_threshold=markov_threshold_override,
+        max_leverage=max_leverage_override,
+        use_pe_gate=use_pe_gate_override,
+        pe_window=pe_window_override,
+        pe_order=pe_order_override,
+        pe_entry_threshold=pe_entry_threshold_override,
+        pe_exit_threshold=pe_exit_threshold_override,
+        use_time_decay=use_time_decay_override,
+        stale_brick_factor=stale_brick_factor_override,
+        markov_stale_penalty=markov_stale_penalty_override,
+        use_obi_slippage_buffer=use_obi_slippage_buffer_override,
+        obi_levels=obi_levels_override,
+        obi_max_buffer_bricks=obi_max_buffer_bricks_override,
+        obi_ema_alpha=obi_ema_alpha_override,
     )
     adaptor = DriftAdaptationController(
         engine,
@@ -2153,9 +3625,11 @@ def stage_live_real(
     _print_system_spec(cfg, spec, dsp)
 
     click.echo()
-    click.secho("=" * 60, fg="red")
-    click.secho("  LIVE TRADING CONFIGURATION", fg="red", bold=True)
-    click.secho("=" * 60, fg="red")
+    _cfg_color = "red" if live_orders else "cyan"
+    _cfg_label = "LIVE TRADING CONFIGURATION" if live_orders else "DRY-RUN CONFIGURATION"
+    click.secho("=" * 60, fg=_cfg_color)
+    click.secho(f"  {_cfg_label}", fg=_cfg_color, bold=True)
+    click.secho("=" * 60, fg=_cfg_color)
     click.echo(f"  Symbol:        {symbol}")
     click.echo(f"  Lot Ceiling:   {lot_ceiling:.2f} lots ({live_size})")
     click.echo(f"  Fill timeout:  {os.getenv('CTRADER_FILL_WAIT_S', '30')}s")
@@ -2186,7 +3660,7 @@ def stage_live_real(
     click.secho("✅ Preflight passed", fg="green")
     click.echo()
 
-    if preflight_test_order:
+    if live_orders and preflight_test_order:
         if ack_live != "I_UNDERSTAND_LIVE_RISK":
             click.secho(
                 '❌ Execution preflight blocked: pass --ack-live "I_UNDERSTAND_LIVE_RISK"',
@@ -2278,6 +3752,12 @@ def stage_live_real(
             return hs
         return "UP" if connector.is_connected() else "DOWN"
 
+    # Initialize health monitoring service
+    from kinetra.monitoring.connection_health import ConnectionHealthService
+
+    health_service = ConnectionHealthService(connector)
+    health_service.start_monitoring()
+
     last_acct_info = {
         "broker": "Pepperstone",
         "account_id": connector.credentials.account_id,
@@ -2292,6 +3772,10 @@ def stage_live_real(
         "request_timeouts": int(getattr(connector, "request_timeout_count", 0)),
         "snapshot_source": "cached",
         "recent_errors": [],
+        "health_status": "UNKNOWN",
+        "health_latency_ms": 0.0,
+        "fill_success_rate": 1.0,
+        "consecutive_fill_failures": 0,
     }
     broker_balance_start: Optional[float] = None
     broker_balance_end: Optional[float] = None
@@ -2314,9 +3798,15 @@ def stage_live_real(
             "request_timeouts": int(getattr(connector, "request_timeout_count", 0)),
             "snapshot_source": "fresh",
             "recent_errors": [],
+            "health_status": "UNKNOWN",
+            "health_latency_ms": 0.0,
+            "fill_success_rate": 1.0,
+            "consecutive_fill_failures": 0,
         }
     except Exception as e:
         LOG.warning("Initial account snapshot unavailable, using fallback equity: %s", e)
+
+    _mode_label = "LIVE" if live_orders else "DRY-RUN"
 
     def update_dashboard():
         last_bricks = 0
@@ -2458,6 +3948,36 @@ def stage_live_real(
                     last_eval = getattr(engine, "_last_eval", {}) or {}
                     acct_info["recent_errors"] = err_lines
 
+                    # Update health service data
+                    try:
+                        health_result = health_service.get_health_status()
+                        acct_info["health_status"] = health_result.status.name
+                        acct_info["health_latency_ms"] = round(health_result.metrics.latency_ms, 1)
+                        acct_info["health_packet_loss"] = round(
+                            health_result.metrics.packet_loss_rate, 4
+                        )
+                    except Exception:
+                        pass
+
+                    # Update fill metrics from dispatcher
+                    try:
+                        fill_metrics = live_dispatcher.get_fill_metrics()
+                        acct_info["fill_success_rate"] = fill_metrics.get("fill_success_rate", 1.0)
+                        acct_info["consecutive_fill_failures"] = fill_metrics.get(
+                            "consecutive_failures", 0
+                        )
+                        acct_info["orders_submitted"] = fill_metrics.get("orders_submitted", 0)
+                        acct_info["orders_filled"] = fill_metrics.get("orders_filled", 0)
+                        acct_info["orders_failed"] = fill_metrics.get("orders_failed", 0)
+                    except Exception:
+                        pass
+
+                    # Tick feed diagnostics
+                    acct_info["tick_mode"] = hasattr(bar_provider, "subscribe_ticks")
+                    acct_info["ticks_received"] = int(
+                        getattr(bar_provider, "ticks_fired", 0)
+                    )
+
                     # Build a comprehensive signature that changes only when
                     # meaningful data changes — prevents spam in non-TTY mode.
                     signature = (
@@ -2470,6 +3990,9 @@ def stage_live_real(
                         bool(acct_info.get("heartbeat_on", False)),
                         str(acct_info.get("connection_status", "-")),
                         str(acct_info.get("snapshot_source", "-")),
+                        str(acct_info.get("health_status", "-")),
+                        float(acct_info.get("fill_success_rate", 1.0)),
+                        int(acct_info.get("consecutive_fill_failures", 0)),
                         err_lines[0] if err_lines else "",
                     )
 
@@ -2494,7 +4017,7 @@ def stage_live_real(
                         last_print_ts = now
 
                         panel = _dashboard_renderable(
-                            engine, symbol, "LIVE", current_bricks, acct_info
+                            engine, symbol, _mode_label, current_bricks, acct_info
                         )
                         if live_ctx is not None:
                             # Rich Live context — single-frame in-place refresh
@@ -2504,21 +4027,39 @@ def stage_live_real(
                             # Clear line and print fresh panel (avoid stacking)
                             if console.is_terminal:
                                 console.clear_live()
-                            _print_dashboard(engine, symbol, "LIVE", current_bricks, acct_info)
+                            _print_dashboard(engine, symbol, _mode_label, current_bricks, acct_info)
                 except Exception as e:
                     LOG.warning("Dashboard update failed: %s", e)
 
     # Print before starting the live display — click writes bypass Rich's
     # live context and corrupt the in-place refresh if called after start().
-    click.secho("Starting LIVE trading...", fg="red", bold=True)
-    click.echo("REAL orders will be submitted")
+    if live_orders:
+        click.secho("Starting LIVE trading...", fg="red", bold=True)
+        click.echo("REAL orders will be submitted")
+    else:
+        click.secho("Starting DRY-RUN...", fg="cyan", bold=True)
+        click.echo("Paper orders only — no real trades")
     click.echo("Press Ctrl+C to stop")
     click.echo()
 
     live_ctx = None
     dashboard_thread = None
+    # Collect stream handlers that need to be silenced while the Rich live
+    # panel is active.  Log output written to stdout/stderr after live_ctx.start()
+    # bypasses Rich's in-place refresh and corrupts the display.
+    _silenced_handlers: list = []
     if use_live_replace:
         live_ctx = Live(console=console, refresh_per_second=4, transient=False)
+        # Silence any StreamHandler (but not FileHandler) before starting the
+        # live display so that log lines don't tear the frame.
+        _silenced_handlers = [
+            h
+            for h in logging.root.handlers
+            if isinstance(h, logging.StreamHandler)
+            and not isinstance(h, logging.FileHandler)
+        ]
+        for _h in _silenced_handlers:
+            _h.setLevel(logging.CRITICAL + 1)
         live_ctx.start()
     dashboard_thread = threading.Thread(target=update_dashboard, daemon=True)
     dashboard_thread.start()
@@ -2534,11 +4075,21 @@ def stage_live_real(
         )
     finally:
         stop_event.set()
+
+        # Stop health monitoring
+        try:
+            health_service.stop_monitoring()
+        except Exception:
+            pass
+
         if live_ctx is not None:
             try:
                 live_ctx.stop()
             except Exception:
                 pass
+            # Restore stream handler levels now that the live panel is gone.
+            for _h in _silenced_handlers:
+                _h.setLevel(logging.INFO)
         try:
             final_snapshot = connector.get_account_snapshot(timeout_s=10.0)
             broker_balance_end = float(
@@ -2567,9 +4118,9 @@ def stage_live_real(
 
         click.echo()
         click.secho("=" * 60, fg="cyan")
-        click.secho("  LIVE TRADING RESULTS", fg="cyan", bold=True)
+        click.secho(f"  {_mode_label} RESULTS", fg="cyan", bold=True)
         click.secho("=" * 60, fg="cyan")
-        _print_stats(summary, symbol, "LIVE", trades=trades)
+        _print_stats(summary, symbol, _mode_label, trades=trades)
         audit_path = _persist_execution_audit(
             symbol=symbol,
             mode="live",
@@ -2609,33 +4160,57 @@ def stage_live_dryrun(
     symbol: str,
     live_size: str = "micro",
     stop_bricks_override: Optional[float] = None,
+    trailing_mfe_fraction_override: Optional[float] = None,
+    trailing_mfe_after_bricks_override: Optional[int] = None,
     target_risk_override: Optional[float] = None,
     brick_size_override: Optional[float] = None,
     fliprate_window_override: Optional[int] = None,
     markov_window_override: Optional[int] = None,
     fliprate_threshold_override: Optional[float] = None,
     markov_threshold_override: Optional[float] = None,
+    max_leverage_override: Optional[float] = None,
+    use_pe_gate_override: Optional[bool] = None,
+    pe_window_override: Optional[int] = None,
+    pe_order_override: Optional[int] = None,
+    pe_entry_threshold_override: Optional[float] = None,
+    pe_exit_threshold_override: Optional[float] = None,
+    use_time_decay_override: Optional[bool] = None,
+    stale_brick_factor_override: Optional[float] = None,
+    markov_stale_penalty_override: Optional[float] = None,
+    use_obi_slippage_buffer_override: Optional[bool] = None,
+    obi_levels_override: Optional[int] = None,
+    obi_max_buffer_bricks_override: Optional[float] = None,
+    obi_ema_alpha_override: Optional[float] = None,
     drift_adapt: bool = False,
     drift_opts: Optional[dict] = None,
 ) -> bool:
-    """Dry-run mode: live bars with paper orders via the shared engine path."""
-    click.echo(f"\n{'=' * 60}")
-    click.secho("STAGE 5: LIVE DRY-RUN (Shadow Mode)", fg="cyan", bold=True)
-    click.echo(f"{'=' * 60}")
-    click.secho("Using live data with paper fills (no real orders)", fg="yellow")
-    # Keep gate thresholds aligned with paper stage defaults.
-    return stage_paper(
+    """Dry-run: live data, paper orders — routes through stage_live_real(live_orders=False)."""
+    return stage_live_real(
         symbol=symbol,
-        months=3,
-        min_omega=1.5,
-        min_trades=30,
+        live_size=live_size,
+        live_orders=False,
         stop_bricks_override=stop_bricks_override,
+        trailing_mfe_fraction_override=trailing_mfe_fraction_override,
+        trailing_mfe_after_bricks_override=trailing_mfe_after_bricks_override,
         target_risk_override=target_risk_override,
         brick_size_override=brick_size_override,
         fliprate_window_override=fliprate_window_override,
         markov_window_override=markov_window_override,
         fliprate_threshold_override=fliprate_threshold_override,
         markov_threshold_override=markov_threshold_override,
+        max_leverage_override=max_leverage_override,
+        use_pe_gate_override=use_pe_gate_override,
+        pe_window_override=pe_window_override,
+        pe_order_override=pe_order_override,
+        pe_entry_threshold_override=pe_entry_threshold_override,
+        pe_exit_threshold_override=pe_exit_threshold_override,
+        use_time_decay_override=use_time_decay_override,
+        stale_brick_factor_override=stale_brick_factor_override,
+        markov_stale_penalty_override=markov_stale_penalty_override,
+        use_obi_slippage_buffer_override=use_obi_slippage_buffer_override,
+        obi_levels_override=obi_levels_override,
+        obi_max_buffer_bricks_override=obi_max_buffer_bricks_override,
+        obi_ema_alpha_override=obi_ema_alpha_override,
         drift_adapt=drift_adapt,
         drift_opts=drift_opts,
     )
@@ -2652,15 +4227,63 @@ def stage_live_dryrun(
 )
 @click.option(
     "--stage",
-    type=click.Choice(["dsp", "backtest", "paper", "live", "all"]),
+    type=click.Choice(["dsp", "backtest", "full", "paper", "live", "all"]),
     default="backtest",
     help="Which stage to run",
 )
 @click.option("--months", type=int, default=3, help="Months of data for backtest")
+@click.option(
+    "--oos-window-months",
+    type=int,
+    default=3,
+    help="OOS fold size in months for --stage full (rolling OOS)",
+)
+@click.option(
+    "--wf-is-months",
+    type=int,
+    default=3,
+    help="Walk-forward IS window size in months for --stage full",
+)
+@click.option(
+    "--wf-trials",
+    type=int,
+    default=16,
+    help="Walk-forward fitting trials per fold for --stage full",
+)
+@click.option(
+    "--wf-seed",
+    type=int,
+    default=42,
+    help="Walk-forward fitting RNG seed for --stage full",
+)
 @click.option("--min-omega", type=float, default=1.5, help="Minimum Omega ratio to pass")
 @click.option("--min-trades", type=int, default=30, help="Minimum trades to pass")
 @click.option("--stop-bricks", type=float, default=None, help="Override stop distance in bricks")
+@click.option(
+    "--trailing-mfe-fraction",
+    type=float,
+    default=None,
+    help="Lock this fraction of MFE in trailing stop (0..1, optional)",
+)
+@click.option(
+    "--trailing-mfe-after-bricks",
+    type=int,
+    default=None,
+    help="Activate trailing stop after this many held bricks (optional)",
+)
 @click.option("--target-risk", type=float, default=None, help="Override target USD risk per trade")
+@click.option(
+    "--lot-ceiling",
+    type=float,
+    default=50.0,
+    help="Lot ceiling cap for non-static sizing in backtest/full",
+)
+@click.option(
+    "--max-leverage",
+    type=float,
+    default=None,
+    help="Maximum allowed leverage (e.g., 100 means 1:100). Enforced as margin cap across modes.",
+)
 @click.option(
     "--brick-size", type=float, default=None, help="Override Renko brick size (price units)"
 )
@@ -2672,8 +4295,105 @@ def stage_live_dryrun(
     "--fliprate-threshold", type=float, default=None, help="Override flip-rate gate threshold"
 )
 @click.option("--markov-threshold", type=float, default=None, help="Override Markov gate threshold")
+@click.option(
+    "--use-pe-gate/--no-use-pe-gate",
+    default=None,
+    help="Enable/disable permutation-entropy regime gate",
+)
+@click.option("--pe-window", type=int, default=None, help="Permutation-entropy rolling window")
+@click.option("--pe-order", type=int, default=None, help="Permutation-entropy pattern order")
+@click.option("--pe-entry-threshold", type=float, default=None, help="PE entry threshold (0..1)")
+@click.option(
+    "--pe-exit-threshold", type=float, default=None, help="PE emergency exit threshold (0..1)"
+)
+@click.option(
+    "--use-time-decay/--no-use-time-decay",
+    default=None,
+    help="Enable/disable stale-brick time-decay Markov penalty",
+)
+@click.option(
+    "--stale-brick-factor", type=float, default=None, help="Stale-brick threshold multiplier"
+)
+@click.option(
+    "--markov-stale-penalty",
+    type=float,
+    default=None,
+    help="Maximum Markov penalty for stale bricks",
+)
+@click.option(
+    "--use-obi-slippage-buffer/--no-use-obi-slippage-buffer",
+    default=None,
+    help="Enable/disable OBI-driven entry slippage buffer",
+)
+@click.option("--obi-levels", type=int, default=None, help="Order-book depth levels for OBI")
+@click.option(
+    "--obi-max-buffer-bricks",
+    type=float,
+    default=None,
+    help="Maximum OBI entry buffer in brick units",
+)
+@click.option(
+    "--obi-ema-alpha",
+    type=float,
+    default=None,
+    help="EMA alpha for smoothing OBI signal (0..1)",
+)
 @click.option("--monday-start", type=str, default="", help="Legacy launcher option (reserved)")
 @click.option("--friday-end", type=str, default="", help="Legacy launcher option (reserved)")
+@click.option(
+    "--entry-latency-ms",
+    type=int,
+    default=0,
+    help="Backtest latency model: entry-side latency in milliseconds",
+)
+@click.option(
+    "--exit-latency-ms",
+    type=int,
+    default=0,
+    help="Backtest latency model: exit-side latency in milliseconds",
+)
+@click.option(
+    "--latency-jitter-ms",
+    type=int,
+    default=0,
+    help="Backtest latency model: Gaussian jitter (stddev) in milliseconds",
+)
+@click.option("--latency-seed", type=int, default=42, help="Backtest latency model RNG seed")
+@click.option(
+    "--conservative-fills/--no-conservative-fills",
+    default=True,
+    help="Backtest/full: enable conservative adverse fill model",
+)
+@click.option(
+    "--spread-sides",
+    type=float,
+    default=1.0,
+    help="Backtest/full spread multiplier on bid-ask width (1.0=one RT spread, 2.0=extra conservative)",
+)
+@click.option(
+    "--entry-slip-bricks",
+    type=float,
+    default=0.0,
+    help="Backtest/full adverse entry offset in bricks",
+)
+@click.option(
+    "--exit-slip-bricks",
+    type=float,
+    default=0.10,
+    help="Backtest/full adverse exit offset in bricks",
+)
+@click.option(
+    "--stop-worst-case-bricks",
+    type=float,
+    default=0.25,
+    help="Backtest/full extra adverse stop fill offset in bricks",
+)
+@click.option(
+    "--flip-trade-through-bricks",
+    type=float,
+    default=0.10,
+    help="Backtest/full extra adverse flip-exit trade-through offset in bricks",
+)
 @click.option(
     "--auto-download",
     is_flag=True,
@@ -2743,19 +4463,49 @@ def main(
     symbol: str = "XAUUSD",
     stage: str = "backtest",
     months: int = 3,
+    oos_window_months: int = 3,
+    wf_is_months: int = 3,
+    wf_trials: int = 16,
+    wf_seed: int = 42,
     min_omega: float = 1.5,
     min_trades: int = 30,
     dry_run: bool = False,
     live_size: str = "micro",
     stop_bricks: Optional[float] = None,
+    trailing_mfe_fraction: Optional[float] = None,
+    trailing_mfe_after_bricks: Optional[int] = None,
     target_risk: Optional[float] = None,
+    lot_ceiling: float = 50.0,
+    max_leverage: Optional[float] = None,
     brick_size: Optional[float] = None,
     fliprate_window: Optional[int] = None,
     markov_window: Optional[int] = None,
     fliprate_threshold: Optional[float] = None,
     markov_threshold: Optional[float] = None,
+    use_pe_gate: Optional[bool] = None,
+    pe_window: Optional[int] = None,
+    pe_order: Optional[int] = None,
+    pe_entry_threshold: Optional[float] = None,
+    pe_exit_threshold: Optional[float] = None,
+    use_time_decay: Optional[bool] = None,
+    stale_brick_factor: Optional[float] = None,
+    markov_stale_penalty: Optional[float] = None,
+    use_obi_slippage_buffer: Optional[bool] = None,
+    obi_levels: Optional[int] = None,
+    obi_max_buffer_bricks: Optional[float] = None,
+    obi_ema_alpha: Optional[float] = None,
     monday_start: str = "",
     friday_end: str = "",
+    entry_latency_ms: int = 0,
+    exit_latency_ms: int = 0,
+    latency_jitter_ms: int = 0,
+    latency_seed: int = 42,
+    conservative_fills: bool = True,
+    spread_sides: float = 1.0,
+    entry_slip_bricks: float = 0.0,
+    exit_slip_bricks: float = 0.10,
+    stop_worst_case_bricks: float = 0.25,
+    flip_trade_through_bricks: float = 0.10,
     auto_download: bool = False,
     preflight_test_order: bool = False,
     preflight_lots: float = 0.01,
@@ -2814,6 +4564,57 @@ def main(
             monday_start or "-",
             friday_end or "-",
         )
+    if lot_ceiling <= 0:
+        click.secho("❌ --lot-ceiling must be > 0", fg="red")
+        raise SystemExit(1)
+    if max_leverage is not None and max_leverage <= 0:
+        click.secho("❌ --max-leverage must be > 0", fg="red")
+        raise SystemExit(1)
+    if spread_sides <= 0:
+        click.secho("❌ --spread-sides must be > 0", fg="red")
+        raise SystemExit(1)
+    if (
+        entry_slip_bricks < 0
+        or exit_slip_bricks < 0
+        or stop_worst_case_bricks < 0
+        or flip_trade_through_bricks < 0
+    ):
+        click.secho("❌ slip/offset brick parameters must be >= 0", fg="red")
+        raise SystemExit(1)
+    if pe_window is not None and pe_window < 3:
+        click.secho("❌ --pe-window must be >= 3", fg="red")
+        raise SystemExit(1)
+    if pe_order is not None and pe_order < 2:
+        click.secho("❌ --pe-order must be >= 2", fg="red")
+        raise SystemExit(1)
+    if pe_entry_threshold is not None and not (0.0 < pe_entry_threshold < 1.0):
+        click.secho("❌ --pe-entry-threshold must be in (0,1)", fg="red")
+        raise SystemExit(1)
+    if pe_exit_threshold is not None and not (0.0 < pe_exit_threshold < 1.0):
+        click.secho("❌ --pe-exit-threshold must be in (0,1)", fg="red")
+        raise SystemExit(1)
+    if (
+        pe_entry_threshold is not None
+        and pe_exit_threshold is not None
+        and pe_exit_threshold <= pe_entry_threshold
+    ):
+        click.secho("❌ --pe-exit-threshold must be > --pe-entry-threshold", fg="red")
+        raise SystemExit(1)
+    if stale_brick_factor is not None and stale_brick_factor <= 0:
+        click.secho("❌ --stale-brick-factor must be > 0", fg="red")
+        raise SystemExit(1)
+    if markov_stale_penalty is not None and markov_stale_penalty < 0:
+        click.secho("❌ --markov-stale-penalty must be >= 0", fg="red")
+        raise SystemExit(1)
+    if obi_levels is not None and obi_levels <= 0:
+        click.secho("❌ --obi-levels must be > 0", fg="red")
+        raise SystemExit(1)
+    if obi_max_buffer_bricks is not None and obi_max_buffer_bricks < 0:
+        click.secho("❌ --obi-max-buffer-bricks must be >= 0", fg="red")
+        raise SystemExit(1)
+    if obi_ema_alpha is not None and not (0.0 <= obi_ema_alpha <= 1.0):
+        click.secho("❌ --obi-ema-alpha must be in [0,1]", fg="red")
+        raise SystemExit(1)
 
     if stage in ("dsp", "all"):
         if not stage_dsp(symbol):
@@ -2828,14 +4629,88 @@ def main(
             min_trades=min_trades,
             auto_download=auto_download,
             stop_bricks_override=stop_bricks,
+            trailing_mfe_fraction_override=trailing_mfe_fraction,
+            trailing_mfe_after_bricks_override=trailing_mfe_after_bricks,
             target_risk_override=target_risk,
             brick_size_override=brick_size,
             fliprate_window_override=fliprate_window,
             markov_window_override=markov_window,
             fliprate_threshold_override=fliprate_threshold,
             markov_threshold_override=markov_threshold,
+            max_leverage_override=max_leverage,
+            entry_latency_ms=entry_latency_ms,
+            exit_latency_ms=exit_latency_ms,
+            latency_jitter_ms=latency_jitter_ms,
+            latency_seed=latency_seed,
+            lot_ceiling_override=lot_ceiling,
+            conservative_fills=conservative_fills,
+            spread_sides=spread_sides,
+            entry_slip_bricks=entry_slip_bricks,
+            exit_slip_bricks=exit_slip_bricks,
+            stop_worst_case_bricks=stop_worst_case_bricks,
+            flip_trade_through_bricks=flip_trade_through_bricks,
+            use_pe_gate_override=use_pe_gate,
+            pe_window_override=pe_window,
+            pe_order_override=pe_order,
+            pe_entry_threshold_override=pe_entry_threshold,
+            pe_exit_threshold_override=pe_exit_threshold,
+            use_time_decay_override=use_time_decay,
+            stale_brick_factor_override=stale_brick_factor,
+            markov_stale_penalty_override=markov_stale_penalty,
+            use_obi_slippage_buffer_override=use_obi_slippage_buffer,
+            obi_levels_override=obi_levels,
+            obi_max_buffer_bricks_override=obi_max_buffer_bricks,
+            obi_ema_alpha_override=obi_ema_alpha,
         ):
             click.secho("❌ Backtest stage failed", fg="red")
+            raise SystemExit(1)
+
+    if stage == "full":
+        if not stage_full_rolling_oos(
+            symbol,
+            months=months,
+            oos_window_months=oos_window_months,
+            wf_is_months=wf_is_months,
+            wf_trials=wf_trials,
+            wf_seed=wf_seed,
+            min_omega=min_omega,
+            min_trades=min_trades,
+            auto_download=auto_download,
+            stop_bricks_override=stop_bricks,
+            trailing_mfe_fraction_override=trailing_mfe_fraction,
+            trailing_mfe_after_bricks_override=trailing_mfe_after_bricks,
+            target_risk_override=target_risk,
+            brick_size_override=brick_size,
+            fliprate_window_override=fliprate_window,
+            markov_window_override=markov_window,
+            fliprate_threshold_override=fliprate_threshold,
+            markov_threshold_override=markov_threshold,
+            max_leverage_override=max_leverage,
+            entry_latency_ms=entry_latency_ms,
+            exit_latency_ms=exit_latency_ms,
+            latency_jitter_ms=latency_jitter_ms,
+            latency_seed=latency_seed,
+            lot_ceiling_override=lot_ceiling,
+            conservative_fills=conservative_fills,
+            spread_sides=spread_sides,
+            entry_slip_bricks=entry_slip_bricks,
+            exit_slip_bricks=exit_slip_bricks,
+            stop_worst_case_bricks=stop_worst_case_bricks,
+            flip_trade_through_bricks=flip_trade_through_bricks,
+            use_pe_gate_override=use_pe_gate,
+            pe_window_override=pe_window,
+            pe_order_override=pe_order,
+            pe_entry_threshold_override=pe_entry_threshold,
+            pe_exit_threshold_override=pe_exit_threshold,
+            use_time_decay_override=use_time_decay,
+            stale_brick_factor_override=stale_brick_factor,
+            markov_stale_penalty_override=markov_stale_penalty,
+            use_obi_slippage_buffer_override=use_obi_slippage_buffer,
+            obi_levels_override=obi_levels,
+            obi_max_buffer_bricks_override=obi_max_buffer_bricks,
+            obi_ema_alpha_override=obi_ema_alpha,
+        ):
+            click.secho("❌ Full rolling OOS stage failed", fg="red")
             raise SystemExit(1)
 
     if stage in ("paper", "all"):
@@ -2845,12 +4720,27 @@ def main(
             min_omega=min_omega,
             min_trades=min_trades,
             stop_bricks_override=stop_bricks,
+            trailing_mfe_fraction_override=trailing_mfe_fraction,
+            trailing_mfe_after_bricks_override=trailing_mfe_after_bricks,
             target_risk_override=target_risk,
             brick_size_override=brick_size,
             fliprate_window_override=fliprate_window,
             markov_window_override=markov_window,
             fliprate_threshold_override=fliprate_threshold,
             markov_threshold_override=markov_threshold,
+            max_leverage_override=max_leverage,
+            use_pe_gate_override=use_pe_gate,
+            pe_window_override=pe_window,
+            pe_order_override=pe_order,
+            pe_entry_threshold_override=pe_entry_threshold,
+            pe_exit_threshold_override=pe_exit_threshold,
+            use_time_decay_override=use_time_decay,
+            stale_brick_factor_override=stale_brick_factor,
+            markov_stale_penalty_override=markov_stale_penalty,
+            use_obi_slippage_buffer_override=use_obi_slippage_buffer,
+            obi_levels_override=obi_levels,
+            obi_max_buffer_bricks_override=obi_max_buffer_bricks,
+            obi_ema_alpha_override=obi_ema_alpha,
             drift_adapt=drift_adapt,
             drift_opts=drift_opts,
         ):
@@ -2864,12 +4754,27 @@ def main(
                 symbol,
                 live_size=live_size,
                 stop_bricks_override=stop_bricks,
+                trailing_mfe_fraction_override=trailing_mfe_fraction,
+                trailing_mfe_after_bricks_override=trailing_mfe_after_bricks,
                 target_risk_override=target_risk,
                 brick_size_override=brick_size,
                 fliprate_window_override=fliprate_window,
                 markov_window_override=markov_window,
                 fliprate_threshold_override=fliprate_threshold,
                 markov_threshold_override=markov_threshold,
+                max_leverage_override=max_leverage,
+                use_pe_gate_override=use_pe_gate,
+                pe_window_override=pe_window,
+                pe_order_override=pe_order,
+                pe_entry_threshold_override=pe_entry_threshold,
+                pe_exit_threshold_override=pe_exit_threshold,
+                use_time_decay_override=use_time_decay,
+                stale_brick_factor_override=stale_brick_factor,
+                markov_stale_penalty_override=markov_stale_penalty,
+                use_obi_slippage_buffer_override=use_obi_slippage_buffer,
+                obi_levels_override=obi_levels,
+                obi_max_buffer_bricks_override=obi_max_buffer_bricks,
+                obi_ema_alpha_override=obi_ema_alpha,
                 drift_adapt=drift_adapt,
                 drift_opts=drift_opts,
             ):
@@ -2883,12 +4788,27 @@ def main(
                 preflight_lots=preflight_lots,
                 ack_live=ack_live,
                 stop_bricks_override=stop_bricks,
+                trailing_mfe_fraction_override=trailing_mfe_fraction,
+                trailing_mfe_after_bricks_override=trailing_mfe_after_bricks,
                 target_risk_override=target_risk,
                 brick_size_override=brick_size,
                 fliprate_window_override=fliprate_window,
                 markov_window_override=markov_window,
                 fliprate_threshold_override=fliprate_threshold,
                 markov_threshold_override=markov_threshold,
+                max_leverage_override=max_leverage,
+                use_pe_gate_override=use_pe_gate,
+                pe_window_override=pe_window,
+                pe_order_override=pe_order,
+                pe_entry_threshold_override=pe_entry_threshold,
+                pe_exit_threshold_override=pe_exit_threshold,
+                use_time_decay_override=use_time_decay,
+                stale_brick_factor_override=stale_brick_factor,
+                markov_stale_penalty_override=markov_stale_penalty,
+                use_obi_slippage_buffer_override=use_obi_slippage_buffer,
+                obi_levels_override=obi_levels,
+                obi_max_buffer_bricks_override=obi_max_buffer_bricks,
+                obi_ema_alpha_override=obi_ema_alpha,
                 drift_adapt=drift_adapt,
                 drift_opts=drift_opts,
             ):

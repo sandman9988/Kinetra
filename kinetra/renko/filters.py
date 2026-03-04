@@ -21,6 +21,7 @@ should import from here (DRY compliance).
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -270,6 +271,54 @@ def markov_matrix(
     pUD = np.where(np.isfinite(pUU), 1.0 - pUU, np.nan)
     pDU = np.where(np.isfinite(pDD), 1.0 - pDD, np.nan)
     return pUU, pUD, pDU, pDD
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Permutation Entropy — non-linear regime filter
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+def permutation_entropy(
+    sequence: np.ndarray,
+    order: int = 3,
+    *,
+    delay: int = 1,
+) -> float:
+    """Normalized permutation entropy in [0, 1] for a 1D sequence.
+
+    Notes
+    -----
+    - Returns ``np.nan`` when there is not enough data.
+    - Uses a stable tiny index tie-breaker so repeated values (common with
+      Renko direction sequences) still produce deterministic ordinal patterns.
+    """
+    x = np.asarray(sequence, dtype=np.float64).ravel()
+    n = len(x)
+    if order < 2:
+        raise ValueError(f"order must be >= 2, got {order}")
+    if delay < 1:
+        raise ValueError(f"delay must be >= 1, got {delay}")
+
+    span = (order - 1) * delay + 1
+    if n < span:
+        return float("nan")
+
+    n_patterns = n - span + 1
+    patterns = {}
+    tie_eps = 1e-12 * np.arange(order, dtype=np.float64)
+
+    for i in range(n_patterns):
+        window = x[i : i + span : delay]
+        ranks = np.argsort(window + tie_eps, kind="mergesort")
+        key = tuple(int(v) for v in ranks.tolist())
+        patterns[key] = patterns.get(key, 0) + 1
+
+    probs = np.array(list(patterns.values()), dtype=np.float64) / float(n_patterns)
+    shannon = -np.sum(probs * np.log2(probs))
+    max_h = math.log2(math.factorial(order))
+    if max_h <= 0.0:
+        return 0.0
+    return float(np.clip(shannon / max_h, 0.0, 1.0))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
