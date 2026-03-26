@@ -6,12 +6,12 @@ cffi==2.0.0
 charset-normalizer==3.3.0
 cleo==2.1.0
 crashtest==0.4.1
-cryptography==46.0.5
+cryptography==46.0.6
 Cython==3.2.2
 distlib==0.3.8
 dulwich==0.24.2
 fastjsonschema==2.18.1
-filelock==3.20.3
+filelock==3.25.2
 findpython==0.6.2
 h11==0.16.0
 httpcore==1.0.7
@@ -39,7 +39,7 @@ poetry-core==2.2.1
 pycparser==2.21
 pyproject_hooks==1.0.0
 RapidFuzz==3.14.1
-requests==2.32.5
+requests==2.33.0
 requests-toolbelt==1.0.0
 SecretStorage==3.3.3
 setuptools==80.9.0
